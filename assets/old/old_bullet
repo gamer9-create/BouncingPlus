@@ -1,0 +1,86 @@
+//
+// Created by lalit on 8/29/2025.
+//
+
+#include "Bullet.h"
+
+#include <cmath>
+#include <iostream>
+#include <ostream>
+
+#include "raymath.h"
+#include "Game.h"
+
+Bullet::Bullet(float X, float Y, Vector2 Direction, float Speed, Texture2D &BulletTexture, Game &game) : Entity(BulletTexture, Rectangle(X - 5, Y - 2.5f, 10, 5), Speed, game) {
+    this->Movement = Direction;
+    this->Speed = Speed;
+    this->ExistenceTimer = 0;
+    this->Rotation = std::atan2(Direction.y, Direction.x) * (180.0f/3.141592653589793238463f);
+    this->CollisionsEnabled = false;
+    this->LastBouncedCoordinate = "";
+}
+
+Bullet::Bullet() {
+
+}
+
+Bullet::~Bullet() {
+
+}
+
+void Bullet::CustomMovement() {
+    float dt = GetFrameTime();
+
+    double dist = std::sqrt((Movement.x * Movement.x) + (Movement.y * Movement.y));
+    if (dist != 0) {
+        Vector2 FinalMovement = Vector2((Movement.x / dist) * Speed, (Movement.y / dist) * Speed);
+
+        BoundingBox.x += FinalMovement.x * dt;
+        BoundingBox.y += FinalMovement.y * dt;
+        int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
+        int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
+                int curr_tile_x = tile_x + x - 1;
+                int curr_tile_y = tile_y + y - 1;
+                std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
+                int tile_id = game->MainTileManager.Map[coord];
+                if (tile_id > 0 && tile_id < 3) {
+                    float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
+                    float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
+                    float bbox_center_x = bbox_x + (game->MainTileManager.TileSize / 2);
+                    float bbox_center_y = bbox_y + (game->MainTileManager.TileSize / 2);
+                    Rectangle bbox = Rectangle(bbox_x, bbox_y, game->MainTileManager.TileSize, game->MainTileManager.TileSize);
+                    if (CheckCollisionRecs(BoundingBox, bbox)) {
+                        if (tile_id == 1 && coord != LastBouncedCoordinate) {
+                            Vector2 normal = Vector2(0, 0);
+                            float x_overlap = std::min(BoundingBox.x + BoundingBox.width, bbox_x + game->MainTileManager.TileSize) - std::max(BoundingBox.x, bbox_x);
+                            float y_overlap = std::min(BoundingBox.y + BoundingBox.height, bbox_y + game->MainTileManager.TileSize) - std::max(BoundingBox.y, bbox_y);
+                            if (x_overlap < y_overlap) {
+                                normal.x = (bbox_center_x - (BoundingBox.x + (BoundingBox.width/2)) > 0) ? 1.0 : -1.0;
+                            }
+                            if (x_overlap > y_overlap) {
+                                normal.y = (bbox_center_y - (BoundingBox.y + (BoundingBox.height/2)) > 0) ? 1.0 : -1.0;
+                            }
+                            this->Movement = Vector2Reflect(Movement, normal);
+                            this->Rotation = std::atan2(Movement.y, Movement.x) * (180.0f/3.141592653589793238463f);
+                            this->LastBouncedCoordinate = coord;
+                        } else if (tile_id == 2) {
+                            ShouldDelete = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+void Bullet::Update() {
+    ExistenceTimer += GetFrameTime();
+    if (ExistenceTimer >= 8.5) {
+        ShouldDelete = true;
+    }
+    CustomMovement();
+    Entity::Update();
+}

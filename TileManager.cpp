@@ -1,0 +1,95 @@
+//
+// Created by lalit on 8/27/2025.
+//
+
+#include "TileManager.h"
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <string>
+
+#include "Enemy.h"
+#include "Game.h"
+
+void print(std::unordered_map<std::string, int> um){
+    for (auto i : um)
+        std::cout << i.first << " " << i.second
+        << std::endl;
+}
+
+TileManager::TileManager() {
+
+}
+
+TileManager::TileManager(Game &game) {
+    this->game = &game;
+    TileSize = 72;
+    UpdateDistance = Vector2(21, 15);
+    MapWidth = 0;
+    MapHeight = 0;
+    BouncyWallTexture = LoadTexture("assets/img/bouncy_wall.png");
+    DeleteWallTexture = LoadTexture("assets/img/delete_wall.png");
+}
+
+void TileManager::Update() {
+    Vector2 *CameraPosition = &this->game->CameraPosition;
+    int tile_x = static_cast<int> ((CameraPosition->x + (GetScreenWidth()/2)) / TileSize);
+    int tile_y = static_cast<int> ((CameraPosition->y + (GetScreenHeight()/2)) / TileSize);
+    for (int y = 0; y < UpdateDistance.y; y++) {
+        for (int x = 0; x < UpdateDistance.x; x++) {
+            int curr_tile_x = tile_x + x - static_cast<int> (UpdateDistance.x / 2);
+            int curr_tile_y = tile_y + y - static_cast<int> (UpdateDistance.y / 2);
+            std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
+            int tile_id = Map[coord];
+            Texture* tile_tex = nullptr;
+            if (tile_id == 1)
+                tile_tex = &BouncyWallTexture;
+            if (tile_id == 2)
+                tile_tex = &DeleteWallTexture;
+            float bbox_x = curr_tile_x * TileSize;
+            float bbox_y = curr_tile_y * TileSize;
+            if (tile_tex != nullptr)
+                DrawTexturePro(*tile_tex, Rectangle(0, 0, tile_tex->width, tile_tex->height), Rectangle(bbox_x - CameraPosition->x, bbox_y - CameraPosition->y, TileSize, TileSize), Vector2(0, 0), 0, WHITE);
+        }
+    }
+}
+
+
+void TileManager::ReadMap(const char *Filename) {
+    int y = 0;
+    int x = 0;
+
+    MapWidth = 0;
+    MapHeight = 0;
+    Map.clear();
+
+    std::ifstream  data(Filename);
+
+    std::string line;
+    while(std::getline(data,line))
+    {
+        std::stringstream  lineStream(line);
+        std::string        cell;
+        while(std::getline(lineStream,cell,','))
+        {
+            std::string coord = std::to_string(x) + " " + std::to_string(y);
+            int tile_id = std::stoi(cell)+1;
+
+            if (tile_id < 3) {
+                Map.insert({coord, tile_id});
+            } else {
+                float bbox_x = (static_cast<float>(x) * TileSize) + TileSize / 2.0f;
+                float bbox_y = (static_cast<float>(y) * TileSize) + TileSize / 2.0f;
+                game->Entities.push_back(
+                    make_shared<Enemy>(bbox_x, bbox_y, 9999, 100.0f, 250.0f, game->Textures["enemy"], *game));
+            }
+            x += 1;
+        }
+        if (x > MapWidth) {
+            MapWidth = x;
+        }
+        x = 0;
+        y += 1;
+    }
+    MapHeight = y;
+}
