@@ -53,7 +53,27 @@ void Player::Update() {
     if (IsMouseButtonDown(0)) {
         weaponsSystem.Attack(Vector2(static_cast<float> (GetMouseX()) + game->CameraPosition.x, static_cast<float> (GetMouseY()) + game->CameraPosition.y));
     }
+    if (IsKeyPressed(KEY_ONE)) {
+        if (weaponsSystem.CurrentWeaponIndex != 0) {
+            weaponsSystem.Equip(0);
+        } else if (weaponsSystem.CurrentWeaponIndex == 0) {
+            weaponsSystem.Unequip();
+        }
+    }
+    if (IsKeyPressed(KEY_TWO)) {
+        if (weaponsSystem.CurrentWeaponIndex != 1) {
+            weaponsSystem.Equip(1);
+        } else if (weaponsSystem.CurrentWeaponIndex == 1) {
+            weaponsSystem.Unequip();
+        }
+    }
+    if (IsKeyPressed(KEY_THREE)) {
+        if (weaponsSystem.CurrentWeaponIndex != 2) {
+            weaponsSystem.Equip(2);
+        } else if (weaponsSystem.CurrentWeaponIndex == 2) {
+            weaponsSystem.Unequip();
+        }
+    }
     weaponsSystem.Update();
     Entity::Update();
 }
-

@@ -11,6 +11,9 @@ class UI {
     public:
     Game *game;
     RenderTexture2D WeaponUITexture;
+    int WeaponSlotIndex = -1;
+    float WeaponSlotOffset = 0;
+    float WeaponSlotSize = 0;
     UI(Game &game);
     UI();
     void WeaponUI();

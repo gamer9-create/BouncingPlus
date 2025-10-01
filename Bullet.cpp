@@ -7,6 +7,7 @@
 #include <cmath>
 #include <ostream>
 #include <iostream>
+#include "Enemy.h"
 #include "math.h"
 #include "Game.h"
 
@@ -140,11 +141,18 @@ void Bullet::Update() {
         ShouldDelete = true;
     }
     auto ownerPtr = Owner.lock();
-    for (auto& entity : game->Entities) {
+    for (shared_ptr<Entity>& entity : game->Entities) {
         if (entity != nullptr && entity != ownerPtr && !entity->ShouldDelete) {
 
             if (CheckCollisionRecs(BoundingBox, entity->BoundingBox)) {
                 entity->Health -= Damage;
+                if (ownerPtr != nullptr && ownerPtr->Type == PlayerType && entity->Type == EnemyType) {
+                    shared_ptr<Enemy> enemy = std::dynamic_pointer_cast<Enemy>(entity);
+                    enemy->AngeredRangeBypassTimer = enemy->AngeredRangeBypassTimerMax;
+                    enemy.reset();
+                }
+                if (ownerPtr != nullptr && entity->Health <= 0)
+                    ownerPtr->Health += entity->MaxHealth / 5.0f;
                 ShouldDelete = true;
                 break;
             }

@@ -17,6 +17,8 @@ Enemy::Enemy(float X, float Y, int AILevel, float Health, float Speed, Texture2D
     this->AILevel = AILevel;
     this->Speed = Speed;
     this->Type = EnemyType;
+    this->AngeredRangeBypassTimer = 0;
+    this->AngeredRangeBypassTimerMax = 3;
 }
 
 Enemy::Enemy() {
@@ -35,6 +37,11 @@ void Enemy::Update() {
         this->weaponsSystem.Equip(0);
         weaponsSystemInit = true;
     }
+    if (AngeredRangeBypassTimer > 0){
+        AngeredRangeBypassTimer -= GetFrameTime();
+    }
+    if (AngeredRangeBypassTimer <= 0)
+        AngeredRangeBypassTimer = 0;
     Movement = Vector2(0, 0);
     std::shared_ptr<Player> MainPlayer = this->game->MainPlayer;
     float plr_center_x = MainPlayer->BoundingBox.x + (MainPlayer->BoundingBox.width / 2);
@@ -42,7 +49,7 @@ void Enemy::Update() {
     float center_x = BoundingBox.x + (BoundingBox.width / 2);
     float center_y = BoundingBox.y + (BoundingBox.height / 2);
     float distance = std::sqrt(std::pow(plr_center_x - center_x, 2) + std::pow(plr_center_y - center_y, 2));
-    if (distance <= 250) {
+    if (distance <= 250 || AngeredRangeBypassTimer > 0.0f) {
         Movement.x = -(plr_center_x - center_x) / distance * Speed;
         Movement.y = -(plr_center_y - center_y) / distance * Speed;
         weaponsSystem.Attack(Vector2(plr_center_x, plr_center_y));
@@ -50,4 +57,3 @@ void Enemy::Update() {
     weaponsSystem.Update();
     Entity::Update();
 }
-

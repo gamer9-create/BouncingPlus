@@ -49,7 +49,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
 }
 
 void WeaponsSystem::Equip(int Index) {
-    if (Weapons->length() > Index) {
+    if (Weapons->length() > Index && !Weapons[Index].empty()) {
         CurrentWeaponIndex = Index;
         CurrentWeapon = &game->Weapons[Weapons[CurrentWeaponIndex]];
     }

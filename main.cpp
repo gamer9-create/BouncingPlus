@@ -5,6 +5,7 @@
 int main() {
     InitWindow(1280, 720, "BouncingPlus");
     SetTargetFPS(240);
+    SetWindowIcon(LoadImage("assets/img/player.png"));
 
     Color BackgroundColor = Color(100, 100, 100, 255);
 

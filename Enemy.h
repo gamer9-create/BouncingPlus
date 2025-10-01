@@ -12,6 +12,8 @@ class Enemy : public Entity {
 public:
     float Health;
     float MaxHealth;
+    float AngeredRangeBypassTimerMax;
+    float AngeredRangeBypassTimer;
     int AILevel;
     WeaponsSystem weaponsSystem;
     bool weaponsSystemInit = false;
