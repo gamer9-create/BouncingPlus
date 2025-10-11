@@ -5,7 +5,6 @@
 #ifndef BOUNCINGPLUS_GAME_H
 #define BOUNCINGPLUS_GAME_H
 
-#include <memory>
 #include <raylib.h>
 #include <vector>
 #include "Bullet.h"
@@ -29,12 +28,12 @@ class Game {
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Weapon> Weapons;
         shared_ptr<Player> MainPlayer;
-        vector<shared_ptr<Entity>> Entities;
-        vector<shared_ptr<Bullet>> Bullets;
+        std::unordered_map<EntityType, std::vector<shared_ptr<Entity>>> Entities;
         Game();
         void SetGameData();
         void Reload(const char *Filename);
         void Update();
+        void Clear();
         void Quit();
 };
 

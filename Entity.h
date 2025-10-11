@@ -10,17 +10,19 @@
 class Game;
 
 enum EntityType {
+    DefaultType,
     EnemyType,
     PlayerType,
-    DefaultType
+    BulletType,
+    End
 };
 
 class Entity : public std::enable_shared_from_this<Entity> {
-    void Initialize(const Texture2D &Texture, Rectangle BoundingBox, float Speed);
+    void Initialize(Texture2D &Texture, Rectangle BoundingBox, float Speed);
     public:
         Game* game;
         Rectangle BoundingBox;
-        Texture2D Texture;
+        Texture2D* Texture;
         Vector2 Movement;
         EntityType Type;
 
@@ -33,9 +35,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
         Entity();
         virtual ~Entity();
 
-        Entity(const char* Filepath, Rectangle BoundingBox, float Speed, Game &game);
-        Entity(Rectangle BoundingBox, float Speed, Game &game);
-        Entity(const Texture2D &Texture, Rectangle BoundingBox, float Speed, Game &game);
+        Entity(Texture2D &Texture, Rectangle BoundingBox, float Speed, Game &game);
         virtual void PhysicsUpdate(float dt);
         virtual void Update();
 };

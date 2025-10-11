@@ -44,11 +44,12 @@ void Player::PhysicsUpdate(float dt) {
 }
 
 void Player::Update() {
-    if (!weaponsSystemInit) {
+    if (!this->weaponsSystemInit) {
         this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
         this->weaponsSystem.Weapons[0] = "Player Gun";
+        this->weaponsSystem.Weapons[1] = "Player Sword";
         this->weaponsSystem.Equip(0);
-        weaponsSystemInit = true;
+        this->weaponsSystemInit = true;
     }
     if (IsMouseButtonDown(0)) {
         weaponsSystem.Attack(Vector2(static_cast<float> (GetMouseX()) + game->CameraPosition.x, static_cast<float> (GetMouseY()) + game->CameraPosition.y));
@@ -74,6 +75,6 @@ void Player::Update() {
             weaponsSystem.Unequip();
         }
     }
-    weaponsSystem.Update();
     Entity::Update();
+    weaponsSystem.Update();
 }

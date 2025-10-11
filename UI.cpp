@@ -8,7 +8,7 @@
 
 UI::UI(Game &game) {
     this->game = &game;
-    this->WeaponUITexture = LoadRenderTexture(500, 250);
+    this->WeaponUITexture = LoadRenderTexture(1280, 250);
 }
 
 UI::UI() {
@@ -17,7 +17,7 @@ UI::UI() {
 void UI::WeaponUI() {
     //DrawRectangleRounded(Rectangle(25, GetScreenHeight()-175, 250, 150), 0.15f, 1, RAYWHITE);
     BeginTextureMode(WeaponUITexture);
-    ClearBackground(WHITE);
+    ClearBackground(ColorAlpha(WHITE,0));
     float Prev = 0;
     bool Found = false;
     for (int i = 0; i < 3; i++) {

@@ -9,8 +9,8 @@
 #include "Bullet.h"
 #include "Game.h"
 
-void Entity::Initialize(const Texture2D &Texture, Rectangle BoundingBox, float Speed) {
-    this->Texture = Texture;
+void Entity::Initialize(Texture2D &Texture, Rectangle BoundingBox, float Speed) {
+    this->Texture = &Texture;
     this->BoundingBox = BoundingBox;
     this->Movement = Vector2(0, 0);
     this->Speed = Speed;
@@ -22,18 +22,13 @@ void Entity::Initialize(const Texture2D &Texture, Rectangle BoundingBox, float S
     this->Type = DefaultType;
 }
 
-Entity::Entity(const char *Filepath, Rectangle BoundingBox, float Speed, Game &game) {
-    this->game = &game;
-    Initialize(LoadTexture(Filepath), BoundingBox, Speed);
-}
-
-Entity::Entity(const Texture2D &Texture, Rectangle BoundingBox, float Speed, Game &game) {
+Entity::Entity(Texture2D &Texture, Rectangle BoundingBox, float Speed, Game &game) {
     this->game = &game;
     Initialize(Texture, BoundingBox, Speed);
 }
 
 Entity::Entity() {
-    Initialize(Texture2D{}, Rectangle{}, 0);
+
 }
 
 Entity::~Entity() {
@@ -113,7 +108,7 @@ void Entity::Update() {
         ShouldDelete = true;
     }
     Vector2 *CameraPosition = &this->game->CameraPosition;
-    DrawTexturePro(Texture, Rectangle(0, 0, static_cast<float> (Texture.width), static_cast<float> (Texture.height)),
+    DrawTexturePro(*Texture, Rectangle(0, 0, static_cast<float> (Texture->width), static_cast<float> (Texture->height)),
                    Rectangle(BoundingBox.x - CameraPosition->x + BoundingBox.width / 2, BoundingBox.y - CameraPosition->y + BoundingBox.height / 2, BoundingBox.width,
                              BoundingBox.height), Vector2(BoundingBox.width / 2, BoundingBox.height / 2), Rotation, WHITE);
 }

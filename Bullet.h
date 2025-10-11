@@ -8,21 +8,17 @@
 
 #include "Entity.h"
 
-class Bullet {
+using namespace std;
+
+class Bullet : public Entity {
 public:
-    Game* game;
-    Rectangle BoundingBox;
-    Texture2D Texture;
-    Vector2 Movement;
-    float Rotation;
-    float Speed;
-    bool ShouldDelete;
     float ExistenceTimer;
     float Damage;
-    std::weak_ptr<Entity> Owner;
+    std::weak_ptr<Entity> OwnerPtr;
     std::string LastBouncedCoordinate;
     Bullet(float X, float Y, Vector2 Direction, float Speed, float Damage, Texture2D& BulletTexture, std::shared_ptr<Entity> Owner, Game &game);
     Bullet();
+    void Attack(std::shared_ptr<Entity> entity);
     void PhysicsUpdate(float dt);
     virtual ~Bullet();
     void Update();

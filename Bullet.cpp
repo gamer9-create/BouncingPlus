@@ -11,18 +11,19 @@
 #include "math.h"
 #include "Game.h"
 
-Bullet::Bullet(float X, float Y, Vector2 Direction, float Speed, float Damage, Texture2D &BulletTexture, std::shared_ptr<Entity> Owner, Game &game) {
+Bullet::Bullet(float X, float Y, Vector2 Direction, float Speed, float Damage, Texture2D &BulletTexture, shared_ptr<Entity> Owner, Game &game) : Entity(BulletTexture, BoundingBox, Speed, game) {
     this->Movement = Direction;
     this->Speed = Speed;
+    this->Type = BulletType;
     this->ExistenceTimer = 0;
     this->BoundingBox=Rectangle(X - 5, Y - 2.5f, 10, 5);
-    this->Texture=BulletTexture;
+    this->Texture=&BulletTexture;
     this->ShouldDelete = false;
     this->Speed=Speed;
     this->game = &game;
     this->Rotation = std::atan2(Direction.y, Direction.x) * (180.0f/3.141592653589793238463f);
     this->Damage = Damage;
-    this->Owner = Owner;
+    this->OwnerPtr = Owner;
     this->LastBouncedCoordinate = "";
 }
 
@@ -116,7 +117,7 @@ void Bullet::PhysicsUpdate(float dt) {
                                 Movement = Vector2(X, Y);
                             }
 
-                            Owner.reset();
+                            OwnerPtr.reset();
 
                             //this->LastBouncedCoordinate = coord;
                         } else if (tile_id == 2) {
@@ -134,32 +135,32 @@ void Bullet::PhysicsUpdate(float dt) {
     }
 }
 
+void Bullet::Attack(shared_ptr<Entity> entity) {
+    if (CheckCollisionRecs(BoundingBox, entity->BoundingBox)) {
+        entity->Health -= Damage;
+        auto Owner = OwnerPtr.lock();
+        if (Owner != nullptr && Owner->Type == PlayerType && entity->Type == EnemyType) {
+            shared_ptr<Enemy> enemy = dynamic_pointer_cast<Enemy>(entity);
+            enemy->AngeredRangeBypassTimer = enemy->AngeredRangeBypassTimerMax;
+        }
+        if (Owner != nullptr && entity->Health <= 0)
+            Owner->Health += entity->MaxHealth / 5.0f;
+        ShouldDelete = true;
+    }
+}
 
 void Bullet::Update() {
     ExistenceTimer += GetFrameTime();
     if (ExistenceTimer >= 8.5) {
         ShouldDelete = true;
     }
-    auto ownerPtr = Owner.lock();
-    for (shared_ptr<Entity>& entity : game->Entities) {
-        if (entity != nullptr && entity != ownerPtr && !entity->ShouldDelete) {
-
-            if (CheckCollisionRecs(BoundingBox, entity->BoundingBox)) {
-                entity->Health -= Damage;
-                if (ownerPtr != nullptr && ownerPtr->Type == PlayerType && entity->Type == EnemyType) {
-                    shared_ptr<Enemy> enemy = std::dynamic_pointer_cast<Enemy>(entity);
-                    enemy->AngeredRangeBypassTimer = enemy->AngeredRangeBypassTimerMax;
-                    enemy.reset();
-                }
-                if (ownerPtr != nullptr && entity->Health <= 0)
-                    ownerPtr->Health += entity->MaxHealth / 5.0f;
-                ShouldDelete = true;
-                break;
-            }
+    auto Owner = OwnerPtr.lock();
+    for (shared_ptr entity : game->Entities[EnemyType]) {
+        if (entity != nullptr && entity != Owner && !entity->ShouldDelete) {
+            Attack(entity);
         }
     }
-    Vector2 *CameraPosition = &this->game->CameraPosition;
-    DrawTexturePro(Texture, Rectangle(0, 0, static_cast<float> (Texture.width), static_cast<float> (Texture.height)),
-                   Rectangle(BoundingBox.x - CameraPosition->x + BoundingBox.width / 2, BoundingBox.y - CameraPosition->y + BoundingBox.height / 2, BoundingBox.width,
-                             BoundingBox.height), Vector2(BoundingBox.width / 2, BoundingBox.height / 2), Rotation, WHITE);
+    if (Owner != game->MainPlayer)
+        Attack(game->MainPlayer);
+    Entity::Update();
 }

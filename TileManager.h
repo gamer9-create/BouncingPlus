@@ -24,6 +24,7 @@ class TileManager {
         TileManager(Game &game);
         void Update();
         void ReadMap(const char *Filename);
+        void Quit();
 };
 
 

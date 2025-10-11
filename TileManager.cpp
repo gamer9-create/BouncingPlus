@@ -80,8 +80,7 @@ void TileManager::ReadMap(const char *Filename) {
             } else {
                 float bbox_x = (static_cast<float>(x) * TileSize) + TileSize / 2.0f;
                 float bbox_y = (static_cast<float>(y) * TileSize) + TileSize / 2.0f;
-                game->Entities.push_back(
-                    make_shared<Enemy>(bbox_x, bbox_y, 9999, 100.0f, 250.0f, game->Textures["enemy"], *game));
+                game->Entities[EnemyType].push_back(make_shared<Enemy>(bbox_x, bbox_y, 9999, 100.0f, 250.0f, game->Textures["enemy"], *game));
             }
             x += 1;
         }
@@ -92,4 +91,9 @@ void TileManager::ReadMap(const char *Filename) {
         y += 1;
     }
     MapHeight = y;
+}
+
+void TileManager::Quit() {
+    UnloadTexture(BouncyWallTexture);
+    UnloadTexture(DeleteWallTexture);
 }

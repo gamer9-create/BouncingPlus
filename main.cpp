@@ -21,6 +21,9 @@ int main() {
         MainGame.MainPlayer->BoundingBox.height / 2);
 
         MainGame.Update();
+
+        if (IsKeyPressed(KEY_E))
+            MainGame.Reload("assets/maps/level_4.csv");
         DrawFPS(0,0);
         EndDrawing();
     }

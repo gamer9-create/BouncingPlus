@@ -5,7 +5,6 @@
 #ifndef BOUNCINGPLUS_WEAPON_H
 #define BOUNCINGPLUS_WEAPON_H
 
-#include <memory>
 #include <vector>
 #include <string>
 #include "raylib.h"
@@ -17,20 +16,34 @@ struct Weapon {
     float Speed = 0;
     float Damage = 0;
     float Cooldown = 0;
+    float AngleRange = 0;
+    float Range = 0;
     int Ammo = -1;
+    std::string texture;
 };
 
 class WeaponsSystem {
     public:
         Game* game;
-        std::weak_ptr<Entity> Owner;
+        weak_ptr<Entity> OwnerPtr;
         std::string Weapons[3];
         Weapon* CurrentWeapon;
         int CurrentWeaponIndex;
         float AttackCooldown;
         int AttackAmmo;
 
-        WeaponsSystem(std::shared_ptr<Entity> Owner, Game &game);
+        double PointRemovalTimer;
+
+        std::vector<Vector2> points;
+
+        bool MeleeAnim;
+        Texture* MeleeAnimTexture;
+        float MeleeAnimAngle;
+        float MeleeAnimRange;
+        float MeleeAnimPercent;
+        float MeleeAnimAlpha;
+
+        WeaponsSystem(shared_ptr<Entity> Owner, Game &game);
         WeaponsSystem();
         virtual ~WeaponsSystem();
         virtual void Equip(int Index);
