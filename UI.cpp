@@ -6,9 +6,20 @@
 #include <algorithm>
 #include "Game.h"
 
+Color GetHealthColor(float Percent) {
+    if (Percent >= 0.5f) {
+        return ColorLerp(YELLOW, GREEN, (Percent - 0.5f) / 0.5f);
+    }
+    if (Percent < 0.5f) {
+        return ColorLerp(RED, YELLOW, Percent / 0.5f);
+    }
+    return {0, 0, 0, 255};
+}
+
 UI::UI(Game &game) {
     this->game = &game;
-    this->WeaponUITexture = LoadRenderTexture(1280, 250);
+    this->WeaponUITexture = LoadRenderTexture(1280, 125);
+    this->HealthBarTexture = LoadTexture("assets/img/health_bar.png");
 }
 
 UI::UI() {
@@ -17,7 +28,7 @@ UI::UI() {
 void UI::WeaponUI() {
     //DrawRectangleRounded(Rectangle(25, GetScreenHeight()-175, 250, 150), 0.15f, 1, RAYWHITE);
     BeginTextureMode(WeaponUITexture);
-    ClearBackground(ColorAlpha(WHITE,0));
+    ClearBackground(BLANK);
     float Prev = 0;
     bool Found = false;
     for (int i = 0; i < 3; i++) {
@@ -57,6 +68,14 @@ void UI::WeaponUI() {
             WeaponSlotIndex = -1;
     }
 
+    float size = MeasureText(std::to_string((int)round(game->MainPlayer->Health)).c_str(), 92);
+    DrawText(std::to_string((int)round(game->MainPlayer->Health)).c_str(), WeaponUITexture.texture.width / 2.0f - size / 2.0f, WeaponUITexture.texture.height / 2.0f - 46, 92, GetHealthColor(game->MainPlayer->Health/game->MainPlayer->MaxHealth));
+
     EndTextureMode();
-    DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height/2), RAYWHITE);
+    DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), RAYWHITE);
+}
+
+void UI::Quit() {
+    UnloadRenderTexture(WeaponUITexture);
+    UnloadTexture(HealthBarTexture);
 }

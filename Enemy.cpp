@@ -11,23 +11,12 @@
 #include "Game.h"
 #include "Player.h"
 
-using namespace std;
+#include "UI.h"
 
-Color GetHealthColor(float Percent) {
-    if (Percent > 0.5f) {
-        return ColorLerp(YELLOW, GREEN, (Percent - 0.5f) / 0.5f);
-    } else if (Percent == 0.5f) {
-        return YELLOW;
-    } else if (Percent < 0.5f) {
-        return ColorLerp(RED, YELLOW, Percent / 0.5f);
-    }
-}
-
-Enemy::Enemy(float X, float Y, int AILevel, float Health, float Speed, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,
+Enemy::Enemy(float X, float Y, float Health, float Speed, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,
                                                                    Rectangle(X - 18, Y - 18, 36, 36), Speed, game) {
     this->MaxHealth = Health;
     this->Health = Health;
-    this->AILevel = AILevel;
     this->Speed = Speed;
     this->Type = EnemyType;
     this->AngeredRangeBypassTimer = 0;
@@ -42,6 +31,20 @@ Enemy::~Enemy() {
 
 }
 
+bool Enemy::Raycast(float target_x, float target_y) {
+    float ray_x = BoundingBox.x;
+    float ray_y = BoundingBox.y;
+
+    float step_x = target_x / sqrt(pow(target_x, 2) + pow(target_y, 2));
+    float step_y = target_x / sqrt(pow(target_x, 2) + pow(target_y, 2));
+
+    while (sqrt(pow(ray_x - target_x, 2) + pow(ray_y - target_y, 2)) > 10) {
+        ray_x += step_x;
+        ray_y += step_y;
+        //if (game->MainTileManager.Map[])
+    }
+    return true;
+}
 
 void Enemy::Update() {
     if (!this->weaponsSystemInit) {
@@ -61,7 +64,7 @@ void Enemy::Update() {
     float center_x = BoundingBox.x + (BoundingBox.width / 2);
     float center_y = BoundingBox.y + (BoundingBox.height / 2);
     float distance = std::sqrt(std::pow(plr_center_x - center_x, 2) + std::pow(plr_center_y - center_y, 2));
-    if (distance <= 250 || AngeredRangeBypassTimer > 0.0f) {
+    if (distance <= 500 || AngeredRangeBypassTimer > 0.0f) {
         Movement.x = -(plr_center_x - center_x) / distance * Speed;
         Movement.y = -(plr_center_y - center_y) / distance * Speed;
         weaponsSystem.Attack(Vector2(plr_center_x, plr_center_y));
@@ -69,12 +72,14 @@ void Enemy::Update() {
 
     AnimatedHealth = Lerp(AnimatedHealth, Health, 10 * GetFrameTime());
 
-    float size = MeasureText(std::to_string((int)this->AnimatedHealth).c_str(), 36);
-    float size2 = MeasureText("%", 18);
+    float size = MeasureText(std::to_string((int)round(this->AnimatedHealth)).c_str(), 36);
+    float size2 = MeasureText("%", 18)+1;
     float total_size = size + size2;
     //cout << to_string(GetHealthColor(Health / MaxHealth).r)+" " << to_string(GetHealthColor(Health / MaxHealth).g)+" " << to_string(GetHealthColor(Health / MaxHealth).b)+" " << to_string(GetHealthColor(Health / MaxHealth).a) << endl;
-    DrawText(std::to_string((int)this->AnimatedHealth).c_str(), BoundingBox.x + BoundingBox.width/2 - total_size/2 - game->CameraPosition.x, BoundingBox.y - 36 - game->CameraPosition.y, 36, GetHealthColor(AnimatedHealth / MaxHealth));
-    DrawText("%", BoundingBox.x + BoundingBox.width/2 - total_size/2 - game->CameraPosition.x + size, BoundingBox.y - 22 - game->CameraPosition.y, 18, GetHealthColor(AnimatedHealth / MaxHealth));
+    DrawText(std::to_string((int) round(this->AnimatedHealth)).c_str(),
+             BoundingBox.x + BoundingBox.width / 2 - total_size / 2 - game->CameraPosition.x,
+             BoundingBox.y - 36 - game->CameraPosition.y, 36, GetHealthColor(AnimatedHealth / MaxHealth));
+    DrawText("%", BoundingBox.x + BoundingBox.width/2 - total_size/2 - game->CameraPosition.x + size+1, BoundingBox.y - 22 - game->CameraPosition.y, 18, GetHealthColor(AnimatedHealth / MaxHealth));
 
     weaponsSystem.Update();
     Entity::Update();

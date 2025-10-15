@@ -34,7 +34,7 @@ void Game::SetGameData() {
     Textures.insert({"player_sword", LoadTexture("assets/img/sword.png")});
     Weapons.insert({"Default Gun", {false, 400, 20, 0.2, 0.0f, 0.0f, -1, ""}});
     Weapons.insert({"Player Gun", {false, 800, 20, 0.2, 0.0f, 0.0f, -1, ""}});
-    Weapons.insert({"Player Sword", {true, 0.4, 20, 1, 90.0f, 204.0f, -1, "player_sword"}});
+    Weapons.insert({"Player Sword", {true, 0.4, 20, 1, 90.0f, 600.0f, -1, "player_sword"}});
 
     for (int i = 0; i < End; ++i) {
         Entities.insert({(EntityType) i, std::vector<shared_ptr<Entity>>()});
@@ -124,6 +124,7 @@ void Game::Reload(const char *Filename) {
 void Game::Quit() {
     Clear();
     MainTileManager.Quit();
+    Ui.Quit();
     for (auto [name,value] : Textures) {
         UnloadTexture(value);
     }

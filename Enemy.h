@@ -12,12 +12,12 @@ class Enemy : public Entity {
 public:
     float AngeredRangeBypassTimerMax;
     float AngeredRangeBypassTimer;
-    int AILevel;
     WeaponsSystem weaponsSystem;
     bool weaponsSystemInit = false;
     float AnimatedHealth;
-    Enemy(float X, float Y, int AILevel, float Health, float Speed, Texture2D& EnemyTexture, Game &game);
+    Enemy(float X, float Y, float Health, float Speed, Texture2D& EnemyTexture, Game &game);
     Enemy();
+    bool Raycast(float target_x, float target_y);
     virtual ~Enemy();
     void Update();
 };

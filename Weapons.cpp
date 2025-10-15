@@ -40,7 +40,7 @@ void WeaponsSystem::Update() {
         MeleeAnimRange = CurrentWeapon->AngleRange;
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-        float Angle = (atan2(cy - (GetMouseY() + game->CameraPosition.y), cx - (GetMouseX() + game->CameraPosition.x)) * RAD2DEG) + 180;
+        float Angle = (atan2(cy - (GetMouseY() + game->CameraPosition.y), cx - (GetMouseX() + game->CameraPosition.x)) * RAD2DEG)+180;
 
         float z = (Angle - MeleeAnimRange/2) * DEG2RAD;
         float dist = CurrentWeapon->Range;
@@ -97,8 +97,8 @@ void WeaponsSystem::Update() {
             for (int i = 0; i < times; i++) {
                 for (int x = 5; x < 10; x++) {
                     float ThisAngle = max(MeleeAnimAngle - (MeleeAnimRange/2), FinalAngle - ((length/times) * i));;
-                    points.push_back({-cosf((ThisAngle+90) * DEG2RAD)*(CurrentWeapon->Range/10)*x,
-                        -sinf((ThisAngle+90) * DEG2RAD)*(CurrentWeapon->Range/10)*x});
+                    points.push_back({-cosf((ThisAngle+90) * DEG2RAD)*(20.4f)*x,
+                        -sinf((ThisAngle+90) * DEG2RAD)*(20.4f)*x});
                 }
             }
         } else {
@@ -126,12 +126,33 @@ void WeaponsSystem::Attack(Vector2 Target) {
             if (CurrentWeapon->Ammo != -1)
                 AttackAmmo -= 1;
         } else {
-            float Angle = (atan2(Owner->BoundingBox.y - Target.y, Owner->BoundingBox.x - Target.x) * RAD2DEG) - 90;
-            cout << Angle << endl;
+            float Angle = atan2(Owner->BoundingBox.y - Target.y, Owner->BoundingBox.x - Target.x) * RAD2DEG;
             this->MeleeAnim = true;
             this->MeleeAnimPercent = 0;
             this->MeleeAnimTexture = &game->Textures[CurrentWeapon->texture];
-            this->MeleeAnimAngle = Angle;
+            this->MeleeAnimAngle = Angle - 90;
+            float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
+            float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
+            if (Owner->Type == EnemyType) {
+                float AngleToPlayer = atan2(game->MainPlayer->BoundingBox.y - Target.y, game->MainPlayer->BoundingBox.x - Target.x) * RAD2DEG;
+                float Dist = Vector2Distance({game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y}, {Owner->BoundingBox.x, Owner->BoundingBox.y});
+                if (AngleToPlayer - MeleeAnimRange/2 < Angle && AngleToPlayer + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range) {
+                    game->MainPlayer->Health -= CurrentWeapon->Damage;
+                }
+            } else {
+                std::vector<shared_ptr<Entity>>* array = &game->Entities[EnemyType];
+                for (int i = 0; i < array->size(); i++) {
+                    if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
+                        float AngleToEntity = atan2(Owner->BoundingBox.y - entity->BoundingBox.y, Owner->BoundingBox.x - entity->BoundingBox.x) * RAD2DEG;
+                        float Dist = Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y}, {Owner->BoundingBox.x, Owner->BoundingBox.y});
+                        if (Dist <= CurrentWeapon->Range)
+                            cout << AngleToEntity << " " << Angle << endl;
+                        if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range) {
+                            entity->Health -= CurrentWeapon->Damage;
+                        }
+                    }
+                }
+            }
         }
 
         AttackCooldown = 0;
