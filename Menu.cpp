@@ -4,9 +4,14 @@
 
 #include "Menu.h"
 
+Menu::Menu()
+{
+    CanLeaveMenu = true;
+}
+
 void Menu::Update() {
 }
 
 bool Menu::LeaveMenu() {
-    return true;
+    return CanLeaveMenu;
 }

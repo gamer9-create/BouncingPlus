@@ -21,6 +21,7 @@ int main() {
         ClearBackground(BackgroundColor);
 
         if (InGame) {
+            cout << "Farted." << endl;
             MainGame.CameraTarget = Vector2(MainGame.MainPlayer->BoundingBox.x +
             MainGame.MainPlayer->BoundingBox.width / 2, MainGame.MainPlayer->BoundingBox.y +
             MainGame.MainPlayer->BoundingBox.height / 2);
@@ -31,6 +32,9 @@ int main() {
                 MainGame.Reload("assets/maps/level_4.csv");
         } else {
             MainMenu.Update();
+            if (MainMenu.LeaveMenu())
+                InGame = true;
+            cout << "Farted2." << endl;
         }
 
         DrawFPS(0,0);

@@ -9,7 +9,7 @@
 class Menu {
     bool CanLeaveMenu;
     public:
-
+        Menu();
         void Update();
         bool LeaveMenu();
 };
