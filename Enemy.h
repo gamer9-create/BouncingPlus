@@ -15,7 +15,9 @@ public:
     WeaponsSystem weaponsSystem;
     bool weaponsSystemInit = false;
     float AnimatedHealth;
-    Enemy(float X, float Y, float Health, float Speed, Texture2D& EnemyTexture, Game &game);
+    float Armor;
+    std::string MyWeapon;
+    Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game);
     Enemy();
     bool Raycast(float target_x, float target_y);
     virtual ~Enemy();

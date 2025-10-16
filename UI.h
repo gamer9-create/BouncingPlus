@@ -7,7 +7,7 @@
 #include <raylib.h>
 class Game;
 
-Color GetHealthColor(float Percent);
+Color GetHealthColor(float Percent, float Armor = 0.0f);
 
 class UI {
     public:

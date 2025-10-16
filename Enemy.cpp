@@ -13,15 +13,17 @@
 
 #include "UI.h"
 
-Enemy::Enemy(float X, float Y, float Health, float Speed, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,
+Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,
                                                                    Rectangle(X - 18, Y - 18, 36, 36), Speed, game) {
     this->MaxHealth = Health;
     this->Health = Health;
     this->Speed = Speed;
+    this->Armor = Armor;
     this->Type = EnemyType;
     this->AngeredRangeBypassTimer = 0;
     this->AngeredRangeBypassTimerMax = 3;
     this->AnimatedHealth = 0;
+    this->MyWeapon = Weapon;
 }
 
 Enemy::Enemy() {
@@ -63,7 +65,7 @@ bool Enemy::Raycast(float target_x, float target_y) {
 void Enemy::Update() {
     if (!this->weaponsSystemInit) {
         this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
-        this->weaponsSystem.Weapons[0] = "Default Gun";
+        this->weaponsSystem.Weapons[0] = MyWeapon;
         this->weaponsSystem.Equip(0);
         this->weaponsSystemInit = true;
     }
@@ -79,8 +81,8 @@ void Enemy::Update() {
     float center_y = BoundingBox.y + (BoundingBox.height / 2);
     float distance = std::sqrt(std::pow(plr_center_x - center_x, 2) + std::pow(plr_center_y - center_y, 2));
     if ((distance <= 800 && (distance <= 36 || Raycast(game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y))) || AngeredRangeBypassTimer > 0.0f) {
-        Movement.x = -(plr_center_x - center_x) / distance * Speed;
-        Movement.y = -(plr_center_y - center_y) / distance * Speed;
+        Movement.x = -(plr_center_x - center_x) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
+        Movement.y = -(plr_center_y - center_y) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
         weaponsSystem.Attack(Vector2(plr_center_x, plr_center_y));
     }
 
@@ -90,11 +92,17 @@ void Enemy::Update() {
     float size2 = MeasureText("%", 18)+1;
     float total_size = size + size2;
     //cout << to_string(GetHealthColor(Health / MaxHealth).r)+" " << to_string(GetHealthColor(Health / MaxHealth).g)+" " << to_string(GetHealthColor(Health / MaxHealth).b)+" " << to_string(GetHealthColor(Health / MaxHealth).a) << endl;
-    DrawText(std::to_string((int) round(this->AnimatedHealth)).c_str(),
-             BoundingBox.x + BoundingBox.width / 2 - total_size / 2 - game->CameraPosition.x,
-             BoundingBox.y - 36 - game->CameraPosition.y, 36, GetHealthColor(AnimatedHealth / MaxHealth));
-    DrawText("%", BoundingBox.x + BoundingBox.width/2 - total_size/2 - game->CameraPosition.x + size+1, BoundingBox.y - 22 - game->CameraPosition.y, 18, GetHealthColor(AnimatedHealth / MaxHealth));
-
+    if ((BoundingBox.x + BoundingBox.width / 2 - total_size / 2 - game->CameraPosition.x) > -total_size &&
+            (BoundingBox.x + BoundingBox.width / 2 - total_size / 2 - game->CameraPosition.x) < GetScreenWidth() &&
+            (BoundingBox.y - 36 - game->CameraPosition.y) > -36 &&
+            (BoundingBox.y - 36 - game->CameraPosition.y) < GetScreenHeight()
+            )
+    {
+        DrawText(std::to_string((int) round(this->AnimatedHealth)).c_str(),
+                 BoundingBox.x + BoundingBox.width / 2 - total_size / 2 - game->CameraPosition.x,
+                 BoundingBox.y - 36 - game->CameraPosition.y, 36, GetHealthColor(AnimatedHealth / MaxHealth, Armor));
+        DrawText("%", BoundingBox.x + BoundingBox.width/2 - total_size/2 - game->CameraPosition.x + size+1, BoundingBox.y - 22 - game->CameraPosition.y, 18, GetHealthColor(AnimatedHealth / MaxHealth, Armor));
+    }
     weaponsSystem.Update();
     Entity::Update();
 

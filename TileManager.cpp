@@ -75,12 +75,30 @@ void TileManager::ReadMap(const char *Filename) {
             std::string coord = std::to_string(x) + " " + std::to_string(y);
             int tile_id = std::stoi(cell)+1;
 
+            float bbox_x = (static_cast<float>(x) * TileSize) + TileSize / 2.0f;
+            float bbox_y = (static_cast<float>(y) * TileSize) + TileSize / 2.0f;
+
             if (tile_id < 3) {
                 Map.insert({coord, tile_id});
             } else {
-                float bbox_x = (static_cast<float>(x) * TileSize) + TileSize / 2.0f;
-                float bbox_y = (static_cast<float>(y) * TileSize) + TileSize / 2.0f;
-                game->Entities[EnemyType].push_back(make_shared<Enemy>(bbox_x, bbox_y, 100.0f, 250.0f, game->Textures["enemy"], *game));
+                std::string Weapon = "Default Gun";
+                float Speed = 250.0f;
+                float Health = 100.0f;
+                float Armor = 0.0f;
+                switch (tile_id)
+                {
+                case 3:
+                    Weapon = "Default Gun";
+                    Health = 100.0f;
+                    Speed = 250.0f;
+                    Armor = 0.0f;
+                case 4:
+                    Weapon = "Sword";
+                    Speed = 175.0f;
+                    Health = 180.0f;
+                    Armor = 50.0f;
+                }
+                game->Entities[EnemyType].push_back(make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->Textures["enemy"], *game));
             }
             x += 1;
         }

@@ -4,7 +4,6 @@
 #include "Menu.h"
 
 int main() {
-    cout << "PLEASE????" << endl;
     InitWindow(1280, 720, "BouncingPlus");
     SetTargetFPS(240);
     SetWindowIcon(LoadImage("assets/img/player.png"));
@@ -14,6 +13,8 @@ int main() {
     Game MainGame = Game();
     Menu MainMenu = Menu();
 
+    MainGame.Reload("assets/maps/level_1.csv");
+
     bool InGame = false;
 
     while (!WindowShouldClose()) {
@@ -21,7 +22,6 @@ int main() {
         ClearBackground(BackgroundColor);
 
         if (InGame) {
-            cout << "Farted." << endl;
             MainGame.CameraTarget = Vector2(MainGame.MainPlayer->BoundingBox.x +
             MainGame.MainPlayer->BoundingBox.width / 2, MainGame.MainPlayer->BoundingBox.y +
             MainGame.MainPlayer->BoundingBox.height / 2);
@@ -29,12 +29,11 @@ int main() {
             MainGame.Update();
 
             if (IsKeyPressed(KEY_E))
-                MainGame.Reload("assets/maps/level_4.csv");
+                MainGame.Reload("assets/maps/level_1.csv");
         } else {
             MainMenu.Update();
             if (MainMenu.LeaveMenu())
                 InGame = true;
-            cout << "Farted2." << endl;
         }
 
         DrawFPS(0,0);

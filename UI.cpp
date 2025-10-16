@@ -6,7 +6,9 @@
 #include <algorithm>
 #include "Game.h"
 
-Color GetHealthColor(float Percent) {
+Color GetHealthColor(float Percent, float Armor) {
+    if (Armor > 0)
+        return BLUE;
     if (Percent >= 0.5f) {
         return ColorLerp(YELLOW, GREEN, (Percent - 0.5f) / 0.5f);
     }
@@ -18,7 +20,7 @@ Color GetHealthColor(float Percent) {
 
 UI::UI(Game &game) {
     this->game = &game;
-    this->WeaponUITexture = LoadRenderTexture(1280, 125);
+    this->WeaponUITexture = LoadRenderTexture(GetScreenWidth(), 125);
     this->HealthBarTexture = LoadTexture("assets/img/health_bar.png");
 }
 

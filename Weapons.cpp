@@ -36,7 +36,7 @@ WeaponsSystem::~WeaponsSystem() {
 
 void WeaponsSystem::Update() {
     auto Owner = OwnerPtr.lock();
-    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && AttackCooldown >= CurrentWeapon->Cooldown) {
+    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && AttackCooldown >= CurrentWeapon->Cooldown && Owner->Type == PlayerType) {
         MeleeAnimRange = CurrentWeapon->AngleRange;
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
@@ -165,11 +165,12 @@ void WeaponsSystem::Attack(Vector2 Target) {
             this->MeleeAnimTexture = &game->Textures[CurrentWeapon->texture];
             this->MeleeAnimAngle = Angle - 90;
             if (Owner->Type == EnemyType) {
-                float AngleToPlayer = atan2(game->MainPlayer->BoundingBox.y - Target.y, game->MainPlayer->BoundingBox.x - Target.x) * RAD2DEG;
+                float AngleToEntity = atan2(Owner->BoundingBox.y - game->MainPlayer->BoundingBox.y, Owner->BoundingBox.x - game->MainPlayer->BoundingBox.x) * RAD2DEG;
                 float Dist = Vector2Distance({game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y}, {Owner->BoundingBox.x, Owner->BoundingBox.y});
-                if (AngleToPlayer - MeleeAnimRange/2 < Angle && AngleToPlayer + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range) {
-                    game->MainPlayer->Health -= CurrentWeapon->Damage;
-                }
+                if (Dist <= CurrentWeapon->Range)
+                    if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range && Raycast(game->MainPlayer->BoundingBox)) {
+                        game->MainPlayer->Health -= CurrentWeapon->Damage;
+                    }
             } else {
                 std::vector<shared_ptr<Entity>>* array = &game->Entities[EnemyType];
                 for (int i = 0; i < array->size(); i++) {

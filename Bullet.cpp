@@ -137,14 +137,21 @@ void Bullet::PhysicsUpdate(float dt) {
 
 void Bullet::Attack(shared_ptr<Entity> entity) {
     if (CheckCollisionRecs(BoundingBox, entity->BoundingBox)) {
-        entity->Health -= Damage;
+        bool ShouldDamage = true;
         auto Owner = OwnerPtr.lock();
         if (Owner != nullptr && Owner->Type == PlayerType && entity->Type == EnemyType) {
             shared_ptr<Enemy> enemy = dynamic_pointer_cast<Enemy>(entity);
             enemy->AngeredRangeBypassTimer = enemy->AngeredRangeBypassTimerMax;
+            if (enemy->Armor > 0)
+            {
+                ShouldDamage = false;
+                enemy->Armor -= Damage * (1.0f+(GetRandomValue(1, 10)/10.0f));
+            }
         }
         if (Owner != nullptr && entity->Health <= 0)
             Owner->Health += entity->MaxHealth / 5.0f;
+        if (ShouldDamage)
+            entity->Health -= Damage;
         ShouldDelete = true;
     }
 }

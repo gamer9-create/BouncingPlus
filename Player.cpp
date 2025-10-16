@@ -47,7 +47,7 @@ void Player::Update() {
     if (!this->weaponsSystemInit) {
         this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
         this->weaponsSystem.Weapons[0] = "Player Gun";
-        this->weaponsSystem.Weapons[1] = "Player Sword";
+        this->weaponsSystem.Weapons[1] = "Sword";
         this->weaponsSystem.Equip(0);
         this->weaponsSystemInit = true;
     }

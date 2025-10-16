@@ -108,7 +108,15 @@ void Entity::Update() {
         ShouldDelete = true;
     }
     Vector2 *CameraPosition = &this->game->CameraPosition;
-    DrawTexturePro(*Texture, Rectangle(0, 0, static_cast<float> (Texture->width), static_cast<float> (Texture->height)),
-                   Rectangle(BoundingBox.x - CameraPosition->x + BoundingBox.width / 2, BoundingBox.y - CameraPosition->y + BoundingBox.height / 2, BoundingBox.width,
-                             BoundingBox.height), Vector2(BoundingBox.width / 2, BoundingBox.height / 2), Rotation, WHITE);
+
+    if (BoundingBox.x - CameraPosition->x > -BoundingBox.width &&
+        BoundingBox.x - CameraPosition->x < GetScreenWidth() &&
+        BoundingBox.y - CameraPosition->y > -BoundingBox.height &&
+        BoundingBox.y - CameraPosition->y < GetScreenHeight()
+        )
+    {
+        DrawTexturePro(*Texture, Rectangle(0, 0, static_cast<float> (Texture->width), static_cast<float> (Texture->height)),
+                       Rectangle(BoundingBox.x - CameraPosition->x + BoundingBox.width / 2, BoundingBox.y - CameraPosition->y + BoundingBox.height / 2, BoundingBox.width,
+                                 BoundingBox.height), Vector2(BoundingBox.width / 2, BoundingBox.height / 2), Rotation, WHITE);
+    }
 }
