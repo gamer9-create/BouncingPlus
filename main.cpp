@@ -3,6 +3,7 @@
 #include "Game.h"
 
 int main() {
+    cout << "PLEASE????" << endl;
     InitWindow(1280, 720, "BouncingPlus");
     SetTargetFPS(240);
     SetWindowIcon(LoadImage("assets/img/player.png"));

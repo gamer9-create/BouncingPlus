@@ -5,6 +5,7 @@
 #ifndef BOUNCINGPLUS_ENTITY_H
 #define BOUNCINGPLUS_ENTITY_H
 #include <complex.h>
+#include <memory>
 #include <raylib.h>
 
 class Game;
