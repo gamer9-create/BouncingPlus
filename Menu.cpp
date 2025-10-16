@@ -3,3 +3,10 @@
 //
 
 #include "Menu.h"
+
+void Menu::Update() {
+}
+
+bool Menu::LeaveMenu() {
+    return true;
+}
