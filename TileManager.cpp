@@ -87,13 +87,8 @@ void TileManager::ReadMap(const char *Filename) {
                 float Armor = 0.0f;
                 switch (tile_id)
                 {
-                case 3:
-                    Weapon = "Default Gun";
-                    Health = 100.0f;
-                    Speed = 250.0f;
-                    Armor = 0.0f;
                 case 4:
-                    Weapon = "Sword";
+                    Weapon = "Enemy Sword";
                     Speed = 175.0f;
                     Health = 180.0f;
                     Armor = 50.0f;

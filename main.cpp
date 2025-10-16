@@ -13,7 +13,7 @@ int main() {
     Game MainGame = Game();
     Menu MainMenu = Menu();
 
-    MainGame.Reload("assets/maps/level_1.csv");
+    MainGame.Reload("assets/maps/cpp_level.csv");
 
     bool InGame = false;
 
@@ -29,7 +29,7 @@ int main() {
             MainGame.Update();
 
             if (IsKeyPressed(KEY_E))
-                MainGame.Reload("assets/maps/level_1.csv");
+                MainGame.Reload("assets/maps/cpp_level.csv");
         } else {
             MainMenu.Update();
             if (MainMenu.LeaveMenu())

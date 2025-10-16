@@ -103,20 +103,24 @@ void Entity::PhysicsUpdate(float dt) {
     }
 }
 
+bool Entity::IsVisible() {
+    Vector2 *CameraPosition = &this->game->CameraPosition;
+    return BoundingBox.x - CameraPosition->x > -BoundingBox.width &&
+        BoundingBox.x - CameraPosition->x < GetScreenWidth() &&
+        BoundingBox.y - CameraPosition->y > -BoundingBox.height &&
+        BoundingBox.y - CameraPosition->y < GetScreenHeight();
+}
+
 void Entity::Update() {
     if (Health <= 0) {
         ShouldDelete = true;
     }
     Vector2 *CameraPosition = &this->game->CameraPosition;
 
-    if (BoundingBox.x - CameraPosition->x > -BoundingBox.width &&
-        BoundingBox.x - CameraPosition->x < GetScreenWidth() &&
-        BoundingBox.y - CameraPosition->y > -BoundingBox.height &&
-        BoundingBox.y - CameraPosition->y < GetScreenHeight()
-        )
+    if (IsVisible())
     {
         DrawTexturePro(*Texture, Rectangle(0, 0, static_cast<float> (Texture->width), static_cast<float> (Texture->height)),
-                       Rectangle(BoundingBox.x - CameraPosition->x + BoundingBox.width / 2, BoundingBox.y - CameraPosition->y + BoundingBox.height / 2, BoundingBox.width,
-                                 BoundingBox.height), Vector2(BoundingBox.width / 2, BoundingBox.height / 2), Rotation, WHITE);
+                       Rectangle(BoundingBox.x - CameraPosition->x, BoundingBox.y - CameraPosition->y, BoundingBox.width,
+                                 BoundingBox.height), Vector2(0,0), Rotation, WHITE);
     }
 }

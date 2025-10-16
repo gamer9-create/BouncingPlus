@@ -148,10 +148,10 @@ void Bullet::Attack(shared_ptr<Entity> entity) {
                 enemy->Armor -= Damage * (1.0f+(GetRandomValue(1, 10)/10.0f));
             }
         }
-        if (Owner != nullptr && entity->Health <= 0)
-            Owner->Health += entity->MaxHealth / 5.0f;
         if (ShouldDamage)
             entity->Health -= Damage;
+        if (Owner != nullptr && entity->Health <= 0)
+            Owner->Health += entity->MaxHealth / 5.0f;
         ShouldDelete = true;
     }
 }

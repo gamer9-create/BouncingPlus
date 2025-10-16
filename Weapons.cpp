@@ -8,6 +8,8 @@
 #include "Bullet.h"
 #include "Game.h"
 #include "Weapons.h"
+
+#include "Enemy.h"
 #include "iostream"
 
 using namespace std;
@@ -174,12 +176,16 @@ void WeaponsSystem::Attack(Vector2 Target) {
             } else {
                 std::vector<shared_ptr<Entity>>* array = &game->Entities[EnemyType];
                 for (int i = 0; i < array->size(); i++) {
-                    if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
+                    if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != nullptr and !entity->ShouldDelete) {
                         float AngleToEntity = atan2(Owner->BoundingBox.y - entity->BoundingBox.y, Owner->BoundingBox.x - entity->BoundingBox.x) * RAD2DEG;
                         float Dist = Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y}, {Owner->BoundingBox.x, Owner->BoundingBox.y});
                         if (Dist <= CurrentWeapon->Range)
                         if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range && Raycast(entity->BoundingBox)) {
-                            entity->Health -= CurrentWeapon->Damage;
+                            if (entity->Armor <= 0) {
+                                entity->Health -= CurrentWeapon->Damage;
+                            } else {
+                                entity->Armor -= CurrentWeapon->Damage;
+                            }
                             if (entity->Health <= 0) {
                                 game->MainPlayer->Health += entity->MaxHealth / 2.0f;
                             }
