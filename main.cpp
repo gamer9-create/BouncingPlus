@@ -1,6 +1,7 @@
 #include <iostream>
 #include <raylib.h>
 #include "Game.h"
+#include "Menu.h"
 
 int main() {
     InitWindow(1280, 720, "BouncingPlus");
@@ -10,20 +11,27 @@ int main() {
     Color BackgroundColor = Color(100, 100, 100, 255);
 
     Game MainGame = Game();
-    MainGame.Reload("assets/maps/level_4.csv");
+    Menu MainMenu = Menu();
+
+    bool InGame = false;
 
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(BackgroundColor);
 
-        MainGame.CameraTarget = Vector2(MainGame.MainPlayer->BoundingBox.x +
-        MainGame.MainPlayer->BoundingBox.width / 2, MainGame.MainPlayer->BoundingBox.y +
-        MainGame.MainPlayer->BoundingBox.height / 2);
+        if (InGame) {
+            MainGame.CameraTarget = Vector2(MainGame.MainPlayer->BoundingBox.x +
+            MainGame.MainPlayer->BoundingBox.width / 2, MainGame.MainPlayer->BoundingBox.y +
+            MainGame.MainPlayer->BoundingBox.height / 2);
 
-        MainGame.Update();
+            MainGame.Update();
 
-        if (IsKeyPressed(KEY_E))
-            MainGame.Reload("assets/maps/level_4.csv");
+            if (IsKeyPressed(KEY_E))
+                MainGame.Reload("assets/maps/level_4.csv");
+        } else {
+            MainMenu.Update();
+        }
+
         DrawFPS(0,0);
         EndDrawing();
     }

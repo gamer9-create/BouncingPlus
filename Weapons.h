@@ -46,6 +46,8 @@ class WeaponsSystem {
         WeaponsSystem(shared_ptr<Entity> Owner, Game &game);
         WeaponsSystem();
         virtual ~WeaponsSystem();
+
+        bool Raycast(Rectangle target);
         virtual void Equip(int Index);
         virtual void Unequip();
         virtual void Update();

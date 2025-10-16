@@ -19,5 +19,7 @@ add_executable(BouncingPlus main.cpp
         Weapons.cpp
         UI.cpp
         UI.h
+        Menu.cpp
+        Menu.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)

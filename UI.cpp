@@ -68,8 +68,8 @@ void UI::WeaponUI() {
             WeaponSlotIndex = -1;
     }
 
-    float size = MeasureText(std::to_string((int)round(game->MainPlayer->Health)).c_str(), 92);
-    DrawText(std::to_string((int)round(game->MainPlayer->Health)).c_str(), WeaponUITexture.texture.width / 2.0f - size / 2.0f, WeaponUITexture.texture.height / 2.0f - 46, 92, GetHealthColor(game->MainPlayer->Health/game->MainPlayer->MaxHealth));
+    float size = MeasureText((std::to_string((int)round(game->MainPlayer->Health))+"%").c_str(), 92);
+    DrawText((std::to_string((int)round(game->MainPlayer->Health))+"%").c_str(), WeaponUITexture.texture.width / 2.0f - size / 2.0f, WeaponUITexture.texture.height / 2.0f - 46, 92, GetHealthColor(game->MainPlayer->Health/game->MainPlayer->MaxHealth));
 
     EndTextureMode();
     DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), RAYWHITE);

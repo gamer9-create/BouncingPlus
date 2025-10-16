@@ -81,7 +81,9 @@ void WeaponsSystem::Update() {
         MeleeAnimPercent = 0;
         MeleeAnimAlpha = 1;
     } else {
-        MeleeAnimRange = CurrentWeapon->AngleRange;
+        if (CurrentWeapon != nullptr) {
+            MeleeAnimRange = CurrentWeapon->AngleRange;
+        }
         if (MeleeAnimPercent <= 1.0)
             MeleeAnimPercent += 3 * GetFrameTime();
         MeleeAnim = MeleeAnimPercent <= 1.0 || MeleeAnimAlpha > 0;
@@ -114,6 +116,37 @@ void WeaponsSystem::Update() {
 
 }
 
+bool WeaponsSystem::Raycast(Rectangle target) {
+    auto Owner = OwnerPtr.lock();
+    float ray_x = Owner->BoundingBox.x;
+    float ray_y = Owner->BoundingBox.y;
+    float target_x = target.x + target.width/2.0f;
+    float target_y = target.y + target.height/2.0f;
+    auto start_distance = static_cast<float>(sqrt(pow(ray_x - target_x, 2) + pow(ray_y - target_y, 2)));
+
+    const float step_x = ((target_x-ray_x) / start_distance) * 18;
+    const float step_y = ((target_y-ray_y) / start_distance) * 18;
+
+    bool x_side = (target_x - ray_x) < 0;
+    bool y_side = (target_y - ray_y) < 0;
+
+    while (sqrt(pow(ray_x - target_x, 2) + pow(ray_y - target_y, 2)) > 2 && !CheckCollisionPointRec({ray_x,ray_y},target)) {
+        ray_x += step_x;
+        ray_y += step_y;
+        //DrawCircle(ray_x-game->CameraPosition.x, ray_y-game->CameraPosition.y, 1, WHITE);
+        std::string coord = std::to_string((int) (ray_x / game->MainTileManager.TileSize)) + " " + std::to_string((int) (ray_y / game->MainTileManager.TileSize));
+        if (int tile_id = game->MainTileManager.Map[coord]; tile_id > 0 && tile_id <= 2) {
+            return false;
+        }
+        bool curr_x_side = (target_x - ray_x) < 0;
+        bool curr_y_side = (target_y - ray_y) < 0;
+        if (curr_x_side != x_side || curr_y_side != y_side) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void WeaponsSystem::Attack(Vector2 Target) {
     auto Owner = OwnerPtr.lock();
     if (CurrentWeapon != nullptr && AttackCooldown >= CurrentWeapon->Cooldown && (AttackAmmo > 0 || CurrentWeapon->Ammo == -1)) {
@@ -131,8 +164,6 @@ void WeaponsSystem::Attack(Vector2 Target) {
             this->MeleeAnimPercent = 0;
             this->MeleeAnimTexture = &game->Textures[CurrentWeapon->texture];
             this->MeleeAnimAngle = Angle - 90;
-            float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
-            float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
             if (Owner->Type == EnemyType) {
                 float AngleToPlayer = atan2(game->MainPlayer->BoundingBox.y - Target.y, game->MainPlayer->BoundingBox.x - Target.x) * RAD2DEG;
                 float Dist = Vector2Distance({game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y}, {Owner->BoundingBox.x, Owner->BoundingBox.y});
@@ -146,9 +177,11 @@ void WeaponsSystem::Attack(Vector2 Target) {
                         float AngleToEntity = atan2(Owner->BoundingBox.y - entity->BoundingBox.y, Owner->BoundingBox.x - entity->BoundingBox.x) * RAD2DEG;
                         float Dist = Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y}, {Owner->BoundingBox.x, Owner->BoundingBox.y});
                         if (Dist <= CurrentWeapon->Range)
-                            cout << AngleToEntity << " " << Angle << endl;
-                        if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range) {
+                        if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range && Raycast(entity->BoundingBox)) {
                             entity->Health -= CurrentWeapon->Damage;
+                            if (entity->Health <= 0) {
+                                game->MainPlayer->Health += entity->MaxHealth / 2.0f;
+                            }
                         }
                     }
                 }

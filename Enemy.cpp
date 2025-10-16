@@ -21,6 +21,7 @@ Enemy::Enemy(float X, float Y, float Health, float Speed, Texture2D& EnemyTextur
     this->Type = EnemyType;
     this->AngeredRangeBypassTimer = 0;
     this->AngeredRangeBypassTimerMax = 3;
+    this->AnimatedHealth = 0;
 }
 
 Enemy::Enemy() {
@@ -34,14 +35,27 @@ Enemy::~Enemy() {
 bool Enemy::Raycast(float target_x, float target_y) {
     float ray_x = BoundingBox.x;
     float ray_y = BoundingBox.y;
+    auto start_distance = static_cast<float>(sqrt(pow(ray_x - target_x, 2) + pow(ray_y - target_y, 2)));
 
-    float step_x = target_x / sqrt(pow(target_x, 2) + pow(target_y, 2));
-    float step_y = target_x / sqrt(pow(target_x, 2) + pow(target_y, 2));
+    const float step_x = ((target_x-ray_x) / start_distance) * min(start_distance/10.0f, 18.0f);
+    const float step_y = ((target_y-ray_y) / start_distance) * min(start_distance/10.0f, 18.0f);
 
-    while (sqrt(pow(ray_x - target_x, 2) + pow(ray_y - target_y, 2)) > 10) {
+    bool x_side = (target_x - ray_x) < 0;
+    bool y_side = (target_y - ray_y) < 0;
+
+    while (sqrt(pow(ray_x - target_x, 2) + pow(ray_y - target_y, 2)) > 10 && !CheckCollisionPointRec({ray_x,ray_y},game->MainPlayer->BoundingBox) && !(target_x == ray_x && target_y == ray_y)) {
+        //DrawCircle(ray_x-game->CameraPosition.x, ray_y-game->CameraPosition.y, 5, ColorAlpha(WHITE, start_distance / 500.0f));
+        std::string coord = std::to_string((int) (ray_x / game->MainTileManager.TileSize)) + " " + std::to_string((int) (ray_y / game->MainTileManager.TileSize));
+        if (int tile_id = game->MainTileManager.Map[coord]; tile_id > 0 && tile_id <= 2) {
+            return false;
+        }
+        bool curr_x_side = (target_x - ray_x) < 0;
+        bool curr_y_side = (target_y - ray_y) < 0;
+        if ((curr_x_side != x_side || curr_y_side != y_side) && (target_x != ray_x || target_y != ray_y)) {
+            return false;
+        }
         ray_x += step_x;
         ray_y += step_y;
-        //if (game->MainTileManager.Map[])
     }
     return true;
 }
@@ -64,7 +78,7 @@ void Enemy::Update() {
     float center_x = BoundingBox.x + (BoundingBox.width / 2);
     float center_y = BoundingBox.y + (BoundingBox.height / 2);
     float distance = std::sqrt(std::pow(plr_center_x - center_x, 2) + std::pow(plr_center_y - center_y, 2));
-    if (distance <= 500 || AngeredRangeBypassTimer > 0.0f) {
+    if ((distance <= 800 && (distance <= 36 || Raycast(game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y))) || AngeredRangeBypassTimer > 0.0f) {
         Movement.x = -(plr_center_x - center_x) / distance * Speed;
         Movement.y = -(plr_center_y - center_y) / distance * Speed;
         weaponsSystem.Attack(Vector2(plr_center_x, plr_center_y));
