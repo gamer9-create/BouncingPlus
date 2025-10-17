@@ -14,6 +14,7 @@ using namespace std;
 Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game) : Entity(PlayerTexture,
                                                                    Rectangle(X - 18, Y - 18, 36, 36), Speed, game) {
     this->Type = PlayerType;
+    this->Kills = 0;
 
 }
 

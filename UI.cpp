@@ -21,6 +21,7 @@ Color GetHealthColor(float Percent, float Armor) {
 UI::UI(Game &game) {
     this->game = &game;
     this->WeaponUITexture = LoadRenderTexture(GetScreenWidth(), 125);
+    this->DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     this->HealthBarTexture = LoadTexture("assets/img/health_bar.png");
 }
 
@@ -28,7 +29,6 @@ UI::UI() {
 }
 
 void UI::WeaponUI() {
-    //DrawRectangleRounded(Rectangle(25, GetScreenHeight()-175, 250, 150), 0.15f, 1, RAYWHITE);
     BeginTextureMode(WeaponUITexture);
     ClearBackground(BLANK);
     float Prev = 0;
@@ -74,7 +74,33 @@ void UI::WeaponUI() {
     DrawText((std::to_string((int)round(game->MainPlayer->Health))+"%").c_str(), WeaponUITexture.texture.width / 2.0f - size / 2.0f, WeaponUITexture.texture.height / 2.0f - 46, 92, GetHealthColor(game->MainPlayer->Health/game->MainPlayer->MaxHealth));
 
     EndTextureMode();
-    DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), RAYWHITE);
+
+    DeathTextAnimRot = sin(GetTime()*2) * 6;
+
+    if (game->MainPlayer->Health <= 0) {
+        BeginTextureMode(DeathScreen);
+
+        ClearBackground(BLANK);
+
+        DrawTextPro(GetFontDefault(), "You died!", {GetScreenWidth()/2.0f, 250.0f}, {MeasureTextEx(GetFontDefault(), "You died!", 100, 10.0f).x/2.0f, 50.0f}, DeathTextAnimRot, 100, 10, RED);
+
+        const char* txt = ("YOU KILLED " + to_string(game->MainPlayer->Kills) + " ENEMIES").c_str();
+        const char* txt_2 = std::string("PRESS E TO RESPAWN").c_str();
+        float size = MeasureText(txt, 35);
+        float size2 = MeasureText(txt_2, 35);
+        DrawText(txt, GetScreenWidth()/2 - size/2, GetScreenHeight()-250, 35, RED);
+        DrawText(txt_2, GetScreenWidth()/2 - size2/2, GetScreenHeight()-215, 35, RED);
+
+        EndTextureMode();
+    }
+
+    DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
+    DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
+    if (game->MainPlayer->Health > 0 && UITransparency < 1.0f) {
+        UITransparency += 3 * GetFrameTime();
+    } else if (UITransparency > 0) {
+        UITransparency -= 2.2f*GetFrameTime();
+    }
 }
 
 void UI::Quit() {

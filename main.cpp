@@ -14,7 +14,7 @@ int main() {
     Game MainGame = Game();
     Menu MainMenu = Menu();
 
-    MainGame.Reload("assets/maps/untitled.csv");
+    MainGame.Reload("assets/maps/cpp_level.csv");
 
     bool InGame = false;
 
@@ -38,12 +38,12 @@ int main() {
         for (int i = -1; i < round(GetScreenWidth() / grid_space)+1; i++) {
             int x = (int)(ParallaxCamX / grid_space);
             DrawLineEx({((x+i)*grid_space) - ParallaxCamX, 0}, {((x+i)*grid_space) - ParallaxCamX, (float) GetScreenHeight()}, 7, ColorBrightness(WHITE, -0.5f));
-            DrawLineEx({((x+i)*grid_space) - ParallaxCamX, 0}, {((x+i)*grid_space) - ParallaxCamX, (float) GetScreenHeight()}, 3, WHITE);
+            DrawLineEx({((x+i)*grid_space) - ParallaxCamX, 0}, {((x+i)*grid_space) - ParallaxCamX, (float) GetScreenHeight()}, 3, ColorAlpha(WHITE, 0.5f));
         }
 
         for (int i = -1; i < round(GetScreenHeight() / grid_space)+1; i++) {
             int y = (int)(ParallaxCamY / grid_space);
-            DrawLineEx({0, ((y+i)*grid_space) - ParallaxCamY}, {(float) GetScreenWidth(), ((y+i)*grid_space) - ParallaxCamY}, 3, WHITE);
+            DrawLineEx({0, ((y+i)*grid_space) - ParallaxCamY}, {(float) GetScreenWidth(), ((y+i)*grid_space) - ParallaxCamY}, 3, ColorAlpha(WHITE, 0.5f));
         }
 
         if (InGame) {

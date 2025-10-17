@@ -12,6 +12,7 @@ class Player : public Entity {
     public:
         WeaponsSystem weaponsSystem;
         bool weaponsSystemInit = false;
+        int Kills;
         Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game);
         Player();
         virtual ~Player();

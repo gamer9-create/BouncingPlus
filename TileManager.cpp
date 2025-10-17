@@ -89,8 +89,8 @@ void TileManager::ReadMap(const char *Filename) {
                 {
                 case 4:
                     Weapon = "Enemy Sword";
-                    Speed = 175.0f;
-                    Health = 180.0f;
+                    Speed = 125.0f;
+                    Health = 90.0f;
                     Armor = 50.0f;
                 }
                 game->Entities[EnemyType].push_back(make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->Textures["enemy"], *game));

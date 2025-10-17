@@ -188,6 +188,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
                             }
                             if (entity->Health <= 0) {
                                 game->MainPlayer->Health += entity->MaxHealth / 2.0f;
+                                game->MainPlayer->Kills += 1;
                             }
                         }
                     }
