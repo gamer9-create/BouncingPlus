@@ -13,6 +13,7 @@ class Player : public Entity {
         WeaponsSystem weaponsSystem;
         bool weaponsSystemInit = false;
         int Kills;
+        float OrigSpeed;
         Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game);
         Player();
         virtual ~Player();

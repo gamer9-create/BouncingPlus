@@ -15,6 +15,7 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
                                                                    Rectangle(X - 18, Y - 18, 36, 36), Speed, game) {
     this->Type = PlayerType;
     this->Kills = 0;
+    this->OrigSpeed = Speed;
 
 }
 
@@ -48,7 +49,8 @@ void Player::Update() {
     if (!this->weaponsSystemInit) {
         this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
         this->weaponsSystem.Weapons[0] = "Player Gun";
-        this->weaponsSystem.Weapons[1] = "Sword";
+        this->weaponsSystem.Weapons[1] = "Sniper Gun";
+        this->weaponsSystem.Weapons[2] = "Sword";
         this->weaponsSystem.Equip(0);
         this->weaponsSystemInit = true;
     }
@@ -75,6 +77,13 @@ void Player::Update() {
         } else if (weaponsSystem.CurrentWeaponIndex == 2) {
             weaponsSystem.Unequip();
         }
+    }
+    if ((Health/MaxHealth) > 2.0f)
+    {
+        Speed = OrigSpeed * (1.0f - min((Health/MaxHealth)-2.0f, 0.4f));
+    } else
+    {
+        Speed = OrigSpeed;
     }
     Entity::Update();
     weaponsSystem.Update();

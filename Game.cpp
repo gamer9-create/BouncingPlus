@@ -35,6 +35,7 @@ void Game::SetGameData() {
     Textures.insert({"armor_overlay", LoadTexture("assets/img/armor_overlay.png")});
     Weapons.insert({"Default Gun", {false, 400, 20, 0.2, 0.0f, 0.0f, -1, ""}});
     Weapons.insert({"Player Gun", {false, 800, 20, 0.2, 0.0f, 0.0f, -1, ""}});
+    Weapons.insert({"Sniper Gun", {false, 1600, 100, 3, 0.0f, 0.0f, -1, ""}});
     Weapons.insert({"Sword", {true, 0.4, 35, 0.8f, 90.0f, 350.0f, -1, "sword"}});
     Weapons.insert({"Enemy Sword", {true, 0.4, 35, 1.25f, 90.0f, 204.0f, -1, "sword"}});
 

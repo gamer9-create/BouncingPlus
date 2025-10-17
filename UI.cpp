@@ -4,6 +4,8 @@
 
 #include "UI.h"
 #include <algorithm>
+#include <iostream>
+
 #include "Game.h"
 
 Color GetHealthColor(float Percent, float Armor) {
@@ -33,6 +35,35 @@ void UI::WeaponUI() {
     ClearBackground(BLANK);
     float Prev = 0;
     bool Found = false;
+
+    float lowest_x = 50.0f;
+    float lowest_y = 0.0f;
+    float highest_width = -1;
+    float highest_height = -1;
+
+    float tPrev = 0;
+    for (int i = 0; i < 3; i ++ )
+    {
+        float offset = 0;
+        float size = 0;
+        if (WeaponSlotIndex == i)
+        {
+            offset=WeaponSlotOffset;
+            size=WeaponSlotSize;
+        }
+        std::string name = game->MainPlayer->weaponsSystem.Weapons[i];
+        if (name.empty())
+            name = "Empty";
+        if (i == 2)
+            highest_height = tPrev + 20 + size;
+        if (MeasureText(name.c_str(), 20+size) > highest_width)
+            highest_width = MeasureText(name.c_str(), 20+size)+offset;
+        tPrev += 35 + size;
+    }
+
+    int margin = 15;
+    DrawRectangle(lowest_x-margin,lowest_y-margin,highest_width+margin,highest_height+margin,ColorAlpha(BLACK, 0.5f));
+
     for (int i = 0; i < 3; i++) {
         std::string name = game->MainPlayer->weaponsSystem.Weapons[i];
         if (name.empty())
@@ -55,6 +86,12 @@ void UI::WeaponUI() {
             offset=WeaponSlotOffset;
             size=WeaponSlotSize;
         }
+        if (MeasureText(name.c_str(), 20+size) > highest_width)
+        {
+            highest_width = MeasureText(name.c_str(), 20+size)+offset;
+        }
+        if (i == 2)
+            highest_height = Prev + 20 + size;
         DrawLineEx(Vector2(50, Prev+2.0f),
                 Vector2((50 + MeasureText(name.c_str(), 20+size)+offset), Prev+2.0f), 4,
                        MainColor);
@@ -77,10 +114,10 @@ void UI::WeaponUI() {
 
     DeathTextAnimRot = sin(GetTime()*2) * 6;
 
-    if (game->MainPlayer->Health <= 0) {
+    if (game->MainPlayer->ShouldDelete) {
         BeginTextureMode(DeathScreen);
 
-        ClearBackground(BLANK);
+        ClearBackground(ColorAlpha(RED, 0.2f));
 
         DrawTextPro(GetFontDefault(), "You died!", {GetScreenWidth()/2.0f, 250.0f}, {MeasureTextEx(GetFontDefault(), "You died!", 100, 10.0f).x/2.0f, 50.0f}, DeathTextAnimRot, 100, 10, RED);
 
