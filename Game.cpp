@@ -30,6 +30,7 @@ Game::Game() {
     PhysicsFPS = 1.0f/240.0f;
     PhysicsAccumulator = 0;
     MainPlayer = nullptr;
+    DebugDraw = false;
     SetGameData();
 }
 
@@ -38,6 +39,7 @@ void Game::SetGameData() {
     Textures.insert({"enemy", LoadTexture("assets/img/enemy.png")});
     Textures.insert({"bullet", LoadTexture("assets/img/bullet.png")});
     Textures.insert({"sword", LoadTexture("assets/img/sword.png")});
+    Textures.insert({"shotgun", LoadTexture("assets/img/shotgun.png")});
     Textures.insert({"armor_overlay", LoadTexture("assets/img/armor_overlay.png")});
     Sounds.insert({"dash_hit", LoadSound("assets/sounds/dash_hit.wav")});
     Sounds.insert({"death", LoadSound("assets/sounds/death.wav")});
@@ -45,7 +47,7 @@ void Game::SetGameData() {
     Sounds.insert({"shotgun", LoadSound("assets/sounds/shotgun.wav")});
     Weapons.insert({"Default Gun", {false, false, false, 400, 1.0f, 20, 0.2, 0.0f, 0.0f, 1, 0, "", ""}});
     Weapons.insert({"Player Gun", {false, false, false, 1000, 1.0f, 20, 0.2, 0.0f, 0.0f, 1, 0, "", ""}});
-    Weapons.insert({"Shotgun", {false, true, true, 1600, 2.0f, 10, 1.0f, 40.0f, 0.0f, 10, 0.5f, "", "shotgun"}});
+    Weapons.insert({"Shotgun", {false, true, true, 1600, 4.0f, 10, 1.0f, 40.0f, 150.0f, 10, 0.5f, "shotgun", "shotgun"}});
     Weapons.insert({"Sword", {true, false, false, 0.4, 1.0f, 35, 0.45f, 90.0f, 350.0f, -1, 0, "sword", ""}});
     Weapons.insert({"Enemy Sword", {true, false, false, 0.4f, 1.0f, 35.0f, 0.55f, 90.0f, 204.0f, -1, 0, "sword", ""}});
 
@@ -103,7 +105,7 @@ void Game::Update() {
 
     for (int e = 0; e < End; e++) {
         std::vector<shared_ptr<Entity>> *array = &Entities[(EntityType) e];
-        //int old_size = array->size();
+        int old_size = array->size();
         std::erase_if(*array, [this](shared_ptr<Entity> e) {
             if (e && e->ShouldDelete) {
                 if (e != MainPlayer) {
@@ -113,7 +115,10 @@ void Game::Update() {
             }
             return false;
         });
-        //cout << to_string(e)+"/typa shit ive been on/ de old size(TALLY HALL DETECTED) " + to_string(old_size) + ", new size? (BANANA MAN IS COMING TO NUKE YOU) " + to_string(array->size()) << endl;
+        if (DebugDraw) {
+            std::string f = to_string(e)+"/typa shit ive been on/ de old size(TALLY HALL DETECTED) " + to_string(old_size) + ", new size? (BANANA MAN IS COMING TO NUKE YOU) " + to_string(array->size());
+            DrawText(f.c_str(), 500, 500, 10, WHITE);
+        }
     }
 
     Ui.GameUI();
@@ -126,6 +131,42 @@ void Game::ShakeCamera(float Intensity) {
     this->CameraShakes = 14;
 }
 
+bool Game::RayCast(Vector2 origin, Vector2 target) { // RayCasting function
+
+    // Init starting positions
+    float ray_x = origin.x;
+    float ray_y = origin.y;
+    auto start_distance = static_cast<float>(sqrt(pow(ray_x - target.x, 2) + pow(ray_y - target.y, 2)));
+
+    // Getting the step distance
+
+    const float step_x = ((target.x-ray_x) / start_distance) * 18;
+    const float step_y = ((target.y-ray_y) / start_distance) * 18;
+
+    // Getting the side we are on relative to the target
+
+    bool x_side = (target.x - ray_x) < 0;
+    bool y_side = (target.y - ray_y) < 0;
+
+    // marching through the world, check if we collide with something
+    while (sqrt(pow(ray_x - target.x, 2) + pow(ray_y - target.y, 2)) > 2) {
+        ray_x += step_x;
+        ray_y += step_y;
+        if (DebugDraw)
+            DrawCircle((int)ray_x-CameraPosition.x, (int)ray_y-CameraPosition.y, 2, RED);
+        std::string coord = std::to_string((int) (ray_x / MainTileManager.TileSize)) + " " + std::to_string((int) (ray_y / MainTileManager.TileSize));
+        // if we collide with a wall, raycast failed
+        if (int tile_id = MainTileManager.Map[coord]; tile_id > 0 && tile_id <= 2) {
+            return false;
+        }
+        bool curr_x_side = (target.x - ray_x) < 0;
+        bool curr_y_side = (target.y - ray_y) < 0;
+        if (curr_x_side != x_side || curr_y_side != y_side) { // Have we traveled beyond the target? havent found anything? If so, exit!!
+            return true;
+        }
+    }
+    return true;
+}
 
 void Game::Clear() {
     for (int e = 0; e < End; e++) {

@@ -17,30 +17,30 @@
 using namespace std;
 
 class Game {
+    int CameraShakes;
+    float CameraShakeIntensity;
+    double CameraShakeTimer;
+    Vector2 CameraShakeOffset;
+    Vector2 CameraPositionUnaffected;
+    float CameraSpeed;
+    float PhysicsFPS;
+    float PhysicsAccumulator;
+    UI Ui;
+    void SetGameData();
     public:
         Vector2 CameraPosition;
-        Vector2 CameraPositionUnaffected;
-        Vector2 CameraTarget;
+    Vector2 CameraTarget;
         float CameraZoom;
-        float CameraSpeed;
-
-        int CameraShakes;
-        float CameraShakeIntensity;
-        double CameraShakeTimer;
-        Vector2 CameraShakeOffset;
-
-        float PhysicsFPS;
-        float PhysicsAccumulator;
-        UI Ui;
         TileManager MainTileManager;
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Sound> Sounds;
         unordered_map<std::string, Weapon> Weapons;
         shared_ptr<Player> MainPlayer;
         std::unordered_map<EntityType, std::vector<shared_ptr<Entity>>> Entities;
+        bool DebugDraw;
         Game();
-        void SetGameData();
         void ShakeCamera(float Intensity);
+        bool RayCast(Vector2 origin, Vector2 target);
         void Reload(const char *Filename);
         void Update();
         void Clear();

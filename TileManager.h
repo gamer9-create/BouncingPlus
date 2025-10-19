@@ -12,14 +12,15 @@
 class Game;
 
 class TileManager {
+    Texture2D BouncyWallTexture;
+    Texture2D DeleteWallTexture;
+    Game* game;
+    Vector2 UpdateDistance;
     public:
-        Game* game;
         float TileSize;
-        Vector2 UpdateDistance;
         int MapWidth, MapHeight;
         std::unordered_map<std::string, int> Map;
-        Texture2D BouncyWallTexture;
-        Texture2D DeleteWallTexture;
+
         TileManager();
         TileManager(Game &game);
         void Update();

@@ -11,14 +11,15 @@
 using namespace std;
 
 class Bullet : public Entity {
-public:
     float ExistenceTimer;
     float Damage;
     bool dd=false;
-    bool SlowdownOverTime;
-    Vector2 FirePoint;
     std::weak_ptr<Entity> OwnerPtr;
     std::string LastBouncedCoordinate;
+public:
+
+    bool SlowdownOverTime;
+    Vector2 FirePoint;
     Bullet(float X, float Y, float Angle, float Size, float Speed, float Damage, Texture2D& BulletTexture, std::shared_ptr<Entity> Owner, Game &game);
     Bullet();
     void Attack(std::shared_ptr<Entity> entity);

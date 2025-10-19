@@ -10,21 +10,20 @@
 
 
 class Player : public Entity {
+    void AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked);
+    void DashLogic();
+    bool weaponsSystemInit = false;
+    float DashCooldown = 0;
+    double DashTimeStart = 0;
+    std::vector<std::weak_ptr<Enemy>> DashedEnemies;
+    float OrigSpeed;
+    float ExtraSpeed;
+    double LastMovedTime;
+    int LastKills;
     public:
         WeaponsSystem weaponsSystem;
-        bool weaponsSystemInit = false;
-
-        bool IsDashing = false;
-        float DashCooldown = 0;
-        double DashTimeStart = 0;
-        std::vector<std::weak_ptr<Enemy>> DashedEnemies;
-
         int Kills;
-        int LastKills;
-        float OrigSpeed;
-
-        float ExtraSpeed;
-        double LastMovedTime;
+        bool IsDashing = false;
 
         Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game);
         Player();

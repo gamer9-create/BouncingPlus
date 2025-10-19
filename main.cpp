@@ -94,6 +94,7 @@ int main() {
                 HasAgreed = true;
         }
 
+        //DrawTexturePro(MainGame.Textures.at("shotgun"), {0,0,(float)MainGame.Textures.at("shotgun").width, (float)MainGame.Textures.at("shotgun").height}, {(float)GetMouseX(), (float)GetMouseY(), (float)MainGame.Textures.at("shotgun").width*3, (float)MainGame.Textures.at("shotgun").height*3}, {MainGame.Textures.at("shotgun").width*1.5f, MainGame.Textures.at("shotgun").height*1.5f}, sinf(GetTime())*100, WHITE);
         EndMode2D();
         EndDrawing();
     }

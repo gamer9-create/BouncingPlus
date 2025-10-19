@@ -10,7 +10,6 @@ class Game;
 Color GetHealthColor(float Percent, float Armor = 0.0f);
 
 class UI {
-    public:
     Game *game;
     RenderTexture2D WeaponUITexture;
     RenderTexture2D DeathScreen;
@@ -21,6 +20,7 @@ class UI {
     float HealthBarSize = 250;
     float UITransparency = 1.0f;
     float DeathTextAnimRot = 0.0f;
+    public:
     UI(Game &game);
     UI();
     void GameUI();

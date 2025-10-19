@@ -226,7 +226,7 @@ void Entity::Update() {
     if (IsVisible())
     {
         DrawTexturePro(*Texture, Rectangle(0, 0, static_cast<float> (Texture->width), static_cast<float> (Texture->height)),
-                       Rectangle(BoundingBox.x - CameraPosition->x, BoundingBox.y - CameraPosition->y, BoundingBox.width,
-                                 BoundingBox.height), Vector2(0,0), Rotation, WHITE);
+                       Rectangle(BoundingBox.x - CameraPosition->x + BoundingBox.width/2, BoundingBox.y - CameraPosition->y + BoundingBox.height/2, BoundingBox.width,
+                                 BoundingBox.height), Vector2(BoundingBox.width/2,BoundingBox.height/2), Rotation, WHITE);
     }
 }

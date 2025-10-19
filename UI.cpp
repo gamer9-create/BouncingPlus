@@ -158,6 +158,7 @@ void UI::GameUI() {
         EndTextureMode();
     }
 
+    DrawText(to_string(UITransparency).c_str(), 50, 250, 10, WHITE);
     DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
     DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
     if (game->MainPlayer->Health > 0 && UITransparency < 1.0f) {

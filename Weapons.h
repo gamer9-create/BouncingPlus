@@ -28,30 +28,29 @@ struct Weapon {
 };
 
 class WeaponsSystem {
+    void DisplayGunTexture();
+    void MeleeAttack(std::shared_ptr<Entity> entity, float Angle);
+
+    Game* game;
+    weak_ptr<Entity> OwnerPtr;
+    double PointRemovalTimer;
+    std::vector<Vector2> points;
+    bool MeleeAnim;
+    Texture* MeleeAnimTexture;
+    float MeleeAnimAngle;
+    float MeleeAnimRange;
+    float MeleeAnimPercent;
+    float MeleeAnimAlpha;
+
     public:
-        Game* game;
-        weak_ptr<Entity> OwnerPtr;
-        std::string Weapons[3];
-        float AttackCooldowns[3];
-        Weapon* CurrentWeapon;
-        int CurrentWeaponIndex;
-
-        double PointRemovalTimer;
-
-        std::vector<Vector2> points;
-
-        bool MeleeAnim;
-        Texture* MeleeAnimTexture;
-        float MeleeAnimAngle;
-        float MeleeAnimRange;
-        float MeleeAnimPercent;
-        float MeleeAnimAlpha;
+    std::string Weapons[3];
+    Weapon* CurrentWeapon;
+    int CurrentWeaponIndex;
+    float AttackCooldowns[3];
 
         WeaponsSystem(shared_ptr<Entity> Owner, Game &game);
         WeaponsSystem();
         virtual ~WeaponsSystem();
-
-        bool Raycast(Rectangle target);
         virtual void Equip(int Index);
         virtual void Unequip();
         virtual void Update();

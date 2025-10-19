@@ -9,17 +9,17 @@
 
 
 class Enemy : public Entity {
+    float AnimatedHealth;
+    std::string MyWeapon;
+
+    WeaponsSystem weaponsSystem;
+    bool weaponsSystemInit = false;
 public:
     float AngeredRangeBypassTimerMax;
     float AngeredRangeBypassTimer;
-    WeaponsSystem weaponsSystem;
-    bool weaponsSystemInit = false;
-    float AnimatedHealth;
     float Armor;
-    std::string MyWeapon;
     Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game);
     Enemy();
-    bool Raycast(float target_x, float target_y);
     virtual ~Enemy();
     void Update();
 };

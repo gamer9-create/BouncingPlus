@@ -62,23 +62,52 @@ void Player::PhysicsUpdate(float dt) {
     Entity::PhysicsUpdate(dt);
 }
 
-void Player::Update() {
+void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked) {
+    // check if we're colliding with them. if so, attack!
+    if (CheckCollisionRecs(BoundingBox, entity->BoundingBox) && !already_attacked) {
+        // calculate damage & attack
+        float Damage = VelocityPower / 16.0f;
+        if (entity->Armor <= 0)
+            entity->Health -= Damage;
+        else
+            entity->Armor -= Damage;
+        Health += Damage / 8.0f;
+
+        // play sound
+        SetSoundVolume(game->Sounds["dash_hit"], min(max(VelocityPower / 1500.0f, 0.0f), 1.0f));
+        PlaySound(game->Sounds["dash_hit"]);
+
+        // did we kill them? if so, give health & kills
+        if (entity->Health <= 0) {
+            Health += VelocityPower / 18.0f;
+            Kills+=1;
+        }
+
+        // give them pushback force
+        entity->VelocityMovement = VelocityMovement;
+        entity->VelocityPower = -VelocityPower;
+
+        // shake camera
+        game->ShakeCamera(VelocityPower / 1450.0f);
+        game->CameraPosition += Vector2Normalize({(float)GetRandomValue(-50, 50), (float)GetRandomValue(-50, 50)}) * (VelocityPower / 10.0f);
+
+        // increase velocity and mark enemy as attacked
+        VelocityPower += VelocityPower / 5.0f;
+        DashedEnemies.push_back(std::weak_ptr(entity));
+    }
+}
+
+void Player::DashLogic() {
+    // update dash cooldownm
     if (DashCooldown > 0)
         DashCooldown -= GetFrameTime();
-    if (!this->weaponsSystemInit) {
-        this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
-        this->weaponsSystem.Weapons[0] = "Player Gun";
-        this->weaponsSystem.Weapons[1] = "Shotgun";
-        this->weaponsSystem.Weapons[2] = "Sword";
-        this->weaponsSystem.Equip(0);
-        this->weaponsSystemInit = true;
-    }
-    if (Health > 400)
-        Health = 400;
+
     if (VelocityPower > 0) {
+        // get enemies list
         std::vector<shared_ptr<Entity>>* array = &game->Entities[EnemyType];
         for (int i = 0; i < array->size(); i++) {
             if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != nullptr and !entity->ShouldDelete) {
+                // have we already attacked them? if so, ignore this!!!
                 bool already_attacked = false;
                 for (auto e : DashedEnemies) {
                     if (!e.owner_before(entity) && !entity.owner_before(e)) {
@@ -86,31 +115,15 @@ void Player::Update() {
                         break;
                     }
                 }
-                if (CheckCollisionRecs(BoundingBox, entity->BoundingBox) && !already_attacked) {
-                    float Damage = VelocityPower / 16.0f;
-                    if (entity->Armor <= 0)
-                        entity->Health -= Damage;
-                    else
-                        entity->Armor -= Damage;
-                    Health += Damage / 8.0f;
-                    SetSoundVolume(game->Sounds["dash_hit"], min(max(VelocityPower / 1500.0f, 0.0f), 1.0f));
-                    PlaySound(game->Sounds["dash_hit"]);
-                    if (entity->Health <= 0) {
-                        Health += VelocityPower / 18.0f;
-                        Kills+=1;
-                    }
-                    entity->VelocityMovement = VelocityMovement;
-                    entity->VelocityPower = -VelocityPower;
-                    game->ShakeCamera(VelocityPower / 1450.0f);
-                    game->CameraPosition += Vector2Normalize({(float)GetRandomValue(-50, 50), (float)GetRandomValue(-50, 50)}) * (VelocityPower / 10.0f);
-                    VelocityPower += VelocityPower / 5.0f;
-                    DashedEnemies.push_back(std::weak_ptr(entity));
-                }
+
+                // attack them
+                AttackDashedEnemy(entity, already_attacked);
             }
         }
     } else {
         DashedEnemies.clear();
     }
+
     auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->CameraPosition.x, static_cast<float> (GetMouseY()) + game->CameraPosition.y);
     if (DashCooldown <= 0 && IsKeyDown(KEY_LEFT_SHIFT)) {
         if (!IsDashing)
@@ -121,9 +134,7 @@ void Player::Update() {
     if (IsDashing && !IsKeyDown(KEY_LEFT_SHIFT)) {
         IsDashing = false;
     }
-    if (IsMouseButtonDown(0) && !IsDashing) {
-        weaponsSystem.Attack(WorldMousePos);
-    } else if (IsMouseButtonDown(1) && IsDashing) {
+    if (IsMouseButtonDown(1) && IsDashing) {
         DashCooldown = 1.5f;
         DashedEnemies.clear();
         VelocityMovement = Vector2Subtract(WorldMousePos, {BoundingBox.x, BoundingBox.y});
@@ -132,6 +143,46 @@ void Player::Update() {
         PlaySound(game->Sounds["dash"]);
         IsDashing = false;
     }
+
+    // display dashing bar
+    int w = 56;
+    int h = 15;
+    float a = 0.25f;
+    if (IsDashing)
+        a = Lerp(0.25f, 0.5f, min( (float)(GetTime() - DashTimeStart) / 0.2f, 1.0f ));
+    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->CameraPosition.x),
+        (int)(BoundingBox.y + BoundingBox.width + 10 - game->CameraPosition.y),
+        w, h, ColorAlpha(BLACK, a));
+    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->CameraPosition.x)+5,
+        (int)(BoundingBox.y + BoundingBox.width + 10 - game->CameraPosition.y)+5,
+        (!IsDashing ? 0 : min(static_cast<float>(GetTime() - DashTimeStart) / 1.1f, 1.0f))*(w-10), h-10, ColorAlpha(WHITE, a));
+}
+
+void Player::Update() {
+
+    // is the weapon system not initialized?? init it now!!!
+    if (!this->weaponsSystemInit) {
+        this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
+        this->weaponsSystem.Weapons[0] = "Player Gun";
+        this->weaponsSystem.Weapons[1] = "Shotgun";
+        this->weaponsSystem.Weapons[2] = "Sword";
+        this->weaponsSystem.Equip(0);
+        this->weaponsSystemInit = true;
+    }
+
+    // health cap
+    if (Health > 400)
+        Health = 400;
+
+    // dashing logic
+    DashLogic();
+
+    // firing logic
+    auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->CameraPosition.x, static_cast<float> (GetMouseY()) + game->CameraPosition.y);
+    if (IsMouseButtonDown(0) && !IsDashing)
+        weaponsSystem.Attack(WorldMousePos);
+
+    // inventory input logic
     if (IsKeyPressed(KEY_ONE)) {
         if (weaponsSystem.CurrentWeaponIndex != 0) {
             weaponsSystem.Equip(0);
@@ -153,20 +204,14 @@ void Player::Update() {
             weaponsSystem.Unequip();
         }
     }
+
+    // update entitty
     Entity::Update();
     weaponsSystem.Update();
+
+    // did we get a kill? play kill sound!
     if (Kills != LastKills)
         PlaySound(game->Sounds["death"]);
     LastKills = Kills;
-    int w = 56;
-    int h = 15;
-    float a = 0.25f;
-    if (IsDashing)
-        a = Lerp(0.25f, 0.5f, min( (float)(GetTime() - DashTimeStart) / 0.2f, 1.0f ));
-    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->CameraPosition.x),
-        (int)(BoundingBox.y + BoundingBox.width + 10 - game->CameraPosition.y),
-        w, h, ColorAlpha(BLACK, a));
-    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->CameraPosition.x)+5,
-        (int)(BoundingBox.y + BoundingBox.width + 10 - game->CameraPosition.y)+5,
-        (!IsDashing ? 0 : min(static_cast<float>(GetTime() - DashTimeStart) / 1.1f, 1.0f))*(w-10), h-10, ColorAlpha(WHITE, a));
+
 }
