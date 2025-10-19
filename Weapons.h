@@ -13,13 +13,18 @@ using namespace std;
 
 struct Weapon {
     bool isMelee = false;
+    bool ShakeScreen = false;
+    bool SlowdownOverTime = false;
     float Speed = 0;
+    float Size = 1;
     float Damage = 0;
     float Cooldown = 0;
     float AngleRange = 0;
     float Range = 0;
-    int Ammo = -1;
+    int Bullets = -1;
+    float Intensity = 0;
     std::string texture;
+    std::string sound;
 };
 
 class WeaponsSystem {
@@ -27,10 +32,9 @@ class WeaponsSystem {
         Game* game;
         weak_ptr<Entity> OwnerPtr;
         std::string Weapons[3];
+        float AttackCooldowns[3];
         Weapon* CurrentWeapon;
         int CurrentWeaponIndex;
-        float AttackCooldown;
-        int AttackAmmo;
 
         double PointRemovalTimer;
 

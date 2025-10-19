@@ -7,24 +7,32 @@
 #include <cmath>
 #include <ostream>
 #include <iostream>
+#include <raymath.h>
+
 #include "Enemy.h"
 #include "math.h"
 #include "Game.h"
 
-Bullet::Bullet(float X, float Y, Vector2 Direction, float Speed, float Damage, Texture2D &BulletTexture, shared_ptr<Entity> Owner, Game &game) : Entity(BulletTexture, BoundingBox, Speed, game) {
-    this->Movement = Direction;
+Bullet::Bullet(float X, float Y, float Angle, float Size, float Speed, float Damage, Texture2D &BulletTexture, shared_ptr<Entity> Owner, Game &game) : Entity(BulletTexture, BoundingBox, Speed, game) {
     this->Speed = Speed;
     this->Type = BulletType;
     this->ExistenceTimer = 0;
-    this->BoundingBox=Rectangle(X - 5, Y - 2.5f, 10, 5);
+    this->BoundingBox=Rectangle(X - (10 * Size / 2.0f), Y - (5 * Size / 2.0f), 10 * Size, 5 * Size);
     this->Texture=&BulletTexture;
     this->ShouldDelete = false;
+    this->SlowdownOverTime = false;
     this->Speed=Speed;
     this->game = &game;
-    this->Rotation = std::atan2(Direction.y, Direction.x) * (180.0f/3.141592653589793238463f);
+    this->FirePoint = {X, Y};
+    this->Rotation = Angle;//std::atan2(Direction.y, Direction.x) * (180.0f/3.141592653589793238463f);
     this->Damage = Damage;
     this->OwnerPtr = Owner;
     this->LastBouncedCoordinate = "";
+
+    float cX = -cos(Rotation * (2 * PI / 360))*100;
+    float cY = -sin(Rotation * (2 * PI / 360))*100;
+
+    this->Movement = {cX, cY};
 }
 
 Bullet::Bullet() {
@@ -37,13 +45,15 @@ Bullet::~Bullet() {
 
 void Bullet::PhysicsUpdate(float dt) {
 
+    if (SlowdownOverTime)
+        Speed = Lerp(Speed, 0, 10*ExistenceTimer*GetFrameTime());
+
     double dist = std::sqrt((Movement.x * Movement.x) + (Movement.y * Movement.y));
     if (dist != 0) {
         Vector2 FinalMovement = Vector2((Movement.x / dist) * Speed, (Movement.y / dist) * Speed);
 
         BoundingBox.x += FinalMovement.x * dt;
         BoundingBox.y += FinalMovement.y * dt;
-        bool should_move = true;
         int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
         int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
         for (int y = 0; y < 3; y++) {
@@ -98,7 +108,7 @@ void Bullet::PhysicsUpdate(float dt) {
 
                             bool negate = true;
 
-                            if (i < 2 | dirs[0] == dirs[1]) {
+                            if (i < 2 || dirs[0] == dirs[1]) {
                                 if (dir_hit == 1 || dir_hit == 3) {
                                     Rotation = -Rotation;
                                 } else {
@@ -108,8 +118,8 @@ void Bullet::PhysicsUpdate(float dt) {
                                 negate = false;
                             }
 
-                            float X = -cos(Rotation * (2 * PI / 360));
-                            float Y = -sin(Rotation * (2 * PI / 360));
+                            float X = cos(Rotation * (2 * PI / 360))*100;
+                            float Y = sin(Rotation * (2 * PI / 360))*100;
 
                             if (negate) {
                                 Movement = Vector2(-X, -Y);
@@ -119,18 +129,13 @@ void Bullet::PhysicsUpdate(float dt) {
 
                             OwnerPtr.reset();
 
-                            //this->LastBouncedCoordinate = coord;
+                            this->LastBouncedCoordinate = coord;
                         } else if (tile_id == 2) {
                             ShouldDelete = true;
                         }
-                        should_move = false;
                     }
                 }
             }
-        }
-        if (!should_move) {
-            BoundingBox.x -= FinalMovement.x * dt;
-            BoundingBox.y -= FinalMovement.y * dt;
         }
     }
 }
@@ -147,15 +152,15 @@ void Bullet::Attack(shared_ptr<Entity> entity) {
                 float percent = (Owner->Health-Owner->MaxHealth) / Owner->MaxHealth;
                 ThisDamage = Damage * (1.0f - min(percent, 0.75f));
             }
-            if (enemy->Armor > 0)
+            if (enemy->Armor > 0)// && ( (!CloseRangingAllowed && Vector2Distance({BoundingBox.x,BoundingBox.y}, this->FirePoint) > 36) || CloseRangingAllowed ))
             {
                 ShouldDamage = false;
                 enemy->Armor -= ThisDamage * (1.0f+(GetRandomValue(1, 10)/10.0f));
             }
         }
-        if (ShouldDamage)
+        if (ShouldDamage)// && ( (!CloseRangingAllowed && Vector2Distance({BoundingBox.x,BoundingBox.y}, this->FirePoint) > 36) || CloseRangingAllowed ))
             entity->Health -= ThisDamage;
-        if (Owner != nullptr && entity->Health <= 0) {
+        if (Owner != nullptr && entity->Health <= 0 && Owner->Health > 0) {
             Owner->Health += ThisDamage;
             if (Owner->Type == PlayerType)
                 game->MainPlayer->Kills += 1;
@@ -166,7 +171,12 @@ void Bullet::Attack(shared_ptr<Entity> entity) {
 
 void Bullet::Update() {
     ExistenceTimer += GetFrameTime();
-    if (ExistenceTimer >= 8.5) {
+    if (!SlowdownOverTime) {
+
+        if (ExistenceTimer >= 8.5) {
+            ShouldDelete = true;
+        }
+    } else if (Speed < 50) {
         ShouldDelete = true;
     }
     auto Owner = OwnerPtr.lock();
@@ -174,6 +184,10 @@ void Bullet::Update() {
         if (entity != nullptr && entity != Owner && !entity->ShouldDelete) {
             Attack(entity);
         }
+    }
+    if (Owner == nullptr && !dd) {
+        Damage /= 2.0f;
+        dd = true;
     }
     if (Owner != game->MainPlayer)
         Attack(game->MainPlayer);

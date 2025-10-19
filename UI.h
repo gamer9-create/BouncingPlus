@@ -23,7 +23,7 @@ class UI {
     float DeathTextAnimRot = 0.0f;
     UI(Game &game);
     UI();
-    void WeaponUI();
+    void GameUI();
     void Quit();
 };
 

@@ -85,11 +85,7 @@ void Enemy::Update() {
             Movement.x = -(plr_center_x - center_x) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
             Movement.y = -(plr_center_y - center_y) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
         }
-        if (!weaponsSystem.CurrentWeapon->isMelee) {
-            weaponsSystem.Attack(Vector2(plr_center_x, plr_center_y));
-        } else if (weaponsSystem.CurrentWeapon->Range >= distance) {
-            weaponsSystem.Attack(Vector2(plr_center_x, plr_center_y));
-        }
+        weaponsSystem.Attack(Vector2(plr_center_x, plr_center_y));
     }
 
     AnimatedHealth = Lerp(AnimatedHealth, Armor > 0 ? Armor : Health, 10 * GetFrameTime());
@@ -104,7 +100,10 @@ void Enemy::Update() {
             (BoundingBox.y - 36 - game->CameraPosition.y) < GetScreenHeight()
             )
     {
-        DrawText(std::to_string((int) round(AnimatedHealth)).c_str(),
+        std::string t = std::to_string((int) round(AnimatedHealth));
+        if (t == "67")
+            t = "66";
+        DrawText(t.c_str(),
                  BoundingBox.x + BoundingBox.width / 2 - total_size / 2 - game->CameraPosition.x,
                  BoundingBox.y - 36 - game->CameraPosition.y, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
         DrawText("%", BoundingBox.x + BoundingBox.width/2 - total_size/2 - game->CameraPosition.x + size+1, BoundingBox.y - 22 - game->CameraPosition.y, 18, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));

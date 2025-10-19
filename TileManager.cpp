@@ -24,7 +24,7 @@ TileManager::TileManager() {
 TileManager::TileManager(Game &game) {
     this->game = &game;
     TileSize = 72;
-    UpdateDistance = Vector2(21, 15);
+    UpdateDistance = Vector2((int) (GetScreenWidth() / 61.0f), (int)(GetScreenHeight() / 48.0f));
     MapWidth = 0;
     MapHeight = 0;
     BouncyWallTexture = LoadTexture("assets/img/bouncy_wall.png");
@@ -87,11 +87,18 @@ void TileManager::ReadMap(const char *Filename) {
                 float Armor = 0.0f;
                 switch (tile_id)
                 {
-                case 4:
-                    Weapon = "Enemy Sword";
-                    Speed = 125.0f;
-                    Health = 90.0f;
-                    Armor = 50.0f;
+                    case 4:
+                        Weapon = "Enemy Sword";
+                        Speed = 125.0f;
+                        Health = 90.0f;
+                        Armor = 50.0f;
+                        break;
+                    case 5:
+                        Weapon = "Shotgun";
+                        Speed = 250.0f;
+                        Health = 140.0f;
+                        Armor = 0.0f;
+                        break;
                 }
                 game->Entities[EnemyType].push_back(make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->Textures["enemy"], *game));
             }

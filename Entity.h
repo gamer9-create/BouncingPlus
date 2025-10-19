@@ -27,6 +27,10 @@ class Entity : public std::enable_shared_from_this<Entity> {
         Vector2 Movement;
         EntityType Type;
 
+        Vector2 VelocityMovement;
+        float VelocityPower;
+        std::string LastVelBounceCoord;
+
         float Rotation;
         float Speed;
         float Health;

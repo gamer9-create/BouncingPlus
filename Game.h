@@ -19,18 +19,28 @@ using namespace std;
 class Game {
     public:
         Vector2 CameraPosition;
+        Vector2 CameraPositionUnaffected;
         Vector2 CameraTarget;
+        float CameraZoom;
         float CameraSpeed;
+
+        int CameraShakes;
+        float CameraShakeIntensity;
+        double CameraShakeTimer;
+        Vector2 CameraShakeOffset;
+
         float PhysicsFPS;
         float PhysicsAccumulator;
         UI Ui;
         TileManager MainTileManager;
         unordered_map<std::string, Texture2D> Textures;
+        unordered_map<std::string, Sound> Sounds;
         unordered_map<std::string, Weapon> Weapons;
         shared_ptr<Player> MainPlayer;
         std::unordered_map<EntityType, std::vector<shared_ptr<Entity>>> Entities;
         Game();
         void SetGameData();
+        void ShakeCamera(float Intensity);
         void Reload(const char *Filename);
         void Update();
         void Clear();
