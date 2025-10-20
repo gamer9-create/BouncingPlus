@@ -1,23 +1,24 @@
 #include <iostream>
 #include <raylib.h>
+#include <raymath.h>
 #include "Game.h"
 #include "Menu.h"
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 
 int main() {
     InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "BouncingPlus");
     SetTargetFPS(240);
-    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI | FLAG_FULLSCREEN_MODE);
-    ToggleFullscreen();
-    SetWindowIcon(LoadImage("assets/img/player.png"));
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
 
+    SetWindowIcon(LoadImage("assets/img/player.png"));
     InitAudioDevice();
 
     Color BackgroundColor = {100, 100, 100, 255};
 
     Game MainGame = Game();
     Menu MainMenu = Menu();
-
-    MainGame.Reload("assets/maps/cpp_level.csv");
 
     bool InGame = false;
 
@@ -35,10 +36,13 @@ int main() {
         HasAgreed = false;
 
     Camera2D zoom_cam = {{0, 0}, {0, 0}, 0, 1.0f};
-
     while (!WindowShouldClose()) {
         BeginDrawing();
+
         BeginMode2D(zoom_cam);
+
+        if (IsKeyPressed(KEY_F11) && !OnWeb)
+            ToggleFullscreen();
 
         ClearBackground(BackgroundColor);
 
@@ -71,20 +75,24 @@ int main() {
 
                 MainGame.Update();
 
-                zoom_cam.zoom = lerp(zoom_cam.zoom, MainGame.CameraZoom, 10 * GetFrameTime());
+                zoom_cam.zoom = lerp(zoom_cam.zoom, MainGame.CameraZoom, 4 * GetFrameTime());
                 zoom_cam.offset = {((float)GetScreenWidth()/2.0f) * (1.0f-zoom_cam.zoom), ((float)GetScreenHeight()/2.0f) * (1.0f-zoom_cam.zoom)};
 
-                if (IsKeyPressed(KEY_E))
-                    MainGame.Reload("assets/maps/cpp_level.csv");
-                if (IsKeyPressed(KEY_Y))
-                    MainGame.Reload("assets/maps/level_4.csv");
-                if (IsKeyPressed(KEY_T) && IsKeyPressed(KEY_R))
-                    MainGame.Reload("assets/maps/lvl2.csv");
+                // i am scared!!! i scare you!!!
+
+                if (IsKeyPressed(KEY_X))
+                    MainGame.DebugDraw = !MainGame.DebugDraw;
+                if (MainGame.DebugDraw) {
+
+                }
             } else {
                 zoom_cam = {{0, 0}, {0, 0}, 0, 1.0f};
                 MainMenu.Update();
-                if (MainMenu.LeaveMenu())
+                std::string map = MainMenu.LeaveMenu();
+                if (!map.empty()) {
                     InGame = true;
+                    MainGame.Reload(map);
+                }
             }
             DrawFPS(0,0);
         } else {
@@ -94,7 +102,6 @@ int main() {
                 HasAgreed = true;
         }
 
-        //DrawTexturePro(MainGame.Textures.at("shotgun"), {0,0,(float)MainGame.Textures.at("shotgun").width, (float)MainGame.Textures.at("shotgun").height}, {(float)GetMouseX(), (float)GetMouseY(), (float)MainGame.Textures.at("shotgun").width*3, (float)MainGame.Textures.at("shotgun").height*3}, {MainGame.Textures.at("shotgun").width*1.5f, MainGame.Textures.at("shotgun").height*1.5f}, sinf(GetTime())*100, WHITE);
         EndMode2D();
         EndDrawing();
     }

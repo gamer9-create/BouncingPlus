@@ -19,6 +19,7 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->Kills = 0;
     this->LastKills = 0;
     this->OrigSpeed = Speed;
+    this->ExtraSpeed = 0;
 
 }
 
@@ -73,23 +74,22 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
             entity->Armor -= Damage;
         Health += Damage / 8.0f;
 
-        // play sound
-        SetSoundVolume(game->Sounds["dash_hit"], min(max(VelocityPower / 1500.0f, 0.0f), 1.0f));
-        PlaySound(game->Sounds["dash_hit"]);
-
         // did we kill them? if so, give health & kills
         if (entity->Health <= 0) {
             Health += VelocityPower / 18.0f;
+            game->Slowdown(0.35f, VelocityPower / 1450.0f);
             Kills+=1;
+        } else {
+            SetSoundVolume(game->Sounds["dash_hit"], min(max(VelocityPower/1500.0f, 0.0f), 1.0f));
+            PlaySound(game->Sounds["dash_hit"]);
+            game->ShakeCamera(VelocityPower / 1450.0f);
+            game->CameraPosition += Vector2Normalize({(float)GetRandomValue(-50, 50), (float)GetRandomValue(-50, 50)}) * (VelocityPower / 10.0f);
         }
 
         // give them pushback force
         entity->VelocityMovement = VelocityMovement;
         entity->VelocityPower = -VelocityPower;
 
-        // shake camera
-        game->ShakeCamera(VelocityPower / 1450.0f);
-        game->CameraPosition += Vector2Normalize({(float)GetRandomValue(-50, 50), (float)GetRandomValue(-50, 50)}) * (VelocityPower / 10.0f);
 
         // increase velocity and mark enemy as attacked
         VelocityPower += VelocityPower / 5.0f;
@@ -209,9 +209,10 @@ void Player::Update() {
     Entity::Update();
     weaponsSystem.Update();
 
-    // did we get a kill? play kill sound!
-    if (Kills != LastKills)
+    // did we get a kill? play kill sound game!
+    if (Kills != LastKills) {
         PlaySound(game->Sounds["death"]);
+    }
     LastKills = Kills;
 
 }

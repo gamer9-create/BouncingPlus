@@ -43,9 +43,15 @@ WeaponsSystem::~WeaponsSystem() {
 
 void WeaponsSystem::DisplayGunTexture() {
     auto Owner = OwnerPtr.lock();
+    Vector2 Target ={(float)GetMouseX(), (float)GetMouseY()};
+    if (Owner->Type == EnemyType)
+        Target = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2 - game->CameraPosition.x,
+        game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2 - game->CameraPosition.y
+        };
+
     float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
     float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-    float FinalAngle = (atan2(cy - (GetMouseY() + game->CameraPosition.y), cx - (GetMouseX() + game->CameraPosition.x)) * RAD2DEG);
+    float FinalAngle = (atan2(cy - (Target.y + game->CameraPosition.y), cx - (Target.x + game->CameraPosition.x)) * RAD2DEG);
     MeleeAnimTexture = &game->Textures[CurrentWeapon->texture];
     float width = MeleeAnimTexture->width*CurrentWeapon->Size;
     float height = MeleeAnimTexture->height*CurrentWeapon->Size;
@@ -65,6 +71,8 @@ void WeaponsSystem::Update() {
         } else {
             AttackCooldowns[i] = 0;
         }
+        if (game->DebugDraw)
+            DrawText(to_string(AttackCooldowns[i]).c_str(), 250 + i*50, 250, 10, WHITE);
     }
 
     // Display weapon cone if using melee weapon
@@ -111,7 +119,6 @@ void WeaponsSystem::Update() {
         DisplayGunTexture();
 
     // Clear out melee animation points
-
     if (GetTime() - PointRemovalTimer >= 0.001 && points.size() > 0) {
         points.erase(points.begin()+points.size()-1);
         PointRemovalTimer = GetTime();
@@ -270,14 +277,15 @@ void WeaponsSystem::Attack(Vector2 Target) {
             // Loop through all enemies in game
             std::vector<shared_ptr<Entity>>* array = &game->Entities[EnemyType];
             for (int i = 0; i < array->size(); i++) {
-                if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != nullptr and !entity->ShouldDelete) {
+                if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != Owner && entity != nullptr && !entity->ShouldDelete) {
                     MeleeAttack(entity, TargetAngle);
                 }
             }
         }
 
         // Reset cooldown
-        AttackCooldowns[CurrentWeaponIndex] = 0;
+        if ((Valid && !CurrentWeapon->isMelee) || CurrentWeapon->isMelee)
+            AttackCooldowns[CurrentWeaponIndex] = 0;
     }
 }
 

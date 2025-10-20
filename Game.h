@@ -9,6 +9,7 @@
 #include <vector>
 #include "Bullet.h"
 #include "Entity.h"
+#include "ParticleSystem.h"
 #include "Player.h"
 #include "TileManager.h"
 #include "UI.h"
@@ -22,9 +23,13 @@ class Game {
     double CameraShakeTimer;
     Vector2 CameraShakeOffset;
     Vector2 CameraPositionUnaffected;
+    float GameSpeed;
     float CameraSpeed;
     float PhysicsFPS;
     float PhysicsAccumulator;
+    float SlowdownTime;
+    float MaxSlowdownTime;
+    float SlowdownShakeIntensity;
     UI Ui;
     void SetGameData();
     public:
@@ -35,13 +40,16 @@ class Game {
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Sound> Sounds;
         unordered_map<std::string, Weapon> Weapons;
+        ParticleSystem MainParticleSystem;
         shared_ptr<Player> MainPlayer;
         std::unordered_map<EntityType, std::vector<shared_ptr<Entity>>> Entities;
         bool DebugDraw;
         Game();
         void ShakeCamera(float Intensity);
         bool RayCast(Vector2 origin, Vector2 target);
-        void Reload(const char *Filename);
+        void Slowdown(float Time);
+        void Slowdown(float Time, float ShakeIntensity);
+        void Reload(std::string Filename);
         void Update();
         void Clear();
         void Quit();

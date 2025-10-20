@@ -24,7 +24,6 @@ UI::UI(Game &game) {
     this->game = &game;
     this->WeaponUITexture = LoadRenderTexture(GetScreenWidth(), 250);
     this->DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-    this->HealthBarTexture = LoadTexture("assets/img/health_bar.png");
 }
 
 UI::UI() {
@@ -121,16 +120,26 @@ void UI::GameUI() {
             WeaponSlotIndex = -1;
     }
 
-    if (game->MainPlayer->IsDashing)
-        game->CameraZoom = 1.5f;
-    else
-        game->CameraZoom = 1.0f;
-
     float size = MeasureText((std::to_string((int)round(game->MainPlayer->Health))+"%").c_str(), 92);
     DrawRectangle((WeaponUITexture.texture.width / 2.0f - size / 2.0f)-margin,(WeaponUITexture.texture.height / 2.0f - 46)-margin,size+(margin*2),92+(margin*2),ColorAlpha(BLACK, alpha));
     DrawText((std::to_string((int)round(game->MainPlayer->Health))+"%").c_str(), WeaponUITexture.texture.width / 2.0f - size / 2.0f, WeaponUITexture.texture.height / 2.0f - 46, 92, GetHealthColor(game->MainPlayer->Health/game->MainPlayer->MaxHealth));
 
+    if (game->DebugDraw && game->MainPlayer->weaponsSystem.CurrentWeapon != nullptr)
+        DrawText(("Weapon info " + to_string(game->MainPlayer->weaponsSystem.CurrentWeaponIndex) + " "
+            + to_string(game->MainPlayer->weaponsSystem.AttackCooldowns[game->MainPlayer->weaponsSystem.CurrentWeaponIndex]) + " " +
+            game->MainPlayer->weaponsSystem.Weapons[game->MainPlayer->weaponsSystem.CurrentWeaponIndex]
+            ).c_str(), 0, 0, 25, WHITE);
+
     EndTextureMode();
+
+    if (game->MainPlayer->IsDashing) {
+        game->CameraZoom = 1.25f;
+        Vector2 ss = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2 - game->CameraPosition.x,
+        game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2 - game->CameraPosition.y};
+        DrawLineEx(ss, {(float)GetMouseX(), (float)GetMouseY()}, 10, WHITE);
+    } else {
+        game->CameraZoom = 1.0f;
+    }
 
     DeathTextAnimRot = sin(GetTime()*2) * 6;
 
@@ -158,7 +167,8 @@ void UI::GameUI() {
         EndTextureMode();
     }
 
-    DrawText(to_string(UITransparency).c_str(), 50, 250, 10, WHITE);
+    if (game->DebugDraw)
+        DrawText(to_string(UITransparency).c_str(), 50, 250, 10, WHITE);
     DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
     DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
     if (game->MainPlayer->Health > 0 && UITransparency < 1.0f) {
@@ -170,5 +180,5 @@ void UI::GameUI() {
 
 void UI::Quit() {
     UnloadRenderTexture(WeaponUITexture);
-    UnloadTexture(HealthBarTexture);
+    UnloadRenderTexture(DeathScreen);
 }

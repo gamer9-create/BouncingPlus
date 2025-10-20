@@ -11,12 +11,6 @@
 #include "Enemy.h"
 #include "Game.h"
 
-void print(std::unordered_map<std::string, int> um){
-    for (auto i : um)
-        std::cout << i.first << " " << i.second
-        << std::endl;
-}
-
 TileManager::TileManager() {
 
 }
@@ -55,7 +49,7 @@ void TileManager::Update() {
 }
 
 
-void TileManager::ReadMap(const char *Filename) {
+void TileManager::ReadMapDataFile(std::string Filename) {
     int y = 0;
     int x = 0;
 

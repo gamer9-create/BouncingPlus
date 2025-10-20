@@ -24,7 +24,7 @@ class TileManager {
         TileManager();
         TileManager(Game &game);
         void Update();
-        void ReadMap(const char *Filename);
+        void ReadMapDataFile(std::string Filename);
         void Quit();
 };
 

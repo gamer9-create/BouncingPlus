@@ -13,7 +13,6 @@ class UI {
     Game *game;
     RenderTexture2D WeaponUITexture;
     RenderTexture2D DeathScreen;
-    Texture2D HealthBarTexture;
     int WeaponSlotIndex = -1;
     float WeaponSlotOffset = 0;
     float WeaponSlotSize = 0;

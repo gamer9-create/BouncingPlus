@@ -145,10 +145,11 @@ void Bullet::Attack(shared_ptr<Entity> entity) {
         bool ShouldDamage = true;
         float ThisDamage = Damage;
         auto Owner = OwnerPtr.lock();
-        if (Owner != nullptr && Owner->Type == PlayerType && entity->Type == EnemyType) {
+        if (entity->Type == EnemyType) {
             shared_ptr<Enemy> enemy = dynamic_pointer_cast<Enemy>(entity);
-            enemy->AngeredRangeBypassTimer = enemy->AngeredRangeBypassTimerMax;
-            if (Owner->Health > Owner->MaxHealth) {
+            if (Owner != nullptr && Owner->Type == PlayerType)
+                enemy->AngeredRangeBypassTimer = enemy->AngeredRangeBypassTimerMax;
+            if (Owner != nullptr && Owner->Health > Owner->MaxHealth) {
                 float percent = (Owner->Health-Owner->MaxHealth) / Owner->MaxHealth;
                 ThisDamage = Damage * (1.0f - min(percent, 0.75f));
             }

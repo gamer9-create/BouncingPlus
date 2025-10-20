@@ -5,6 +5,7 @@
 #include "Game.h"
 
 #include <iostream>
+#include <raymath.h>
 
 #include "raylib.h"
 #include "Weapons.h"
@@ -19,15 +20,19 @@ Game::Game() {
     CameraSpeed = 20.0f;
     CameraZoom = 1.0f;
     CameraShakes = 0;
+    GameSpeed = 1.0f;
+    SlowdownTime = 0;
+    MaxSlowdownTime = 0;
     CameraShakeIntensity = 0;
     CameraShakeOffset = {0, 0};
     CameraShakeTimer = GetTime();
     Ui = UI(*this);
     MainTileManager = TileManager(*this);
-    Entities = std::unordered_map<EntityType, std::vector<shared_ptr<Entity>>>();
+    MainParticleSystem = ParticleSystem(*this);
+    Entities = std::unordered_map<EntityType, std::vector<shared_ptr<Entity> > >();
     Textures = std::unordered_map<std::string, Texture2D>();
     Weapons = std::unordered_map<std::string, Weapon>();
-    PhysicsFPS = 1.0f/240.0f;
+    PhysicsFPS = 240.0f;
     PhysicsAccumulator = 0;
     MainPlayer = nullptr;
     DebugDraw = false;
@@ -56,8 +61,38 @@ void Game::SetGameData() {
     }
 }
 
+void Game::Slowdown(float Time) {
+    SlowdownTime = Time;
+    MaxSlowdownTime = Time;
+}
+
+void Game::Slowdown(float Time, float CrashIntensity) {
+    SlowdownTime = Time;
+    MaxSlowdownTime = Time;
+    SlowdownShakeIntensity = CrashIntensity;
+}
 
 void Game::Update() {
+
+    if (SlowdownTime > 0 && MaxSlowdownTime > 0) {
+        float Percent = SlowdownTime / MaxSlowdownTime;
+        if (Percent < 0.5)
+            GameSpeed = Lerp(1.0f, 0.1f, Percent-0.5f);
+        else
+            GameSpeed = Lerp(0.1f, 1.0f, Percent-0.5f);
+        if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
+            ShakeCamera(SlowdownShakeIntensity);
+            SetSoundVolume(Sounds["dash_hit"], min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
+            PlaySound(Sounds["dash_hit"]);
+            SlowdownShakeIntensity = 0;
+        }
+        SlowdownTime -= GetFrameTime();
+    } else {
+        SlowdownTime = 0;
+        MaxSlowdownTime = 0;
+        SlowdownShakeIntensity = 0;
+        GameSpeed = 1.0f;
+    }
 
     PhysicsAccumulator += GetFrameTime();
 
@@ -91,16 +126,16 @@ void Game::Update() {
         }
     }
 
-    while (PhysicsAccumulator >= PhysicsFPS) {
+    while (PhysicsAccumulator >= 1.0f/(PhysicsFPS*GameSpeed)) {
         for (int e = 0; e < End; ++e) {
             std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
             for (int i = 0; i < array->size(); i++) {
                 if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
-                    entity->PhysicsUpdate(PhysicsFPS);
+                    entity->PhysicsUpdate(1.0f/PhysicsFPS);
                 }
             }
         }
-        PhysicsAccumulator -= PhysicsFPS;
+        PhysicsAccumulator -= 1.0f/(PhysicsFPS*GameSpeed);
     }
 
     for (int e = 0; e < End; e++) {
@@ -182,11 +217,11 @@ void Game::Clear() {
     MainPlayer.reset();
 }
 
-void Game::Reload(const char *Filename) {
+void Game::Reload(std::string Filename) {
 
     Clear();
 
-    MainTileManager.ReadMap(Filename);
+    MainTileManager.ReadMapDataFile(Filename + "\\map_data.csv");
 
     MainPlayer = make_shared<Player>((static_cast<float>(MainTileManager.MapWidth) * MainTileManager.TileSize) / 2.0f,
                                      (static_cast<float>(MainTileManager.MapHeight) * MainTileManager.TileSize) / 2.0f, 350.0f,
@@ -198,6 +233,7 @@ void Game::Quit() {
     Clear();
     MainTileManager.Quit();
     Ui.Quit();
+    MainParticleSystem.Quit();
     for (auto [name,value] : Textures) {
         UnloadTexture(value);
     }
