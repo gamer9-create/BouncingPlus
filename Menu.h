@@ -7,8 +7,10 @@
 #include <raylib.h>
 #include <string>
 
+#include "LevelLoader.h"
 
 class Menu {
+    std::unordered_map<std::string,json> level_data;
     std::string map;
     std::string target_map;
     float cam_x;
@@ -22,8 +24,9 @@ class Menu {
     float menu_img_pos_y;
     float BlackTransparency;
     bool MovingToGame;
+    void LevelSelect();
     public:
-        Menu();
+        Menu(std::unordered_map<std::string,json> level_data);
         void Update();
         std::string LeaveMenu();
         void Quit();

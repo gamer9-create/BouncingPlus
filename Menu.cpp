@@ -3,15 +3,17 @@
 //
 
 #include "Menu.h"
-
+#include <nlohmann/json.hpp>
 #include <iostream>
-#include <ostream>
 #include <raymath.h>
+
+using json = nlohmann::json;
 
 using namespace std;
 
-Menu::Menu()
+Menu::Menu(std::unordered_map<std::string,json> level_data)
 {
+    this->level_data = level_data;
     map = "";
     target_map = "";
     title_img = LoadTexture("assets/img/title.png");
@@ -25,6 +27,17 @@ Menu::Menu()
     BlackTransparency= 0.0f;
     menu_img_pos_y = 0;
     MovingToGame = false;
+}
+
+void Menu::LevelSelect()
+{
+    /*
+    for (int i = 0; i < level_data.size(); i++)
+    {
+        json data = level_data[i];
+        DrawText(("LEVEL " + to_string(i+1)).c_str(), -250 - cam_x, 150 + (90 * i), 90, WHITE);
+    }
+    */
 }
 
 void Menu::Update() {
@@ -65,6 +78,8 @@ void Menu::Update() {
         BlackTransparency += 0.5f * GetFrameTime();
     if (MovingToGame && BlackTransparency >= 1.0f)
         map = target_map;
+
+    LevelSelect();
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, BlackTransparency));
 }
 

@@ -3,9 +3,7 @@
 #include <raymath.h>
 #include "Game.h"
 #include "Menu.h"
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
-
+#include "LevelLoader.h"
 
 int main() {
     InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "BouncingPlus");
@@ -17,8 +15,11 @@ int main() {
 
     Color BackgroundColor = {100, 100, 100, 255};
 
+    LevelLoader level_loader = LevelLoader();
+    std::unordered_map<std::string,json> level_data = level_loader.GetLevelsData();
+
     Game MainGame = Game();
-    Menu MainMenu = Menu();
+    Menu MainMenu = Menu(level_data);
 
     bool InGame = false;
 
