@@ -40,10 +40,10 @@ int main() {
     while (!WindowShouldClose()) {
         BeginDrawing();
 
-        BeginMode2D(zoom_cam);
-
         if (IsKeyPressed(KEY_F11) && !OnWeb)
             ToggleFullscreen();
+
+        BeginMode2D(zoom_cam);
 
         ClearBackground(BackgroundColor);
 

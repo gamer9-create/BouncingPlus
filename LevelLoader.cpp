@@ -18,20 +18,15 @@ LevelLoader::LevelLoader()
 
 std::unordered_map<std::string,json> LevelLoader::GetLevelsData()
 {
-    cout << "LevelLoader::GetLevelsData()" << endl;
     std::unordered_map<std::string,json> level_data = std::unordered_map<std::string,json>();
 
-    cout << "List" << endl;
     FilePathList list = LoadDirectoryFiles("assets\\maps");
     for (int i = 0; i < list.count; i++)
     {
-        cout << list.paths[i]<<endl;
         std::string c = string(list.paths[i]) + "\\metadata.json";
-        std::cout << c<< std::endl;
         std::ifstream g(c);
-        std::string e = string(list.paths[i]);
-        //e.
-        //level_data[e] = json::parse(c);
+        std::string e = string(list.paths[i]).substr(12, c.size()-14);
+        level_data[e] = json::parse(g);
     }
 
     return level_data;

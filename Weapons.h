@@ -44,8 +44,8 @@ class WeaponsSystem {
 
     public:
     std::string Weapons[3];
-    Weapon* CurrentWeapon;
-    int CurrentWeaponIndex;
+    Weapon* CurrentWeapon = nullptr;
+    int CurrentWeaponIndex = 0;
     float AttackCooldowns[3];
 
         WeaponsSystem(shared_ptr<Entity> Owner, Game &game);

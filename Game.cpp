@@ -35,6 +35,9 @@ Game::Game() {
     PhysicsFPS = 240.0f;
     PhysicsAccumulator = 0;
     MainPlayer = nullptr;
+    Paused = false;
+    //GameRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    current_map_filename = "";
     DebugDraw = false;
     SetGameData();
 }
@@ -74,87 +77,104 @@ void Game::Slowdown(float Time, float CrashIntensity) {
 
 void Game::Update() {
 
-    if (SlowdownTime > 0 && MaxSlowdownTime > 0) {
-        float Percent = SlowdownTime / MaxSlowdownTime;
-        if (Percent < 0.5)
-            GameSpeed = Lerp(1.0f, 0.1f, Percent-0.5f);
-        else
-            GameSpeed = Lerp(0.1f, 1.0f, Percent-0.5f);
-        if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
-            ShakeCamera(SlowdownShakeIntensity);
-            SetSoundVolume(Sounds["dash_hit"], min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
-            PlaySound(Sounds["dash_hit"]);
-            SlowdownShakeIntensity = 0;
-        }
-        SlowdownTime -= GetFrameTime();
-    } else {
-        SlowdownTime = 0;
-        MaxSlowdownTime = 0;
-        SlowdownShakeIntensity = 0;
-        GameSpeed = 1.0f;
-    }
+    //if (GameRenderTexture.texture.width != GetScreenWidth() || GameRenderTexture.texture.height != GetScreenHeight()) {
+    //    UnloadRenderTexture(GameRenderTexture);
+    //    GameRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    //}
 
-    PhysicsAccumulator += GetFrameTime();
+    //BeginTextureMode(GameRenderTexture);
 
-    if (GetTime() - CameraShakeTimer >= 0.02f) {
-        if (CameraShakes > 0) {
-            CameraShakeOffset = {(float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity)), (float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity))};
-            CameraShakes--;
-        } else {
-            CameraShakeOffset = {0, 0};
-        }
-        CameraShakeTimer = GetTime();
-    }
+    //ClearBackground(BLANK);
 
-    float TargetX = CameraTarget.x - CameraPositionUnaffected.x - (static_cast<float>(GetScreenWidth()) / 2.0f);
-    float TargetY = CameraTarget.y - CameraPositionUnaffected.y - (static_cast<float>(GetScreenHeight()) / 2.0f);
-
-    float ImportantVal = 20.0f * (static_cast<float>(GetFPS()) / 144.0f);
-    if (ImportantVal != 0.0f) {
-        CameraPositionUnaffected.x += TargetX / ImportantVal;
-        CameraPositionUnaffected.y += TargetY / ImportantVal;
-        CameraPosition = {CameraPositionUnaffected.x - CameraShakeOffset.x, CameraPositionUnaffected.y - CameraShakeOffset.y};
-    }
-
-    MainTileManager.Update();
-    for (int e = 0; e < End; ++e) {
-        std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
-        for (int i = 0; i < array->size(); i++) {
-            if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
-                entity->Update();
+    if (!Paused) {
+        if (SlowdownTime > 0 && MaxSlowdownTime > 0) {
+            float Percent = SlowdownTime / MaxSlowdownTime;
+            if (Percent < 0.5)
+                GameSpeed = Lerp(1.0f, 0.1f, Percent-0.5f);
+            else
+                GameSpeed = Lerp(0.1f, 1.0f, Percent-0.5f);
+            if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
+                ShakeCamera(SlowdownShakeIntensity);
+                SetSoundVolume(Sounds["dash_hit"], min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
+                PlaySound(Sounds["dash_hit"]);
+                SlowdownShakeIntensity = 0;
             }
+            SlowdownTime -= GetFrameTime();
+        } else {
+            SlowdownTime = 0;
+            MaxSlowdownTime = 0;
+            SlowdownShakeIntensity = 0;
+            GameSpeed = 1.0f;
         }
-    }
 
-    while (PhysicsAccumulator >= 1.0f/(PhysicsFPS*GameSpeed)) {
+        PhysicsAccumulator += GetFrameTime();
+
+        if (GetTime() - CameraShakeTimer >= 0.02f) {
+            if (CameraShakes > 0) {
+                CameraShakeOffset = {(float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity)), (float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity))};
+                CameraShakes--;
+            } else {
+                CameraShakeOffset = {0, 0};
+            }
+            CameraShakeTimer = GetTime();
+        }
+
+        float TargetX = CameraTarget.x - CameraPositionUnaffected.x - (static_cast<float>(GetScreenWidth()) / 2.0f);
+        float TargetY = CameraTarget.y - CameraPositionUnaffected.y - (static_cast<float>(GetScreenHeight()) / 2.0f);
+
+        float ImportantVal = 20.0f * (static_cast<float>(GetFPS()) / 144.0f);
+        if (ImportantVal != 0.0f) {
+            CameraPositionUnaffected.x += TargetX / ImportantVal;
+            CameraPositionUnaffected.y += TargetY / ImportantVal;
+            CameraPosition = {CameraPositionUnaffected.x - CameraShakeOffset.x, CameraPositionUnaffected.y - CameraShakeOffset.y};
+        }
+
+        MainTileManager.Update();
         for (int e = 0; e < End; ++e) {
             std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
             for (int i = 0; i < array->size(); i++) {
                 if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
-                    entity->PhysicsUpdate(1.0f/PhysicsFPS);
+                    entity->Update();
                 }
             }
         }
-        PhysicsAccumulator -= 1.0f/(PhysicsFPS*GameSpeed);
+
+        while (PhysicsAccumulator >= 1.0f/(PhysicsFPS*GameSpeed)) {
+            for (int e = 0; e < End; ++e) {
+                std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
+                for (int i = 0; i < array->size(); i++) {
+                    if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
+                        entity->PhysicsUpdate(1.0f/PhysicsFPS);
+                    }
+                }
+            }
+            PhysicsAccumulator -= 1.0f/(PhysicsFPS*GameSpeed);
+        }
+
+        for (int e = 0; e < End; e++) {
+            std::vector<shared_ptr<Entity>> *array = &Entities[(EntityType) e];
+            int old_size = array->size();
+            std::erase_if(*array, [this](shared_ptr<Entity> e) {
+                if (e && e->ShouldDelete) {
+                    if (e != MainPlayer) {
+                        e.reset();
+                    }
+                    return true;
+                }
+                return false;
+            });
+            if (DebugDraw) {
+                std::string f = to_string(e)+"/typa shit ive been on/ de old size(TALLY HALL DETECTED) " + to_string(old_size) + ", new size? (BANANA MAN IS COMING TO NUKE YOU) " + to_string(array->size());
+                DrawText(f.c_str(), 500, 500, 10, WHITE);
+            }
+        }
+        if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && IsKeyPressed(KEY_E) && !current_map_filename.empty())
+            Reload(current_map_filename);
     }
 
-    for (int e = 0; e < End; e++) {
-        std::vector<shared_ptr<Entity>> *array = &Entities[(EntityType) e];
-        int old_size = array->size();
-        std::erase_if(*array, [this](shared_ptr<Entity> e) {
-            if (e && e->ShouldDelete) {
-                if (e != MainPlayer) {
-                    e.reset();
-                }
-                return true;
-            }
-            return false;
-        });
-        if (DebugDraw) {
-            std::string f = to_string(e)+"/typa shit ive been on/ de old size(TALLY HALL DETECTED) " + to_string(old_size) + ", new size? (BANANA MAN IS COMING TO NUKE YOU) " + to_string(array->size());
-            DrawText(f.c_str(), 500, 500, 10, WHITE);
-        }
-    }
+    //EndTextureMode();
+
+    //DrawTexturePro(GameRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
 
     Ui.GameUI();
 }
@@ -166,7 +186,10 @@ void Game::ShakeCamera(float Intensity) {
     this->CameraShakes = 14;
 }
 
-bool Game::RayCast(Vector2 origin, Vector2 target) { // RayCasting function
+bool Game::RayCast(Vector2 origin, Vector2 target, float Precision) { // RayCasting function
+
+    if (Precision <= 0)
+        Precision = Vector2Distance(origin, target) / 40.0f;
 
     // Init starting positions
     float ray_x = origin.x;
@@ -175,8 +198,8 @@ bool Game::RayCast(Vector2 origin, Vector2 target) { // RayCasting function
 
     // Getting the step distance
 
-    const float step_x = ((target.x-ray_x) / start_distance) * 18;
-    const float step_y = ((target.y-ray_y) / start_distance) * 18;
+    const float step_x = ((target.x-ray_x) / start_distance) * Precision;
+    const float step_y = ((target.y-ray_y) / start_distance) * Precision;
 
     // Getting the side we are on relative to the target
 
@@ -213,13 +236,19 @@ void Game::Clear() {
         }
         array->clear();
     }
+    CameraZoom = 1.0f;
+    Paused = false;
     MainTileManager.Map.clear();
+    current_map_filename.clear();
+    CameraShakes = 0;
     MainPlayer.reset();
 }
 
 void Game::Reload(std::string Filename) {
 
     Clear();
+
+    current_map_filename = Filename;
 
     MainTileManager.ReadMapDataFile(Filename + "\\map_data.csv");
 
@@ -240,4 +269,5 @@ void Game::Quit() {
     for (auto [name,value] : Sounds) {
         UnloadSound(value);
     }
+    //UnloadRenderTexture(GameRenderTexture);
 }

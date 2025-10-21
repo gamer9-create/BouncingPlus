@@ -30,12 +30,15 @@ class Game {
     float SlowdownTime;
     float MaxSlowdownTime;
     float SlowdownShakeIntensity;
+    std::string current_map_filename;
     UI Ui;
     void SetGameData();
     public:
         Vector2 CameraPosition;
-    Vector2 CameraTarget;
+        Vector2 CameraTarget;
         float CameraZoom;
+        bool Paused;
+        //RenderTexture GameRenderTexture;
         TileManager MainTileManager;
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Sound> Sounds;
@@ -46,7 +49,7 @@ class Game {
         bool DebugDraw;
         Game();
         void ShakeCamera(float Intensity);
-        bool RayCast(Vector2 origin, Vector2 target);
+        bool RayCast(Vector2 origin, Vector2 target, float Precision = 18);
         void Slowdown(float Time);
         void Slowdown(float Time, float ShakeIntensity);
         void Reload(std::string Filename);

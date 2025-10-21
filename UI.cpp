@@ -67,7 +67,7 @@ void UI::GameUI() {
     float alpha = 0.75f;
     DrawRectangle(lowest_x-margin,lowest_y-margin,highest_width+(margin*2),highest_height+(margin*2),ColorAlpha(BLACK, alpha));
 
-    if (game->MainPlayer->weaponsSystem.CurrentWeapon != nullptr) {
+    if (game->MainPlayer != nullptr && game->MainPlayer->weaponsSystem.CurrentWeapon != nullptr) {
         Rectangle r = {lowest_x + highest_width + margin + 50, lowest_y-margin, 65, highest_height+margin*2};
         DrawRectangle(r.x,r.y,r.width,r.height, ColorAlpha(BLACK, alpha));
         float percent = min(game->MainPlayer->weaponsSystem.AttackCooldowns[game->MainPlayer->weaponsSystem.CurrentWeaponIndex]/game->MainPlayer->weaponsSystem.CurrentWeapon->Cooldown, 1.0f);

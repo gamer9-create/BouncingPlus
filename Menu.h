@@ -13,7 +13,9 @@ class Menu {
     std::unordered_map<std::string,json> level_data;
     std::string map;
     std::string target_map;
+    Vector2 mouse_pos;
     float cam_x;
+    float off, off2, off3;
     float cam_x_targ;
     float title_img_pos_y;
     float title_img_offset_y;

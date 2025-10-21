@@ -20,7 +20,6 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->LastKills = 0;
     this->OrigSpeed = Speed;
     this->ExtraSpeed = 0;
-
 }
 
 Player::Player() {

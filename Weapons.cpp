@@ -191,7 +191,7 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
     float cy = entity->BoundingBox.y + entity->BoundingBox.height / 2;
 
     // if enemy is in sight & within range, attack!
-    if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range && game->RayCast({owner_cx, owner_cy}, {cx, cy})) {
+    if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range && game->RayCast({owner_cx, owner_cy}, {cx, cy}, 12)) {
 
         if (entity->Type == EnemyType) { // if victim is enemy, check for armor damage
             shared_ptr<Enemy> enemy = dynamic_pointer_cast<Enemy>(entity);
@@ -228,7 +228,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
         float Owner_cX = Owner->BoundingBox.x + (Owner->BoundingBox.width / 2);
         float Owner_cY = Owner->BoundingBox.y + (Owner->BoundingBox.height / 2);
 
-        bool Valid = game->RayCast({Owner_cX, Owner_cY}, {cX, cY});
+        bool Valid = game->RayCast({Owner_cX, Owner_cY}, {cX, cY}, 18);
 
         // Play weapon sound
         if (game->Sounds.contains(CurrentWeapon->sound) && Owner->Type == PlayerType && (CurrentWeapon->isMelee || Valid)) {
