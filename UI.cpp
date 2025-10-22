@@ -24,12 +24,40 @@ UI::UI(Game &game) {
     this->game = &game;
     this->WeaponUITexture = LoadRenderTexture(GetScreenWidth(), 250);
     this->DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    this->PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+}
+
+bool UI::button(Rectangle rectangle, std::string text) {
+    DrawTexture(button_img, rectangle.x, rectangle.y, WHITE);
+    DrawText(text.c_str(), rectangle.x + button_img.width/2 - MeasureText(text.c_str(), 50)/2, rectangle.y + button_img.height/2 - 25, 50, WHITE);
+
+    if (CheckCollisionPointRec(mouse_pos, rectangle)) {
+        DrawRectangleLinesEx({rectangle.x-cam_x,rectangle.y,rectangle.width,rectangle.height}, 4, WHITE);
+        return IsMouseButtonPressed(0);
+    }
+    return false;
 }
 
 UI::UI() {
 }
 
 void UI::GameUI() {
+
+    if (WeaponUITexture.texture.width != GetScreenWidth()) {
+        UnloadRenderTexture(WeaponUITexture);
+        WeaponUITexture = LoadRenderTexture(GetScreenWidth(), WeaponUITexture.texture.height);
+    }
+
+    if (DeathScreen.texture.width != GetScreenWidth() || DeathScreen.texture.height != GetScreenHeight()) {
+        UnloadRenderTexture(DeathScreen);
+        DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    }
+
+    if (PauseScreen.texture.width != GetScreenWidth() || PauseScreen.texture.height != GetScreenHeight()) {
+        UnloadRenderTexture(PauseScreen);
+        PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    }
+
     BeginTextureMode(WeaponUITexture);
     ClearBackground(BLANK);
     float Prev = 125;
@@ -120,9 +148,10 @@ void UI::GameUI() {
             WeaponSlotIndex = -1;
     }
 
-    float size = MeasureText((std::to_string((int)round(game->MainPlayer->Health))+"%").c_str(), 92);
-    DrawRectangle((WeaponUITexture.texture.width / 2.0f - size / 2.0f)-margin,(WeaponUITexture.texture.height / 2.0f - 46)-margin,size+(margin*2),92+(margin*2),ColorAlpha(BLACK, alpha));
-    DrawText((std::to_string((int)round(game->MainPlayer->Health))+"%").c_str(), WeaponUITexture.texture.width / 2.0f - size / 2.0f, WeaponUITexture.texture.height / 2.0f - 46, 92, GetHealthColor(game->MainPlayer->Health/game->MainPlayer->MaxHealth));
+    float PlrHealth = (game->MainPlayer->DodgeHealthResetTimer <= 0 ? game->MainPlayer->Health : game->MainPlayer->PrevHealthBeforeDodge);
+    float size = MeasureText((std::to_string((int)round(PlrHealth))+"%").c_str(), 92);
+    DrawRectangle((WeaponUITexture.texture.width / 2.0f - size / 2.0f)-margin,(WeaponUITexture.texture.height / 2.0f - 46)-margin,size+(margin*2),92+(margin*2),ColorAlpha((game->MainPlayer->DodgeHealthResetTimer <= 0 ? BLACK : WHITE), alpha));
+    DrawText((std::to_string((int)round(PlrHealth))+"%").c_str(), WeaponUITexture.texture.width / 2.0f - size / 2.0f, WeaponUITexture.texture.height / 2.0f - 46, 92, GetHealthColor(game->MainPlayer->Health/game->MainPlayer->MaxHealth));
 
     if (game->DebugDraw && game->MainPlayer->weaponsSystem.CurrentWeapon != nullptr)
         DrawText(("Weapon info " + to_string(game->MainPlayer->weaponsSystem.CurrentWeaponIndex) + " "
@@ -176,9 +205,21 @@ void UI::GameUI() {
     } else if (UITransparency > 0) {
         UITransparency -= 2.2f*GetFrameTime();
     }
+
+    if (game->Paused)
+        PauseMenu();
+}
+
+void UI::PauseMenu() {
+    BeginTextureMode(PauseScreen);
+    ClearBackground(ColorAlpha(BLACK, 0.35f));
+    DrawRectangle(PauseScreen.texture.width/2 - 75, PauseScreen.texture.height/2-175,150, 350,WHITE);
+    EndTextureMode();
+    DrawTextureRec(PauseScreen.texture, Rectangle(0, 0, PauseScreen.texture.width, -PauseScreen.texture.height), Vector2(0, GetScreenHeight() - PauseScreen.texture.height), WHITE);
 }
 
 void UI::Quit() {
     UnloadRenderTexture(WeaponUITexture);
+    UnloadRenderTexture(PauseScreen);
     UnloadRenderTexture(DeathScreen);
 }

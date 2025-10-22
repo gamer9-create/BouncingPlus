@@ -40,6 +40,7 @@ bool Menu::button(Rectangle rectangle, std::string text) {
         DrawRectangleLinesEx({rectangle.x-cam_x,rectangle.y,rectangle.width,rectangle.height}, 4, WHITE);
         return IsMouseButtonPressed(0);
     }
+    return false;
 }
 
 void Menu::LevelSelect()

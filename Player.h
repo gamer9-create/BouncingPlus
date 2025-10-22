@@ -12,18 +12,19 @@
 class Player : public Entity {
     void AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked);
     void DashLogic();
-    float PrevHealthBeforeDodge = 100;
-    double DodgeHealthResetTimer = 0;
     bool weaponsSystemInit = false;
     double PlayerFrozenTimer = 0;
     float DashCooldown = 0;
     double DashTimeStart = 0;
+    float Alpha = 1;
     std::vector<std::weak_ptr<Enemy>> DashedEnemies;
     float OrigSpeed;
     float ExtraSpeed;
     double LastMovedTime;
     int LastKills;
     public:
+        float PrevHealthBeforeDodge = 100;
+        double DodgeHealthResetTimer = 0;
         WeaponsSystem weaponsSystem;
         int Kills;
         bool IsDashing = false;

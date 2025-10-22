@@ -85,6 +85,9 @@ void Game::Update(Camera2D camera) {
         GameRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     }
 
+    if (IsKeyPressed(KEY_M))
+        Paused = !Paused;
+
     if (!Paused) {
 
         BeginTextureMode(GameRenderTexture);

@@ -5,6 +5,7 @@
 #ifndef BOUNCINGPLUS_UI_H
 #define BOUNCINGPLUS_UI_H
 #include <raylib.h>
+#include <string>
 class Game;
 
 Color GetHealthColor(float Percent, float Armor = 0.0f);
@@ -13,6 +14,7 @@ class UI {
     Game *game;
     RenderTexture2D WeaponUITexture;
     RenderTexture2D DeathScreen;
+    RenderTexture2D PauseScreen;
     int WeaponSlotIndex = -1;
     float WeaponSlotOffset = 0;
     float WeaponSlotSize = 0;
@@ -22,6 +24,8 @@ class UI {
     public:
     UI(Game &game);
     UI();
+    bool button(Rectangle rectangle, std::string text) {
+    void PauseMenu();
     void GameUI();
     void Quit();
 };

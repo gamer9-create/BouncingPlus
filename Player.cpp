@@ -46,7 +46,7 @@ void Player::PhysicsUpdate(float dt) {
             MovementX += Speed;
         }
     }
-    if (IsMouseButtonPressed(0) && VelocityPower >= 450 && PlayerFrozenTimer > 0 && PlayerFrozenTimer <= 0.8f) {
+    if (IsMouseButtonPressed(0) && PlayerFrozenTimer > 0 && PlayerFrozenTimer <= 0.9f) {
         PlayerFrozenTimer = 0;
         DodgeHealthResetTimer = 0;
         VelocityPower = 0;
@@ -182,14 +182,9 @@ void Player::Update() {
         this->weaponsSystemInit = true;
     }
 
-    cout << "b4 " << static_cast<float>(EntityColor.a)/255.0f << endl;
-    if (DodgeHealthResetTimer > 0) {
-        EntityColor = ColorAlpha(WHITE, Lerp(static_cast<float>(EntityColor.a)/255.0f, 0.5f, GetFrameTime()));
-    } else {
-        cout << "anger is restless " + to_string(Lerp(static_cast<float>(EntityColor.a)/255.0f, 1.0f, GetFrameTime())) << endl;
-        EntityColor = ColorAlpha(WHITE, Lerp(static_cast<float>(EntityColor.a)/255.0f, 1.0f, GetFrameTime()));
-    }
-    cout << static_cast<float>(EntityColor.a)/255.0f << endl;
+    // player transparency processing
+    EntityColor = ColorAlpha(WHITE, Alpha);
+    Alpha = Lerp(Alpha, (DodgeHealthResetTimer > 0 ? 0.5f : 1.0f), 5.5f*GetFrameTime());
 
     // dodge health reset
     if (DodgeHealthResetTimer <= 0 && Health > 400) {
@@ -201,6 +196,11 @@ void Player::Update() {
         Health = 400;
     } else if (Health > 400) {
         DodgeHealthResetTimer -= GetFrameTime();
+    }
+
+    // dodge health reset
+    if (DodgeHealthResetTimer <= 0 && Health > 400) {
+        Health = PrevHealthBeforeDodge;
     }
 
     // dashing logic
