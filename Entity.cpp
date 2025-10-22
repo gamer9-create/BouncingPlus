@@ -25,6 +25,7 @@ void Entity::Initialize(Texture2D &Texture, Rectangle BoundingBox, float Speed) 
     this->VelocityMovement = {0,0};
     this->VelocityPower = 0;
     this->LastVelBounceCoord = "";
+    this->EntityColor = WHITE;
 }
 
 Entity::Entity(Texture2D &Texture, Rectangle BoundingBox, float Speed, Game &game) {
@@ -227,6 +228,6 @@ void Entity::Update() {
     {
         DrawTexturePro(*Texture, Rectangle(0, 0, static_cast<float> (Texture->width), static_cast<float> (Texture->height)),
                        Rectangle(BoundingBox.x - CameraPosition->x + BoundingBox.width/2, BoundingBox.y - CameraPosition->y + BoundingBox.height/2, BoundingBox.width,
-                                 BoundingBox.height), Vector2(BoundingBox.width/2,BoundingBox.height/2), Rotation, WHITE);
+                                 BoundingBox.height), Vector2(BoundingBox.width/2,BoundingBox.height/2), Rotation, EntityColor);
     }
 }

@@ -32,17 +32,24 @@ Player::~Player() {
 void Player::PhysicsUpdate(float dt) {
     float MovementX = 0;
     float MovementY = 0;
-    if (IsKeyDown(KEY_W)) {
-        MovementY -= Speed;
+    if (PlayerFrozenTimer <= 0) {
+        if (IsKeyDown(KEY_W)) {
+            MovementY -= Speed;
+        }
+        if (IsKeyDown(KEY_S)) {
+            MovementY += Speed;
+        }
+        if (IsKeyDown(KEY_A)) {
+            MovementX -= Speed;
+        }
+        if (IsKeyDown(KEY_D)) {
+            MovementX += Speed;
+        }
     }
-    if (IsKeyDown(KEY_S)) {
-        MovementY += Speed;
-    }
-    if (IsKeyDown(KEY_A)) {
-        MovementX -= Speed;
-    }
-    if (IsKeyDown(KEY_D)) {
-        MovementX += Speed;
+    if (IsMouseButtonPressed(0) && VelocityPower >= 450 && PlayerFrozenTimer > 0 && PlayerFrozenTimer <= 0.8f) {
+        PlayerFrozenTimer = 0;
+        DodgeHealthResetTimer = 0;
+        VelocityPower = 0;
     }
     Movement = Vector2(MovementX, MovementY);
     if (Vector2Distance({0,0},Movement) > 0) {
@@ -101,7 +108,7 @@ void Player::DashLogic() {
     if (DashCooldown > 0)
         DashCooldown -= GetFrameTime();
 
-    if (VelocityPower > 0) {
+    if (VelocityPower > 0 && DodgeHealthResetTimer <= 0) {
         // get enemies list
         std::vector<shared_ptr<Entity>>* array = &game->Entities[EnemyType];
         for (int i = 0; i < array->size(); i++) {
@@ -133,13 +140,19 @@ void Player::DashLogic() {
     if (IsDashing && !IsKeyDown(KEY_LEFT_SHIFT)) {
         IsDashing = false;
     }
-    if (IsMouseButtonDown(1) && IsDashing) {
+    if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && IsDashing) {
         DashCooldown = 1.5f;
         DashedEnemies.clear();
         VelocityMovement = Vector2Subtract(WorldMousePos, {BoundingBox.x, BoundingBox.y});
         VelocityPower = 1200.0f * max(min(static_cast<float>(GetTime() - DashTimeStart), 1.1f), 0.35f);
         VelocityPower /= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
         PlaySound(game->Sounds["dash"]);
+        PlayerFrozenTimer = 1.0f;
+        if (IsMouseButtonDown(0)) {
+            PrevHealthBeforeDodge = Health;
+            Health = 9999999999999999999;
+            DodgeHealthResetTimer = 1.0f;
+        }
         IsDashing = false;
     }
 
@@ -154,7 +167,7 @@ void Player::DashLogic() {
         w, h, ColorAlpha(BLACK, a));
     DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->CameraPosition.x)+5,
         (int)(BoundingBox.y + BoundingBox.width + 10 - game->CameraPosition.y)+5,
-        (!IsDashing ? 0 : min(static_cast<float>(GetTime() - DashTimeStart) / 1.1f, 1.0f))*(w-10), h-10, ColorAlpha(WHITE, a));
+        (!IsDashing ? 0 : min(static_cast<float>(GetTime() - DashTimeStart) / 1.1f, 1.0f))*(w-10), h-10, ColorAlpha(WHITE, a+0.25f));
 }
 
 void Player::Update() {
@@ -169,42 +182,63 @@ void Player::Update() {
         this->weaponsSystemInit = true;
     }
 
-    // health cap
-    if (Health > 400)
+    cout << "b4 " << static_cast<float>(EntityColor.a)/255.0f << endl;
+    if (DodgeHealthResetTimer > 0) {
+        EntityColor = ColorAlpha(WHITE, Lerp(static_cast<float>(EntityColor.a)/255.0f, 0.5f, GetFrameTime()));
+    } else {
+        cout << "anger is restless " + to_string(Lerp(static_cast<float>(EntityColor.a)/255.0f, 1.0f, GetFrameTime())) << endl;
+        EntityColor = ColorAlpha(WHITE, Lerp(static_cast<float>(EntityColor.a)/255.0f, 1.0f, GetFrameTime()));
+    }
+    cout << static_cast<float>(EntityColor.a)/255.0f << endl;
+
+    // dodge health reset
+    if (DodgeHealthResetTimer <= 0 && Health > 400) {
+        Health = PrevHealthBeforeDodge;
+    }
+
+    // health cap + dodging stuff
+    if (Health > 400 && DodgeHealthResetTimer <= 0) {
         Health = 400;
+    } else if (Health > 400) {
+        DodgeHealthResetTimer -= GetFrameTime();
+    }
 
     // dashing logic
     DashLogic();
 
-    // firing logic
-    auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->CameraPosition.x, static_cast<float> (GetMouseY()) + game->CameraPosition.y);
-    if (IsMouseButtonDown(0) && !IsDashing)
-        weaponsSystem.Attack(WorldMousePos);
+    if (PlayerFrozenTimer <= 0) {
+        // firing logic
+        auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->CameraPosition.x, static_cast<float> (GetMouseY()) + game->CameraPosition.y);
+        if (IsMouseButtonDown(0) && !IsDashing)
+            weaponsSystem.Attack(WorldMousePos);
 
-    // inventory input logic
-    if (IsKeyPressed(KEY_ONE)) {
-        if (weaponsSystem.CurrentWeaponIndex != 0) {
-            weaponsSystem.Equip(0);
-        } else if (weaponsSystem.CurrentWeaponIndex == 0) {
-            weaponsSystem.Unequip();
+        // inventory input logic
+        if (IsKeyPressed(KEY_ONE)) {
+            if (weaponsSystem.CurrentWeaponIndex != 0) {
+                weaponsSystem.Equip(0);
+            } else if (weaponsSystem.CurrentWeaponIndex == 0) {
+                weaponsSystem.Unequip();
+            }
         }
-    }
-    if (IsKeyPressed(KEY_TWO)) {
-        if (weaponsSystem.CurrentWeaponIndex != 1) {
-            weaponsSystem.Equip(1);
-        } else if (weaponsSystem.CurrentWeaponIndex == 1) {
-            weaponsSystem.Unequip();
+        if (IsKeyPressed(KEY_TWO)) {
+            if (weaponsSystem.CurrentWeaponIndex != 1) {
+                weaponsSystem.Equip(1);
+            } else if (weaponsSystem.CurrentWeaponIndex == 1) {
+                weaponsSystem.Unequip();
+            }
         }
-    }
-    if (IsKeyPressed(KEY_THREE)) {
-        if (weaponsSystem.CurrentWeaponIndex != 2) {
-            weaponsSystem.Equip(2);
-        } else if (weaponsSystem.CurrentWeaponIndex == 2) {
-            weaponsSystem.Unequip();
+        if (IsKeyPressed(KEY_THREE)) {
+            if (weaponsSystem.CurrentWeaponIndex != 2) {
+                weaponsSystem.Equip(2);
+            } else if (weaponsSystem.CurrentWeaponIndex == 2) {
+                weaponsSystem.Unequip();
+            }
         }
+    } else {
+        PlayerFrozenTimer -= GetFrameTime();
     }
 
-    // update entitty
+    // update entity
     Entity::Update();
     weaponsSystem.Update();
 

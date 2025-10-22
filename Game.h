@@ -29,7 +29,11 @@ class Game {
     float PhysicsAccumulator;
     float SlowdownTime;
     float MaxSlowdownTime;
+    float BackgroundDepth;
+    float BackgroundGridSize;
     float SlowdownShakeIntensity;
+    RenderTexture GameRenderTexture;
+    Color BackgroundColor;
     std::string current_map_filename;
     UI Ui;
     void SetGameData();
@@ -53,7 +57,7 @@ class Game {
         void Slowdown(float Time);
         void Slowdown(float Time, float ShakeIntensity);
         void Reload(std::string Filename);
-        void Update();
+        void Update(Camera2D camera);
         void Clear();
         void Quit();
 };

@@ -36,9 +36,12 @@ Game::Game() {
     PhysicsAccumulator = 0;
     MainPlayer = nullptr;
     Paused = false;
-    //GameRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    GameRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    BackgroundColor = {100, 100, 100, 255};
     current_map_filename = "";
     DebugDraw = false;
+    BackgroundDepth = 3;
+    BackgroundGridSize = 36;
     SetGameData();
 }
 
@@ -75,18 +78,40 @@ void Game::Slowdown(float Time, float CrashIntensity) {
     SlowdownShakeIntensity = CrashIntensity;
 }
 
-void Game::Update() {
+void Game::Update(Camera2D camera) {
 
-    //if (GameRenderTexture.texture.width != GetScreenWidth() || GameRenderTexture.texture.height != GetScreenHeight()) {
-    //    UnloadRenderTexture(GameRenderTexture);
-    //    GameRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-    //}
-
-    //BeginTextureMode(GameRenderTexture);
-
-    //ClearBackground(BLANK);
+    if (GameRenderTexture.texture.width != GetScreenWidth() || GameRenderTexture.texture.height != GetScreenHeight()) {
+        UnloadRenderTexture(GameRenderTexture);
+        GameRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    }
 
     if (!Paused) {
+
+        BeginTextureMode(GameRenderTexture);
+        BeginBlendMode(BLEND_ALPHA);
+        BeginMode2D(camera);
+
+        ClearBackground(BackgroundColor);
+
+        float ParallaxCamX = CameraPosition.x / BackgroundDepth;
+        float ParallaxCamY = CameraPosition.y / BackgroundDepth;
+
+        for (int i = -1; i < round(GetScreenHeight() / BackgroundGridSize)+1; i++) {
+            int y = (int)(ParallaxCamY / BackgroundGridSize);
+            DrawLineEx({0, ((y+i)*BackgroundGridSize) - ParallaxCamY}, {(float) GetScreenWidth(), ((y+i)*BackgroundGridSize) - ParallaxCamY}, 7, ColorBrightness(WHITE, -0.5f));
+        }
+
+        for (int i = -1; i < round(GetScreenWidth() / BackgroundGridSize)+1; i++) {
+            int x = (int)(ParallaxCamX / BackgroundGridSize);
+            DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX, 0}, {((x+i)*BackgroundGridSize) - ParallaxCamX, (float) GetScreenHeight()}, 7, ColorBrightness(WHITE, -0.5f));
+            DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX, 0}, {((x+i)*BackgroundGridSize) - ParallaxCamX, (float) GetScreenHeight()}, 3, ColorAlpha(WHITE, 0.5f));
+        }
+
+        for (int i = -1; i < round(GetScreenHeight() / BackgroundGridSize)+1; i++) {
+            int y = (int)(ParallaxCamY / BackgroundGridSize);
+            DrawLineEx({0, ((y+i)*BackgroundGridSize) - ParallaxCamY}, {(float) GetScreenWidth(), ((y+i)*BackgroundGridSize) - ParallaxCamY}, 3, ColorAlpha(WHITE, 0.5f));
+        }
+        
         if (SlowdownTime > 0 && MaxSlowdownTime > 0) {
             float Percent = SlowdownTime / MaxSlowdownTime;
             if (Percent < 0.5)
@@ -170,11 +195,12 @@ void Game::Update() {
         }
         if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && IsKeyPressed(KEY_E) && !current_map_filename.empty())
             Reload(current_map_filename);
+        EndMode2D();
+        EndBlendMode();
+        EndTextureMode();
     }
 
-    //EndTextureMode();
-
-    //DrawTexturePro(GameRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
+    DrawTexturePro(GameRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
 
     Ui.GameUI();
 }
@@ -269,5 +295,5 @@ void Game::Quit() {
     for (auto [name,value] : Sounds) {
         UnloadSound(value);
     }
-    //UnloadRenderTexture(GameRenderTexture);
+    UnloadRenderTexture(GameRenderTexture);
 }

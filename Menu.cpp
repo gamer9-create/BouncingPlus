@@ -32,18 +32,23 @@ Menu::Menu(std::unordered_map<std::string,json> level_data)
     mouse_pos = {0,0};
 }
 
+bool Menu::button(Rectangle rectangle, std::string text) {
+    DrawTexture(button_img, rectangle.x-cam_x, rectangle.y, WHITE);
+    DrawText(text.c_str(), rectangle.x-cam_x + button_img.width/2 - MeasureText(text.c_str(), 50)/2, rectangle.y + button_img.height/2 - 25, 50, WHITE);
+
+    if (CheckCollisionPointRec(mouse_pos, rectangle)) {
+        DrawRectangleLinesEx({rectangle.x-cam_x,rectangle.y,rectangle.width,rectangle.height}, 4, WHITE);
+        return IsMouseButtonPressed(0);
+    }
+}
+
 void Menu::LevelSelect()
 {
     float f = 400;
-    DrawTexture(button_img, (int)(GetScreenWidth()/2.0f) - GetScreenWidth() - (int)(button_img.width/2.0f)-cam_x, play_button_offset_y+f + off, WHITE);
-    DrawText("BACK", (int)(GetScreenWidth()/2.0f) - GetScreenWidth() - (int)(MeasureText("BACK", 50)/2.0f)-cam_x, play_button_offset_y+f + 3 + off, 50, WHITE);
 
     Rectangle play_bbox = {(GetScreenWidth()/2.0f) - GetScreenWidth() - (int)(button_img.width/2.0f), (float)play_button_offset_y +f+off,150,56};
-    if (CheckCollisionPointRec(mouse_pos, play_bbox)) {
-        DrawRectangleLinesEx({play_bbox.x-cam_x,play_bbox.y,play_bbox.width,play_bbox.height}, 4, WHITE);
-        if (IsMouseButtonPressed(0)) {
-            cam_x_targ=0;
-        }
+    if (button(play_bbox, "BACK")) {
+        cam_x_targ=0;
     }
     DrawText("LEVEL SELECT", (int)(GetScreenWidth()/2.0f) - (int)(MeasureText("LEVEL SELECT", 50)/2.0f)-cam_x-GetScreenWidth(), 100+off2, 50, WHITE);
     int i = 0;
@@ -58,15 +63,9 @@ void Menu::LevelSelect()
             DrawRectangle(-(GetScreenWidth()-125)-cam_x, 200-comb, GetScreenWidth()-900, GetScreenHeight()-450, ColorAlpha(BLACK, 0.5f));
             DrawText(name.c_str(), -(GetScreenWidth()-145)-cam_x, 220-comb, 50, WHITE);
             DrawText(to_string(data["description"]).c_str(), -(GetScreenWidth()-145)-cam_x, 270-comb, 25, WHITE);
-            DrawTexture(button_img, -(GetScreenWidth()-145)-cam_x, 200-comb + GetScreenHeight()-450 - 70, WHITE);
-            DrawText("PLAY", -(GetScreenWidth()-145)-cam_x + button_img.width/2 - MeasureText("PLAY", 50)/2, 200-comb + GetScreenHeight()-450 - 70 + button_img.height/2 - 25, 50, WHITE);
-
             Rectangle play_bbox = {(float)-(GetScreenWidth()-145), 200-comb + GetScreenHeight()-450 - 70,150,56};
-            if (CheckCollisionPointRec(mouse_pos, play_bbox)) {
-                DrawRectangleLinesEx({play_bbox.x-cam_x,play_bbox.y,play_bbox.width,play_bbox.height}, 4, WHITE);
-                if (IsMouseButtonPressed(0)) {
-                    MovingToGame = true;
-                }
+            if (button(play_bbox, "PLAY")) {
+                MovingToGame = true;
             }
         }
         DrawText(name.c_str(), -700 - cam_x, 175 + (140 * i)-off3, 90, c);
@@ -103,15 +102,10 @@ void Menu::Update() {
         );
 
     DrawTexture(title_img, (int)(GetScreenWidth()/2.0f) - (int)(title_img.width/2.0f)-cam_x, (int)title_img_pos_y - (int)title_img_offset_y, WHITE);
-    DrawTexture(button_img, (int)(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f)-cam_x, play_button_offset_y + off3, WHITE);
-    DrawText("PLAY", (int)(GetScreenWidth()/2.0f) - (int)(MeasureText("PLAY", 50)/2.0f)-cam_x, play_button_offset_y + 3 + off3, 50, WHITE);
 
     Rectangle play_bbox = {(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f)-cam_x, (float)play_button_offset_y +off3,150,56};
-    if (CheckCollisionPointRec(mouse_pos, play_bbox)) {
-        DrawRectangleLinesEx(play_bbox, 4, WHITE);
-        if (IsMouseButtonPressed(0)) {
-            cam_x_targ=-GetScreenWidth();
-        }
+    if (button(play_bbox, "PLAY")) {
+        cam_x_targ=-GetScreenWidth();
     }
     if (MovingToGame)
         BlackTransparency += 0.5f * GetFrameTime();

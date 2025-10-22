@@ -26,6 +26,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
         Texture2D* Texture;
         Vector2 Movement;
         EntityType Type;
+        Color EntityColor;
 
         Vector2 VelocityMovement;
         float VelocityPower;

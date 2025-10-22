@@ -26,6 +26,7 @@ class Menu {
     float menu_img_pos_y;
     float BlackTransparency;
     bool MovingToGame;
+    bool button(Rectangle rectangle, std::string text);
     void LevelSelect();
     public:
         Menu(std::unordered_map<std::string,json> level_data);
