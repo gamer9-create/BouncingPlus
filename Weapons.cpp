@@ -71,8 +71,10 @@ void WeaponsSystem::Update() {
         } else {
             AttackCooldowns[i] = 0;
         }
+        /*
         if (game->DebugDraw)
             DrawText(to_string(AttackCooldowns[i]).c_str(), 250 + i*50, 250, 10, WHITE);
+            */
     }
 
     // Display weapon cone if using melee weapon
@@ -104,6 +106,7 @@ void WeaponsSystem::Update() {
 
     // Display melee animation points
 
+    /*
     if (points.size() != 0) {
         for (int i = 0; i < points.size(); i++) {
             if (i != 0) {
@@ -113,6 +116,7 @@ void WeaponsSystem::Update() {
             }
         }
     }
+    */
 
     // display gun tex
     if (CurrentWeapon != nullptr && (!CurrentWeapon->texture.empty()) && (!CurrentWeapon->isMelee))
@@ -152,9 +156,11 @@ void WeaponsSystem::Update() {
 
         // adding points
         if (MeleeAnimPercent <= 1.0) {
+            /*
+             this code was causing performance issues so i have it turned off
             points.clear();
             float length = 30;
-            int times = 25;
+            int times = 5;
             // getting the point postions and adding them
             for (int i = 0; i < times; i++) {
                 for (int x = 5; x < 10; x++) {
@@ -163,6 +169,7 @@ void WeaponsSystem::Update() {
                         -sinf((ThisAngle+90) * DEG2RAD)*(20.4f)*x});
                 }
             }
+            */
             MeleeAnimAlpha = 1;
         } else {
             // if the animation is already complete, phase out the sword

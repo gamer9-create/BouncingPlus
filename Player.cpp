@@ -80,25 +80,27 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
             entity->Armor -= Damage;
         Health += Damage / 8.0f;
 
+        float amount = 1500.0f;
+
         // did we kill them? if so, give health & kills
         if (entity->Health <= 0) {
             Health += VelocityPower / 18.0f;
-            game->Slowdown(0.35f, VelocityPower / 1450.0f);
+            //game->Slowdown(0.35f, VelocityPower / 1450.0f);
+            amount= 950;
             Kills+=1;
-        } else {
-            SetSoundVolume(game->Sounds["dash_hit"], min(max(VelocityPower/1500.0f, 0.0f), 1.0f));
-            PlaySound(game->Sounds["dash_hit"]);
-            game->ShakeCamera(VelocityPower / 1450.0f);
-            game->CameraPosition += Vector2Normalize({(float)GetRandomValue(-50, 50), (float)GetRandomValue(-50, 50)}) * (VelocityPower / 10.0f);
         }
+
+        game->CameraPosition += Vector2Normalize({(float)GetRandomValue(-50, 50), (float)GetRandomValue(-50, 50)}) * (VelocityPower / 150);
+        game->ShakeCamera(VelocityPower / (amount - 50));
+        SetSoundVolume(game->Sounds["dash_hit"], min(max(VelocityPower/amount, 0.0f), 1.0f));
+        PlaySound(game->Sounds["dash_hit"]);
 
         // give them pushback force
         entity->VelocityMovement = VelocityMovement;
         entity->VelocityPower = -VelocityPower;
 
-
         // increase velocity and mark enemy as attacked
-        VelocityPower += VelocityPower / 5.0f;
+        VelocityPower += VelocityPower / (amount/300);
         DashedEnemies.push_back(std::weak_ptr(entity));
     }
 }
@@ -140,7 +142,7 @@ void Player::DashLogic() {
     if (IsDashing && !IsKeyDown(KEY_LEFT_SHIFT)) {
         IsDashing = false;
     }
-    if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && IsDashing) {
+    if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && IsDashing && Health > 0) {
         DashCooldown = 1.5f;
         DashedEnemies.clear();
         VelocityMovement = Vector2Subtract(WorldMousePos, {BoundingBox.x, BoundingBox.y});

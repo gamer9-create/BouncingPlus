@@ -15,6 +15,7 @@ class UI {
     RenderTexture2D WeaponUITexture;
     RenderTexture2D DeathScreen;
     RenderTexture2D PauseScreen;
+    Texture button_img;
     int WeaponSlotIndex = -1;
     float WeaponSlotOffset = 0;
     float WeaponSlotSize = 0;
@@ -24,7 +25,7 @@ class UI {
     public:
     UI(Game &game);
     UI();
-    bool button(Rectangle rectangle, std::string text) {
+    bool button(Vector2 pos, std::string text);
     void PauseMenu();
     void GameUI();
     void Quit();

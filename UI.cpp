@@ -25,17 +25,27 @@ UI::UI(Game &game) {
     this->WeaponUITexture = LoadRenderTexture(GetScreenWidth(), 250);
     this->DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     this->PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    button_img = LoadTexture("assets/img/button.png");
 }
 
-bool UI::button(Rectangle rectangle, std::string text) {
-    DrawTexture(button_img, rectangle.x, rectangle.y, WHITE);
-    DrawText(text.c_str(), rectangle.x + button_img.width/2 - MeasureText(text.c_str(), 50)/2, rectangle.y + button_img.height/2 - 25, 50, WHITE);
+bool UI::button(Vector2 pos, std::string text) {
+    Rectangle rectangle = {0,0, (float)MeasureText(text.c_str(), 50)+25, (float)button_img.height};
+    rectangle.x=pos.x - rectangle.width/2;
+    rectangle.y=pos.y - rectangle.height/2;
 
-    if (CheckCollisionPointRec(mouse_pos, rectangle)) {
-        DrawRectangleLinesEx({rectangle.x-cam_x,rectangle.y,rectangle.width,rectangle.height}, 4, WHITE);
+    DrawTexturePro(button_img, {0,0,8,56}, {rectangle.x,rectangle.y,7,56}, {0,0}, 0, WHITE);
+    DrawTexturePro(button_img, {143,0,7,56}, {rectangle.x+rectangle.width-7,rectangle.y,7,56}, {0,0}, 0, WHITE);
+    DrawTexturePro(button_img, {8,0,135,56}, {rectangle.x+7,rectangle.y,rectangle.width-14,56}, {0,0}, 0, WHITE);
+
+    DrawText(text.c_str(), rectangle.x + rectangle.width/2 - MeasureText(text.c_str(), 50)/2, rectangle.y + rectangle.height/2 - 25, 50, WHITE);
+
+    if (CheckCollisionPointRec(GetMousePosition(), rectangle)) {
+        DrawRectangleLinesEx(rectangle, 4, WHITE);
         return IsMouseButtonPressed(0);
     }
+
     return false;
+
 }
 
 UI::UI() {
@@ -213,13 +223,17 @@ void UI::GameUI() {
 void UI::PauseMenu() {
     BeginTextureMode(PauseScreen);
     ClearBackground(ColorAlpha(BLACK, 0.35f));
-    DrawRectangle(PauseScreen.texture.width/2 - 75, PauseScreen.texture.height/2-175,150, 350,WHITE);
+    DrawRectangle(PauseScreen.texture.width/2 - 225, PauseScreen.texture.height/2-175,450, 350,ColorAlpha(WHITE,0.85f));
+    game->Paused =!button({(float)PauseScreen.texture.width/2,(float)PauseScreen.texture.height/2-100}, "RESUME");
     EndTextureMode();
+    BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTextureRec(PauseScreen.texture, Rectangle(0, 0, PauseScreen.texture.width, -PauseScreen.texture.height), Vector2(0, GetScreenHeight() - PauseScreen.texture.height), WHITE);
+    EndBlendMode();
 }
 
 void UI::Quit() {
     UnloadRenderTexture(WeaponUITexture);
     UnloadRenderTexture(PauseScreen);
+    UnloadTexture(button_img);
     UnloadRenderTexture(DeathScreen);
 }

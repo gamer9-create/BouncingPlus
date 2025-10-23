@@ -34,6 +34,7 @@ Enemy::~Enemy() {
 
 }
 
+
 void Enemy::Update() {
     if (!this->weaponsSystemInit) {
         this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
@@ -41,11 +42,12 @@ void Enemy::Update() {
         this->weaponsSystem.Equip(0);
         this->weaponsSystemInit = true;
     }
-    if (AngeredRangeBypassTimer > 0){
+    if (AngeredRangeBypassTimer > 0)
         AngeredRangeBypassTimer -= GetFrameTime();
-    }
+
     if (AngeredRangeBypassTimer <= 0)
         AngeredRangeBypassTimer = 0;
+
     Movement = Vector2(0, 0);
     float plr_center_x = game->MainPlayer->BoundingBox.x + (game->MainPlayer->BoundingBox.width / 2);
     float plr_center_y = game->MainPlayer->BoundingBox.y + (game->MainPlayer->BoundingBox.height / 2);
@@ -53,7 +55,7 @@ void Enemy::Update() {
     float center_y = BoundingBox.y + (BoundingBox.height / 2);
     float distance = std::sqrt(std::pow(plr_center_x - center_x, 2) + std::pow(plr_center_y - center_y, 2));
 
-    if ((distance <= 800 && (distance <= 36 || game->RayCast({center_x, center_y}, {plr_center_x, plr_center_y}))) || AngeredRangeBypassTimer > 0.0f) {
+    if ((distance <= 800 && (distance <= 36 || game->RayCast({center_x, center_y}, {plr_center_x, plr_center_y}, 48))) || AngeredRangeBypassTimer > 0.0f) {
         if (distance >= 100) {
             Movement.x = -(plr_center_x - center_x) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
             Movement.y = -(plr_center_y - center_y) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
@@ -67,6 +69,7 @@ void Enemy::Update() {
     float size2 = MeasureText("%", 18)+1;
     float total_size = size + size2;
     //cout << to_string(GetHealthColor(Health / MaxHealth).r)+" " << to_string(GetHealthColor(Health / MaxHealth).g)+" " << to_string(GetHealthColor(Health / MaxHealth).b)+" " << to_string(GetHealthColor(Health / MaxHealth).a) << endl;
+
     if ((center_x - total_size / 2 - game->CameraPosition.x) > -total_size &&
             (center_x - total_size / 2 - game->CameraPosition.x) < GetScreenWidth() &&
             (BoundingBox.y - 36 - game->CameraPosition.y) > -36 &&

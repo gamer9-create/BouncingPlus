@@ -27,7 +27,7 @@ Menu::Menu(std::unordered_map<std::string,json> level_data)
     off2 = 0;
     off3 = 0;
     BlackTransparency= 0.0f;
-    menu_img_pos_y = 0;
+    menu_img_pos_y = GetRandomValue(0, menu_img.height);
     MovingToGame = false;
     mouse_pos = {0,0};
 }
@@ -123,5 +123,6 @@ std::string Menu::LeaveMenu() {
 
 void Menu::Quit() {
     UnloadTexture(title_img);
+    UnloadTexture(menu_img);
     UnloadTexture(button_img);
 }

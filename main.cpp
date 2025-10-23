@@ -49,22 +49,13 @@ int main() {
 
             if (InGame) {
 
-                MainGame.CameraTarget = {MainGame.MainPlayer->BoundingBox.x +
-                MainGame.MainPlayer->BoundingBox.width / 2, MainGame.MainPlayer->BoundingBox.y +
-                MainGame.MainPlayer->BoundingBox.height / 2};
-
                 MainGame.Update(zoom_cam);
-
                 zoom_cam.zoom = lerp(zoom_cam.zoom, MainGame.CameraZoom, 4 * GetFrameTime());
                 zoom_cam.offset = {((float)GetScreenWidth()/2.0f) * (1.0f-zoom_cam.zoom), ((float)GetScreenHeight()/2.0f) * (1.0f-zoom_cam.zoom)};
 
                 // i am scared!!! i scare you!!!
 
-                if (IsKeyPressed(KEY_X))
-                    MainGame.DebugDraw = !MainGame.DebugDraw;
-                if (MainGame.DebugDraw) {
 
-                }
             } else {
                 zoom_cam = {{0, 0}, {0, 0}, 0, 1.0f};
                 MainMenu.Update();

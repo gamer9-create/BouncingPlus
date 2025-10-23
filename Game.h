@@ -37,6 +37,13 @@ class Game {
     std::string current_map_filename;
     UI Ui;
     void SetGameData();
+    void BackgroundLines();
+    void EntityUpdate();
+    void EntityPhysicsUpdate();
+    void ProcessSlowdownAnimation();
+    void ProcessCameraShake();
+    void UpdateCamera();
+    void UpdateScreenImage();
     public:
         Vector2 CameraPosition;
         Vector2 CameraTarget;
@@ -53,7 +60,7 @@ class Game {
         bool DebugDraw;
         Game();
         void ShakeCamera(float Intensity);
-        bool RayCast(Vector2 origin, Vector2 target, float Precision = 18);
+        bool RayCast(Vector2 origin, Vector2 target, float Precision = 36);
         void Slowdown(float Time);
         void Slowdown(float Time, float ShakeIntensity);
         void Reload(std::string Filename);

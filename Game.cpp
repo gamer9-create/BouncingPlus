@@ -78,132 +78,187 @@ void Game::Slowdown(float Time, float CrashIntensity) {
     SlowdownShakeIntensity = CrashIntensity;
 }
 
-void Game::Update(Camera2D camera) {
+void Game::BackgroundLines() {
+    float ParallaxCamX = CameraPosition.x / BackgroundDepth;
+    float ParallaxCamY = CameraPosition.y / BackgroundDepth;
 
-    if (GameRenderTexture.texture.width != GetScreenWidth() || GameRenderTexture.texture.height != GetScreenHeight()) {
-        UnloadRenderTexture(GameRenderTexture);
-        GameRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    for (int i = -1; i < round(GetScreenHeight() / BackgroundGridSize)+1; i++) {
+        int y = (int)(ParallaxCamY / BackgroundGridSize);
+        DrawLineEx({0, ((y+i)*BackgroundGridSize) - ParallaxCamY}, {(float) GetScreenWidth(), ((y+i)*BackgroundGridSize) - ParallaxCamY}, 7, ColorBrightness(WHITE, -0.5f));
     }
 
-    if (IsKeyPressed(KEY_M))
-        Paused = !Paused;
+    for (int i = -1; i < round(GetScreenWidth() / BackgroundGridSize)+1; i++) {
+        int x = (int)(ParallaxCamX / BackgroundGridSize);
+        DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX, 0}, {((x+i)*BackgroundGridSize) - ParallaxCamX, (float) GetScreenHeight()}, 7, ColorBrightness(WHITE, -0.5f));
+        DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX, 0}, {((x+i)*BackgroundGridSize) - ParallaxCamX, (float) GetScreenHeight()}, 3, ColorAlpha(WHITE, 0.5f));
+    }
 
-    if (!Paused) {
+    for (int i = -1; i < round(GetScreenHeight() / BackgroundGridSize)+1; i++) {
+        int y = (int)(ParallaxCamY / BackgroundGridSize);
+        DrawLineEx({0, ((y+i)*BackgroundGridSize) - ParallaxCamY}, {(float) GetScreenWidth(), ((y+i)*BackgroundGridSize) - ParallaxCamY}, 3, ColorAlpha(WHITE, 0.5f));
+    }
+}
 
-        BeginTextureMode(GameRenderTexture);
-        BeginBlendMode(BLEND_ALPHA);
-        BeginMode2D(camera);
-
-        ClearBackground(BackgroundColor);
-
-        float ParallaxCamX = CameraPosition.x / BackgroundDepth;
-        float ParallaxCamY = CameraPosition.y / BackgroundDepth;
-
-        for (int i = -1; i < round(GetScreenHeight() / BackgroundGridSize)+1; i++) {
-            int y = (int)(ParallaxCamY / BackgroundGridSize);
-            DrawLineEx({0, ((y+i)*BackgroundGridSize) - ParallaxCamY}, {(float) GetScreenWidth(), ((y+i)*BackgroundGridSize) - ParallaxCamY}, 7, ColorBrightness(WHITE, -0.5f));
-        }
-
-        for (int i = -1; i < round(GetScreenWidth() / BackgroundGridSize)+1; i++) {
-            int x = (int)(ParallaxCamX / BackgroundGridSize);
-            DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX, 0}, {((x+i)*BackgroundGridSize) - ParallaxCamX, (float) GetScreenHeight()}, 7, ColorBrightness(WHITE, -0.5f));
-            DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX, 0}, {((x+i)*BackgroundGridSize) - ParallaxCamX, (float) GetScreenHeight()}, 3, ColorAlpha(WHITE, 0.5f));
-        }
-
-        for (int i = -1; i < round(GetScreenHeight() / BackgroundGridSize)+1; i++) {
-            int y = (int)(ParallaxCamY / BackgroundGridSize);
-            DrawLineEx({0, ((y+i)*BackgroundGridSize) - ParallaxCamY}, {(float) GetScreenWidth(), ((y+i)*BackgroundGridSize) - ParallaxCamY}, 3, ColorAlpha(WHITE, 0.5f));
-        }
-        
-        if (SlowdownTime > 0 && MaxSlowdownTime > 0) {
-            float Percent = SlowdownTime / MaxSlowdownTime;
-            if (Percent < 0.5)
-                GameSpeed = Lerp(1.0f, 0.1f, Percent-0.5f);
-            else
-                GameSpeed = Lerp(0.1f, 1.0f, Percent-0.5f);
-            if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
-                ShakeCamera(SlowdownShakeIntensity);
-                SetSoundVolume(Sounds["dash_hit"], min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
-                PlaySound(Sounds["dash_hit"]);
-                SlowdownShakeIntensity = 0;
+void Game::EntityUpdate() {
+    for (int e = 0; e < End; ++e) {
+        std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
+        for (int i = 0; i < array->size(); i++) {
+            if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
+                entity->Update();
             }
-            SlowdownTime -= GetFrameTime();
-        } else {
-            SlowdownTime = 0;
-            MaxSlowdownTime = 0;
-            SlowdownShakeIntensity = 0;
-            GameSpeed = 1.0f;
         }
+    }
 
-        PhysicsAccumulator += GetFrameTime();
-
-        if (GetTime() - CameraShakeTimer >= 0.02f) {
-            if (CameraShakes > 0) {
-                CameraShakeOffset = {(float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity)), (float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity))};
-                CameraShakes--;
-            } else {
-                CameraShakeOffset = {0, 0};
+    for (int e = 0; e < End; e++) {
+        std::vector<shared_ptr<Entity>> *array = &Entities[(EntityType) e];
+        int old_size = array->size();
+        std::erase_if(*array, [this](shared_ptr<Entity> e) {
+            if (e && e->ShouldDelete) {
+                if (e != MainPlayer) {
+                    e.reset();
+                }
+                return true;
             }
-            CameraShakeTimer = GetTime();
+            return false;
+        });
+        if (DebugDraw) {
+            std::string f = to_string(e)+"/typa shit ive been on/ de old size(TALLY HALL DETECTED) " + to_string(old_size) + ", new size? (BANANA MAN IS COMING TO NUKE YOU) " + to_string(array->size());
+            DrawText(f.c_str(), 500, 500, 10, WHITE);
         }
+    }
+}
 
-        float TargetX = CameraTarget.x - CameraPositionUnaffected.x - (static_cast<float>(GetScreenWidth()) / 2.0f);
-        float TargetY = CameraTarget.y - CameraPositionUnaffected.y - (static_cast<float>(GetScreenHeight()) / 2.0f);
+void Game::EntityPhysicsUpdate() {
+    PhysicsAccumulator += GetFrameTime();
 
-        float ImportantVal = 20.0f * (static_cast<float>(GetFPS()) / 144.0f);
-        if (ImportantVal != 0.0f) {
-            CameraPositionUnaffected.x += TargetX / ImportantVal;
-            CameraPositionUnaffected.y += TargetY / ImportantVal;
-            CameraPosition = {CameraPositionUnaffected.x - CameraShakeOffset.x, CameraPositionUnaffected.y - CameraShakeOffset.y};
-        }
-
-        MainTileManager.Update();
+    while (PhysicsAccumulator >= 1.0f/(PhysicsFPS*GameSpeed)) {
         for (int e = 0; e < End; ++e) {
             std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
             for (int i = 0; i < array->size(); i++) {
                 if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
-                    entity->Update();
+                    entity->PhysicsUpdate(1.0f/PhysicsFPS);
                 }
             }
         }
+        PhysicsAccumulator -= 1.0f/(PhysicsFPS*GameSpeed);
+    }
+}
 
-        while (PhysicsAccumulator >= 1.0f/(PhysicsFPS*GameSpeed)) {
-            for (int e = 0; e < End; ++e) {
-                std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
-                for (int i = 0; i < array->size(); i++) {
-                    if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
-                        entity->PhysicsUpdate(1.0f/PhysicsFPS);
-                    }
-                }
-            }
-            PhysicsAccumulator -= 1.0f/(PhysicsFPS*GameSpeed);
+void Game::ProcessSlowdownAnimation() {
+    if (SlowdownTime > 0 && MaxSlowdownTime > 0) {
+        float Percent = SlowdownTime / MaxSlowdownTime;
+        if (Percent < 0.5)
+            GameSpeed = Lerp(1.0f, 0.1f, Percent-0.5f);
+        else
+            GameSpeed = Lerp(0.1f, 1.0f, Percent-0.5f);
+        if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
+            ShakeCamera(SlowdownShakeIntensity);
+            SetSoundVolume(Sounds["dash_hit"], min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
+            PlaySound(Sounds["dash_hit"]);
+            SlowdownShakeIntensity = 0;
         }
+        SlowdownTime -= GetFrameTime();
+    } else {
+        SlowdownTime = 0;
+        MaxSlowdownTime = 0;
+        SlowdownShakeIntensity = 0;
+        GameSpeed = 1.0f;
+    }
+}
 
-        for (int e = 0; e < End; e++) {
-            std::vector<shared_ptr<Entity>> *array = &Entities[(EntityType) e];
-            int old_size = array->size();
-            std::erase_if(*array, [this](shared_ptr<Entity> e) {
-                if (e && e->ShouldDelete) {
-                    if (e != MainPlayer) {
-                        e.reset();
-                    }
-                    return true;
-                }
-                return false;
-            });
-            if (DebugDraw) {
-                std::string f = to_string(e)+"/typa shit ive been on/ de old size(TALLY HALL DETECTED) " + to_string(old_size) + ", new size? (BANANA MAN IS COMING TO NUKE YOU) " + to_string(array->size());
-                DrawText(f.c_str(), 500, 500, 10, WHITE);
-            }
+void Game::ProcessCameraShake() {
+    if (GetTime() - CameraShakeTimer >= 0.02f) {
+        if (CameraShakes > 0) {
+            CameraShakeOffset = {(float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity)), (float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity))};
+            CameraShakes--;
+        } else {
+            CameraShakeOffset = {0, 0};
         }
+        CameraShakeTimer = GetTime();
+    }
+}
+
+void Game::UpdateCamera() {
+    CameraTarget = {MainPlayer->BoundingBox.x +
+                MainPlayer->BoundingBox.width / 2, MainPlayer->BoundingBox.y +
+                MainPlayer->BoundingBox.height / 2};
+
+    float TargetX = CameraTarget.x - CameraPositionUnaffected.x - (static_cast<float>(GetScreenWidth()) / 2.0f);
+    float TargetY = CameraTarget.y - CameraPositionUnaffected.y - (static_cast<float>(GetScreenHeight()) / 2.0f);
+
+    float ImportantVal = 20.0f * (static_cast<float>(GetFPS()) / 144.0f);
+    if (ImportantVal != 0.0f) {
+        CameraPositionUnaffected.x += TargetX / ImportantVal;
+        CameraPositionUnaffected.y += TargetY / ImportantVal;
+        CameraPosition = {CameraPositionUnaffected.x - CameraShakeOffset.x, CameraPositionUnaffected.y - CameraShakeOffset.y};
+    }
+}
+
+void Game::UpdateScreenImage() {
+    if (GameRenderTexture.texture.width != GetScreenWidth() || GameRenderTexture.texture.height != GetScreenHeight()) {
+        UnloadRenderTexture(GameRenderTexture);
+        GameRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+        if (DebugDraw) {
+            cout << "JS GET VIRAL" << endl;
+            DrawRectangle(0,0,50,50,RED);
+        }
+    }
+}
+
+void Game::Update(Camera2D camera) {
+
+    UpdateScreenImage();
+
+    if (IsKeyPressed(KEY_M))
+        Paused = !Paused;
+
+    if (IsKeyPressed(KEY_X))
+        DebugDraw = !DebugDraw;
+
+    if (!Paused) {
+        BeginTextureMode(GameRenderTexture);
+        BeginMode2D(camera);
+
+        ClearBackground(BackgroundColor);
+
+        double t = GetTime();
+        BackgroundLines();
+        if (DebugDraw)
+            DrawText(to_string(GetTime()-t).c_str(), 500, 500, 35, RED);
+        t = GetTime();
+        ProcessSlowdownAnimation();
+        if (DebugDraw)
+            DrawText(to_string(GetTime()-t).c_str(), 500, 535, 35, RED);
+        t = GetTime();
+        ProcessCameraShake();
+        if (DebugDraw)
+            DrawText(to_string(GetTime()-t).c_str(), 500, 570, 35, RED);
+        t = GetTime();
+        UpdateCamera();
+        if (DebugDraw)
+            DrawText(to_string(GetTime()-t).c_str(), 500, 605, 35, RED);
+        t = GetTime();
+        MainTileManager.Update();
+        if (DebugDraw)
+            DrawText(to_string(GetTime()-t).c_str(), 500, 640, 35, RED);
+        t = GetTime();
+        EntityUpdate();
+        if (DebugDraw)
+            DrawText(to_string(GetTime()-t).c_str(), 500, 675, 35, RED);
+        t = GetTime();
+        EntityPhysicsUpdate();
+        if (DebugDraw)
+            DrawText(to_string(GetTime()-t).c_str(), 500, 720, 35, RED);
+
         if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && IsKeyPressed(KEY_E) && !current_map_filename.empty())
             Reload(current_map_filename);
         EndMode2D();
-        EndBlendMode();
         EndTextureMode();
     }
 
+    BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTexturePro(GameRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
+    EndBlendMode();
 
     Ui.GameUI();
 }
@@ -218,7 +273,7 @@ void Game::ShakeCamera(float Intensity) {
 bool Game::RayCast(Vector2 origin, Vector2 target, float Precision) { // RayCasting function
 
     if (Precision <= 0)
-        Precision = Vector2Distance(origin, target) / 40.0f;
+        Precision = Vector2Distance(origin, target) / 15.0f;
 
     // Init starting positions
     float ray_x = origin.x;
