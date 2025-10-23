@@ -215,14 +215,19 @@ void Game::Update(Camera2D camera) {
     if (IsKeyPressed(KEY_X))
         DebugDraw = !DebugDraw;
 
-    if (!Paused) {
-        BeginTextureMode(GameRenderTexture);
-        BeginMode2D(camera);
+    if (DebugDraw)
+        MainPlayer->Health = 9999;
 
-        ClearBackground(BackgroundColor);
+    if (!Paused) {
+        //BeginTextureMode(GameRenderTexture);
+        //BeginMode2D(camera);
+
+        if (!DebugDraw)
+            ClearBackground(BackgroundColor);
 
         double t = GetTime();
-        BackgroundLines();
+        if (!DebugDraw)
+            BackgroundLines();
         if (DebugDraw)
             DrawText(to_string(GetTime()-t).c_str(), 500, 500, 35, RED);
         t = GetTime();
@@ -238,7 +243,8 @@ void Game::Update(Camera2D camera) {
         if (DebugDraw)
             DrawText(to_string(GetTime()-t).c_str(), 500, 605, 35, RED);
         t = GetTime();
-        MainTileManager.Update();
+        if (!DebugDraw)
+            MainTileManager.Update();
         if (DebugDraw)
             DrawText(to_string(GetTime()-t).c_str(), 500, 640, 35, RED);
         t = GetTime();
@@ -252,13 +258,13 @@ void Game::Update(Camera2D camera) {
 
         if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && IsKeyPressed(KEY_E) && !current_map_filename.empty())
             Reload(current_map_filename);
-        EndMode2D();
-        EndTextureMode();
+        //EndMode2D();
+        //EndTextureMode();
     }
 
-    BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
-    DrawTexturePro(GameRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
-    EndBlendMode();
+    //BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
+    //DrawTexturePro(GameRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
+    //EndBlendMode();
 
     Ui.GameUI();
 }

@@ -43,7 +43,7 @@ Entity::~Entity() {
 
 void Entity::PhysicsUpdate(float dt) {
     if (abs(VelocityPower) > 0) {
-        VelocityPower += 1000.0f * GetFrameTime() * (VelocityPower > 0 ? -1 : 1);
+        VelocityPower += 1000.0f * dt * (VelocityPower > 0 ? -1 : 1);
         if (abs(VelocityPower) < 5)
             VelocityPower = 0;
     }
@@ -224,7 +224,7 @@ void Entity::Update() {
     }
     Vector2 *CameraPosition = &this->game->CameraPosition;
 
-    if (IsVisible())
+    if (IsVisible() && !game->DebugDraw)
     {
         DrawTexturePro(*Texture, Rectangle(0, 0, static_cast<float> (Texture->width), static_cast<float> (Texture->height)),
                        Rectangle(BoundingBox.x - CameraPosition->x + BoundingBox.width/2, BoundingBox.y - CameraPosition->y + BoundingBox.height/2, BoundingBox.width,

@@ -54,14 +54,11 @@ void Player::PhysicsUpdate(float dt) {
     Movement = Vector2(MovementX, MovementY);
     if (Vector2Distance({0,0},Movement) > 0) {
         LastMovedTime = GetTime();
-        if (ExtraSpeed < 400)
-            ExtraSpeed += 10 * GetFrameTime();
-        else
-            ExtraSpeed = 400;
+        ExtraSpeed += 10 * dt;
     }
-    if (GetTime() - LastMovedTime > 1) {
+    if (GetTime() - LastMovedTime > 1)
         ExtraSpeed = 0;
-    }
+    ExtraSpeed = min(ExtraSpeed, 400.0f);
     if ((Health/MaxHealth) > 2.0f)
         Speed = (OrigSpeed + ExtraSpeed) * (1.0f - min(((Health/MaxHealth)-2.0f) / 2.0f, 0.5f));
     else

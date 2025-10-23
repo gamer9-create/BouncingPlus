@@ -56,16 +56,19 @@ void UI::GameUI() {
     if (WeaponUITexture.texture.width != GetScreenWidth()) {
         UnloadRenderTexture(WeaponUITexture);
         WeaponUITexture = LoadRenderTexture(GetScreenWidth(), WeaponUITexture.texture.height);
+        cout << "I am sad." << endl;
     }
 
     if (DeathScreen.texture.width != GetScreenWidth() || DeathScreen.texture.height != GetScreenHeight()) {
         UnloadRenderTexture(DeathScreen);
         DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+        cout << "I am sad." << endl;
     }
 
     if (PauseScreen.texture.width != GetScreenWidth() || PauseScreen.texture.height != GetScreenHeight()) {
         UnloadRenderTexture(PauseScreen);
         PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+        cout << "I am sad." << endl;
     }
 
     BeginTextureMode(WeaponUITexture);
