@@ -14,18 +14,10 @@
 using namespace std;
 
 Game::Game() {
-    CameraPosition = Vector2(0.0f, 0.0f);
-    CameraTarget = Vector2(0.0f, 0.0f);
-    CameraPositionUnaffected = {0, 0};
-    CameraSpeed = 20.0f;
-    CameraZoom = 1.0f;
-    CameraShakes = 0;
+    MainCamera = GameCamera(*this);
     GameSpeed = 1.0f;
     SlowdownTime = 0;
     MaxSlowdownTime = 0;
-    CameraShakeIntensity = 0;
-    CameraShakeOffset = {0, 0};
-    CameraShakeTimer = GetTime();
     Ui = UI(*this);
     MainTileManager = TileManager(*this);
     MainParticleSystem = ParticleSystem(*this);
@@ -36,12 +28,10 @@ Game::Game() {
     PhysicsAccumulator = 0;
     MainPlayer = nullptr;
     Paused = false;
-    GameRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-    BackgroundColor = {100, 100, 100, 255};
+
     current_map_filename = "";
     DebugDraw = false;
-    BackgroundDepth = 3;
-    BackgroundGridSize = 36;
+
     SetGameData();
 }
 
@@ -76,27 +66,6 @@ void Game::Slowdown(float Time, float CrashIntensity) {
     SlowdownTime = Time;
     MaxSlowdownTime = Time;
     SlowdownShakeIntensity = CrashIntensity;
-}
-
-void Game::BackgroundLines() {
-    float ParallaxCamX = CameraPosition.x / BackgroundDepth;
-    float ParallaxCamY = CameraPosition.y / BackgroundDepth;
-
-    for (int i = -1; i < round(GetScreenHeight() / BackgroundGridSize)+1; i++) {
-        int y = (int)(ParallaxCamY / BackgroundGridSize);
-        DrawLineEx({0, ((y+i)*BackgroundGridSize) - ParallaxCamY}, {(float) GetScreenWidth(), ((y+i)*BackgroundGridSize) - ParallaxCamY}, 7, ColorBrightness(WHITE, -0.5f));
-    }
-
-    for (int i = -1; i < round(GetScreenWidth() / BackgroundGridSize)+1; i++) {
-        int x = (int)(ParallaxCamX / BackgroundGridSize);
-        DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX, 0}, {((x+i)*BackgroundGridSize) - ParallaxCamX, (float) GetScreenHeight()}, 7, ColorBrightness(WHITE, -0.5f));
-        DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX, 0}, {((x+i)*BackgroundGridSize) - ParallaxCamX, (float) GetScreenHeight()}, 3, ColorAlpha(WHITE, 0.5f));
-    }
-
-    for (int i = -1; i < round(GetScreenHeight() / BackgroundGridSize)+1; i++) {
-        int y = (int)(ParallaxCamY / BackgroundGridSize);
-        DrawLineEx({0, ((y+i)*BackgroundGridSize) - ParallaxCamY}, {(float) GetScreenWidth(), ((y+i)*BackgroundGridSize) - ParallaxCamY}, 3, ColorAlpha(WHITE, 0.5f));
-    }
 }
 
 void Game::EntityUpdate() {
@@ -152,7 +121,7 @@ void Game::ProcessSlowdownAnimation() {
         else
             GameSpeed = Lerp(0.1f, 1.0f, Percent-0.5f);
         if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
-            ShakeCamera(SlowdownShakeIntensity);
+            MainCamera.ShakeCamera(SlowdownShakeIntensity);
             SetSoundVolume(Sounds["dash_hit"], min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
             PlaySound(Sounds["dash_hit"]);
             SlowdownShakeIntensity = 0;
@@ -166,48 +135,7 @@ void Game::ProcessSlowdownAnimation() {
     }
 }
 
-void Game::ProcessCameraShake() {
-    if (GetTime() - CameraShakeTimer >= 0.02f) {
-        if (CameraShakes > 0) {
-            CameraShakeOffset = {(float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity)), (float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity))};
-            CameraShakes--;
-        } else {
-            CameraShakeOffset = {0, 0};
-        }
-        CameraShakeTimer = GetTime();
-    }
-}
-
-void Game::UpdateCamera() {
-    CameraTarget = {MainPlayer->BoundingBox.x +
-                MainPlayer->BoundingBox.width / 2, MainPlayer->BoundingBox.y +
-                MainPlayer->BoundingBox.height / 2};
-
-    float TargetX = CameraTarget.x - CameraPositionUnaffected.x - (static_cast<float>(GetScreenWidth()) / 2.0f);
-    float TargetY = CameraTarget.y - CameraPositionUnaffected.y - (static_cast<float>(GetScreenHeight()) / 2.0f);
-
-    float ImportantVal = 20.0f * (static_cast<float>(GetFPS()) / 144.0f);
-    if (ImportantVal != 0.0f) {
-        CameraPositionUnaffected.x += TargetX / ImportantVal;
-        CameraPositionUnaffected.y += TargetY / ImportantVal;
-        CameraPosition = {CameraPositionUnaffected.x - CameraShakeOffset.x, CameraPositionUnaffected.y - CameraShakeOffset.y};
-    }
-}
-
-void Game::UpdateScreenImage() {
-    if (GameRenderTexture.texture.width != GetScreenWidth() || GameRenderTexture.texture.height != GetScreenHeight()) {
-        UnloadRenderTexture(GameRenderTexture);
-        GameRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-        if (DebugDraw) {
-            cout << "JS GET VIRAL" << endl;
-            DrawRectangle(0,0,50,50,RED);
-        }
-    }
-}
-
 void Game::Update(Camera2D camera) {
-
-    UpdateScreenImage();
 
     if (IsKeyPressed(KEY_M))
         Paused = !Paused;
@@ -219,29 +147,12 @@ void Game::Update(Camera2D camera) {
         MainPlayer->Health = 9999;
 
     if (!Paused) {
-        //BeginTextureMode(GameRenderTexture);
-        //BeginMode2D(camera);
-
-        if (!DebugDraw)
-            ClearBackground(BackgroundColor);
+        MainCamera.Begin(camera);
 
         double t = GetTime();
-        if (!DebugDraw)
-            BackgroundLines();
-        if (DebugDraw)
-            DrawText(to_string(GetTime()-t).c_str(), 500, 500, 35, RED);
-        t = GetTime();
         ProcessSlowdownAnimation();
         if (DebugDraw)
             DrawText(to_string(GetTime()-t).c_str(), 500, 535, 35, RED);
-        t = GetTime();
-        ProcessCameraShake();
-        if (DebugDraw)
-            DrawText(to_string(GetTime()-t).c_str(), 500, 570, 35, RED);
-        t = GetTime();
-        UpdateCamera();
-        if (DebugDraw)
-            DrawText(to_string(GetTime()-t).c_str(), 500, 605, 35, RED);
         t = GetTime();
         if (!DebugDraw)
             MainTileManager.Update();
@@ -258,25 +169,93 @@ void Game::Update(Camera2D camera) {
 
         if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && IsKeyPressed(KEY_E) && !current_map_filename.empty())
             Reload(current_map_filename);
-        //EndMode2D();
-        //EndTextureMode();
+        MainCamera.End();
     }
 
-    //BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
-    //DrawTexturePro(GameRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
-    //EndBlendMode();
+    MainCamera.Display();
 
     Ui.GameUI();
 }
 
-void Game::ShakeCamera(float Intensity) {
-    this->CameraShakeIntensity = Intensity;
-    this->CameraShakeTimer = GetTime();
-    this->CameraShakeOffset = {0, 0};
-    this->CameraShakes = 14;
+bool Game::RayCast(Vector2 origin, Vector2 target) {
+
+    Vector2 vRayStart = origin;
+    Vector2 vRayDir = Vector2Normalize(target - origin);
+    Vector2 vRayUnitStepSize = { sqrt(1 + (vRayDir.y / vRayDir.x) * (vRayDir.y / vRayDir.x)), sqrt(1 + (vRayDir.x / vRayDir.y) * (vRayDir.x / vRayDir.y)) };
+    Vector2 vMapCheck = origin;
+    Vector2 vRayLength1D;
+    Vector2 vStep;
+
+    // Establish Starting Conditions
+    if (vRayDir.x < 0)
+    {
+        vStep.x = -1;
+        vRayLength1D.x = (vRayStart.x - float(vMapCheck.x)) * vRayUnitStepSize.x;
+    }
+    else
+    {
+        vStep.x = 1;
+        vRayLength1D.x = (float(vMapCheck.x + 1) - vRayStart.x) * vRayUnitStepSize.x;
+    }
+
+    if (vRayDir.y < 0)
+    {
+        vStep.y = -1;
+        vRayLength1D.y = (vRayStart.y - float(vMapCheck.y)) * vRayUnitStepSize.y;
+    }
+    else
+    {
+        vStep.y = 1;
+        vRayLength1D.y = (float(vMapCheck.y + 1) - vRayStart.y) * vRayUnitStepSize.y;
+    }
+
+    // Perform "Walk" until collision or range check
+    bool bTileFound = false;
+    float fMaxDistance = Vector2Distance(origin,target);
+    float fDistance = 0.0f;
+    while (!bTileFound && fDistance < fMaxDistance)
+    {
+        // Walk along shortest path
+        if (vRayLength1D.x < vRayLength1D.y)
+        {
+            vMapCheck.x += vStep.x;
+            fDistance = vRayLength1D.x;
+            vRayLength1D.x += vRayUnitStepSize.x;
+        }
+        else
+        {
+            vMapCheck.y += vStep.y;
+            fDistance = vRayLength1D.y;
+            vRayLength1D.y += vRayUnitStepSize.y;
+        }
+
+        // Test tile at new test point
+        if (vMapCheck.x >= 0 && vMapCheck.x < MainTileManager.MapWidth*MainTileManager.TileSize && vMapCheck.y >= 0 && vMapCheck.y < MainTileManager.MapHeight*MainTileManager.TileSize)
+        {
+            std::string s = to_string((int)(vMapCheck.x/MainTileManager.TileSize)) + " " + to_string((int)(vMapCheck.y/MainTileManager.TileSize));
+            int g = MainTileManager.Map[s];
+            // cout << s << " " << g << endl;
+
+            if (g >0 && g < 3)
+            {
+                bTileFound = true;
+            }
+        }
+    }
+
+    /*
+    // Calculate intersection location
+    Vector2 vIntersection;
+    if (bTileFound)
+    {
+        vIntersection = vRayStart + vRayDir * fDistance;
+    }
+    */
+    return !bTileFound;
 }
 
-bool Game::RayCast(Vector2 origin, Vector2 target, float Precision) { // RayCasting function
+
+bool Game::RayCastSpecifiedPrecision(Vector2 origin, Vector2 target, float Precision) { // RayCasting (old)function
 
     if (Precision <= 0)
         Precision = Vector2Distance(origin, target) / 15.0f;
@@ -301,7 +280,7 @@ bool Game::RayCast(Vector2 origin, Vector2 target, float Precision) { // RayCast
         ray_x += step_x;
         ray_y += step_y;
         if (DebugDraw)
-            DrawCircle((int)ray_x-CameraPosition.x, (int)ray_y-CameraPosition.y, 2, RED);
+            DrawCircle((int)ray_x-MainCamera.CameraPosition.x, (int)ray_y-MainCamera.CameraPosition.y, 2, RED);
         std::string coord = std::to_string((int) (ray_x / MainTileManager.TileSize)) + " " + std::to_string((int) (ray_y / MainTileManager.TileSize));
         // if we collide with a wall, raycast failed
         if (int tile_id = MainTileManager.Map[coord]; tile_id > 0 && tile_id <= 2) {
@@ -326,11 +305,10 @@ void Game::Clear() {
         }
         array->clear();
     }
-    CameraZoom = 1.0f;
     Paused = false;
     MainTileManager.Map.clear();
     current_map_filename.clear();
-    CameraShakes = 0;
+    MainCamera.Reset();
     MainPlayer.reset();
 }
 
@@ -353,11 +331,11 @@ void Game::Quit() {
     MainTileManager.Quit();
     Ui.Quit();
     MainParticleSystem.Quit();
+    MainCamera.Quit();
     for (auto [name,value] : Textures) {
         UnloadTexture(value);
     }
     for (auto [name,value] : Sounds) {
         UnloadSound(value);
     }
-    UnloadRenderTexture(GameRenderTexture);
 }

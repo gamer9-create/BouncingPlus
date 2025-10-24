@@ -211,7 +211,7 @@ void Entity::PhysicsUpdate(float dt) {
 }
 
 bool Entity::IsVisible() {
-    Vector2 *CameraPosition = &this->game->CameraPosition;
+    Vector2 *CameraPosition = &this->game->MainCamera.CameraPosition;
     return BoundingBox.x - CameraPosition->x > -BoundingBox.width &&
         BoundingBox.x - CameraPosition->x < GetScreenWidth() &&
         BoundingBox.y - CameraPosition->y > -BoundingBox.height &&
@@ -222,7 +222,7 @@ void Entity::Update() {
     if (Health <= 0) {
         ShouldDelete = true;
     }
-    Vector2 *CameraPosition = &this->game->CameraPosition;
+    Vector2 *CameraPosition = &this->game->MainCamera.CameraPosition;
 
     if (IsVisible() && !game->DebugDraw)
     {

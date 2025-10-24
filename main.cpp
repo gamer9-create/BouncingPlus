@@ -50,11 +50,10 @@ int main() {
             if (InGame) {
 
                 MainGame.Update(zoom_cam);
-                zoom_cam.zoom = lerp(zoom_cam.zoom, MainGame.CameraZoom, 4 * GetFrameTime());
+                zoom_cam.zoom = lerp(zoom_cam.zoom, MainGame.MainCamera.CameraZoom, 4 * GetFrameTime());
                 zoom_cam.offset = {((float)GetScreenWidth()/2.0f) * (1.0f-zoom_cam.zoom), ((float)GetScreenHeight()/2.0f) * (1.0f-zoom_cam.zoom)};
 
                 // i am scared!!! i scare you!!!
-
 
             } else {
                 zoom_cam = {{0, 0}, {0, 0}, 0, 1.0f};

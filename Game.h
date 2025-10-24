@@ -8,6 +8,7 @@
 #include <raylib.h>
 #include <vector>
 #include "Bullet.h"
+#include "Camera.h"
 #include "Entity.h"
 #include "ParticleSystem.h"
 #include "Player.h"
@@ -18,39 +19,23 @@
 using namespace std;
 
 class Game {
-    int CameraShakes;
-    float CameraShakeIntensity;
-    double CameraShakeTimer;
-    Vector2 CameraShakeOffset;
-    Vector2 CameraPositionUnaffected;
+
     float GameSpeed;
-    float CameraSpeed;
     float PhysicsFPS;
     float PhysicsAccumulator;
     float SlowdownTime;
     float MaxSlowdownTime;
-    float BackgroundDepth;
-    float BackgroundGridSize;
     float SlowdownShakeIntensity;
-    RenderTexture GameRenderTexture;
-    Color BackgroundColor;
     std::string current_map_filename;
     UI Ui;
     void SetGameData();
-    void BackgroundLines();
     void EntityUpdate();
     void EntityPhysicsUpdate();
     void ProcessSlowdownAnimation();
-    void ProcessCameraShake();
-    void UpdateCamera();
-    void UpdateScreenImage();
     public:
-        Vector2 CameraPosition;
-        Vector2 CameraTarget;
-        float CameraZoom;
         bool Paused;
-        //RenderTexture GameRenderTexture;
         TileManager MainTileManager;
+        GameCamera MainCamera;
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Sound> Sounds;
         unordered_map<std::string, Weapon> Weapons;
@@ -59,8 +44,8 @@ class Game {
         std::unordered_map<EntityType, std::vector<shared_ptr<Entity>>> Entities;
         bool DebugDraw;
         Game();
-        void ShakeCamera(float Intensity);
-        bool RayCast(Vector2 origin, Vector2 target, float Precision = 36);
+        bool RayCastSpecifiedPrecision(Vector2 origin, Vector2 target, float Precision = 36);
+        bool RayCast(Vector2 origin, Vector2 target);
         void Slowdown(float Time);
         void Slowdown(float Time, float ShakeIntensity);
         void Reload(std::string Filename);

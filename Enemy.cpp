@@ -55,7 +55,7 @@ void Enemy::Update() {
     float center_y = BoundingBox.y + (BoundingBox.height / 2);
     float distance = std::sqrt(std::pow(plr_center_x - center_x, 2) + std::pow(plr_center_y - center_y, 2));
 
-    if ((distance <= 800 && (distance <= 36 || game->RayCast({center_x, center_y}, {plr_center_x, plr_center_y}, 48))) || AngeredRangeBypassTimer > 0.0f) {
+    if ((distance <= 800 && (distance <= 36 || game->RayCast({center_x, center_y}, {plr_center_x, plr_center_y}))) || AngeredRangeBypassTimer > 0.0f) {
         if (distance >= 100) {
             Movement.x = -(plr_center_x - center_x) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
             Movement.y = -(plr_center_y - center_y) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
@@ -70,22 +70,22 @@ void Enemy::Update() {
     float total_size = size + size2;
     //cout << to_string(GetHealthColor(Health / MaxHealth).r)+" " << to_string(GetHealthColor(Health / MaxHealth).g)+" " << to_string(GetHealthColor(Health / MaxHealth).b)+" " << to_string(GetHealthColor(Health / MaxHealth).a) << endl;
 
-    if ((center_x - total_size / 2 - game->CameraPosition.x) > -total_size &&
-            (center_x - total_size / 2 - game->CameraPosition.x) < GetScreenWidth() &&
-            (BoundingBox.y - 36 - game->CameraPosition.y) > -36 &&
-            (BoundingBox.y - 36 - game->CameraPosition.y) < GetScreenHeight()
+    if ((center_x - total_size / 2 - game->MainCamera.CameraPosition.x) > -total_size &&
+            (center_x - total_size / 2 - game->MainCamera.CameraPosition.x) < GetScreenWidth() &&
+            (BoundingBox.y - 36 - game->MainCamera.CameraPosition.y) > -36 &&
+            (BoundingBox.y - 36 - game->MainCamera.CameraPosition.y) < GetScreenHeight()
              && !game->DebugDraw)
     {
         std::string t = std::to_string((int) round(AnimatedHealth));
         if (t == "67")
             t = "66";
         DrawText(t.c_str(),
-                 center_x - total_size / 2 - game->CameraPosition.x,
-                 BoundingBox.y - 36 - game->CameraPosition.y, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
-        DrawText("%", center_x - total_size/2 - game->CameraPosition.x + size+1, BoundingBox.y - 22 - game->CameraPosition.y, 18, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
+                 center_x - total_size / 2 - game->MainCamera.CameraPosition.x,
+                 BoundingBox.y - 36 - game->MainCamera.CameraPosition.y, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
+        DrawText("%", center_x - total_size/2 - game->MainCamera.CameraPosition.x + size+1, BoundingBox.y - 22 - game->MainCamera.CameraPosition.y, 18, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
     }
     weaponsSystem.Update();
     Entity::Update();
     if (IsVisible() && Armor > 0 && !game->DebugDraw)
-        DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x - game->CameraPosition.x, BoundingBox.y - game->CameraPosition.y, BoundingBox.width, BoundingBox.height}, {0, 0}, 0, WHITE);
+        DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x - game->MainCamera.CameraPosition.x, BoundingBox.y - game->MainCamera.CameraPosition.y, BoundingBox.width, BoundingBox.height}, {0, 0}, 0, WHITE);
 }

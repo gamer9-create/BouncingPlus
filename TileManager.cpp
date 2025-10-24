@@ -26,7 +26,7 @@ TileManager::TileManager(Game &game) {
 }
 
 void TileManager::Update() {
-    Vector2 *CameraPosition = &this->game->CameraPosition;
+    Vector2 *CameraPosition = &this->game->MainCamera.CameraPosition;
     int tile_x = static_cast<int> ((CameraPosition->x + (GetScreenWidth()/2)) / TileSize);
     int tile_y = static_cast<int> ((CameraPosition->y + (GetScreenHeight()/2)) / TileSize);
     for (int y = 0; y < UpdateDistance.y; y++) {

@@ -30,6 +30,8 @@ add_executable(BouncingPlus main.cpp
         ParticleSystem.h
         LevelLoader.cpp
         LevelLoader.h
+        Camera.cpp
+        Camera.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)
