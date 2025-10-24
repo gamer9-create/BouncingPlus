@@ -45,18 +45,18 @@ void WeaponsSystem::DisplayGunTexture() {
     auto Owner = OwnerPtr.lock();
     Vector2 Target ={(float)GetMouseX(), (float)GetMouseY()};
     if (Owner->Type == EnemyType)
-        Target = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2 - game->MainCamera.CameraPosition.x,
-        game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2 - game->MainCamera.CameraPosition.y
+        Target = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x,
+        game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y
         };
 
     float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
     float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-    float FinalAngle = (atan2(cy - (Target.y + game->MainCamera.CameraPosition.y), cx - (Target.x + game->MainCamera.CameraPosition.x)) * RAD2DEG);
+    float FinalAngle = (atan2(cy - (Target.y + game->MainCameraManager.CameraPosition.y), cx - (Target.x + game->MainCameraManager.CameraPosition.x)) * RAD2DEG);
     MeleeAnimTexture = &game->Textures[CurrentWeapon->texture];
     float width = MeleeAnimTexture->width*CurrentWeapon->Size;
     float height = MeleeAnimTexture->height*CurrentWeapon->Size;
     DrawTexturePro(*MeleeAnimTexture, Rectangle(0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)),
-                   Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - game->MainCamera.CameraPosition.x - cosf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - game->MainCamera.CameraPosition.y - sinf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, width,
+                   Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x - cosf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y - sinf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, width,
                              height), Vector2(0, height / 2), FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
 }
 
@@ -84,7 +84,7 @@ void WeaponsSystem::Update() {
         // get angle
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-        float Angle = (atan2(cy - (GetMouseY() + game->MainCamera.CameraPosition.y), cx - (GetMouseX() + game->MainCamera.CameraPosition.x)) * RAD2DEG)+180;
+        float Angle = (atan2(cy - (GetMouseY() + game->MainCameraManager.CameraPosition.y), cx - (GetMouseX() + game->MainCameraManager.CameraPosition.x)) * RAD2DEG)+180;
 
         // get positions
         float z = (Angle - MeleeAnimRange/2) * DEG2RAD;
@@ -101,7 +101,7 @@ void WeaponsSystem::Update() {
         AnglePos2.y += OwnerPos.y;
 
         // render cone
-        DrawTriangle(AnglePos1 - game->MainCamera.CameraPosition, OwnerPos - game->MainCamera.CameraPosition, AnglePos2 - game->MainCamera.CameraPosition, ColorAlpha(WHITE, 0.5f));
+        DrawTriangle(AnglePos1 - game->MainCameraManager.CameraPosition, OwnerPos - game->MainCameraManager.CameraPosition, AnglePos2 - game->MainCameraManager.CameraPosition, ColorAlpha(WHITE, 0.5f));
     }
 
     // Display melee animation points
@@ -178,7 +178,7 @@ void WeaponsSystem::Update() {
 
         // render sword
         DrawTexturePro(*MeleeAnimTexture, Rectangle(0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)),
-                   Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - game->MainCamera.CameraPosition.x - cosf((FinalAngle+90) * DEG2RAD)*150, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - game->MainCamera.CameraPosition.y - sinf((FinalAngle+90) * DEG2RAD)*150, width,
+                   Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x - cosf((FinalAngle+90) * DEG2RAD)*150, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y - sinf((FinalAngle+90) * DEG2RAD)*150, width,
                              height), Vector2(width / 2, height / 2), FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
 
     }
@@ -246,7 +246,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
 
         // Shake camera
         if (CurrentWeapon->ShakeScreen && Owner->Type == PlayerType && (CurrentWeapon->isMelee || Valid))
-            game->MainCamera.ShakeCamera(CurrentWeapon->Intensity);
+            game->MainCameraManager.ShakeCamera(CurrentWeapon->Intensity);
 
         // Gun attack
         if (Valid && !CurrentWeapon->isMelee) {

@@ -10,7 +10,7 @@ class Game;
 
 Color GetHealthColor(float Percent, float Armor = 0.0f);
 
-class UI {
+class UIManager {
     Game *game;
     RenderTexture2D WeaponUITexture;
     RenderTexture2D DeathScreen;
@@ -23,8 +23,8 @@ class UI {
     float UITransparency = 1.0f;
     float DeathTextAnimRot = 0.0f;
     public:
-    UI(Game &game);
-    UI();
+    UIManager(Game &game);
+    UIManager();
     bool button(Vector2 pos, std::string text);
     void PauseMenu();
     void GameUI();

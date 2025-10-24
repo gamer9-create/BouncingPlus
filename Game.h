@@ -7,25 +7,24 @@
 
 #include <raylib.h>
 #include <vector>
-#include "Camera.h"
+#include "CameraManager.h"
 #include "Entity.h"
 #include "EntityManager.h"
-#include "ParticleSystem.h"
+#include "ParticleManager.h"
 #include "Player.h"
 #include "TileManager.h"
-#include "UI.h"
+#include "UIManager.h"
 #include "Weapons.h"
 
 using namespace std;
 
 class Game {
 
-
     float SlowdownTime;
     float MaxSlowdownTime;
     float SlowdownShakeIntensity;
     std::string current_map_filename;
-    UI Ui;
+    UIManager MainUIManager;
     void SetGameData();
     void ProcessSlowdownAnimation();
     public:
@@ -33,11 +32,11 @@ class Game {
         float GameSpeed;
         TileManager MainTileManager;
         EntityManager MainEntityManager;
-        GameCamera MainCamera;
+        CameraManager MainCameraManager;
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Sound> Sounds;
         unordered_map<std::string, Weapon> Weapons;
-        ParticleSystem MainParticleSystem;
+        ParticleManager MainParticleManager;
         shared_ptr<Player> MainPlayer;
         bool DebugDraw;
         Game();

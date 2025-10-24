@@ -22,16 +22,16 @@ add_executable(BouncingPlus main.cpp
         Bullet.h
         Weapons.h
         Weapons.cpp
-        UI.cpp
-        UI.h
+        UIManager.cpp
+        UIManager.h
         Menu.cpp
         Menu.h
-        ParticleSystem.cpp
-        ParticleSystem.h
+        ParticleManager.cpp
+        ParticleManager.h
         LevelLoader.cpp
         LevelLoader.h
-        Camera.cpp
-        Camera.h
+        CameraManager.cpp
+        CameraManager.h
         EntityManager.cpp
         EntityManager.h
         EntityType.h

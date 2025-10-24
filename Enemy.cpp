@@ -11,7 +11,7 @@
 #include "Game.h"
 #include "Player.h"
 
-#include "UI.h"
+#include "UIManager.h"
 
 Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,
                                                                    Rectangle(X - 18, Y - 18, 36, 36), Speed, game) {
@@ -70,22 +70,22 @@ void Enemy::Update() {
     float total_size = size + size2;
     //cout << to_string(GetHealthColor(Health / MaxHealth).r)+" " << to_string(GetHealthColor(Health / MaxHealth).g)+" " << to_string(GetHealthColor(Health / MaxHealth).b)+" " << to_string(GetHealthColor(Health / MaxHealth).a) << endl;
 
-    if ((center_x - total_size / 2 - game->MainCamera.CameraPosition.x) > -total_size &&
-            (center_x - total_size / 2 - game->MainCamera.CameraPosition.x) < GetScreenWidth() &&
-            (BoundingBox.y - 36 - game->MainCamera.CameraPosition.y) > -36 &&
-            (BoundingBox.y - 36 - game->MainCamera.CameraPosition.y) < GetScreenHeight()
+    if ((center_x - total_size / 2 - game->MainCameraManager.CameraPosition.x) > -total_size &&
+            (center_x - total_size / 2 - game->MainCameraManager.CameraPosition.x) < GetScreenWidth() &&
+            (BoundingBox.y - 36 - game->MainCameraManager.CameraPosition.y) > -36 &&
+            (BoundingBox.y - 36 - game->MainCameraManager.CameraPosition.y) < GetScreenHeight()
              )
     {
         std::string t = std::to_string((int) round(AnimatedHealth));
         if (t == "67")
             t = "66";
         DrawText(t.c_str(),
-                 center_x - total_size / 2 - game->MainCamera.CameraPosition.x,
-                 BoundingBox.y - 36 - game->MainCamera.CameraPosition.y, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
-        DrawText("%", center_x - total_size/2 - game->MainCamera.CameraPosition.x + size+1, BoundingBox.y - 22 - game->MainCamera.CameraPosition.y, 18, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
+                 center_x - total_size / 2 - game->MainCameraManager.CameraPosition.x,
+                 BoundingBox.y - 36 - game->MainCameraManager.CameraPosition.y, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
+        DrawText("%", center_x - total_size/2 - game->MainCameraManager.CameraPosition.x + size+1, BoundingBox.y - 22 - game->MainCameraManager.CameraPosition.y, 18, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
     }
     weaponsSystem.Update();
     Entity::Update();
     if (IsVisible() && Armor > 0)
-        DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x - game->MainCamera.CameraPosition.x, BoundingBox.y - game->MainCamera.CameraPosition.y, BoundingBox.width, BoundingBox.height}, {0, 0}, 0, WHITE);
+        DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x - game->MainCameraManager.CameraPosition.x, BoundingBox.y - game->MainCameraManager.CameraPosition.y, BoundingBox.width, BoundingBox.height}, {0, 0}, 0, WHITE);
 }

@@ -87,8 +87,8 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
             Kills+=1;
         }
 
-        game->MainCamera.CameraPosition += Vector2Normalize({(float)GetRandomValue(-50, 50), (float)GetRandomValue(-50, 50)}) * (VelocityPower / 150);
-        game->MainCamera.ShakeCamera(VelocityPower / (amount - 50));
+        game->MainCameraManager.CameraPosition += Vector2Normalize({(float)GetRandomValue(-50, 50), (float)GetRandomValue(-50, 50)}) * (VelocityPower / 150);
+        game->MainCameraManager.ShakeCamera(VelocityPower / (amount - 50));
         SetSoundVolume(game->Sounds["dash_hit"], min(max(VelocityPower/amount, 0.0f), 1.0f));
         PlaySound(game->Sounds["dash_hit"]);
 
@@ -129,7 +129,7 @@ void Player::DashLogic() {
         DashedEnemies.clear();
     }
 
-    auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->MainCamera.CameraPosition.x, static_cast<float> (GetMouseY()) + game->MainCamera.CameraPosition.y);
+    auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->MainCameraManager.CameraPosition.x, static_cast<float> (GetMouseY()) + game->MainCameraManager.CameraPosition.y);
     if (DashCooldown <= 0 && IsKeyDown(KEY_LEFT_SHIFT)) {
         if (!IsDashing)
             DashTimeStart = GetTime();
@@ -161,11 +161,11 @@ void Player::DashLogic() {
     float a = 0.25f;
     if (IsDashing)
         a = Lerp(0.25f, 0.5f, min( (float)(GetTime() - DashTimeStart) / 0.2f, 1.0f ));
-    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->MainCamera.CameraPosition.x),
-        (int)(BoundingBox.y + BoundingBox.width + 10 - game->MainCamera.CameraPosition.y),
+    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->MainCameraManager.CameraPosition.x),
+        (int)(BoundingBox.y + BoundingBox.width + 10 - game->MainCameraManager.CameraPosition.y),
         w, h, ColorAlpha(BLACK, a));
-    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->MainCamera.CameraPosition.x)+5,
-        (int)(BoundingBox.y + BoundingBox.width + 10 - game->MainCamera.CameraPosition.y)+5,
+    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->MainCameraManager.CameraPosition.x)+5,
+        (int)(BoundingBox.y + BoundingBox.width + 10 - game->MainCameraManager.CameraPosition.y)+5,
         (!IsDashing ? 0 : min(static_cast<float>(GetTime() - DashTimeStart) / 1.1f, 1.0f))*(w-10), h-10, ColorAlpha(WHITE, a+0.25f));
 }
 
@@ -207,7 +207,7 @@ void Player::Update() {
 
     if (PlayerFrozenTimer <= 0) {
         // firing logic
-        auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->MainCamera.CameraPosition.x, static_cast<float> (GetMouseY()) + game->MainCamera.CameraPosition.y);
+        auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->MainCameraManager.CameraPosition.x, static_cast<float> (GetMouseY()) + game->MainCameraManager.CameraPosition.y);
         if (IsMouseButtonDown(0) && !IsDashing)
             weaponsSystem.Attack(WorldMousePos);
 

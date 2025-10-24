@@ -2,7 +2,7 @@
 // Created by lalit on 9/28/2025.
 //
 
-#include "UI.h"
+#include "UIManager.h"
 #include <algorithm>
 #include <iostream>
 
@@ -20,7 +20,7 @@ Color GetHealthColor(float Percent, float Armor) {
     return {0, 0, 0, 255};
 }
 
-UI::UI(Game &game) {
+UIManager::UIManager(Game &game) {
     this->game = &game;
     this->WeaponUITexture = LoadRenderTexture(GetScreenWidth(), 250);
     this->DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
@@ -28,7 +28,7 @@ UI::UI(Game &game) {
     button_img = LoadTexture("assets/img/button.png");
 }
 
-bool UI::button(Vector2 pos, std::string text) {
+bool UIManager::button(Vector2 pos, std::string text) {
     Rectangle rectangle = {0,0, (float)MeasureText(text.c_str(), 50)+25, (float)button_img.height};
     rectangle.x=pos.x - rectangle.width/2;
     rectangle.y=pos.y - rectangle.height/2;
@@ -48,10 +48,10 @@ bool UI::button(Vector2 pos, std::string text) {
 
 }
 
-UI::UI() {
+UIManager::UIManager() {
 }
 
-void UI::GameUI() {
+void UIManager::GameUI() {
 
     if (WeaponUITexture.texture.width != GetScreenWidth()) {
         UnloadRenderTexture(WeaponUITexture);
@@ -172,12 +172,12 @@ void UI::GameUI() {
     EndTextureMode();
 
     if (game->MainPlayer->IsDashing) {
-        game->MainCamera.CameraZoom = 1.25f;
-        Vector2 ss = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2 - game->MainCamera.CameraPosition.x,
-        game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2 - game->MainCamera.CameraPosition.y};
+        game->MainCameraManager.CameraZoom = 1.25f;
+        Vector2 ss = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x,
+        game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y};
         DrawLineEx(ss, {(float)GetMouseX(), (float)GetMouseY()}, 10, WHITE);
     } else {
-        game->MainCamera.CameraZoom = 1.0f;
+        game->MainCameraManager.CameraZoom = 1.0f;
     }
 
     DeathTextAnimRot = sin(GetTime()*2) * 6;
@@ -207,7 +207,7 @@ void UI::GameUI() {
     }
 
     //if (game->DebugDraw)
-    //    DrawText(to_string(UITransparency).c_str(), 50, 250, 10, WHITE);
+    //    DrawText(to_string(UIManagerTransparency).c_str(), 50, 250, 10, WHITE);
     DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
     DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
     if (game->MainPlayer->Health > 0 && UITransparency < 1.0f) {
@@ -220,7 +220,7 @@ void UI::GameUI() {
         PauseMenu();
 }
 
-void UI::PauseMenu() {
+void UIManager::PauseMenu() {
     BeginTextureMode(PauseScreen);
     ClearBackground(ColorAlpha(BLACK, 0.35f));
     DrawRectangle(PauseScreen.texture.width/2 - 225, PauseScreen.texture.height/2-175,450, 350,ColorAlpha(WHITE,0.85f));
@@ -231,7 +231,7 @@ void UI::PauseMenu() {
     EndBlendMode();
 }
 
-void UI::Quit() {
+void UIManager::Quit() {
     UnloadRenderTexture(WeaponUITexture);
     UnloadRenderTexture(PauseScreen);
     UnloadTexture(button_img);

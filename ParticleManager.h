@@ -7,11 +7,11 @@
 
 class Game;
 
-class ParticleSystem {
+class ParticleManager {
     Game *game;
     public:
-    ParticleSystem();
-    ParticleSystem(Game &game);
+    ParticleManager();
+    ParticleManager(Game &game);
     void Update();
     void Quit();
 };

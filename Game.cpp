@@ -9,17 +9,17 @@
 
 #include "raylib.h"
 #include "Weapons.h"
-#include "UI.h"
+#include "UIManager.h"
 
 using namespace std;
 
 Game::Game() {
 
     // init game services
-    Ui = UI(*this);
+    MainUIManager = UIManager(*this);
     MainTileManager = TileManager(*this);
-    MainParticleSystem = ParticleSystem(*this);
-    MainCamera = GameCamera(*this);
+    MainParticleManager = ParticleManager(*this);
+    MainCameraManager = CameraManager(*this);
     MainEntityManager = EntityManager(*this);
 
     // game speed & timing
@@ -78,7 +78,7 @@ void Game::ProcessSlowdownAnimation() {
         else
             GameSpeed = Lerp(0.1f, 1.0f, Percent-0.5f);
         if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
-            MainCamera.ShakeCamera(SlowdownShakeIntensity);
+            MainCameraManager.ShakeCamera(SlowdownShakeIntensity);
             SetSoundVolume(Sounds["dash_hit"], min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
             PlaySound(Sounds["dash_hit"]);
             SlowdownShakeIntensity = 0;
@@ -104,17 +104,17 @@ void Game::Update(Camera2D camera) {
         if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && IsKeyPressed(KEY_E) && !current_map_filename.empty())
             Reload(current_map_filename);
 
-        MainCamera.Begin(camera);
+        MainCameraManager.Begin(camera);
 
         ProcessSlowdownAnimation();
         MainTileManager.Update();
         MainEntityManager.Update();
 
-        MainCamera.End();
+        MainCameraManager.End();
     }
 
-    MainCamera.Display();
-    Ui.GameUI();
+    MainCameraManager.Display();
+    MainUIManager.GameUI();
 }
 
 bool Game::RayCast(Vector2 origin, Vector2 target) {
@@ -220,7 +220,7 @@ bool Game::RayCastSpecifiedPrecision(Vector2 origin, Vector2 target, float Preci
         ray_x += step_x;
         ray_y += step_y;
         if (DebugDraw)
-            DrawCircle((int)ray_x-MainCamera.CameraPosition.x, (int)ray_y-MainCamera.CameraPosition.y, 2, RED);
+            DrawCircle((int)ray_x-MainCameraManager.CameraPosition.x, (int)ray_y-MainCameraManager.CameraPosition.y, 2, RED);
         std::string coord = std::to_string((int) (ray_x / MainTileManager.TileSize)) + " " + std::to_string((int) (ray_y / MainTileManager.TileSize));
         // if we collide with a wall, raycast failed
         if (int tile_id = MainTileManager.Map[coord]; tile_id > 0 && tile_id <= 2) {
@@ -241,7 +241,7 @@ void Game::Clear() {
     MainTileManager.Reset();
     current_map_filename.clear();
     MainEntityManager.Reset();
-    MainCamera.Reset();
+    MainCameraManager.Reset();
     MainPlayer.reset();
 }
 
@@ -262,9 +262,9 @@ void Game::Reload(std::string Filename) {
 void Game::Quit() {
     Clear();
     MainTileManager.Quit();
-    Ui.Quit();
-    MainParticleSystem.Quit();
-    MainCamera.Quit();
+    MainUIManager.Quit();
+    MainParticleManager.Quit();
+    MainCameraManager.Quit();
     MainEntityManager.Quit();
     for (auto [name,value] : Textures) {
         UnloadTexture(value);

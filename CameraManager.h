@@ -9,7 +9,7 @@
 
 class Game;
 
-class GameCamera {
+class CameraManager {
     void ProcessCameraShake();
     void UpdateScreenImageSize();
     void BackgroundLines();
@@ -34,9 +34,9 @@ class GameCamera {
         Vector2 CameraPosition;
         Vector2 CameraTarget;
         float CameraZoom;
-        GameCamera(Game &game);
-        GameCamera();
-        ~GameCamera();
+        CameraManager(Game &game);
+        CameraManager();
+        ~CameraManager();
         void ShakeCamera(float Intensity);
         void Display();
         void Begin(Camera2D rayCam);

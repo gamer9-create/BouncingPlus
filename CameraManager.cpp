@@ -2,10 +2,10 @@
 // Created by lalit on 10/23/2025.
 //
 
-#include "Camera.h"
+#include "CameraManager.h"
 #include "Game.h"
 
-void GameCamera::Reset() {
+void CameraManager::Reset() {
     if (CamTextureInitialized)
         UnloadRenderTexture(CameraRenderTexture);
     CameraPosition = Vector2(0.0f, 0.0f);
@@ -24,25 +24,25 @@ void GameCamera::Reset() {
     CamTextureInitialized = true;
 }
 
-GameCamera::GameCamera(Game &game) {
+CameraManager::CameraManager(Game &game) {
     this->game = &game;
     CamTextureInitialized = false;
     Reset();
 }
 
-GameCamera::GameCamera() {
+CameraManager::CameraManager() {
 }
 
-GameCamera::~GameCamera() {
+CameraManager::~CameraManager() {
 }
 
-void GameCamera::Display() {
+void CameraManager::Display() {
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTexturePro(CameraRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
     EndBlendMode();
 }
 
-void GameCamera::ProcessCameraShake() {
+void CameraManager::ProcessCameraShake() {
     if (GetTime() - CameraShakeTimer >= 0.02f) {
         if (CameraShakes > 0) {
             CameraShakeOffset = {(float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity)), (float)GetRandomValue((int)(-50 * CameraShakeIntensity), (int)(50 * CameraShakeIntensity))};
@@ -54,14 +54,14 @@ void GameCamera::ProcessCameraShake() {
     }
 }
 
-void GameCamera::UpdateScreenImageSize() {
+void CameraManager::UpdateScreenImageSize() {
     if (CameraRenderTexture.texture.width != GetScreenWidth() || CameraRenderTexture.texture.height != GetScreenHeight()) {
         UnloadRenderTexture(CameraRenderTexture);
         CameraRenderTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     }
 }
 
-void GameCamera::BackgroundLines() {
+void CameraManager::BackgroundLines() {
     float ParallaxCamX = CameraPosition.x / BackgroundDepth;
     float ParallaxCamY = CameraPosition.y / BackgroundDepth;
 
@@ -82,14 +82,14 @@ void GameCamera::BackgroundLines() {
     }
 }
 
-void GameCamera::ShakeCamera(float Intensity) {
+void CameraManager::ShakeCamera(float Intensity) {
     this->CameraShakeIntensity = Intensity;
     this->CameraShakeTimer = GetTime();
     this->CameraShakeOffset = {0, 0};
     this->CameraShakes = 14;
 }
 
-void GameCamera::UpdateCamera() {
+void CameraManager::UpdateCamera() {
     CameraTarget = {game->MainPlayer->BoundingBox.x +
                 game->MainPlayer->BoundingBox.width / 2, game->MainPlayer->BoundingBox.y +
                 game->MainPlayer->BoundingBox.height / 2};
@@ -105,7 +105,7 @@ void GameCamera::UpdateCamera() {
     }
 }
 
-void GameCamera::Begin(Camera2D rayCam) {
+void CameraManager::Begin(Camera2D rayCam) {
     UpdateScreenImageSize();
     ProcessCameraShake();
     UpdateCamera();
@@ -115,11 +115,11 @@ void GameCamera::Begin(Camera2D rayCam) {
     BackgroundLines();
 }
 
-void GameCamera::End() {
+void CameraManager::End() {
     EndTextureMode();
     EndMode2D();
 }
 
-void GameCamera::Quit() {
+void CameraManager::Quit() {
     UnloadRenderTexture(CameraRenderTexture);
 }
