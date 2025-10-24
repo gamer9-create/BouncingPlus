@@ -46,7 +46,7 @@ Bullet::~Bullet() {
 void Bullet::PhysicsUpdate(float dt) {
 
     if (SlowdownOverTime)
-        Speed = Lerp(Speed, 0, 10*ExistenceTimer*GetFrameTime());
+        Speed = Lerp(Speed, 0, 10*ExistenceTimer*dt);
 
     double dist = std::sqrt((Movement.x * Movement.x) + (Movement.y * Movement.y));
     if (dist != 0) {
@@ -181,7 +181,7 @@ void Bullet::Update() {
         ShouldDelete = true;
     }
     auto Owner = OwnerPtr.lock();
-    for (shared_ptr entity : game->Entities[EnemyType]) {
+    for (shared_ptr entity : game->MainEntityManager.Entities[EnemyType]) {
         if (entity != nullptr && entity != Owner && !entity->ShouldDelete) {
             Attack(entity);
         }

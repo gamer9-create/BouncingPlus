@@ -25,6 +25,7 @@ class TileManager {
         TileManager(Game &game);
         void Update();
         void ReadMapDataFile(std::string Filename);
+        void Reset();
         void Quit();
 };
 

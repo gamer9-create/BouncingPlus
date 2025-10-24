@@ -262,7 +262,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
                 shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed, CurrentWeapon->Damage,
                                                                 game->Textures["bullet"], Owner, *game);
                 bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
-                game->Entities[BulletType].push_back(bullet);
+                game->MainEntityManager.AddEntity(BulletType, bullet);
             }
 
             // if the weapon is powerful enough to shake the screen, its prob powerful enough to move the player a little bit
@@ -282,7 +282,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
                 MeleeAttack(game->MainPlayer, TargetAngle);
 
             // Loop through all enemies in game
-            std::vector<shared_ptr<Entity>>* array = &game->Entities[EnemyType];
+            std::vector<shared_ptr<Entity>>* array = &game->MainEntityManager.Entities[EnemyType];
             for (int i = 0; i < array->size(); i++) {
                 if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != Owner && entity != nullptr && !entity->ShouldDelete) {
                     MeleeAttack(entity, TargetAngle);

@@ -109,7 +109,7 @@ void Player::DashLogic() {
 
     if (VelocityPower > 0 && DodgeHealthResetTimer <= 0) {
         // get enemies list
-        std::vector<shared_ptr<Entity>>* array = &game->Entities[EnemyType];
+        std::vector<shared_ptr<Entity>>* array = &game->MainEntityManager.Entities[EnemyType];
         for (int i = 0; i < array->size(); i++) {
             if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != nullptr and !entity->ShouldDelete) {
                 // have we already attacked them? if so, ignore this!!!

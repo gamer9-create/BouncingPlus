@@ -17,10 +17,7 @@ TileManager::TileManager() {
 
 TileManager::TileManager(Game &game) {
     this->game = &game;
-    TileSize = 72;
-    UpdateDistance = Vector2((int) (GetScreenWidth() / 61.0f), (int)(GetScreenHeight() / 48.0f));
-    MapWidth = 0;
-    MapHeight = 0;
+    Reset();
     BouncyWallTexture = LoadTexture("assets/img/bouncy_wall.png");
     DeleteWallTexture = LoadTexture("assets/img/delete_wall.png");
 }
@@ -94,7 +91,7 @@ void TileManager::ReadMapDataFile(std::string Filename) {
                         Armor = 0.0f;
                         break;
                 }
-                game->Entities[EnemyType].push_back(make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->Textures["enemy"], *game));
+                game->MainEntityManager.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->Textures["enemy"], *game));
             }
             x += 1;
         }
@@ -105,6 +102,17 @@ void TileManager::ReadMapDataFile(std::string Filename) {
         y += 1;
     }
     MapHeight = y;
+}
+
+void TileManager::Reset()
+{
+    Map.clear();
+    MapWidth = 0;
+    MapHeight = 0;
+    TileSize = 72;
+    UpdateDistance = Vector2((int) (GetScreenWidth() / 61.0f), (int)(GetScreenHeight() / 48.0f));
+    MapWidth = 0;
+    MapHeight = 0;
 }
 
 void TileManager::Quit() {

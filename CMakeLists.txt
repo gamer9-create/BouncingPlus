@@ -32,6 +32,9 @@ add_executable(BouncingPlus main.cpp
         LevelLoader.h
         Camera.cpp
         Camera.h
+        EntityManager.cpp
+        EntityManager.h
+        EntityType.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)

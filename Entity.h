@@ -7,16 +7,9 @@
 #include <complex.h>
 #include <memory>
 #include <raylib.h>
+#include "EntityType.h"
 
 class Game;
-
-enum EntityType {
-    DefaultType,
-    EnemyType,
-    PlayerType,
-    BulletType,
-    End
-};
 
 class Entity : public std::enable_shared_from_this<Entity> {
     void Initialize(Texture2D &Texture, Rectangle BoundingBox, float Speed);

@@ -14,21 +14,27 @@
 using namespace std;
 
 Game::Game() {
-    MainCamera = GameCamera(*this);
-    GameSpeed = 1.0f;
-    SlowdownTime = 0;
-    MaxSlowdownTime = 0;
+
+    // init game services
     Ui = UI(*this);
     MainTileManager = TileManager(*this);
     MainParticleSystem = ParticleSystem(*this);
-    Entities = std::unordered_map<EntityType, std::vector<shared_ptr<Entity> > >();
-    Textures = std::unordered_map<std::string, Texture2D>();
-    Weapons = std::unordered_map<std::string, Weapon>();
-    PhysicsFPS = 240.0f;
-    PhysicsAccumulator = 0;
-    MainPlayer = nullptr;
+    MainCamera = GameCamera(*this);
+    MainEntityManager = EntityManager(*this);
+
+    // game speed & timing
+    GameSpeed = 1.0f;
+    SlowdownTime = 0;
+    MaxSlowdownTime = 0;
+
     Paused = false;
 
+    // resource maps
+    Textures = std::unordered_map<std::string, Texture2D>();
+    Weapons = std::unordered_map<std::string, Weapon>();
+
+    // extra stuff
+    MainPlayer = nullptr;
     current_map_filename = "";
     DebugDraw = false;
 
@@ -51,10 +57,6 @@ void Game::SetGameData() {
     Weapons.insert({"Shotgun", {false, true, true, 1600, 4.0f, 10, 1.0f, 40.0f, 150.0f, 10, 0.5f, "shotgun", "shotgun"}});
     Weapons.insert({"Sword", {true, false, false, 0.4, 1.0f, 35, 0.45f, 90.0f, 350.0f, -1, 0, "sword", ""}});
     Weapons.insert({"Enemy Sword", {true, false, false, 0.4f, 1.0f, 35.0f, 0.55f, 90.0f, 204.0f, -1, 0, "sword", ""}});
-
-    for (int i = 0; i < End; ++i) {
-        Entities.insert({(EntityType) i, std::vector<shared_ptr<Entity>>()});
-    }
 }
 
 void Game::Slowdown(float Time) {
@@ -66,51 +68,6 @@ void Game::Slowdown(float Time, float CrashIntensity) {
     SlowdownTime = Time;
     MaxSlowdownTime = Time;
     SlowdownShakeIntensity = CrashIntensity;
-}
-
-void Game::EntityUpdate() {
-    for (int e = 0; e < End; ++e) {
-        std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
-        for (int i = 0; i < array->size(); i++) {
-            if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
-                entity->Update();
-            }
-        }
-    }
-
-    for (int e = 0; e < End; e++) {
-        std::vector<shared_ptr<Entity>> *array = &Entities[(EntityType) e];
-        int old_size = array->size();
-        std::erase_if(*array, [this](shared_ptr<Entity> e) {
-            if (e && e->ShouldDelete) {
-                if (e != MainPlayer) {
-                    e.reset();
-                }
-                return true;
-            }
-            return false;
-        });
-        if (DebugDraw) {
-            std::string f = to_string(e)+"/typa shit ive been on/ de old size(TALLY HALL DETECTED) " + to_string(old_size) + ", new size? (BANANA MAN IS COMING TO NUKE YOU) " + to_string(array->size());
-            DrawText(f.c_str(), 500, 500, 10, WHITE);
-        }
-    }
-}
-
-void Game::EntityPhysicsUpdate() {
-    PhysicsAccumulator += GetFrameTime();
-
-    while (PhysicsAccumulator >= 1.0f/(PhysicsFPS*GameSpeed)) {
-        for (int e = 0; e < End; ++e) {
-            std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
-            for (int i = 0; i < array->size(); i++) {
-                if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
-                    entity->PhysicsUpdate(1.0f/PhysicsFPS);
-                }
-            }
-        }
-        PhysicsAccumulator -= 1.0f/(PhysicsFPS*GameSpeed);
-    }
 }
 
 void Game::ProcessSlowdownAnimation() {
@@ -140,40 +97,23 @@ void Game::Update(Camera2D camera) {
     if (IsKeyPressed(KEY_M))
         Paused = !Paused;
 
-    if (IsKeyPressed(KEY_X))
-        DebugDraw = !DebugDraw;
-
-    if (DebugDraw)
-        MainPlayer->Health = 9999;
-
     if (!Paused) {
-        MainCamera.Begin(camera);
-
-        double t = GetTime();
-        ProcessSlowdownAnimation();
-        if (DebugDraw)
-            DrawText(to_string(GetTime()-t).c_str(), 500, 535, 35, RED);
-        t = GetTime();
-        if (!DebugDraw)
-            MainTileManager.Update();
-        if (DebugDraw)
-            DrawText(to_string(GetTime()-t).c_str(), 500, 640, 35, RED);
-        t = GetTime();
-        EntityUpdate();
-        if (DebugDraw)
-            DrawText(to_string(GetTime()-t).c_str(), 500, 675, 35, RED);
-        t = GetTime();
-        EntityPhysicsUpdate();
-        if (DebugDraw)
-            DrawText(to_string(GetTime()-t).c_str(), 500, 720, 35, RED);
+        if (IsKeyPressed(KEY_X))
+            DebugDraw = !DebugDraw;
 
         if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && IsKeyPressed(KEY_E) && !current_map_filename.empty())
             Reload(current_map_filename);
+
+        MainCamera.Begin(camera);
+
+        ProcessSlowdownAnimation();
+        MainTileManager.Update();
+        MainEntityManager.Update();
+
         MainCamera.End();
     }
 
     MainCamera.Display();
-
     Ui.GameUI();
 }
 
@@ -296,18 +236,11 @@ bool Game::RayCastSpecifiedPrecision(Vector2 origin, Vector2 target, float Preci
 }
 
 void Game::Clear() {
-    for (int e = 0; e < End; e++) {
-        std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
-        for (int i = 0; i < array->size(); i++) {
-            if (shared_ptr<Entity> entity = array->at(i); entity != nullptr) {
-                entity.reset();
-            }
-        }
-        array->clear();
-    }
+
     Paused = false;
-    MainTileManager.Map.clear();
+    MainTileManager.Reset();
     current_map_filename.clear();
+    MainEntityManager.Reset();
     MainCamera.Reset();
     MainPlayer.reset();
 }
@@ -323,7 +256,7 @@ void Game::Reload(std::string Filename) {
     MainPlayer = make_shared<Player>((static_cast<float>(MainTileManager.MapWidth) * MainTileManager.TileSize) / 2.0f,
                                      (static_cast<float>(MainTileManager.MapHeight) * MainTileManager.TileSize) / 2.0f, 350.0f,
                                      Textures["player"], *this);
-    Entities[PlayerType].push_back(MainPlayer);
+    MainEntityManager.AddEntity(PlayerType, MainPlayer);
 }
 
 void Game::Quit() {
@@ -332,6 +265,7 @@ void Game::Quit() {
     Ui.Quit();
     MainParticleSystem.Quit();
     MainCamera.Quit();
+    MainEntityManager.Quit();
     for (auto [name,value] : Textures) {
         UnloadTexture(value);
     }

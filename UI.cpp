@@ -56,19 +56,16 @@ void UI::GameUI() {
     if (WeaponUITexture.texture.width != GetScreenWidth()) {
         UnloadRenderTexture(WeaponUITexture);
         WeaponUITexture = LoadRenderTexture(GetScreenWidth(), WeaponUITexture.texture.height);
-        cout << "I am sad." << endl;
     }
 
     if (DeathScreen.texture.width != GetScreenWidth() || DeathScreen.texture.height != GetScreenHeight()) {
         UnloadRenderTexture(DeathScreen);
         DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-        cout << "I am sad." << endl;
     }
 
     if (PauseScreen.texture.width != GetScreenWidth() || PauseScreen.texture.height != GetScreenHeight()) {
         UnloadRenderTexture(PauseScreen);
         PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-        cout << "I am sad." << endl;
     }
 
     BeginTextureMode(WeaponUITexture);
@@ -203,14 +200,14 @@ void UI::GameUI() {
         float size = MeasureText(txt.c_str(), es);
         float size2 = MeasureText(txt_2.c_str(), es);
 
-        DrawText(txt.c_str(), GetScreenWidth()/2 - size/2, ey, es, ColorBrightness(RED, -0.1f));
-        DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es, es, ColorBrightness(RED, -0.1f));
+        DrawText(txt.c_str(), GetScreenWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
+        DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
 
         EndTextureMode();
     }
 
-    if (game->DebugDraw)
-        DrawText(to_string(UITransparency).c_str(), 50, 250, 10, WHITE);
+    //if (game->DebugDraw)
+    //    DrawText(to_string(UITransparency).c_str(), 50, 250, 10, WHITE);
     DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
     DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
     if (game->MainPlayer->Health > 0 && UITransparency < 1.0f) {

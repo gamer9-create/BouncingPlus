@@ -74,7 +74,7 @@ void Enemy::Update() {
             (center_x - total_size / 2 - game->MainCamera.CameraPosition.x) < GetScreenWidth() &&
             (BoundingBox.y - 36 - game->MainCamera.CameraPosition.y) > -36 &&
             (BoundingBox.y - 36 - game->MainCamera.CameraPosition.y) < GetScreenHeight()
-             && !game->DebugDraw)
+             )
     {
         std::string t = std::to_string((int) round(AnimatedHealth));
         if (t == "67")
@@ -86,6 +86,6 @@ void Enemy::Update() {
     }
     weaponsSystem.Update();
     Entity::Update();
-    if (IsVisible() && Armor > 0 && !game->DebugDraw)
+    if (IsVisible() && Armor > 0)
         DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x - game->MainCamera.CameraPosition.x, BoundingBox.y - game->MainCamera.CameraPosition.y, BoundingBox.width, BoundingBox.height}, {0, 0}, 0, WHITE);
 }
