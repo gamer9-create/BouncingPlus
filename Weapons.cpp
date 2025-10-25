@@ -63,6 +63,7 @@ void WeaponsSystem::DisplayGunTexture() {
 void WeaponsSystem::Update() {
 
     // Getting owner variable & updating cooldown info
+    // aTTACKcOOLDOWNS = 6.7
 
     auto Owner = OwnerPtr.lock();
     for (int i = 0; i < 3; i++) {
