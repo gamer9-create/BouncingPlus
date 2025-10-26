@@ -1,0 +1,14 @@
+
+  "isMelee": false, // is the weapon melee?
+  "ShakeScreen": false, // does the weapon induce screen shake?
+  "SlowdownOverTime": false, // should bullets the weapon fires slow down over time?
+  "Speed": 400, // how fast are the bullets? (pixels per second)
+  "Size": 1.0, // how big are the bullets? (multiplier)
+  "Damage": 20, // how much damage does each bullet/each swing do? (hp points)
+  "Cooldown": 0.2, // cooldown (in seconds)
+  "AngleRange": 0.0, // angle range of the bullets/sword swing (degrees)
+  "Range": 0.0, // range of the swing (pixels)
+  "Bullets": 1, // amount of bullets fired per shot
+  "Intensity": 0, // how intense is the screen shake + sound volume? (0-1)
+  "texture": "", // texture name
+  "sound": "" // sound effect name

@@ -16,7 +16,7 @@ int main() {
     LevelLoader level_loader = LevelLoader();
     std::unordered_map<std::string,json> level_data = level_loader.GetLevelsData();
 
-    Game MainGame = Game();
+    Game MainGame = Game(level_data);
     Menu MainMenu = Menu(level_data);
 
     bool InGame = false;

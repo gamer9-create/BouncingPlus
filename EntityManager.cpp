@@ -28,7 +28,7 @@ EntityManager::~EntityManager()
 {
 }
 
-void EntityManager::AddEntity(EntityType type, Entity& entity)
+void EntityManager::AddEntity(EntityType type, std::shared_ptr<Entity> entity)
 {
     Entities[type].push_back(entity);
 }

@@ -5,9 +5,8 @@
 #include "Player.h"
 
 #include <iostream>
-#include <ostream>
 #include <raymath.h>
-
+#include <nlohmann/json.hpp>
 #include "Enemy.h"
 #include "Game.h"
 
@@ -174,9 +173,10 @@ void Player::Update() {
     // is the weapon system not initialized?? init it now!!!
     if (!this->weaponsSystemInit) {
         this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
-        this->weaponsSystem.Weapons[0] = "Player Gun";
-        this->weaponsSystem.Weapons[1] = "Shotgun";
-        this->weaponsSystem.Weapons[2] = "Sword";
+        auto f = game->LevelData[game->CurrentLevelName]["inventory"];
+        for (int i = 0; i < f.size(); i++) {
+            this->weaponsSystem.Weapons[i] = f[i];
+        }
         this->weaponsSystem.Equip(0);
         this->weaponsSystemInit = true;
     }

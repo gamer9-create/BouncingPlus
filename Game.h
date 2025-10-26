@@ -6,7 +6,7 @@
 #define BOUNCINGPLUS_GAME_H
 
 #include <raylib.h>
-#include <vector>
+#include <nlohmann/json_fwd.hpp>
 #include "CameraManager.h"
 #include "Entity.h"
 #include "EntityManager.h"
@@ -23,13 +23,15 @@ class Game {
     float SlowdownTime;
     float MaxSlowdownTime;
     float SlowdownShakeIntensity;
-    std::string current_map_filename;
+
     UIManager MainUIManager;
     void SetGameData();
     void ProcessSlowdownAnimation();
     public:
         bool Paused;
         float GameSpeed;
+        std::string CurrentLevelName;
+        std::unordered_map<std::string, nlohmann::json> LevelData;
         TileManager MainTileManager;
         EntityManager MainEntityManager;
         CameraManager MainCameraManager;
@@ -39,7 +41,7 @@ class Game {
         ParticleManager MainParticleManager;
         shared_ptr<Player> MainPlayer;
         bool DebugDraw;
-        Game();
+        Game(std::unordered_map<std::string, nlohmann::json> json);
         bool RayCastSpecifiedPrecision(Vector2 origin, Vector2 target, float Precision = 36);
         bool RayCast(Vector2 origin, Vector2 target);
         void Slowdown(float Time);

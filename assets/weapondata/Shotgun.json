@@ -1,0 +1,15 @@
+{
+  "isMelee": false,
+  "ShakeScreen": true,
+  "SlowdownOverTime": true,
+  "Speed": 1600,
+  "Size": 4.0,
+  "Damage": 10,
+  "Cooldown": 1.0,
+  "AngleRange": 40.0,
+  "Range": 150.0,
+  "Bullets": 10,
+  "Intensity": 0.5,
+  "texture": "shotgun",
+  "sound": "shotgun"
+}

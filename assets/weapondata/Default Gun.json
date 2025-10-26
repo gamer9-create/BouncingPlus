@@ -1,0 +1,15 @@
+{
+  "isMelee": false,
+  "ShakeScreen": false,
+  "SlowdownOverTime": false,
+  "Speed": 400,
+  "Size": 1.0,
+  "Damage": 20,
+  "Cooldown": 0.2,
+  "AngleRange": 0.0,
+  "Range": 0.0,
+  "Bullets": 1,
+  "Intensity": 0,
+  "texture": "",
+  "sound": ""
+}

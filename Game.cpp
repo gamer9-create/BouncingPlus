@@ -11,9 +11,15 @@
 #include "Weapons.h"
 #include "UIManager.h"
 
+#include <filesystem>
+#include <fstream>
+
+#include "LevelLoader.h"
+namespace fs = std::filesystem;
+
 using namespace std;
 
-Game::Game() {
+Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
 
     // init game services
     MainUIManager = UIManager(*this);
@@ -35,30 +41,63 @@ Game::Game() {
 
     // extra stuff
     MainPlayer = nullptr;
-    current_map_filename = "";
+    CurrentLevelName = "";
+    LevelData = json;
     DebugDraw = false;
 
     SetGameData();
 }
 
 void Game::SetGameData() {
-    Textures.insert({"player", LoadTexture("assets/img/player.png")});
-    Textures.insert({"enemy", LoadTexture("assets/img/enemy.png")});
-    Textures.insert({"bullet", LoadTexture("assets/img/bullet.png")});
-    Textures.insert({"sword", LoadTexture("assets/img/sword.png")});
-    Textures.insert({"shotgun", LoadTexture("assets/img/shotgun.png")});
-    Textures.insert({"armor_overlay", LoadTexture("assets/img/armor_overlay.png")});
-    Textures.insert({"six_seven", LoadTexture("assets/img/six_seven.png")});
-    Textures.insert({"fourty_one", LoadTexture("assets/img/fourty_one.png")});
-    Sounds.insert({"dash_hit", LoadSound("assets/sounds/dash_hit.wav")});
-    Sounds.insert({"death", LoadSound("assets/sounds/death.wav")});
-    Sounds.insert({"dash", LoadSound("assets/sounds/dash.mp3")});
-    Sounds.insert({"shotgun", LoadSound("assets/sounds/shotgun.wav")});
-    Weapons.insert({"Default Gun", {false, false, false, 400, 1.0f, 20, 0.2, 0.0f, 0.0f, 1, 0, "", ""}});
-    Weapons.insert({"Player Gun", {false, false, false, 1000, 1.0f, 20, 0.2, 0.0f, 0.0f, 1, 0, "", ""}});
-    Weapons.insert({"Shotgun", {false, true, true, 1600, 4.0f, 10, 1.0f, 40.0f, 150.0f, 10, 0.5f, "shotgun", "shotgun"}});
-    Weapons.insert({"Sword", {true, false, false, 0.4, 1.0f, 35, 0.45f, 90.0f, 350.0f, -1, 0, "sword", ""}});
-    Weapons.insert({"Enemy Sword", {true, false, false, 0.4f, 1.0f, 35.0f, 0.55f, 90.0f, 204.0f, -1, 0, "sword", ""}});
+    std::string path = "assets\\img";
+    for (const auto & entry : fs::directory_iterator(path)) {
+        std::string p = entry.path().filename().string();
+        p.erase(p.end() - 4, p.end());
+        Texture tex = LoadTexture(entry.path().string().c_str());
+        Textures.insert({p, tex});
+    }
+    path = "assets\\sounds";
+    for (const auto & entry : fs::directory_iterator(path)) {
+        std::string p = entry.path().filename().string();
+        p.erase(p.end() - 4, p.end());
+        Sound sound = LoadSound(entry.path().string().c_str());
+        Sounds.insert({p, sound});
+    }
+    path = "assets\\weapondata";
+    for (const auto & entry : fs::directory_iterator(path)) {
+        std::string p = entry.path().filename().string();
+        p.erase(p.end() - 5, p.end());
+        std::ifstream g(entry.path().c_str());
+        json data = json::parse(g);
+        Weapon wep = {};
+        if (data.contains("isMelee"))
+            wep.isMelee = data["isMelee"].get<bool>();
+        if (data.contains("ShakeScreen"))
+            wep.ShakeScreen = data["ShakeScreen"].get<bool>();
+        if (data.contains("SlowdownOverTime"))
+            wep.SlowdownOverTime = data["SlowdownOverTime"].get<bool>();
+        if (data.contains("Speed"))
+            wep.Speed = data["Speed"].get<float>();
+        if (data.contains("Size"))
+            wep.Size = data["Size"].get<float>();
+        if (data.contains("Damage"))
+            wep.Damage = data["Damage"].get<float>();
+        if (data.contains("Cooldown"))
+            wep.Cooldown = data["Cooldown"].get<float>();
+        if (data.contains("AngleRange"))
+            wep.AngleRange = data["AngleRange"].get<float>();
+        if (data.contains("Range"))
+            wep.Range = data["Range"].get<float>();
+        if (data.contains("Bullets"))
+            wep.Bullets = data["Bullets"].get<int>();
+        if (data.contains("Intensity"))
+            wep.Intensity = data["Intensity"].get<float>();
+        if (data.contains("texture"))
+            wep.texture = data["texture"].get<string>();
+        if (data.contains("sound"))
+            wep.sound = data["sound"].get<string>();
+        Weapons.insert({p, wep});
+    }
 }
 
 void Game::Slowdown(float Time) {
@@ -103,8 +142,8 @@ void Game::Update(Camera2D camera) {
         if (IsKeyPressed(KEY_X))
             DebugDraw = !DebugDraw;
 
-        if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && IsKeyPressed(KEY_E) && !current_map_filename.empty())
-            Reload(current_map_filename);
+        if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && IsKeyPressed(KEY_E) && !CurrentLevelName.empty())
+            Reload(CurrentLevelName);
 
         MainCameraManager.Begin(camera);
 
@@ -239,22 +278,22 @@ bool Game::RayCastSpecifiedPrecision(Vector2 origin, Vector2 target, float Preci
 }
 
 void Game::Clear() {
-
     Paused = false;
+    CurrentLevelName.clear();
     MainTileManager.Reset();
-    current_map_filename.clear();
+    MainParticleManager.Reset();
     MainEntityManager.Reset();
     MainCameraManager.Reset();
     MainPlayer.reset();
 }
 
-void Game::Reload(std::string Filename) {
+void Game::Reload(std::string MapName) {
 
     Clear();
 
-    current_map_filename = Filename;
+    CurrentLevelName = MapName;
 
-    MainTileManager.ReadMapDataFile(Filename + "\\map_data.csv");
+    MainTileManager.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv");
 
     MainPlayer = make_shared<Player>((static_cast<float>(MainTileManager.MapWidth) * MainTileManager.TileSize) / 2.0f,
                                      (static_cast<float>(MainTileManager.MapHeight) * MainTileManager.TileSize) / 2.0f, 350.0f,

@@ -23,13 +23,13 @@ struct Weapon {
     float Range = 0;
     int Bullets = -1;
     float Intensity = 0;
-    std::string texture;
-    std::string sound;
+    std::string texture = "";
+    std::string sound = "";
 };
 
 class WeaponsSystem {
     void DisplayGunTexture();
-    void MeleeAttack(Entity& entity, float Angle);
+    void MeleeAttack(std::shared_ptr<Entity> entity, float Angle);
 
     Game* game;
     weak_ptr<Entity> OwnerPtr;

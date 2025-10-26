@@ -1,4 +1,5 @@
 {
   "description": "A very familiar place...",
-  "difficulty": 1
+  "inventory": ["Shotgun", "Sword"],
+  "difficulty": 2
 }

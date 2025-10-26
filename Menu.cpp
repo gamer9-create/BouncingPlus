@@ -63,7 +63,11 @@ void Menu::LevelSelect()
             float comb = (off + off2 + off3)/3;
             DrawRectangle(-(GetScreenWidth()-125)-cam_x, 200-comb, GetScreenWidth()-900, GetScreenHeight()-450, ColorAlpha(BLACK, 0.5f));
             DrawText(name.c_str(), -(GetScreenWidth()-145)-cam_x, 220-comb, 50, WHITE);
-            DrawText(to_string(data["description"]).c_str(), -(GetScreenWidth()-145)-cam_x, 270-comb, 25, WHITE);
+
+            std::string description = to_string(data["description"]);
+
+            DrawText(description.c_str(), -(GetScreenWidth()-145)-cam_x, 270-comb, 25, WHITE);
+            DrawText(("Difficulty level: "+to_string(data["difficulty"])).c_str(), -(GetScreenWidth()-145)-cam_x, 200-comb + GetScreenHeight()-450 - 70 - 64, 25, ColorBrightness(RED, -1 + ((float)data["difficulty"] * 0.25f) ));
             Rectangle play_bbox = {(float)-(GetScreenWidth()-145), 200-comb + GetScreenHeight()-450 - 70,150,56};
             if (button(play_bbox, "PLAY")) {
                 MovingToGame = true;
@@ -111,7 +115,7 @@ void Menu::Update() {
     if (MovingToGame)
         BlackTransparency += 0.5f * GetFrameTime();
     if (MovingToGame && BlackTransparency >= 1.0f)
-        map = "assets\\maps\\"+target_map;
+        map = target_map;
 
     LevelSelect();
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, BlackTransparency));

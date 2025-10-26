@@ -1,0 +1,15 @@
+{
+  "isMelee": true,
+  "ShakeScreen": false,
+  "SlowdownOverTime": false,
+  "Speed": 0.4,
+  "Size": 1.0,
+  "Damage": 35.0,
+  "Cooldown": 0.55,
+  "AngleRange": 90,
+  "Range": 204,
+  "Bullets": -1,
+  "Intensity": 0,
+  "texture": "sword",
+  "sound": ""
+}

@@ -1,4 +1,5 @@
 {
   "description": "Simple testing level. Nothing fancy.",
-  "difficulty": 1
+  "inventory": ["Player Gun", "Shotgun", "Sword"],
+  "difficulty": 3
 }
