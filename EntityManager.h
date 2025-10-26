@@ -19,12 +19,12 @@ class EntityManager {
     float PhysicsAccumulator;
     Game* game;
 public:
-    std::unordered_map<EntityType, std::vector<std::shared_ptr<Entity>>> Entities;
+    std::unordered_map<EntityType, std::vector<Entity>> Entities;
     float PhysicsFPS;
     EntityManager();
     EntityManager(Game &game);
     ~EntityManager();
-    void AddEntity(EntityType type, std::shared_ptr<Entity> entity);
+    void AddEntity(EntityType type, Entity& entity);
     void Update();
     void Reset();
     void Quit();

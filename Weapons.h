@@ -29,7 +29,7 @@ struct Weapon {
 
 class WeaponsSystem {
     void DisplayGunTexture();
-    void MeleeAttack(std::shared_ptr<Entity> entity, float Angle);
+    void MeleeAttack(Entity& entity, float Angle);
 
     Game* game;
     weak_ptr<Entity> OwnerPtr;

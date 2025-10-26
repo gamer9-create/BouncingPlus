@@ -14,15 +14,15 @@ class Bullet : public Entity {
     float ExistenceTimer;
     float Damage;
     bool dd=false;
-    std::weak_ptr<Entity> OwnerPtr;
+    Entity& Owner;
     std::string LastBouncedCoordinate;
 public:
 
     bool SlowdownOverTime;
     Vector2 FirePoint;
-    Bullet(float X, float Y, float Angle, float Size, float Speed, float Damage, Texture2D& BulletTexture, std::shared_ptr<Entity> Owner, Game &game);
+    Bullet(float X, float Y, float Angle, float Size, float Speed, float Damage, Texture2D& BulletTexture, Entity& Owner, Game &game);
     Bullet();
-    void Attack(std::shared_ptr<Entity> entity);
+    void Attack(Entity& entity);
     void PhysicsUpdate(float dt);
     virtual ~Bullet();
     void Update();

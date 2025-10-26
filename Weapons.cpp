@@ -185,7 +185,7 @@ void WeaponsSystem::Update() {
     }
 }
 
-void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
+void WeaponsSystem::MeleeAttack(Entity& entity, float Angle) {
     auto Owner = OwnerPtr.lock();
     // Get angle and distance from victim entity
     float AngleToEntity = atan2(Owner->BoundingBox.y - entity->BoundingBox.y, Owner->BoundingBox.x - entity->BoundingBox.x) * RAD2DEG;
