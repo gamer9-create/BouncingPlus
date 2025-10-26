@@ -31,9 +31,7 @@ Enemy::Enemy() {
 }
 
 Enemy::~Enemy() {
-
 }
-
 
 void Enemy::Update() {
     if (!this->weaponsSystemInit) {
@@ -77,8 +75,12 @@ void Enemy::Update() {
              )
     {
         std::string t = std::to_string((int) round(AnimatedHealth));
-        if (t == "67")
-            t = "66";
+        if (game->DebugDraw) {
+            if (t == "67")
+                DrawTexture(game->Textures["six_seven"], BoundingBox.x - game->MainCameraManager.CameraPosition.x, BoundingBox.y - game->MainCameraManager.CameraPosition.y, WHITE);
+            if (t == "41")
+                DrawTexture(game->Textures["fourty_one"], BoundingBox.x - game->MainCameraManager.CameraPosition.x, BoundingBox.y - game->MainCameraManager.CameraPosition.y, WHITE);
+        }
         DrawText(t.c_str(),
                  center_x - total_size / 2 - game->MainCameraManager.CameraPosition.x,
                  BoundingBox.y - 36 - game->MainCameraManager.CameraPosition.y, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));

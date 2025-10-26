@@ -163,6 +163,15 @@ void Bullet::Attack(shared_ptr<Entity> entity) {
             entity->Health -= ThisDamage;
         if (Owner != nullptr && entity->Health <= 0 && Owner->Health > 0) {
             Owner->Health += ThisDamage;
+            game->MainParticleManager.ParticleEffect({
+                {BoundingBox.x, BoundingBox.y},
+                450,
+                WHITE,
+                700,
+                2,
+                1.75f,
+                RED
+            }, -Rotation, 10, 15);
             if (Owner->Type == PlayerType)
                 game->MainPlayer->Kills += 1;
         }

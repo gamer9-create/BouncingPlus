@@ -48,6 +48,8 @@ void Game::SetGameData() {
     Textures.insert({"sword", LoadTexture("assets/img/sword.png")});
     Textures.insert({"shotgun", LoadTexture("assets/img/shotgun.png")});
     Textures.insert({"armor_overlay", LoadTexture("assets/img/armor_overlay.png")});
+    Textures.insert({"six_seven", LoadTexture("assets/img/six_seven.png")});
+    Textures.insert({"fourty_one", LoadTexture("assets/img/fourty_one.png")});
     Sounds.insert({"dash_hit", LoadSound("assets/sounds/dash_hit.wav")});
     Sounds.insert({"death", LoadSound("assets/sounds/death.wav")});
     Sounds.insert({"dash", LoadSound("assets/sounds/dash.mp3")});
@@ -108,6 +110,7 @@ void Game::Update(Camera2D camera) {
 
         ProcessSlowdownAnimation();
         MainTileManager.Update();
+        MainParticleManager.Update();
         MainEntityManager.Update();
 
         MainCameraManager.End();
