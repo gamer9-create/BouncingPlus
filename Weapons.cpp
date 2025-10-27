@@ -53,8 +53,9 @@ void WeaponsSystem::DisplayGunTexture() {
     float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
     float FinalAngle = (atan2(cy - (Target.y + game->MainCameraManager.CameraPosition.y), cx - (Target.x + game->MainCameraManager.CameraPosition.x)) * RAD2DEG);
     MeleeAnimTexture = &game->Textures[CurrentWeapon->texture];
-    float width = MeleeAnimTexture->width*CurrentWeapon->Size;
-    float height = MeleeAnimTexture->height*CurrentWeapon->Size;
+    float avg = (CurrentWeapon->Size.x + CurrentWeapon->Size.y) / 2;
+    float width = MeleeAnimTexture->width*avg;
+    float height = MeleeAnimTexture->height*avg;
     DrawTexturePro(*MeleeAnimTexture, Rectangle(0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)),
                    Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x - cosf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y - sinf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, width,
                              height), Vector2(0, height / 2), FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
@@ -66,6 +67,10 @@ void WeaponsSystem::Update() {
     // aTTACKcOOLDOWNS = 6.7
 
     auto Owner = OwnerPtr.lock();
+
+    if (Owner != nullptr && CurrentWeapon != nullptr)
+        Owner->WeaponWeightSpeedMultiplier = CurrentWeapon->WeaponWeightSpeedMultiplier;
+
     for (int i = 0; i < 3; i++) {
         if (!Weapons[i].empty()) {
             AttackCooldowns[i] += GetFrameTime();
@@ -309,4 +314,5 @@ void WeaponsSystem::Unequip() {
     // simply set the current weapon to nothing
     CurrentWeaponIndex = -1;
     CurrentWeapon = nullptr;
+    OwnerPtr.lock()->WeaponWeightSpeedMultiplier = 1;
 }

@@ -20,6 +20,7 @@ void Entity::Initialize(Texture2D &Texture, Rectangle BoundingBox, float Speed) 
     this->ShouldDelete = false;
     this->CollisionsEnabled = true;
     this->MaxHealth = 100;
+    this->WeaponWeightSpeedMultiplier = 1;
     this->Health = this->MaxHealth;
     this->Type = DefaultType;
     this->VelocityMovement = {0,0};
@@ -41,6 +42,10 @@ Entity::~Entity() {
 
 }
 
+float Entity::GetSpeed() {
+    return Speed * WeaponWeightSpeedMultiplier;
+}
+
 void Entity::PhysicsUpdate(float dt) {
     if (abs(VelocityPower) > 0) {
         VelocityPower += 1000.0f * dt * (VelocityPower > 0 ? -1 : 1);
@@ -49,7 +54,7 @@ void Entity::PhysicsUpdate(float dt) {
     }
     Vector2 mov = Vector2Normalize(Movement);
     Vector2 vel = Vector2Normalize(VelocityMovement);
-    Vector2 FinalMovement = Vector2((mov.x * Speed) + (vel.x * VelocityPower), (mov.y * Speed) + (vel.y * VelocityPower));
+    Vector2 FinalMovement = Vector2((mov.x * GetSpeed()) + (vel.x * VelocityPower), (mov.y * GetSpeed()) + (vel.y * VelocityPower));
     if (Vector2Distance({0,0}, vel) != 0 && CollisionsEnabled) {
         BoundingBox.x += FinalMovement.x * dt;
         BoundingBox.y += FinalMovement.y * dt;
@@ -133,7 +138,7 @@ void Entity::PhysicsUpdate(float dt) {
         }
         BoundingBox.x -= FinalMovement.x * dt;
         BoundingBox.y -= FinalMovement.y * dt;
-        FinalMovement = Vector2((mov.x * Speed) + (vel.x * VelocityPower), (mov.y * Speed) + (vel.y * VelocityPower));
+        FinalMovement = Vector2((mov.x * GetSpeed()) + (vel.x * VelocityPower), (mov.y * GetSpeed()) + (vel.y * VelocityPower));
     }
     if (Vector2Distance({0,0}, FinalMovement) > 0) {
         if (CollisionsEnabled) {

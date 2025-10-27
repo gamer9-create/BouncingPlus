@@ -16,7 +16,8 @@ struct Weapon {
     bool ShakeScreen = false;
     bool SlowdownOverTime = false;
     float Speed = 0;
-    float Size = 1;
+    float WeaponWeightSpeedMultiplier = 1;
+    Vector2 Size = {1,1};
     float Damage = 0;
     float Cooldown = 0;
     float AngleRange = 0;

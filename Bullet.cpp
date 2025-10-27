@@ -13,11 +13,11 @@
 #include "math.h"
 #include "Game.h"
 
-Bullet::Bullet(float X, float Y, float Angle, float Size, float Speed, float Damage, Texture2D &BulletTexture, shared_ptr<Entity> Owner, Game &game) : Entity(BulletTexture, BoundingBox, Speed, game) {
+Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float Damage, Texture2D &BulletTexture, shared_ptr<Entity> Owner, Game &game) : Entity(BulletTexture, BoundingBox, Speed, game) {
     this->Speed = Speed;
     this->Type = BulletType;
     this->ExistenceTimer = 0;
-    this->BoundingBox=Rectangle(X - (10 * Size / 2.0f), Y - (5 * Size / 2.0f), 10 * Size, 5 * Size);
+    this->BoundingBox=Rectangle(X - (10 * Size.x / 2.0f), Y - (5 * Size.y / 2.0f), 10 * Size.x, 5 * Size.y);
     this->Texture=&BulletTexture;
     this->ShouldDelete = false;
     this->SlowdownOverTime = false;
@@ -165,13 +165,13 @@ void Bullet::Attack(shared_ptr<Entity> entity) {
             Owner->Health += ThisDamage;
             game->MainParticleManager.ParticleEffect({
                 {BoundingBox.x, BoundingBox.y},
-                450,
+                300,
                 WHITE,
-                850,
-                2,
+                700,
+                6,
                 1.75f,
-                RED
-            }, 180-Rotation, 10, 15);
+                {255, 0, 0, 255}
+            }, Rotation - 180, 360, 15);
             if (Owner->Type == PlayerType)
                 game->MainPlayer->Kills += 1;
         }

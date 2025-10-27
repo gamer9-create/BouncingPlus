@@ -1,5 +1,5 @@
 {
   "description": "No sword guys, no shotgunners, just pure bullets. \n",
-  "inventory": ["Default Gun"],
+  "inventory": ["Player Gun"],
   "difficulty": 4
 }

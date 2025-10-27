@@ -76,10 +76,12 @@ void Game::SetGameData() {
             wep.ShakeScreen = data["ShakeScreen"].get<bool>();
         if (data.contains("SlowdownOverTime"))
             wep.SlowdownOverTime = data["SlowdownOverTime"].get<bool>();
+        if (data.contains("WeaponWeightSpeedMultiplier"))
+            wep.WeaponWeightSpeedMultiplier = data["WeaponWeightSpeedMultiplier"].get<float>();
         if (data.contains("Speed"))
             wep.Speed = data["Speed"].get<float>();
         if (data.contains("Size"))
-            wep.Size = data["Size"].get<float>();
+            wep.Size = {data["Size"][0], data["Size"][1]};
         if (data.contains("Damage"))
             wep.Damage = data["Damage"].get<float>();
         if (data.contains("Cooldown"))

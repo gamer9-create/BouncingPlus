@@ -3,7 +3,8 @@
   "ShakeScreen": false, // does the weapon induce screen shake?
   "SlowdownOverTime": false, // should bullets the weapon fires slow down over time?
   "Speed": 400, // how fast are the bullets? (pixels per second)
-  "Size": 1.0, // how big are the bullets? (multiplier)
+  "MovementSpeedMultiplier": 1, // should entities have their speeds reduced due to this weapon?
+  "Size": [1, 1], // how big are the bullets? (multiplier x and y)
   "Damage": 20, // how much damage does each bullet/each swing do? (hp points)
   "Cooldown": 0.2, // cooldown (in seconds)
   "AngleRange": 0.0, // angle range of the bullets/sword swing (degrees)

@@ -62,6 +62,7 @@ void Player::PhysicsUpdate(float dt) {
         Speed = (OrigSpeed + ExtraSpeed) * (1.0f - min(((Health/MaxHealth)-2.0f) / 2.0f, 0.5f));
     else
         Speed = (OrigSpeed + ExtraSpeed);
+    cout << GetSpeed() << endl;
     Entity::PhysicsUpdate(dt);
 }
 

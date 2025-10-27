@@ -20,7 +20,7 @@ public:
 
     bool SlowdownOverTime;
     Vector2 FirePoint;
-    Bullet(float X, float Y, float Angle, float Size, float Speed, float Damage, Texture2D& BulletTexture, std::shared_ptr<Entity> Owner, Game &game);
+    Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float Damage, Texture2D& BulletTexture, std::shared_ptr<Entity> Owner, Game &game);
     Bullet();
     void Attack(std::shared_ptr<Entity> entity);
     void PhysicsUpdate(float dt);
