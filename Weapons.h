@@ -15,6 +15,11 @@ struct Weapon {
     bool isMelee = false;
     bool ShakeScreen = false;
     bool SlowdownOverTime = false;
+    float PushbackForce = 0;
+    float WeaponSize = 1;
+    int SpreadRange[2] = {0, 0};
+    int Ammo = -1;
+    double ReloadTime = 0;
     float Speed = 0;
     float WeaponWeightSpeedMultiplier = 1;
     Vector2 Size = {1,1};
@@ -46,13 +51,16 @@ class WeaponsSystem {
     public:
     std::string Weapons[3];
     Weapon* CurrentWeapon = nullptr;
+    double TimeStartedReloading;
     int CurrentWeaponIndex = 0;
     float AttackCooldowns[3];
+    int WeaponAmmo[3];
 
         WeaponsSystem(shared_ptr<Entity> Owner, Game &game);
         WeaponsSystem();
         virtual ~WeaponsSystem();
         virtual void Equip(int Index);
+        virtual void Reload();
         virtual void Unequip();
         virtual void Update();
         virtual void Attack(Vector2 Target);

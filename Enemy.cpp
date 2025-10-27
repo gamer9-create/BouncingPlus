@@ -45,6 +45,8 @@ void Enemy::Update() {
 
     if (AngeredRangeBypassTimer <= 0)
         AngeredRangeBypassTimer = 0;
+    if (weaponsSystem.CurrentWeapon != nullptr && weaponsSystem.TimeStartedReloading == -1 && weaponsSystem.CurrentWeapon->Ammo > 0 && weaponsSystem.WeaponAmmo[weaponsSystem.CurrentWeaponIndex] <= 0)
+        weaponsSystem.Reload();
 
     Movement = Vector2(0, 0);
     float plr_center_x = game->MainPlayer->BoundingBox.x + (game->MainPlayer->BoundingBox.width / 2);

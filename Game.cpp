@@ -76,10 +76,23 @@ void Game::SetGameData() {
             wep.ShakeScreen = data["ShakeScreen"].get<bool>();
         if (data.contains("SlowdownOverTime"))
             wep.SlowdownOverTime = data["SlowdownOverTime"].get<bool>();
+        if (data.contains("PushbackForce"))
+            wep.PushbackForce = data["PushbackForce"].get<float>();
+        if (data.contains("Spread"))
+        {
+            wep.SpreadRange[0] = data["Spread"][0].get<int>();
+            wep.SpreadRange[1] = data["Spread"][1].get<int>();
+        }
         if (data.contains("WeaponWeightSpeedMultiplier"))
             wep.WeaponWeightSpeedMultiplier = data["WeaponWeightSpeedMultiplier"].get<float>();
         if (data.contains("Speed"))
             wep.Speed = data["Speed"].get<float>();
+        if (data.contains("WeaponSize"))
+            wep.WeaponSize = data["WeaponSize"].get<float>();
+        if (data.contains("Ammo"))
+            wep.Ammo = data["Ammo"].get<int>();
+        if (data.contains("ReloadTime"))
+            wep.ReloadTime = data["ReloadTime"].get<double>();
         if (data.contains("Size"))
             wep.Size = {data["Size"][0], data["Size"][1]};
         if (data.contains("Damage"))

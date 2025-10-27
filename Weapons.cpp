@@ -28,10 +28,12 @@ WeaponsSystem::WeaponsSystem(shared_ptr<Entity> Owner, Game& game) {
     MeleeAnimRange = 45;
     MeleeAnimPercent = 0;
     PointRemovalTimer = 0;
+    TimeStartedReloading = -1;
     MeleeAnimAlpha = 1;
     for (int i = 0; i < 3; i++) {
         AttackCooldowns[i] = 0;
         Weapons[i] = "";
+        WeaponAmmo[i] = 0;
     }
 }
 
@@ -53,9 +55,8 @@ void WeaponsSystem::DisplayGunTexture() {
     float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
     float FinalAngle = (atan2(cy - (Target.y + game->MainCameraManager.CameraPosition.y), cx - (Target.x + game->MainCameraManager.CameraPosition.x)) * RAD2DEG);
     MeleeAnimTexture = &game->Textures[CurrentWeapon->texture];
-    float avg = (CurrentWeapon->Size.x + CurrentWeapon->Size.y) / 2;
-    float width = MeleeAnimTexture->width*avg;
-    float height = MeleeAnimTexture->height*avg;
+    float width = MeleeAnimTexture->width*CurrentWeapon->WeaponSize;
+    float height = MeleeAnimTexture->height*CurrentWeapon->WeaponSize;
     DrawTexturePro(*MeleeAnimTexture, Rectangle(0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)),
                    Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x - cosf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y - sinf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, width,
                              height), Vector2(0, height / 2), FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
@@ -63,8 +64,7 @@ void WeaponsSystem::DisplayGunTexture() {
 
 void WeaponsSystem::Update() {
 
-    // Getting owner variable & updating cooldown info
-    // aTTACKcOOLDOWNS = 6.7
+    // Getting owner variable & updating cooldown info & updating ammo info
 
     auto Owner = OwnerPtr.lock();
 
@@ -73,14 +73,19 @@ void WeaponsSystem::Update() {
 
     for (int i = 0; i < 3; i++) {
         if (!Weapons[i].empty()) {
-            AttackCooldowns[i] += GetFrameTime();
+            if ((CurrentWeapon->Ammo > 0 && WeaponAmmo[i] > 0) || CurrentWeapon->Ammo <= 0)
+                AttackCooldowns[i] += GetFrameTime();
         } else {
             AttackCooldowns[i] = 0;
+            WeaponAmmo[i] = 0;
         }
-        /*
-        if (game->DebugDraw)
-            DrawText(to_string(AttackCooldowns[i]).c_str(), 250 + i*50, 250, 10, WHITE);
-            */
+    }
+
+    // reload weps
+    if (CurrentWeapon != nullptr && TimeStartedReloading != -1 && GetTime() - TimeStartedReloading >= CurrentWeapon->ReloadTime)
+    {
+        WeaponAmmo[CurrentWeaponIndex] = CurrentWeapon->Ammo;
+        TimeStartedReloading = -1;
     }
 
     // Display weapon cone if using melee weapon
@@ -229,7 +234,9 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
 
 void WeaponsSystem::Attack(Vector2 Target) {
     auto Owner = OwnerPtr.lock();
-    if (CurrentWeapon != nullptr && AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown) {
+    if (CurrentWeapon != nullptr && AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown &&
+        ( (CurrentWeapon->Ammo > 0 && WeaponAmmo[CurrentWeaponIndex] > 0) || CurrentWeapon->Ammo <= 0 ) &&
+        TimeStartedReloading == -1) {
 
         // Get angle + fire point
         float TargetAngle = atan2(Owner->BoundingBox.y - Target.y, Owner->BoundingBox.x - Target.x) * RAD2DEG;
@@ -260,7 +267,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
             // loop thru requested shots
             for (int i = 1; i < CurrentWeapon->Bullets+1; i++) {
 
-                float Angle = TargetAngle;
+                float Angle = TargetAngle + GetRandomValue(CurrentWeapon->SpreadRange[0], CurrentWeapon->SpreadRange[1]);
                 if (CurrentWeapon->Bullets != 0)
                     Angle += ((CurrentWeapon->AngleRange / CurrentWeapon->Bullets)*i) - CurrentWeapon->AngleRange/2.0f; // get offset angle of shot
 
@@ -271,10 +278,10 @@ void WeaponsSystem::Attack(Vector2 Target) {
                 game->MainEntityManager.AddEntity(BulletType, bullet);
             }
 
-            // if the weapon is powerful enough to shake the screen, its prob powerful enough to move the player a little bit
-            if (CurrentWeapon->ShakeScreen) {
+            // pushback character
+            if (CurrentWeapon->PushbackForce != 0) {
                 Owner->VelocityMovement = {cos(TargetAngle * (2 * PI / 360))*100,sin(TargetAngle * (2 * PI / 360))*100};
-                Owner->VelocityPower = 450;
+                Owner->VelocityPower = CurrentWeapon->PushbackForce;
             }
         } else if (CurrentWeapon->isMelee) { // Melee attack
             // Get angle, set basic starting variables
@@ -299,6 +306,8 @@ void WeaponsSystem::Attack(Vector2 Target) {
         // Reset cooldown
         if ((Valid && !CurrentWeapon->isMelee) || CurrentWeapon->isMelee)
             AttackCooldowns[CurrentWeaponIndex] = 0;
+        if (CurrentWeapon->Ammo > 0 && WeaponAmmo[CurrentWeaponIndex] > 0)
+            WeaponAmmo[CurrentWeaponIndex] -= 1;
     }
 }
 
@@ -307,6 +316,7 @@ void WeaponsSystem::Equip(int Index) {
     if (Weapons->length() > Index && !Weapons[Index].empty()) {
         CurrentWeaponIndex = Index;
         CurrentWeapon = &game->Weapons[Weapons[CurrentWeaponIndex]];
+        TimeStartedReloading = -1;
     }
 }
 
@@ -314,5 +324,14 @@ void WeaponsSystem::Unequip() {
     // simply set the current weapon to nothing
     CurrentWeaponIndex = -1;
     CurrentWeapon = nullptr;
-    OwnerPtr.lock()->WeaponWeightSpeedMultiplier = 1;
+    TimeStartedReloading = -1;
+    auto Owner = OwnerPtr.lock();
+    if (Owner != nullptr)
+        OwnerPtr.lock()->WeaponWeightSpeedMultiplier = 1;
+}
+
+void WeaponsSystem::Reload()
+{
+    if (CurrentWeapon != nullptr && CurrentWeapon->Ammo > 0 && TimeStartedReloading == -1)
+        TimeStartedReloading = GetTime();
 }

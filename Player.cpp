@@ -62,7 +62,6 @@ void Player::PhysicsUpdate(float dt) {
         Speed = (OrigSpeed + ExtraSpeed) * (1.0f - min(((Health/MaxHealth)-2.0f) / 2.0f, 0.5f));
     else
         Speed = (OrigSpeed + ExtraSpeed);
-    cout << GetSpeed() << endl;
     Entity::PhysicsUpdate(dt);
 }
 
@@ -208,9 +207,18 @@ void Player::Update() {
 
     if (PlayerFrozenTimer <= 0) {
         // firing logic
+        if (weaponsSystem.CurrentWeapon != nullptr && weaponsSystem.CurrentWeapon->Ammo > 0 && weaponsSystem.WeaponAmmo[weaponsSystem.CurrentWeaponIndex] <=0)
+        {
+            weaponsSystem.Reload();
+        }
+
         auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->MainCameraManager.CameraPosition.x, static_cast<float> (GetMouseY()) + game->MainCameraManager.CameraPosition.y);
         if (IsMouseButtonDown(0) && !IsDashing)
             weaponsSystem.Attack(WorldMousePos);
+
+        // reload logic
+        if (IsKeyPressed(KEY_R) && weaponsSystem.TimeStartedReloading == -1)
+            weaponsSystem.Reload();
 
         // inventory input logic
         if (IsKeyPressed(KEY_ONE)) {

@@ -3,7 +3,12 @@
   "ShakeScreen": false, // does the weapon induce screen shake?
   "SlowdownOverTime": false, // should bullets the weapon fires slow down over time?
   "Speed": 400, // how fast are the bullets? (pixels per second)
-  "MovementSpeedMultiplier": 1, // should entities have their speeds reduced due to this weapon?
+  "WeaponWeightSpeedMultiplier": 1, // should entities have their speeds reduced due to this weapon?
+  "PushbackForce": 450, // wep pushback force (0 for no pushback)
+  "WeaponSize": 1, // weapon texture size multiplier
+  "Ammo": -1 // how much ammo/ shots fired before reload (-1 for unlimited ammo)
+  "ReloadTime": 0 // how much time is needed for reload (seconds)
+    "Spread": [0,0], // angle range of the bullet spread. degrees. example: -45, 45 will mean the bullets can fire in a total of 90 degrees cone
   "Size": [1, 1], // how big are the bullets? (multiplier x and y)
   "Damage": 20, // how much damage does each bullet/each swing do? (hp points)
   "Cooldown": 0.2, // cooldown (in seconds)
