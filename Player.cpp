@@ -176,6 +176,7 @@ void Player::Update() {
         auto f = game->LevelData[game->CurrentLevelName]["inventory"];
         for (int i = 0; i < f.size(); i++) {
             this->weaponsSystem.Weapons[i] = f[i];
+            this->weaponsSystem.WeaponAmmo[i] = game->Weapons[f[i]].Ammo;
         }
         this->weaponsSystem.Equip(0);
         this->weaponsSystemInit = true;
@@ -207,7 +208,9 @@ void Player::Update() {
 
     if (PlayerFrozenTimer <= 0) {
         // firing logic
-        if (weaponsSystem.CurrentWeapon != nullptr && weaponsSystem.CurrentWeapon->Ammo > 0 && weaponsSystem.WeaponAmmo[weaponsSystem.CurrentWeaponIndex] <=0)
+        if (IsMouseButtonDown(0) && weaponsSystem.CurrentWeapon != nullptr &&
+            weaponsSystem.CurrentWeapon->Ammo > 0 && weaponsSystem.WeaponAmmo[weaponsSystem.CurrentWeaponIndex] <=0 &&
+            weaponsSystem.AttackCooldowns[weaponsSystem.CurrentWeaponIndex] >= weaponsSystem.CurrentWeapon->Cooldown)
         {
             weaponsSystem.Reload();
         }

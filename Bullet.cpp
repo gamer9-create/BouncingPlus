@@ -141,7 +141,7 @@ void Bullet::PhysicsUpdate(float dt) {
 }
 
 void Bullet::Attack(shared_ptr<Entity> entity) {
-    if (CheckCollisionRecs(BoundingBox, entity->BoundingBox)) {
+    if (CheckCollisionRecs(BoundingBox, entity->BoundingBox) && !entity->ShouldDelete) {
         bool ShouldDamage = true;
         float ThisDamage = Damage;
         auto Owner = OwnerPtr.lock();
@@ -163,6 +163,7 @@ void Bullet::Attack(shared_ptr<Entity> entity) {
             entity->Health -= ThisDamage;
         if (Owner != nullptr && entity->Health <= 0 && Owner->Health > 0) {
             Owner->Health += ThisDamage;
+            entity->ShouldDelete = true;
             game->MainParticleManager.ParticleEffect({
                 {BoundingBox.x, BoundingBox.y},
                 300,

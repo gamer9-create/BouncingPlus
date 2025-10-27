@@ -105,6 +105,7 @@ void UIManager::GameUI() {
     float alpha = 0.75f;
     DrawRectangle(lowest_x-margin,lowest_y-margin,highest_width+(margin*2),highest_height+(margin*2),ColorAlpha(BLACK, alpha));
 
+    // cooldown meter
     if (game->MainPlayer != nullptr && game->MainPlayer->weaponsSystem.CurrentWeapon != nullptr) {
         Rectangle r = {lowest_x + highest_width + margin + 50, lowest_y-margin, 65, highest_height+margin*2};
         DrawRectangle(r.x,r.y,r.width,r.height, ColorAlpha(BLACK, alpha));
@@ -113,6 +114,22 @@ void UIManager::GameUI() {
         if (percent == 1.0f)
             g = GREEN;
         DrawRectangle(r.x + 10, r.y + 10 + ((r.height-20) * (1-percent)), r.width-20, (r.height-20) * percent, g);
+
+        //ammo meter
+        if (game->MainPlayer->weaponsSystem.CurrentWeapon->Ammo > 0)
+        {
+            DrawRectangle(r.x + r.width + margin, WeaponUITexture.texture.height - (100+margin), 125, 100, ColorAlpha(BLACK, alpha));
+            float s2 = 70;
+            float s = MeasureText(to_string(game->MainPlayer->weaponsSystem.WeaponAmmo[game->MainPlayer->weaponsSystem.CurrentWeaponIndex]).c_str(), s2);
+            DrawText(to_string(game->MainPlayer->weaponsSystem.WeaponAmmo[game->MainPlayer->weaponsSystem.CurrentWeaponIndex]).c_str(), (int)(r.x + r.width + margin + 125/2 - s/2),
+            WeaponUITexture.texture.height - (100+margin) + 10, s2, WHITE);
+
+            float s3 = 20;
+            float s4 = MeasureText("Ammo", s3);
+            DrawText("Ammo", (int)(r.x + r.width + margin + 125/2 - s4/2),
+            WeaponUITexture.texture.height - (100+margin) + 100 - s3 - 10, s3, WHITE
+                );
+        }
     }
 
     for (int i = 0; i < 3; i++) {
@@ -158,6 +175,20 @@ void UIManager::GameUI() {
             WeaponSlotIndex = -1;
     }
 
+    // kill counter
+    DrawRectangle(GetScreenWidth()-(125+margin), WeaponUITexture.texture.height - (100+margin), 125, 100, ColorAlpha(BLACK, alpha));
+    float s2 = 70;
+    float s = MeasureText(to_string(game->MainPlayer->Kills).c_str(), s2);
+    DrawText(to_string(game->MainPlayer->Kills).c_str(), (int)(GetScreenWidth()-(125+margin) + 125/2 - s/2),
+    WeaponUITexture.texture.height - (100+margin) + 10, s2, WHITE);
+
+    float s3 = 20;
+    float s4 = MeasureText("Kills", s3);
+    DrawText("Kills", (int)(GetScreenWidth()-(125+margin) + 125/2 - s4/2),
+    WeaponUITexture.texture.height - (100+margin) + 100 - s3 - 10, s3, WHITE
+        );
+
+    // health meter
     float PlrHealth = (game->MainPlayer->DodgeHealthResetTimer <= 0 ? game->MainPlayer->Health : game->MainPlayer->PrevHealthBeforeDodge);
     float size = MeasureText((std::to_string((int)round(PlrHealth))+"%").c_str(), 92);
     DrawRectangle((WeaponUITexture.texture.width / 2.0f - size / 2.0f)-margin,(WeaponUITexture.texture.height / 2.0f - 46)-margin,size+(margin*2),92+(margin*2),ColorAlpha((game->MainPlayer->DodgeHealthResetTimer <= 0 ? BLACK : WHITE), alpha));
@@ -166,16 +197,20 @@ void UIManager::GameUI() {
     if (game->DebugDraw && game->MainPlayer->weaponsSystem.CurrentWeapon != nullptr)
         DrawText(("Weapon info " + to_string(game->MainPlayer->weaponsSystem.CurrentWeaponIndex) + " "
             + to_string(game->MainPlayer->weaponsSystem.AttackCooldowns[game->MainPlayer->weaponsSystem.CurrentWeaponIndex]) + " " +
-            game->MainPlayer->weaponsSystem.Weapons[game->MainPlayer->weaponsSystem.CurrentWeaponIndex]
+            game->MainPlayer->weaponsSystem.Weapons[game->MainPlayer->weaponsSystem.CurrentWeaponIndex] + " " +
+            to_string(game->MainPlayer->weaponsSystem.WeaponAmmo[game->MainPlayer->weaponsSystem.CurrentWeaponIndex])
             ).c_str(), 0, 0, 25, WHITE);
 
     EndTextureMode();
 
-    if (game->MainPlayer->IsDashing) {
+    if (game->MainPlayer->IsDashing || game->MainPlayer->weaponsSystem.TimeStartedReloading != -1) {
         game->MainCameraManager.CameraZoom = 1.25f;
-        Vector2 ss = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x,
-        game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y};
-        DrawLineEx(ss, {(float)GetMouseX(), (float)GetMouseY()}, 10, WHITE);
+        if (game->MainPlayer->IsDashing)
+        {
+            Vector2 ss = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x,
+            game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y};
+            DrawLineEx(ss, {(float)GetMouseX(), (float)GetMouseY()}, 10, WHITE);
+        }
     } else {
         game->MainCameraManager.CameraZoom = 1.0f;
     }

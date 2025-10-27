@@ -73,8 +73,7 @@ void WeaponsSystem::Update() {
 
     for (int i = 0; i < 3; i++) {
         if (!Weapons[i].empty()) {
-            if ((CurrentWeapon->Ammo > 0 && WeaponAmmo[i] > 0) || CurrentWeapon->Ammo <= 0)
-                AttackCooldowns[i] += GetFrameTime();
+            AttackCooldowns[i] += GetFrameTime();
         } else {
             AttackCooldowns[i] = 0;
             WeaponAmmo[i] = 0;
