@@ -8,6 +8,7 @@
   "Speed": 1600,
   "Ammo": 3,
   "ReloadTime": 3,
+  "BulletLifetime": 0.2,
   "WeaponWeightSpeedMultiplier": 0.9,
   "Size": [4, 4],
   "Damage": 10,
@@ -17,5 +18,6 @@
   "Bullets": 10,
   "Intensity": 0.6,
   "texture": "shotgun",
+  "bullet_tex": "",
   "sound": "shotgun"
 }

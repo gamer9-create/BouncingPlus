@@ -78,6 +78,8 @@ void Game::SetGameData() {
             wep.SlowdownOverTime = data["SlowdownOverTime"].get<bool>();
         if (data.contains("PushbackForce"))
             wep.PushbackForce = data["PushbackForce"].get<float>();
+        if (data.contains("BulletLifetime"))
+            wep.BulletLifetime = data["BulletLifetime"].get<float>();
         if (data.contains("Spread"))
         {
             wep.SpreadRange[0] = data["Spread"][0].get<int>();
@@ -109,9 +111,12 @@ void Game::SetGameData() {
             wep.Intensity = data["Intensity"].get<float>();
         if (data.contains("texture"))
             wep.texture = data["texture"].get<string>();
+        if (data.contains("bullet_tex"))
+            wep.BulletTexture = data["bullet_tex"].get<string>();
         if (data.contains("sound"))
             wep.sound = data["sound"].get<string>();
         Weapons.insert({p, wep});
+        g.close();
     }
 }
 
@@ -161,7 +166,6 @@ void Game::Update(Camera2D camera) {
             Reload(CurrentLevelName);
 
         MainCameraManager.Begin(camera);
-
         ProcessSlowdownAnimation();
         MainTileManager.Update();
         MainParticleManager.Update();
@@ -316,6 +320,15 @@ void Game::Reload(std::string MapName) {
     MainEntityManager.AddEntity(PlayerType, MainPlayer);
 }
 
+void Game::UnloadAssets() {
+    for (auto [name,value] : Textures) {
+        UnloadTexture(value);
+    }
+    for (auto [name,value] : Sounds) {
+        UnloadSound(value);
+    }
+}
+
 void Game::Quit() {
     Clear();
     MainTileManager.Quit();
@@ -323,10 +336,5 @@ void Game::Quit() {
     MainParticleManager.Quit();
     MainCameraManager.Quit();
     MainEntityManager.Quit();
-    for (auto [name,value] : Textures) {
-        UnloadTexture(value);
-    }
-    for (auto [name,value] : Sounds) {
-        UnloadSound(value);
-    }
+    UnloadAssets();
 }

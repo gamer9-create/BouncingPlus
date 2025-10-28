@@ -50,6 +50,7 @@ class Game {
         void Update(Camera2D camera);
         void Clear();
         void Quit();
+        void UnloadAssets();
 };
 
 

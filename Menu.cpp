@@ -15,9 +15,11 @@ Menu::Menu(std::unordered_map<std::string,json> level_data)
     this->level_data = level_data;
     map = "";
     target_map = "";
-    title_img = LoadTexture("assets/img/title.png");
-    button_img = LoadTexture("assets/img/button.png");
-    menu_img = LoadTexture("assets/img/menu_img.png");
+    title_img = LoadTexture("assets/ui/title.png");
+    button_img = LoadTexture("assets/ui/button.png");
+    menu_img = LoadTexture("assets/ui/menu_img.png");
+    miku_img = LoadTexture("assets/ui/miku.png");
+    miku_sound = LoadSound("assets/ui/lovely_cavity.mp3");
     title_img_pos_y = -title_img.height;
     title_img_offset_y = 0;
     play_button_offset_y = -100;
@@ -27,9 +29,11 @@ Menu::Menu(std::unordered_map<std::string,json> level_data)
     off2 = 0;
     off3 = 0;
     BlackTransparency= 0.0f;
+    miku_offset = 0.0f;
     menu_img_pos_y = GetRandomValue(0, menu_img.height);
     MovingToGame = false;
     mouse_pos = {0,0};
+    PlaySound(miku_sound);
 }
 
 bool Menu::button(Rectangle rectangle, std::string text) {
@@ -108,14 +112,28 @@ void Menu::Update() {
 
     DrawTexture(title_img, (int)(GetScreenWidth()/2.0f) - (int)(title_img.width/2.0f)-cam_x, (int)title_img_pos_y - (int)title_img_offset_y, WHITE);
 
-    Rectangle play_bbox = {(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f)-cam_x, (float)play_button_offset_y +off3,150,56};
+    Rectangle play_bbox = {(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f), (float)play_button_offset_y +off3,150,56};
     if (button(play_bbox, "PLAY")) {
         cam_x_targ=-GetScreenWidth();
     }
     if (MovingToGame)
         BlackTransparency += 0.5f * GetFrameTime();
-    if (MovingToGame && BlackTransparency >= 1.0f)
+    if (MovingToGame && BlackTransparency >= 1.0f) {
         map = target_map;
+        StopSound(miku_sound);
+    }
+
+    DrawTexture(miku_img, -75, GetScreenHeight() - 20 + miku_offset, WHITE);
+    if (GetMouseX() < 250 && GetMouseY() > GetScreenHeight() - 70) {
+        miku_offset = lerp(miku_offset, -500, 10*GetFrameTime());
+        if (!IsSoundPlaying(miku_sound)) {
+            SetSoundVolume(miku_sound, 0.2f);
+            ResumeSound(miku_sound);
+        }
+    } else {
+        miku_offset = lerp(miku_offset, 0, 10*GetFrameTime());
+        PauseSound(miku_sound);
+    }
 
     LevelSelect();
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, BlackTransparency));
@@ -127,6 +145,8 @@ std::string Menu::LeaveMenu() {
 
 void Menu::Quit() {
     UnloadTexture(title_img);
+    UnloadSound(miku_sound);
     UnloadTexture(menu_img);
     UnloadTexture(button_img);
+    UnloadTexture(miku_img);
 }

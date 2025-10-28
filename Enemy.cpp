@@ -77,12 +77,18 @@ void Enemy::Update() {
              )
     {
         std::string t = std::to_string((int) round(AnimatedHealth));
-        if (game->DebugDraw) {
-            if (t == "67")
-                DrawTexture(game->Textures["six_seven"], BoundingBox.x - game->MainCameraManager.CameraPosition.x, BoundingBox.y - game->MainCameraManager.CameraPosition.y, WHITE);
-            if (t == "41")
-                DrawTexture(game->Textures["fourty_one"], BoundingBox.x - game->MainCameraManager.CameraPosition.x, BoundingBox.y - game->MainCameraManager.CameraPosition.y, WHITE);
-        }
+        if (t == "67") // getting rid of "6 7" meme
+            t = "66";
+        else if (t == "41") // getting rid of 41 meme
+            t = "40";
+        else if (t == "69") // getting rid of 69 nice number
+            t = "68";
+        else if (t == "63") // getting rid of rule 63
+            t = "62";
+        else if (t == "21") // 9 + 10 = ?
+            t = "20";
+        else if (t == "34") // stop gooning. just stop. please.
+            t = "35";
         DrawText(t.c_str(),
                  center_x - total_size / 2 - game->MainCameraManager.CameraPosition.x,
                  BoundingBox.y - 36 - game->MainCameraManager.CameraPosition.y, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));

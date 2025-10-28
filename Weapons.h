@@ -24,11 +24,13 @@ struct Weapon {
     float WeaponWeightSpeedMultiplier = 1;
     Vector2 Size = {1,1};
     float Damage = 0;
+    float BulletLifetime = -1;
     float Cooldown = 0;
     float AngleRange = 0;
     float Range = 0;
     int Bullets = -1;
     float Intensity = 0;
+    std::string BulletTexture = "";
     std::string texture = "";
     std::string sound = "";
 };

@@ -25,7 +25,7 @@ UIManager::UIManager(Game &game) {
     this->WeaponUITexture = LoadRenderTexture(GetScreenWidth(), 250);
     this->DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     this->PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-    button_img = LoadTexture("assets/img/button.png");
+    button_img = LoadTexture("assets/ui/button.png");
 }
 
 bool UIManager::button(Vector2 pos, std::string text) {

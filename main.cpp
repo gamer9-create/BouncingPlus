@@ -21,9 +21,6 @@ int main() {
 
     bool InGame = false;
 
-    float Background_Dist = 3;
-    float grid_space = 36.0f;
-
     bool OnWeb = false;
     #ifdef PLATFORM_WEB
         OnWeb = true;
@@ -35,6 +32,11 @@ int main() {
         HasAgreed = false;
 
     Camera2D zoom_cam = {{0, 0}, {0, 0}, 0, 1.0f};
+
+    Music music = LoadMusicStream(("assets/music/game_music" + to_string(GetRandomValue(1, 2)) + ".wav").c_str());
+    SetMusicVolume(music, 0.25f);
+    //PlayMusicStream(music);
+
     while (!WindowShouldClose()) {
         BeginDrawing();
 
@@ -42,6 +44,7 @@ int main() {
             ToggleFullscreen();
 
         BeginMode2D(zoom_cam);
+        UpdateMusicStream(music);
 
         ClearBackground(BLANK);
 
@@ -54,7 +57,10 @@ int main() {
                 zoom_cam.offset = {((float)GetScreenWidth()/2.0f) * (1.0f-zoom_cam.zoom), ((float)GetScreenHeight()/2.0f) * (1.0f-zoom_cam.zoom)};
 
                 // i am scared!!! i scare you!!!
-
+                if (MainGame.DebugDraw)
+                    SetMusicVolume(music, 0);
+                else
+                    SetMusicVolume(music, 0.25f);
             } else {
                 zoom_cam = {{0, 0}, {0, 0}, 0, 1.0f};
                 MainMenu.Update();
@@ -78,6 +84,8 @@ int main() {
 
     MainMenu.Quit();
     MainGame.Quit();
+    StopMusicStream(music);
+    UnloadMusicStream(music);
     CloseAudioDevice();
     CloseWindow();
     return 0;

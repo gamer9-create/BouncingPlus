@@ -13,7 +13,7 @@
 #include "math.h"
 #include "Game.h"
 
-Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float Damage, Texture2D &BulletTexture, shared_ptr<Entity> Owner, Game &game) : Entity(BulletTexture, BoundingBox, Speed, game) {
+Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float Damage, float Lifetime, Texture2D &BulletTexture, shared_ptr<Entity> Owner, Game &game) : Entity(BulletTexture, BoundingBox, Speed, game) {
     this->Speed = Speed;
     this->Type = BulletType;
     this->ExistenceTimer = 0;
@@ -21,6 +21,7 @@ Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float D
     this->Texture=&BulletTexture;
     this->ShouldDelete = false;
     this->SlowdownOverTime = false;
+    this->Lifetime=Lifetime;
     this->Speed=Speed;
     this->game = &game;
     this->FirePoint = {X, Y};
@@ -184,7 +185,7 @@ void Bullet::Update() {
     ExistenceTimer += GetFrameTime();
     if (!SlowdownOverTime) {
 
-        if (ExistenceTimer >= 8.5) {
+        if (ExistenceTimer >= Lifetime) {
             ShouldDelete = true;
         }
     } else if (Speed < 50) {

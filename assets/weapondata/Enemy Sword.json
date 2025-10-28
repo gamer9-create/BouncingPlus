@@ -7,6 +7,7 @@
   "WeaponSize": 1,
   "Ammo": -1,
   "ReloadTime": 0,
+  "BulletLifetime": -1,
   "Speed": 0.4,
   "WeaponWeightSpeedMultiplier": 1.15,
   "Size": [1, 1],
@@ -17,5 +18,6 @@
   "Bullets": -1,
   "Intensity": 0,
   "texture": "sword",
+  "bullet_tex": "",
   "sound": ""
 }

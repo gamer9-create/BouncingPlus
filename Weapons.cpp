@@ -14,6 +14,7 @@
 
 using namespace std;
 
+// bro im finna have to rewrite like 99% of melee wep code in a bit :sob:
 WeaponsSystem::WeaponsSystem(shared_ptr<Entity> Owner, Game& game) {
 
     // Set everything to basic, default values.
@@ -43,7 +44,7 @@ WeaponsSystem::WeaponsSystem() {
 WeaponsSystem::~WeaponsSystem() {
 }
 
-void WeaponsSystem::DisplayGunTexture() {
+void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
     auto Owner = OwnerPtr.lock();
     Vector2 Target ={(float)GetMouseX(), (float)GetMouseY()};
     if (Owner->Type == EnemyType)
@@ -60,11 +61,12 @@ void WeaponsSystem::DisplayGunTexture() {
     DrawTexturePro(*MeleeAnimTexture, Rectangle(0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)),
                    Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x - cosf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y - sinf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, width,
                              height), Vector2(0, height / 2), FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
-}
+} // LOVELY CAVITY!!!
 
 void WeaponsSystem::Update() {
 
     // Getting owner variable & updating cooldown info & updating ammo info
+    // aarush was here
 
     auto Owner = OwnerPtr.lock();
 
@@ -116,7 +118,7 @@ void WeaponsSystem::Update() {
 
     // Display melee animation points
 
-    /*
+    /* this stuff was causing fps issues sooooo imma disable it
     if (points.size() != 0) {
         for (int i = 0; i < points.size(); i++) {
             if (i != 0) {
@@ -138,7 +140,7 @@ void WeaponsSystem::Update() {
         PointRemovalTimer = GetTime();
     }
 
-    // Melee animation
+    // Melee animation (signma)
 
     if (!MeleeAnim) {
         // set some basic values ready
@@ -263,16 +265,23 @@ void WeaponsSystem::Attack(Vector2 Target) {
         // Gun attack
         if (Valid && !CurrentWeapon->isMelee) {
 
+            std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->Textures.contains(CurrentWeapon->BulletTexture))
+            ? CurrentWeapon->BulletTexture : "bullet";
+
+            float BulletLifetime = 8.5f;
+            if (CurrentWeapon->BulletLifetime != -1)
+                BulletLifetime = CurrentWeapon->BulletLifetime;
+
             // loop thru requested shots
             for (int i = 1; i < CurrentWeapon->Bullets+1; i++) {
 
-                float Angle = TargetAngle + GetRandomValue(CurrentWeapon->SpreadRange[0], CurrentWeapon->SpreadRange[1]);
-                if (CurrentWeapon->Bullets != 0)
+                float Angle = TargetAngle + (float)GetRandomValue(CurrentWeapon->SpreadRange[0], CurrentWeapon->SpreadRange[1]);
+                if (CurrentWeapon->Bullets > 1)
                     Angle += ((CurrentWeapon->AngleRange / CurrentWeapon->Bullets)*i) - CurrentWeapon->AngleRange/2.0f; // get offset angle of shot
 
                 // create bullet with weapon settings
-                shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed, CurrentWeapon->Damage,
-                                                                game->Textures["bullet"], Owner, *game);
+                shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed, CurrentWeapon->Damage, BulletLifetime,
+                                                                game->Textures[BulletTexture], Owner, *game);
                 bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
                 game->MainEntityManager.AddEntity(BulletType, bullet);
             }
@@ -305,7 +314,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
         // Reset cooldown
         if ((Valid && !CurrentWeapon->isMelee) || CurrentWeapon->isMelee)
             AttackCooldowns[CurrentWeaponIndex] = 0;
-        if (CurrentWeapon->Ammo > 0 && WeaponAmmo[CurrentWeaponIndex] > 0)
+        if (Valid && CurrentWeapon->Ammo > 0 && WeaponAmmo[CurrentWeaponIndex] > 0)
             WeaponAmmo[CurrentWeaponIndex] -= 1;
     }
 }
