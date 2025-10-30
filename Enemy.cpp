@@ -89,6 +89,8 @@ void Enemy::Update() {
             t = "20";
         else if (t == "34") // stop gooning. just stop. please.
             t = "35";
+        else if (t == "131") // idk what that is...
+            t = "132";
         DrawText(t.c_str(),
                  center_x - total_size / 2 - game->MainCameraManager.CameraPosition.x,
                  BoundingBox.y - 36 - game->MainCameraManager.CameraPosition.y, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
