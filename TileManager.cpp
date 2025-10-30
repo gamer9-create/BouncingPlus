@@ -10,6 +10,7 @@
 
 #include "Enemy.h"
 #include "Game.h"
+#include "Spawner.h"
 
 TileManager::TileManager() {
 
@@ -18,8 +19,16 @@ TileManager::TileManager() {
 TileManager::TileManager(Game &game) {
     this->game = &game;
     Reset();
-    BouncyWallTexture = LoadTexture("assets/img/bouncy_wall.png");
-    DeleteWallTexture = LoadTexture("assets/img/delete_wall.png");
+    TileTypes[0] = NothingTileType; // air
+    TileTypes[1] = WallTileType; // bouncy wall
+    TileTypes[2] = WallTileType; // delete wall
+    TileTypes[3] = EnemyTileType; // enemy
+    TileTypes[4] = EnemyTileType; // sword
+    TileTypes[5] = EnemyTileType; // shotgun
+    TileTypes[6] = PlayerSpawnTileType; // player spawn
+    TileTypes[7] = SpawnerTileType; // enemy spawner tile type
+    TileTypes[8] = EnemySpawnTileType; // enemy spawn tile type
+
 }
 
 void TileManager::Update() {
@@ -34,9 +43,9 @@ void TileManager::Update() {
             int tile_id = Map[coord];
             Texture* tile_tex = nullptr;
             if (tile_id == 1)
-                tile_tex = &BouncyWallTexture;
+                tile_tex = &game->Textures["bouncy_wall"];
             if (tile_id == 2)
-                tile_tex = &DeleteWallTexture;
+                tile_tex = &game->Textures["delete_wall"];
             float bbox_x = curr_tile_x * TileSize;
             float bbox_y = curr_tile_y * TileSize;
             if (tile_tex != nullptr)
@@ -45,14 +54,36 @@ void TileManager::Update() {
     }
 }
 
+void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
+    std::string Weapon = "Default Gun";
+    float Speed = 250.0f;
+    float Health = 100.0f;
+    float Armor = 0.0f;
+    switch (tile_id)
+    {
+        case 4:
+            Weapon = "Enemy Sword";
+            Speed = 125.0f;
+            Health = 90.0f;
+            Armor = 50.0f;
+            break;
+        case 5:
+            Weapon = "Shotgun";
+            Speed = 250.0f;
+            Health = 140.0f;
+            Armor = 0.0f;
+            break;
+    }
+    game->MainEntityManager.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->Textures["enemy"], *game));
+}
 
 void TileManager::ReadMapDataFile(std::string Filename) {
     int y = 0;
     int x = 0;
 
-    MapWidth = 0;
-    MapHeight = 0;
-    Map.clear();
+    Reset();
+
+    bool PlayerSpawnFound = false;
 
     std::ifstream  data(Filename);
 
@@ -69,30 +100,26 @@ void TileManager::ReadMapDataFile(std::string Filename) {
             float bbox_x = (static_cast<float>(x) * TileSize) + TileSize / 2.0f;
             float bbox_y = (static_cast<float>(y) * TileSize) + TileSize / 2.0f;
 
-            if (tile_id < 3) {
-                Map.insert({coord, tile_id});
-            } else {
-                std::string Weapon = "Default Gun";
-                float Speed = 250.0f;
-                float Health = 100.0f;
-                float Armor = 0.0f;
-                switch (tile_id)
-                {
-                    case 4:
-                        Weapon = "Enemy Sword";
-                        Speed = 125.0f;
-                        Health = 90.0f;
-                        Armor = 50.0f;
-                        break;
-                    case 5:
-                        Weapon = "Shotgun";
-                        Speed = 250.0f;
-                        Health = 140.0f;
-                        Armor = 0.0f;
-                        break;
-                }
-                game->MainEntityManager.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->Textures["enemy"], *game));
+            switch (TileTypes[tile_id]) {
+                case WallTileType:
+                    Map.insert({coord, tile_id});
+                    break;
+                case EnemyTileType:
+                    AddEnemy(bbox_x, bbox_y, tile_id);
+                    break;
+                case EnemySpawnTileType:
+                    EnemySpawnLocations.push_back(coord);
+                case PlayerSpawnTileType:
+                    PlayerSpawnFound = true;
+                    PlayerSpawnPosition = Vector2(bbox_x, bbox_y);
+                    break;
+                case SpawnerTileType:
+                    std::shared_ptr<Spawner> spawner = std::make_shared<Spawner>(*game, bbox_x, bbox_y);
+                    game->MainEntityManager.AddEntity(SpawnerType, spawner);
+                    break;
+
             }
+
             x += 1;
         }
         if (x > MapWidth) {
@@ -102,6 +129,9 @@ void TileManager::ReadMapDataFile(std::string Filename) {
         y += 1;
     }
     MapHeight = y;
+
+    if (!PlayerSpawnFound)
+        PlayerSpawnPosition = {MapWidth * TileSize / 2.0f, MapHeight * TileSize / 2.0f};
 }
 
 void TileManager::Reset()
@@ -109,13 +139,12 @@ void TileManager::Reset()
     Map.clear();
     MapWidth = 0;
     MapHeight = 0;
+    PlayerSpawnPosition = {0, 0};
+    EnemySpawnLocations = std::vector<std::string>();
     TileSize = 72;
     UpdateDistance = Vector2((int) (GetScreenWidth() / 61.0f), (int)(GetScreenHeight() / 48.0f));
-    MapWidth = 0;
-    MapHeight = 0;
 }
 
 void TileManager::Quit() {
-    UnloadTexture(BouncyWallTexture);
-    UnloadTexture(DeleteWallTexture);
+
 }

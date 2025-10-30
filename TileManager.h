@@ -9,18 +9,23 @@
 #include <string>
 #include <unordered_map>
 
+#include "TileType.h"
+
 class Game;
 
 class TileManager {
-    Texture2D BouncyWallTexture;
-    Texture2D DeleteWallTexture;
     Game* game;
     Vector2 UpdateDistance;
+
+    void AddEnemy(float bbox_x, float bbox_y, int tile_id);
+
     public:
         float TileSize;
         int MapWidth, MapHeight;
+        Vector2 PlayerSpawnPosition;
+        TileType TileTypes[9];
+        std::vector<std::string> EnemySpawnLocations;
         std::unordered_map<std::string, int> Map;
-
         TileManager();
         TileManager(Game &game);
         void Update();

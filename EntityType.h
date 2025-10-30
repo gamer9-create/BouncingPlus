@@ -9,6 +9,7 @@ enum EntityType {
     DefaultType,
     EnemyType,
     PlayerType,
+    SpawnerType,
     BulletType,
     End
 };

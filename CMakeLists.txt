@@ -35,6 +35,9 @@ add_executable(BouncingPlus main.cpp
         EntityManager.cpp
         EntityManager.h
         EntityType.h
+        Spawner.cpp
+        Spawner.h
+        TileType.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)

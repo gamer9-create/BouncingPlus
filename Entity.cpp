@@ -229,7 +229,7 @@ void Entity::Update() {
     }
     Vector2 *CameraPosition = &this->game->MainCameraManager.CameraPosition;
 
-    if (IsVisible())
+    if (IsVisible() && Texture != nullptr)
     {
         DrawTexturePro(*Texture, Rectangle(0, 0, static_cast<float> (Texture->width), static_cast<float> (Texture->height)),
                        Rectangle(BoundingBox.x - CameraPosition->x + BoundingBox.width/2, BoundingBox.y - CameraPosition->y + BoundingBox.height/2, BoundingBox.width,

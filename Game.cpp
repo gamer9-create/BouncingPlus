@@ -314,8 +314,8 @@ void Game::Reload(std::string MapName) {
 
     MainTileManager.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv");
 
-    MainPlayer = make_shared<Player>((static_cast<float>(MainTileManager.MapWidth) * MainTileManager.TileSize) / 2.0f,
-                                     (static_cast<float>(MainTileManager.MapHeight) * MainTileManager.TileSize) / 2.0f, 350.0f,
+    MainPlayer = make_shared<Player>(MainTileManager.PlayerSpawnPosition.x,
+                                     MainTileManager.PlayerSpawnPosition.y, 350.0f,
                                      Textures["player"], *this);
     MainEntityManager.AddEntity(PlayerType, MainPlayer);
 }
