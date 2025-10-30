@@ -22,6 +22,7 @@ public:
     Enemy();
     virtual ~Enemy();
     void Update();
+    void Wander();
 };
 
 

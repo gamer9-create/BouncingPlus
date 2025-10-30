@@ -33,6 +33,9 @@ Enemy::Enemy() {
 Enemy::~Enemy() {
 }
 
+void Enemy::Wander() {
+}
+
 void Enemy::Update() {
     if (!this->weaponsSystemInit) {
         this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
@@ -61,6 +64,8 @@ void Enemy::Update() {
             Movement.y = -(plr_center_y - center_y) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
         }
         weaponsSystem.Attack(Vector2(plr_center_x, plr_center_y));
+    } else {
+        Wander();
     }
 
     AnimatedHealth = Lerp(AnimatedHealth, Armor > 0 ? Armor : Health, 10 * GetFrameTime());
