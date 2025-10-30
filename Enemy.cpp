@@ -24,6 +24,7 @@ Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::stri
     this->AngeredRangeBypassTimerMax = 3;
     this->AnimatedHealth = 0;
     this->MyWeapon = Weapon;
+    this->WanderDirection = {0,0};
 }
 
 Enemy::Enemy() {
@@ -34,6 +35,15 @@ Enemy::~Enemy() {
 }
 
 void Enemy::Wander() {
+    if (Vector2Distance({0,0}, WanderDirection) <= 0) {
+        WanderDirection = {(float)GetRandomValue(-100, 100),(float)GetRandomValue(-100, 100)};
+    } else {
+        Movement = WanderDirection;
+        Vector2 point = Vector2Add({BoundingBox.x, BoundingBox.y}, Vector2Normalize(WanderDirection)*450);
+        if (!game->RayCast({BoundingBox.x, BoundingBox.y}, point)) {
+            WanderDirection = {0,0};
+        }
+    }
 }
 
 void Enemy::Update() {

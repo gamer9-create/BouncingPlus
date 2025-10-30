@@ -11,7 +11,7 @@
 class Enemy : public Entity {
     float AnimatedHealth;
     std::string MyWeapon;
-
+    Vector2 WanderDirection;
     WeaponsSystem weaponsSystem;
     bool weaponsSystemInit = false;
 public:
