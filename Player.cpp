@@ -4,6 +4,7 @@
 
 #include "Player.h"
 
+#include <cfloat>
 #include <iostream>
 #include <raymath.h>
 #include <nlohmann/json.hpp>

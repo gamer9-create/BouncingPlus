@@ -19,6 +19,7 @@ Spawner::Spawner(Game &game, float bbox_x, float bbox_y) :Entity(game.Textures["
     SpawnerRageCooldown = 0;
     PosMultiplier = 10;
     RotMultiplier = 6;
+    SpawnTimer = GetTime();
     for (int i = 0; i < 8; i++) {
         RandomNumbers[i] = GetRandomValue(-100, 100) / 10.0f;
     }
@@ -116,6 +117,7 @@ void Spawner::Update() {
     } else {
         if (SpawnerRageCooldown > 0)
             SpawnerRageCooldown -= GetFrameTime();
+        EntitiesSpawned = 0;
     }
     Vector2 PlrPos = {game->MainPlayer->BoundingBox.x,
         game->MainPlayer->BoundingBox.y};
@@ -126,8 +128,19 @@ void Spawner::Update() {
         PlaySound(game->Sounds["spawner_activate"]);
         PlaySound(game->Sounds["spawner_boom"]);
         game->MainCameraManager.ShakeCamera(0.5f);
-        SpawnerIsActive = 10;
-        SpawnerRageCooldown = 1.5f;
+        SpawnerIsActive = 60;
+        SpawnerRageCooldown = 15;
+        SpawnTimer = GetTime();
+    }
+
+    if (SpawnerIsActive > 0 && EntitiesSpawned < 10 && GetTime() - SpawnTimer >= 3 &&
+        game->MainTileManager.EnemySpawnLocations.size() > 0) {
+        Vector2 p = game->MainTileManager.EnemySpawnLocations[GetRandomValue(0,
+            game->MainTileManager.EnemySpawnLocations.size() - 1)];
+        std::shared_ptr<Enemy> e = make_shared<Enemy>(p.x, p.y, 100, 150, 0, "Default Gun", game->Textures["spawned_enemy"], *game);
+        game->MainEntityManager.AddEntity(EnemyType, e);
+        EntitiesSpawned++;
+        SpawnTimer = GetTime();
     }
 
     Entity::Update();

@@ -14,10 +14,12 @@ class Enemy : public Entity {
     Vector2 WanderPos;
     WeaponsSystem weaponsSystem;
     bool weaponsSystemInit = false;
+    bool isActive = false;
 public:
     float AngeredRangeBypassTimerMax;
     float AngeredRangeBypassTimer;
     float Armor;
+    bool WanderingEnabled;
     Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game);
     Enemy();
     virtual ~Enemy();

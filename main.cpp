@@ -33,9 +33,16 @@ int main() {
 
     Camera2D zoom_cam = {{0, 0}, {0, 0}, 0, 1.0f};
 
-    Music music = LoadMusicStream(("assets/music/game_music" + to_string(GetRandomValue(1, 2)) + ".wav").c_str());
-    SetMusicVolume(music, 0.25f);
-    //PlayMusicStream(music);
+    Music music = LoadMusicStream(string("assets/spookypiano.wav").c_str());
+    SetMusicVolume(music, 1);
+    time_t t;
+    time(&t);
+    struct tm datetime = *localtime(&t);
+    cout << (to_string(datetime.tm_mon) == "9" && to_string(datetime.tm_mday) == "31") << endl;
+    if (to_string(datetime.tm_mon) == "9" && to_string(datetime.tm_mday) == "31") {
+        PlayMusicStream(music);
+        cout << "spooky scary skel" << endl;
+    }
 
     while (!WindowShouldClose()) {
         BeginDrawing();
@@ -44,10 +51,9 @@ int main() {
             ToggleFullscreen();
 
         BeginMode2D(zoom_cam);
-        UpdateMusicStream(music);
 
         ClearBackground(BLANK);
-
+        UpdateMusicStream(music);
         if (HasAgreed) {
 
             if (InGame) {
@@ -57,10 +63,6 @@ int main() {
                 zoom_cam.offset = {((float)GetScreenWidth()/2.0f) * (1.0f-zoom_cam.zoom), ((float)GetScreenHeight()/2.0f) * (1.0f-zoom_cam.zoom)};
 
                 // i am scared!!! i scare you!!!
-                if (MainGame.DebugDraw)
-                    SetMusicVolume(music, 0);
-                else
-                    SetMusicVolume(music, 0.25f);
             } else {
                 zoom_cam = {{0, 0}, {0, 0}, 0, 1.0f};
                 MainMenu.Update();
@@ -84,7 +86,8 @@ int main() {
 
     MainMenu.Quit();
     MainGame.Quit();
-    StopMusicStream(music);
+    if (IsMusicStreamPlaying(music))
+        StopMusicStream(music);
     UnloadMusicStream(music);
     CloseAudioDevice();
     CloseWindow();

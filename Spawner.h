@@ -10,8 +10,10 @@ class Spawner : public Entity{
 public:
     Vector2 StartPos;
     Vector2 RandPoint;
+    int EntitiesSpawned;
     float PosMultiplier;
     float RotMultiplier;
+    double SpawnTimer;
     double SpawnerIsActive;
     double SpawnerRageCooldown;
     double timer;

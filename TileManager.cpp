@@ -108,7 +108,7 @@ void TileManager::ReadMapDataFile(std::string Filename) {
                     AddEnemy(bbox_x, bbox_y, tile_id);
                     break;
                 case EnemySpawnTileType:
-                    EnemySpawnLocations.push_back(coord);
+                    EnemySpawnLocations.push_back({bbox_x,bbox_y});
                 case PlayerSpawnTileType:
                     PlayerSpawnFound = true;
                     PlayerSpawnPosition = Vector2(bbox_x, bbox_y);
@@ -140,7 +140,7 @@ void TileManager::Reset()
     MapWidth = 0;
     MapHeight = 0;
     PlayerSpawnPosition = {0, 0};
-    EnemySpawnLocations = std::vector<std::string>();
+    EnemySpawnLocations = std::vector<Vector2>();
     TileSize = 72;
     UpdateDistance = Vector2((int) (GetScreenWidth() / 61.0f), (int)(GetScreenHeight() / 48.0f));
 }
