@@ -29,6 +29,8 @@ class CameraManager {
     float BackgroundDepth;
     float BackgroundGridSize;
     Color BackgroundColor;
+
+    double ZoomResetTimer;
     public:
         Game* game;
         Vector2 CameraPosition;
@@ -38,6 +40,7 @@ class CameraManager {
         CameraManager();
         ~CameraManager();
         void ShakeCamera(float Intensity);
+        void QuickZoom(float Zoom, double Time);
         void Display();
         void Begin(Camera2D rayCam);
         void End();

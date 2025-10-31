@@ -10,6 +10,10 @@ class Spawner : public Entity{
 public:
     Vector2 StartPos;
     Vector2 RandPoint;
+    float PosMultiplier;
+    float RotMultiplier;
+    double SpawnerIsActive;
+    double SpawnerRageCooldown;
     double timer;
     float DistF;
     float RandomNumbers[8];
@@ -17,6 +21,7 @@ public:
     Spawner();
     virtual ~Spawner();
     void Update();
+    void Render();
 };
 
 

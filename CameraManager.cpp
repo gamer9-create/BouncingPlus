@@ -22,6 +22,7 @@ void CameraManager::Reset() {
     BackgroundGridSize = 36;
     BackgroundColor = {100, 100, 100, 255};
     CamTextureInitialized = true;
+    ZoomResetTimer= 0;
 }
 
 CameraManager::CameraManager(Game &game) {
@@ -34,6 +35,11 @@ CameraManager::CameraManager() {
 }
 
 CameraManager::~CameraManager() {
+}
+
+void CameraManager::QuickZoom(float Zoom, double Time) {
+    this->CameraZoom = Zoom;
+    ZoomResetTimer = Time;
 }
 
 void CameraManager::Display() {
@@ -106,6 +112,11 @@ void CameraManager::UpdateCamera() {
 }
 
 void CameraManager::Begin(Camera2D rayCam) {
+    if (ZoomResetTimer > 0)
+        ZoomResetTimer -= GetFrameTime();
+    if (ZoomResetTimer <= 0)
+        CameraZoom = 1.0f;
+
     UpdateScreenImageSize();
     ProcessCameraShake();
     UpdateCamera();

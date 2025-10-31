@@ -42,7 +42,7 @@ class Game {
         shared_ptr<Player> MainPlayer;
         bool DebugDraw;
         Game(std::unordered_map<std::string, nlohmann::json> json);
-        bool RayCastSpecifiedPrecision(Vector2 origin, Vector2 target, float Precision = 36);
+        bool RayCastSP(Vector2 origin, Vector2 target, float Precision = 36);
         bool RayCast(Vector2 origin, Vector2 target);
         void Slowdown(float Time);
         void Slowdown(float Time, float ShakeIntensity);

@@ -15,16 +15,16 @@ Spawner::Spawner(Game &game, float bbox_x, float bbox_y) :Entity(game.Textures["
     StartPos = Vector2(bbox_x, bbox_y);
     RandPoint = {0, 0};
     DistF =0;
+    SpawnerIsActive = 0;
+    SpawnerRageCooldown = 0;
+    PosMultiplier = 10;
+    RotMultiplier = 6;
     for (int i = 0; i < 8; i++) {
         RandomNumbers[i] = GetRandomValue(-100, 100) / 10.0f;
     }
 }
 
-Spawner::~Spawner() {
-}
-
-void Spawner::Update() {
-    Entity::Update();
+void Spawner::Render() {
     Vector2 center_pos ={StartPos.x + BoundingBox.width / 2, StartPos.y + BoundingBox.height / 2};
 
     float r = 25;
@@ -34,25 +34,38 @@ void Spawner::Update() {
         RandPoint = {(float)GetRandomValue(-r, r), (float)GetRandomValue(-r, r)};
     }
 
-    BoundingBox.x = Lerp(BoundingBox.x, StartPos.x + RandPoint.x, 5 * GetFrameTime());
-    BoundingBox.y = Lerp(BoundingBox.y, StartPos.y + RandPoint.y, 5 * GetFrameTime());
+    BoundingBox.x = Lerp(BoundingBox.x, StartPos.x + RandPoint.x, ((SpawnerIsActive>0) ? 15 : 5) * GetFrameTime());
+    BoundingBox.y = Lerp(BoundingBox.y, StartPos.y + RandPoint.y, ((SpawnerIsActive>0) ? 15 : 5) * GetFrameTime());
 
     float F1 = 0;
     float F2 = 0;
 
-    if (game->MainPlayer != nullptr && Vector2Distance(StartPos,
-        {game->MainPlayer->BoundingBox.x,
-        game->MainPlayer->BoundingBox.y}) < 150)
-        DistF = Lerp(DistF, 35, 5*GetFrameTime());
-    else
-        DistF = Lerp(DistF, 0, 5*GetFrameTime());
+    if (SpawnerIsActive <= 0) {
+        if (game->MainPlayer != nullptr && Vector2Distance(StartPos,
+            {game->MainPlayer->BoundingBox.x,
+            game->MainPlayer->BoundingBox.y}) < 150) {
+            DistF = Lerp(DistF, 35, 5*GetFrameTime());
+            this->game->MainCameraManager.QuickZoom(1.5f, 0.1f);
+        }else
+            DistF = Lerp(DistF, 0, 5*GetFrameTime());
+        this->EntityColor = ColorLerp(EntityColor, WHITE, 3 * GetFrameTime());
+    } else {
+        DistF = Lerp(DistF, 50, 15*GetFrameTime());
+        this->EntityColor = ColorLerp(EntityColor, RED, 1.5f * GetFrameTime());
+    }
 
-    float RotMultiplier = 10;
-    float PosMultiplier = 6;
     float Siz = 72;
     float Dec = 2;
     float TrDec = 0.8f;
     float St = 1.5f;
+
+    if (SpawnerIsActive>0) {
+        RotMultiplier = Lerp(RotMultiplier, 60, 5 * GetFrameTime());
+        PosMultiplier = Lerp(PosMultiplier, 100, 5 * GetFrameTime());
+    } else {
+        RotMultiplier = Lerp(RotMultiplier, 6, 5 * GetFrameTime());
+        PosMultiplier = Lerp(PosMultiplier, 10, 5 * GetFrameTime());
+    }
 
     Color F3 = {0, 255, 0, 255};
 
@@ -92,5 +105,31 @@ void Spawner::Update() {
             center_pos.y - game->MainCameraManager.CameraPosition.y + F2 * PosMultiplier+ DistF,
             Siz, Siz},
         {0, 0}, F1 * RotMultiplier, ColorAlpha(F3, St + F1/TrDec));
+}
 
+Spawner::~Spawner() {
+}
+
+void Spawner::Update() {
+    if (SpawnerIsActive > 0) {
+        SpawnerIsActive -= GetFrameTime();
+    } else {
+        if (SpawnerRageCooldown > 0)
+            SpawnerRageCooldown -= GetFrameTime();
+    }
+    Vector2 PlrPos = {game->MainPlayer->BoundingBox.x,
+        game->MainPlayer->BoundingBox.y};
+    if (game->MainPlayer != nullptr && Vector2Distance(StartPos,
+        PlrPos) < 50 && SpawnerIsActive <= 0 && SpawnerRageCooldown <= 0) {
+        game->MainPlayer->VelocityMovement = Vector2Subtract(StartPos, PlrPos);
+        game->MainPlayer->VelocityPower = -1500;
+        PlaySound(game->Sounds["spawner_activate"]);
+        PlaySound(game->Sounds["spawner_boom"]);
+        game->MainCameraManager.ShakeCamera(0.5f);
+        SpawnerIsActive = 10;
+        SpawnerRageCooldown = 1.5f;
+    }
+
+    Entity::Update();
+    Render();
 }

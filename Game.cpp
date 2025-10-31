@@ -240,6 +240,7 @@ bool Game::RayCast(Vector2 origin, Vector2 target) {
             if (g >0 && g < 3)
             {
                 bTileFound = true;
+                break;
             }
         }
     }
@@ -256,7 +257,7 @@ bool Game::RayCast(Vector2 origin, Vector2 target) {
 }
 
 
-bool Game::RayCastSpecifiedPrecision(Vector2 origin, Vector2 target, float Precision) { // RayCasting (old)function
+bool Game::RayCastSP(Vector2 origin, Vector2 target, float Precision) { // RayCasting (old)function
 
     if (Precision <= 0)
         Precision = Vector2Distance(origin, target) / 15.0f;

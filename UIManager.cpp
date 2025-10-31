@@ -204,15 +204,13 @@ void UIManager::GameUI() {
     EndTextureMode();
 
     if (game->MainPlayer->IsDashing || game->MainPlayer->weaponsSystem.TimeStartedReloading != -1) {
-        game->MainCameraManager.CameraZoom = 1.25f;
+        game->MainCameraManager.QuickZoom(1.25f, 1);
         if (game->MainPlayer->IsDashing)
         {
             Vector2 ss = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x,
             game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y};
             DrawLineEx(ss, {(float)GetMouseX(), (float)GetMouseY()}, 10, WHITE);
         }
-    } else {
-        game->MainCameraManager.CameraZoom = 1.0f;
     }
 
     DeathTextAnimRot = sin(GetTime()*2) * 6;

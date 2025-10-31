@@ -24,7 +24,7 @@ Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::stri
     this->AngeredRangeBypassTimerMax = 3;
     this->AnimatedHealth = 0;
     this->MyWeapon = Weapon;
-    this->WanderDirection = {0,0};
+    this->WanderPos = {BoundingBox.x, BoundingBox.y};
 }
 
 Enemy::Enemy() {
@@ -35,14 +35,27 @@ Enemy::~Enemy() {
 }
 
 void Enemy::Wander() {
-    if (Vector2Distance({0,0}, WanderDirection) <= 0) {
-        WanderDirection = {(float)GetRandomValue(-100, 100),(float)GetRandomValue(-100, 100)};
-    } else {
-        Movement = WanderDirection;
-        Vector2 point = Vector2Add({BoundingBox.x, BoundingBox.y}, Vector2Normalize(WanderDirection)*450);
-        if (!game->RayCast({BoundingBox.x, BoundingBox.y}, point)) {
-            WanderDirection = {0,0};
+    if (Vector2Distance({BoundingBox.x, BoundingBox.y}, WanderPos) <= 18) {
+        int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
+        int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
+        std::vector<Vector2> coords;
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
+                int curr_tile_x = tile_x + x - 1;
+                int curr_tile_y = tile_y + y - 1;
+                std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
+                int tile_id = game->MainTileManager.Map[coord];
+                if (game->MainTileManager.TileTypes[tile_id] == NothingTileType) {
+                    coords.push_back({curr_tile_x * game->MainTileManager.TileSize, curr_tile_y * game->MainTileManager.TileSize});
+                }
+            }
         }
+
+        if (coords.size() > 0) {
+            WanderPos = coords[GetRandomValue(0, coords.size() - 1)];
+        }
+    } else {
+        Movement = Vector2Subtract(WanderPos, {BoundingBox.x, BoundingBox.y});
     }
 }
 
@@ -75,7 +88,7 @@ void Enemy::Update() {
         }
         weaponsSystem.Attack(Vector2(plr_center_x, plr_center_y));
     } else {
-        Wander();
+        //Wander();
     }
 
     AnimatedHealth = Lerp(AnimatedHealth, Armor > 0 ? Armor : Health, 10 * GetFrameTime());

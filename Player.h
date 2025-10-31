@@ -24,7 +24,7 @@ class Player : public Entity {
     int LastKills;
     public:
         float PrevHealthBeforeDodge = 100;
-        double DodgeHealthResetTimer = 0;
+        double DodgeHealthResetTimer = -1;
         WeaponsSystem weaponsSystem;
         int Kills;
         bool IsDashing = false;

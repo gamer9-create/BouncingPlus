@@ -148,7 +148,7 @@ void Player::DashLogic() {
         PlayerFrozenTimer = 1.0f;
         if (IsMouseButtonDown(0)) {
             PrevHealthBeforeDodge = Health;
-            Health = 9999999999999999999;
+            Health = FLT_MAX;
             DodgeHealthResetTimer = 1.0f;
         }
         IsDashing = false;
@@ -186,21 +186,17 @@ void Player::Update() {
     EntityColor = ColorAlpha(WHITE, Alpha);
     Alpha = Lerp(Alpha, (DodgeHealthResetTimer > 0 ? 0.5f : 1.0f), 5.5f*GetFrameTime());
 
-    // dodge health reset
-    if (DodgeHealthResetTimer <= 0 && Health > 400) {
-        Health = PrevHealthBeforeDodge;
-    }
-
     // health cap + dodging stuff
-    if (Health > 400 && DodgeHealthResetTimer <= 0) {
-        Health = 400;
-    } else if (Health > 400) {
+    if (DodgeHealthResetTimer > 0) {
         DodgeHealthResetTimer -= GetFrameTime();
+    } else {
+        DodgeHealthResetTimer = -1;
     }
 
     // dodge health reset
-    if (DodgeHealthResetTimer <= 0 && Health > 400) {
+    if (DodgeHealthResetTimer <= 0 && DodgeHealthResetTimer > -1) {
         Health = PrevHealthBeforeDodge;
+        DodgeHealthResetTimer = -1;
     }
 
     // dashing logic
