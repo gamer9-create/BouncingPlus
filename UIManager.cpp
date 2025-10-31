@@ -25,6 +25,7 @@ UIManager::UIManager(Game &game) {
     this->WeaponUITexture = LoadRenderTexture(GetScreenWidth(), 250);
     this->DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     this->PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    this->GameWinScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     button_img = LoadTexture("assets/ui/button.png");
 }
 
@@ -61,6 +62,11 @@ void UIManager::GameUI() {
     if (DeathScreen.texture.width != GetScreenWidth() || DeathScreen.texture.height != GetScreenHeight()) {
         UnloadRenderTexture(DeathScreen);
         DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    }
+
+    if (GameWinScreen.texture.width != GetScreenWidth() || GameWinScreen.texture.height != GetScreenHeight()) {
+        UnloadRenderTexture(GameWinScreen);
+        GameWinScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     }
 
     if (PauseScreen.texture.width != GetScreenWidth() || PauseScreen.texture.height != GetScreenHeight()) {
@@ -204,7 +210,7 @@ void UIManager::GameUI() {
     EndTextureMode();
 
     if (game->MainPlayer->IsDashing || game->MainPlayer->weaponsSystem.TimeStartedReloading != -1) {
-        game->MainCameraManager.QuickZoom(1.25f, 1);
+        game->MainCameraManager.QuickZoom(1.25f, 0.3f);
         if (game->MainPlayer->IsDashing)
         {
             Vector2 ss = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x,
@@ -241,9 +247,15 @@ void UIManager::GameUI() {
 
     //if (game->DebugDraw)
     //    DrawText(to_string(UIManagerTransparency).c_str(), 50, 250, 10, WHITE);
+
+    if (game->MainEntityManager.Entities[EnemyType].size() <= 0)
+        GameWin();
+    else
+        DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
+
     DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
-    DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
-    if (game->MainPlayer->Health > 0 && UITransparency < 1.0f) {
+
+    if ((game->MainPlayer->Health > 0 && game->MainEntityManager.Entities[EnemyType].size() > 0) && UITransparency < 1.0f) {
         UITransparency += 3 * GetFrameTime();
     } else if (UITransparency > 0) {
         UITransparency -= 2.2f*GetFrameTime();
@@ -257,16 +269,43 @@ void UIManager::PauseMenu() {
     BeginTextureMode(PauseScreen);
     ClearBackground(ColorAlpha(BLACK, 0.35f));
     DrawRectangle(PauseScreen.texture.width/2 - 225, PauseScreen.texture.height/2-175,450, 350,ColorAlpha(WHITE,0.85f));
-    game->Paused =!button({(float)PauseScreen.texture.width/2,(float)PauseScreen.texture.height/2-100}, "RESUME");
+    game->Paused = !button({(float)PauseScreen.texture.width/2,(float)PauseScreen.texture.height/2-100}, "RESUME");
+    game->ShouldReturn = button({(float)PauseScreen.texture.width/2,(float)PauseScreen.texture.height/2+100}, "QUIT");
     EndTextureMode();
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTextureRec(PauseScreen.texture, Rectangle(0, 0, PauseScreen.texture.width, -PauseScreen.texture.height), Vector2(0, GetScreenHeight() - PauseScreen.texture.height), WHITE);
     EndBlendMode();
+    DrawTextureRec(GameWinScreen.texture, Rectangle(0, 0, GameWinScreen.texture.width, -GameWinScreen.texture.height), Vector2(0, GetScreenHeight() - GameWinScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
+}
+
+void UIManager::GameWin()
+{
+    BeginTextureMode(GameWinScreen);
+    ClearBackground(ColorAlpha(GREEN, 0.2f));
+
+    DrawTextPro(GetFontDefault(), "You won!", {GetScreenWidth()/2.0f, 250.0f}, {MeasureTextEx(GetFontDefault(), "You won!", 150, 10.0f).x/2.0f, 50.0f}, DeathTextAnimRot, 150, 10, ColorBrightness(GREEN, -0.3f));
+
+    int ey = GetScreenHeight()-400;
+    int es = 50;
+    std::string txt = "YOU KILLED " + to_string(game->MainPlayer->Kills) + " ENEMIES";
+    if (game->MainPlayer->Kills == 1)
+        txt = "YOU KILLED 1 ENEMY";
+    if (game->MainPlayer->Kills == 0)
+        txt = "YOU DID NOT KILL ANY ENEMIES";
+    std::string txt_2 = "PRESS E TO RETURN TO TITLE SCREEN";
+    float size = MeasureText(txt.c_str(), es);
+    float size2 = MeasureText(txt_2.c_str(), es);
+
+    DrawText(txt.c_str(), GetScreenWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
+    DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
+
+    EndTextureMode();
 }
 
 void UIManager::Quit() {
     UnloadRenderTexture(WeaponUITexture);
     UnloadRenderTexture(PauseScreen);
     UnloadTexture(button_img);
+    UnloadRenderTexture(GameWinScreen);
     UnloadRenderTexture(DeathScreen);
 }

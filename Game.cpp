@@ -38,12 +38,15 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
     // resource maps
     Textures = std::unordered_map<std::string, Texture2D>();
     Weapons = std::unordered_map<std::string, Weapon>();
+    Sounds = std::unordered_map<std::string, Sound>();
+    WeaponNamesList= std::vector<std::string>();
 
     // extra stuff
     MainPlayer = nullptr;
     CurrentLevelName = "";
     LevelData = json;
     DebugDraw = false;
+    ShouldReturn = false;
 
     SetGameData();
 }
@@ -115,6 +118,7 @@ void Game::SetGameData() {
             wep.BulletTexture = data["bullet_tex"].get<string>();
         if (data.contains("sound"))
             wep.sound = data["sound"].get<string>();
+        WeaponNamesList.push_back(p);
         Weapons.insert({p, wep});
         g.close();
     }
@@ -162,8 +166,13 @@ void Game::Update(Camera2D camera) {
         if (IsKeyPressed(KEY_X))
             DebugDraw = !DebugDraw;
 
-        if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && IsKeyPressed(KEY_E) && !CurrentLevelName.empty())
-            Reload(CurrentLevelName);
+        if (IsKeyPressed(KEY_E))
+        {
+            if (MainEntityManager.Entities[EnemyType].size() <= 0)
+                ShouldReturn = true;
+            if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && !CurrentLevelName.empty())
+                Reload(CurrentLevelName);
+        }
 
         MainCameraManager.Begin(camera);
         ProcessSlowdownAnimation();

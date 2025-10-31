@@ -37,10 +37,12 @@ class Game {
         CameraManager MainCameraManager;
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Sound> Sounds;
+        std::vector<std::string> WeaponNamesList;
         unordered_map<std::string, Weapon> Weapons;
         ParticleManager MainParticleManager;
         shared_ptr<Player> MainPlayer;
         bool DebugDraw;
+        bool ShouldReturn;
         Game(std::unordered_map<std::string, nlohmann::json> json);
         bool RayCastSP(Vector2 origin, Vector2 target, float Precision = 36);
         bool RayCast(Vector2 origin, Vector2 target);

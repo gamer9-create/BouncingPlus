@@ -128,7 +128,7 @@ void Bullet::PhysicsUpdate(float dt) {
                                 Movement = Vector2(X, Y);
                             }
 
-                            OwnerPtr.reset();
+                            //OwnerPtr.reset();
 
                             this->LastBouncedCoordinate = coord;
                         } else if (tile_id == 2) {

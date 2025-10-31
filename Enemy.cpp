@@ -41,10 +41,10 @@ void Enemy::Wander() {
         int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
         int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
         std::vector<Vector2> coords;
-        for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 3; x++) {
-                int curr_tile_x = tile_x + x - 1;
-                int curr_tile_y = tile_y + y - 1;
+        for (int y = 0; y < 5; y++) {
+            for (int x = 0; x < 5; x++) {
+                int curr_tile_x = tile_x + x - 2;
+                int curr_tile_y = tile_y + y - 2;
                 std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
                 int tile_id = game->MainTileManager.Map[coord];
                 if (game->MainTileManager.TileTypes[tile_id] == NothingTileType) {
@@ -62,7 +62,7 @@ void Enemy::Wander() {
 }
 
 void Enemy::Update() {
-    EntityColor = ColorLerp(EntityColor, WHITE, 4 * GetFrameTime());
+    EntityColor = ColorLerp(EntityColor, WHITE, 2 * GetFrameTime());
     if (EntityColor.a > 200)
         isActive = true;
     if (isActive) {

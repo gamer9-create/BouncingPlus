@@ -13,13 +13,19 @@ using namespace std;
 Menu::Menu(std::unordered_map<std::string,json> level_data)
 {
     this->level_data = level_data;
-    map = "";
-    target_map = "";
     title_img = LoadTexture("assets/ui/title.png");
     button_img = LoadTexture("assets/ui/button.png");
     menu_img = LoadTexture("assets/ui/menu_img.png");
     miku_img = LoadTexture("assets/ui/miku.png");
     miku_sound = LoadSound("assets/ui/lovely_cavity.mp3");
+    Reset();
+    PlaySound(miku_sound);
+}
+
+void Menu::Reset()
+{
+    map = "";
+    target_map = "";
     title_img_pos_y = -title_img.height;
     title_img_offset_y = 0;
     play_button_offset_y = -100;
@@ -33,7 +39,6 @@ Menu::Menu(std::unordered_map<std::string,json> level_data)
     menu_img_pos_y = GetRandomValue(0, menu_img.height);
     MovingToGame = false;
     mouse_pos = {0,0};
-    PlaySound(miku_sound);
 }
 
 bool Menu::button(Rectangle rectangle, std::string text) {

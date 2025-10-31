@@ -15,6 +15,7 @@ class UIManager {
     RenderTexture2D WeaponUITexture;
     RenderTexture2D DeathScreen;
     RenderTexture2D PauseScreen;
+    RenderTexture2D GameWinScreen;
     Texture button_img;
     int WeaponSlotIndex = -1;
     float WeaponSlotOffset = 0;
@@ -27,6 +28,7 @@ class UIManager {
     UIManager();
     bool button(Vector2 pos, std::string text);
     void PauseMenu();
+    void GameWin();
     void GameUI();
     void Quit();
 };

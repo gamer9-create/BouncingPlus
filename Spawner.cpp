@@ -51,21 +51,22 @@ void Spawner::Render() {
             DistF = Lerp(DistF, 0, 5*GetFrameTime());
         this->EntityColor = ColorLerp(EntityColor, WHITE, 3 * GetFrameTime());
     } else {
-        DistF = Lerp(DistF, 50, 15*GetFrameTime());
+        DistF = Lerp(DistF, 5, 15*GetFrameTime());
         this->EntityColor = ColorLerp(EntityColor, RED, 1.5f * GetFrameTime());
     }
 
     float Siz = 72;
     float Dec = 2;
-    float TrDec = 0.8f;
+    float TrDec = 0.6f;
     float St = 1.5f;
 
     if (SpawnerIsActive>0) {
-        RotMultiplier = Lerp(RotMultiplier, 60, 5 * GetFrameTime());
-        PosMultiplier = Lerp(PosMultiplier, 100, 5 * GetFrameTime());
+        RotMultiplier = Lerp(RotMultiplier, 15, 2.5f * GetFrameTime());
+        PosMultiplier = Lerp(PosMultiplier, 48, 2.5f * GetFrameTime());
+        TrDec = 1;
     } else {
-        RotMultiplier = Lerp(RotMultiplier, 6, 5 * GetFrameTime());
-        PosMultiplier = Lerp(PosMultiplier, 10, 5 * GetFrameTime());
+        RotMultiplier = Lerp(RotMultiplier, 6, 2.5f * GetFrameTime());
+        PosMultiplier = Lerp(PosMultiplier, 10, 2.5f * GetFrameTime());
     }
 
     Color F3 = {0, 255, 0, 255};
@@ -128,19 +129,47 @@ void Spawner::Update() {
         PlaySound(game->Sounds["spawner_activate"]);
         PlaySound(game->Sounds["spawner_boom"]);
         game->MainCameraManager.ShakeCamera(0.5f);
-        SpawnerIsActive = 60;
-        SpawnerRageCooldown = 15;
+        SpawnerIsActive = 15;
+        SpawnerRageCooldown = 5;
         SpawnTimer = GetTime();
     }
 
-    if (SpawnerIsActive > 0 && EntitiesSpawned < 10 && GetTime() - SpawnTimer >= 3 &&
-        game->MainTileManager.EnemySpawnLocations.size() > 0) {
-        Vector2 p = game->MainTileManager.EnemySpawnLocations[GetRandomValue(0,
-            game->MainTileManager.EnemySpawnLocations.size() - 1)];
-        std::shared_ptr<Enemy> e = make_shared<Enemy>(p.x, p.y, 100, 150, 0, "Default Gun", game->Textures["spawned_enemy"], *game);
-        game->MainEntityManager.AddEntity(EnemyType, e);
-        EntitiesSpawned++;
-        SpawnTimer = GetTime();
+    if (SpawnerIsActive > 0 && GetTime() - SpawnTimer >= 3 && game->MainTileManager.EnemySpawnLocations.size() > 0){
+        for (int i = 0; i < GetRandomValue(1, 4); i++)
+        {
+            Vector2 p = game->MainTileManager.EnemySpawnLocations[GetRandomValue(0,
+                game->MainTileManager.EnemySpawnLocations.size() - 1)];
+            Vector2 g = Vector2Add(p, {(float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100)});
+            while (true)
+            {
+                int tile_x = static_cast<int> (g.x / game->MainTileManager.TileSize);
+                int tile_y = static_cast<int> (g.y / game->MainTileManager.TileSize);
+                std::string coord = std::to_string(tile_x) + " " + std::to_string(tile_y);
+                int tile_id = game->MainTileManager.Map[coord];
+                if (game->MainTileManager.TileTypes[tile_id] == WallTileType)
+                {
+                    g = Vector2Add(p, {(float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100)});
+                } else
+                {
+                    break;
+                }
+            }
+
+            std::shared_ptr<Enemy> e = make_shared<Enemy>(p.x, p.y, 100, 150, 0, game->WeaponNamesList[GetRandomValue(0, game->WeaponNamesList.size() - 1)], game->Textures["spawned_enemy"], *game);
+            e->WanderingEnabled = true;
+            game->MainEntityManager.AddEntity(EnemyType, e);
+            game->MainParticleManager.ParticleEffect({
+                p,
+                150,
+                WHITE,
+                40,
+                4,
+                2,
+                GRAY
+            }, 0, 360, 55);
+            EntitiesSpawned++;
+            SpawnTimer = GetTime();
+        }
     }
 
     Entity::Update();

@@ -34,6 +34,7 @@ class Menu {
     public:
         Menu(std::unordered_map<std::string,json> level_data);
         void Update();
+        void Reset();
         std::string LeaveMenu();
         void Quit();
 };
