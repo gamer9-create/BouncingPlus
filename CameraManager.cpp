@@ -23,6 +23,11 @@ void CameraManager::Reset() {
     BackgroundColor = {100, 100, 100, 255};
     CamTextureInitialized = true;
     ZoomResetTimer= 0;
+    ShaderDraw= false;
+    ShaderPixelPower = 2;
+    uWidth = -1;
+    uHeight = -1;
+    uPixelSize = -1;
 }
 
 CameraManager::CameraManager(Game &game) {
@@ -43,9 +48,31 @@ void CameraManager::QuickZoom(float Zoom, double Time) {
 }
 
 void CameraManager::Display() {
+    if (IsKeyPressed(KEY_C))
+        ShaderDraw = !ShaderDraw;
+    if (IsKeyDown(KEY_B))
+        ShaderPixelPower += 10 * GetFrameTime();
+    if (IsKeyDown(KEY_N))
+        ShaderPixelPower -= 10 * GetFrameTime();
+
+    if (ShaderDraw)
+        BeginShaderMode(game->Shaders["pixelizer"]);
+    int w = CameraRenderTexture.texture.width;
+    int h = CameraRenderTexture.texture.height;
+    if (uWidth == -1 || uHeight == -1 || uPixelSize == -1) {
+        uWidth = GetShaderLocation(this->game->Shaders["pixelizer"], "renderWidth");
+        uHeight = GetShaderLocation(this->game->Shaders["pixelizer"], "renderHeight");
+        uPixelSize = GetShaderLocation(this->game->Shaders["pixelizer"], "pixelSize");
+    }
+    SetShaderValue(game->Shaders["pixelizer"], uWidth, &w, SHADER_UNIFORM_INT);
+    SetShaderValue(game->Shaders["pixelizer"], uHeight, &h, SHADER_UNIFORM_INT);
+    SetShaderValue(game->Shaders["pixelizer"], uPixelSize, &ShaderPixelPower, SHADER_UNIFORM_FLOAT);
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTexturePro(CameraRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
     EndBlendMode();
+    if (ShaderDraw)
+        EndShaderMode();
+    DrawText(to_string(ShaderPixelPower).c_str(), 150, 150, 50, RED);
 }
 
 void CameraManager::ProcessCameraShake() {

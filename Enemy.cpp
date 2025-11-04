@@ -27,6 +27,7 @@ Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::stri
     this->WanderPos = {BoundingBox.x, BoundingBox.y};
     this->WanderingEnabled = false;
     this->EntityColor = ColorAlpha(WHITE, 0);
+    this->ActivationTimer = GetTime();
 }
 
 Enemy::Enemy() {
@@ -63,8 +64,12 @@ void Enemy::Wander() {
 
 void Enemy::Update() {
     EntityColor = ColorLerp(EntityColor, WHITE, 2 * GetFrameTime());
-    if (EntityColor.a > 200)
+    if (ActivationTimer != -1)
+        ActivationTimer += GetFrameTime();
+    if (ActivationTimer > 1) {
         isActive = true;
+        ActivationTimer = -1;
+    }
     if (isActive) {
         if (!this->weaponsSystemInit) {
             this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);

@@ -27,6 +27,9 @@ class Game {
     UIManager MainUIManager;
     void SetGameData();
     void ProcessSlowdownAnimation();
+
+
+
     public:
         bool Paused;
         float GameSpeed;
@@ -37,6 +40,7 @@ class Game {
         CameraManager MainCameraManager;
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Sound> Sounds;
+        unordered_map<std::string, Shader> Shaders;
         std::vector<std::string> WeaponNamesList;
         unordered_map<std::string, Weapon> Weapons;
         ParticleManager MainParticleManager;

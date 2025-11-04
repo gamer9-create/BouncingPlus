@@ -46,10 +46,74 @@ void TileManager::Update() {
                 tile_tex = &game->Textures["bouncy_wall"];
             if (tile_id == 2)
                 tile_tex = &game->Textures["delete_wall"];
-            float bbox_x = curr_tile_x * TileSize;
-            float bbox_y = curr_tile_y * TileSize;
-            if (tile_tex != nullptr)
-                DrawTexturePro(*tile_tex, Rectangle(0, 0, tile_tex->width, tile_tex->height), Rectangle(bbox_x - CameraPosition->x, bbox_y - CameraPosition->y, TileSize, TileSize), Vector2(0, 0), 0, WHITE);
+
+            if (tile_tex != nullptr) {
+                float bbox_x = curr_tile_x * TileSize;
+                float bbox_y = curr_tile_y * TileSize;
+                Rectangle rec = {0,0, (float) tile_tex->width, (float) tile_tex->height};
+
+                bool left = TileTypes[Map[std::to_string(curr_tile_x-1) + " " + std::to_string(curr_tile_y)]] == WallTileType;
+                bool right = TileTypes[Map[std::to_string(curr_tile_x+1) + " " + std::to_string(curr_tile_y)]] == WallTileType;
+                bool up = TileTypes[Map[std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y-1)]] == WallTileType;
+                bool down = TileTypes[Map[std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y+1)]] == WallTileType;
+
+                bool diagonal_lu = TileTypes[Map[std::to_string(curr_tile_x-1) + " " + std::to_string(curr_tile_y-1)]] == WallTileType;
+                bool diagonal_ru = TileTypes[Map[std::to_string(curr_tile_x+1) + " " + std::to_string(curr_tile_y-1)]] == WallTileType;
+                bool diagonal_ld = TileTypes[Map[std::to_string(curr_tile_x-1) + " " + std::to_string(curr_tile_y+1)]] == WallTileType;
+                bool diagonal_rd = TileTypes[Map[std::to_string(curr_tile_x+1) + " " + std::to_string(curr_tile_y+1)]] == WallTileType;
+
+                if (left) {
+                    rec.x = 4;
+                    rec.width -= 4;
+                }
+                if (right) {
+                    rec.width -= 4;
+                }
+                if (up) {
+                    rec.y = 4;
+                    rec.height -= 4;
+                }
+                if (down) {
+                    rec.height -= 4;
+                }
+
+                if (left) {
+                    DrawTexturePro(*tile_tex, {10,0,1,36}, Rectangle(bbox_x - CameraPosition->x,
+                bbox_y - CameraPosition->y, 8, 72), {}, 0, WHITE);
+                }
+                if (right) {
+                    DrawTexturePro(*tile_tex, {10,0,1,36}, Rectangle(bbox_x - CameraPosition->x+TileSize-8,
+                bbox_y - CameraPosition->y, 8, 72), {}, 0, WHITE);
+                }
+                if (up) {
+                    DrawTexturePro(*tile_tex, {0,10,36,1}, Rectangle(bbox_x - CameraPosition->x,
+                bbox_y - CameraPosition->y, 72, 8), {}, 0, WHITE);
+                }
+                if (down) {
+                    DrawTexturePro(*tile_tex, {0,10,36,1}, Rectangle(bbox_x - CameraPosition->x,
+                bbox_y - CameraPosition->y+TileSize-8, 72, 8), {}, 0, WHITE);
+                }
+
+                DrawTexturePro(*tile_tex, rec, Rectangle(bbox_x - CameraPosition->x + (rec.x*2),
+                    bbox_y - CameraPosition->y +(rec.y*2), rec.width*2, rec.height*2), {}, 0, WHITE);
+
+                if (left && up && diagonal_lu)
+                    DrawTexturePro(*tile_tex,{10,10,1,1},
+                        {bbox_x - CameraPosition->x, bbox_y - CameraPosition->y,8,8},
+                        {},0,WHITE);
+                if (left && down && diagonal_ld)
+                    DrawTexturePro(*tile_tex,{10,10,1,1},
+                        {bbox_x - CameraPosition->x, bbox_y - CameraPosition->y + TileSize-8,8,8},
+                        {},0,WHITE);
+                if (right && up && diagonal_ru)
+                    DrawTexturePro(*tile_tex,{10,10,1,1},
+                        {bbox_x - CameraPosition->x+TileSize-8, bbox_y - CameraPosition->y,8,8},
+                        {},0,WHITE);
+                if (right && down && diagonal_rd)
+                    DrawTexturePro(*tile_tex,{10,10,1,1},
+                        {bbox_x - CameraPosition->x+TileSize-8, bbox_y - CameraPosition->y + TileSize-8,8,8},
+                        {},0,WHITE);
+            }
         }
     }
 }
@@ -109,6 +173,7 @@ void TileManager::ReadMapDataFile(std::string Filename) {
                     break;
                 case EnemySpawnTileType:
                     EnemySpawnLocations.push_back({bbox_x,bbox_y});
+                    break;
                 case PlayerSpawnTileType:
                     PlayerSpawnFound = true;
                     PlayerSpawnPosition = Vector2(bbox_x, bbox_y);

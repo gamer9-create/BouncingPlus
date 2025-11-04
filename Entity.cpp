@@ -69,7 +69,7 @@ void Entity::PhysicsUpdate(float dt) {
                 float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
                 float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
                 Rectangle bbox = Rectangle(bbox_x, bbox_y, game->MainTileManager.TileSize, game->MainTileManager.TileSize);
-                if (tile_id > 0 && tile_id < 3 && CheckCollisionRecs(BoundingBox, bbox) && coord != LastVelBounceCoord) {
+                if (game->MainTileManager.TileTypes[tile_id] == WallTileType && CheckCollisionRecs(BoundingBox, bbox) && coord != LastVelBounceCoord) {
 
                     int dir_hit = -1; // -1 = none, 0 = left, 1 = up, 2 = right, 3 = down
                     int i= 0;
@@ -153,7 +153,7 @@ void Entity::PhysicsUpdate(float dt) {
                     int curr_tile_y = tile_y + y - 1;
                     std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
                     int tile_id = game->MainTileManager.Map[coord];
-                    if (tile_id > 0 && tile_id < 3) {
+                    if (game->MainTileManager.TileTypes[tile_id] == WallTileType) {
                         float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
                         float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
                         Rectangle bbox = Rectangle(bbox_x, bbox_y, game->MainTileManager.TileSize, game->MainTileManager.TileSize);
@@ -185,7 +185,7 @@ void Entity::PhysicsUpdate(float dt) {
                     int curr_tile_y = tile_y + y - 1;
                     std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
                     int tile_id = game->MainTileManager.Map[coord];
-                    if (tile_id > 0 && tile_id < 3) {
+                    if (game->MainTileManager.TileTypes[tile_id] == WallTileType) {
                         float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
                         float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
                         Rectangle bbox = Rectangle(bbox_x, bbox_y, game->MainTileManager.TileSize, game->MainTileManager.TileSize);

@@ -15,6 +15,7 @@ class Enemy : public Entity {
     WeaponsSystem weaponsSystem;
     bool weaponsSystemInit = false;
     bool isActive = false;
+    double ActivationTimer;
 public:
     float AngeredRangeBypassTimerMax;
     float AngeredRangeBypassTimer;

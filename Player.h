@@ -12,8 +12,11 @@
 class Player : public Entity {
     void AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked);
     void DashLogic();
+    bool isInvincible;
     bool weaponsSystemInit = false;
     double PlayerFrozenTimer = 0;
+    float PlayerDashLineThickness = 10;
+    int ShaderUniformLoc;
     float DashCooldown = 0;
     double DashTimeStart = 0;
     float Alpha = 1;

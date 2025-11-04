@@ -30,12 +30,18 @@ class CameraManager {
     float BackgroundGridSize;
     Color BackgroundColor;
 
+    int uWidth;
+    int uHeight;
+    int uPixelSize;
+
     double ZoomResetTimer;
     public:
         Game* game;
         Vector2 CameraPosition;
         Vector2 CameraTarget;
         float CameraZoom;
+        bool ShaderDraw;
+        float ShaderPixelPower;
         CameraManager(Game &game);
         CameraManager();
         ~CameraManager();

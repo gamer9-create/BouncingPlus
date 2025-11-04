@@ -17,9 +17,12 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
                                                                    Rectangle(X - 18, Y - 18, 36, 36), Speed, game) {
     this->Type = PlayerType;
     this->Kills = 0;
+    this->isInvincible = false;
     this->LastKills = 0;
     this->OrigSpeed = Speed;
     this->ExtraSpeed = 0;
+    this->PlayerDashLineThickness = 10;
+    this->ShaderUniformLoc = GetShaderLocation(game.Shaders["dash_arrow"], "time");
 }
 
 Player::Player() {
@@ -81,7 +84,7 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
 
         // did we kill them? if so, give health & kills
         if (entity->Health <= 0) {
-            Health += VelocityPower / 18.0f;
+            Health += Damage * 0.45f;
             //game->Slowdown(0.35f, VelocityPower / 1450.0f);
             amount= 950;
             Kills+=1;
@@ -94,7 +97,7 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
 
         // give them pushback force
         entity->VelocityMovement = VelocityMovement;
-        entity->VelocityPower = -VelocityPower;
+        entity->VelocityPower = -VelocityPower/2;
 
         // increase velocity and mark enemy as attacked
         VelocityPower += VelocityPower / (amount/300);
@@ -131,13 +134,42 @@ void Player::DashLogic() {
 
     auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->MainCameraManager.CameraPosition.x, static_cast<float> (GetMouseY()) + game->MainCameraManager.CameraPosition.y);
     if (DashCooldown <= 0 && IsKeyDown(KEY_LEFT_SHIFT)) {
-        if (!IsDashing)
+        if (!IsDashing) {
             DashTimeStart = GetTime();
+            PlayerDashLineThickness = 10;
+        }
         IsDashing = true;
-        DrawCircle(0,0,10,RED);
     }
     if (IsDashing && !IsKeyDown(KEY_LEFT_SHIFT)) {
         IsDashing = false;
+    }
+    if (game->MainPlayer->IsDashing || game->MainPlayer->weaponsSystem.TimeStartedReloading != -1) {
+        game->MainCameraManager.QuickZoom(1.25f, 0.1f);
+        if (game->MainPlayer->IsDashing)
+        {
+            if (static_cast<float>(GetTime() - DashTimeStart) / 1.1f > 0.8f)
+                PlayerDashLineThickness = Lerp(PlayerDashLineThickness, 20, 2 * GetFrameTime());
+            float alpha = static_cast<float>(GetTime() - DashTimeStart) / 1.1f;
+            Vector2 Target ={(float)GetMouseX(), (float)GetMouseY()};
+            float cx = BoundingBox.x + BoundingBox.width / 2;
+            float cy = BoundingBox.y + BoundingBox.height / 2;
+            float FinalAngle = (atan2(cy - (Target.y + game->MainCameraManager.CameraPosition.y), cx - (Target.x + game->MainCameraManager.CameraPosition.x)) * RAD2DEG);
+            Texture2D& MeleeAnimTexture = game->Textures["arrow"];
+            float width = MeleeAnimTexture.width;
+            float height = MeleeAnimTexture.height;
+            BeginShaderMode(game->Shaders["dash_arrow"]);
+            float t = static_cast<float>(GetTime() - DashTimeStart);
+            SetShaderValue(game->Shaders["dash_arrow"],
+                ShaderUniformLoc,
+                &t,
+                SHADER_ATTRIB_FLOAT);
+            float size = 0.375f;
+            DrawTexturePro(MeleeAnimTexture, Rectangle(0, 0, width, height *6),
+                           Rectangle(BoundingBox.x + BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x - cosf((FinalAngle) * DEG2RAD)*10,
+                               BoundingBox.y +BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y - sinf((FinalAngle) * DEG2RAD)*10, width*size,
+                                     height * 6 * size), Vector2(width * size * 0.5, height*6*size), FinalAngle-90, ColorAlpha(WHITE, alpha));
+            EndShaderMode();
+        }
     }
     if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && IsDashing && Health > 0) {
         DashCooldown = 1.5f;
@@ -150,6 +182,7 @@ void Player::DashLogic() {
         if (IsMouseButtonDown(0)) {
             PrevHealthBeforeDodge = Health;
             Health = FLT_MAX;
+            isInvincible = true;
             DodgeHealthResetTimer = 1.0f;
         }
         IsDashing = false;
@@ -190,14 +223,12 @@ void Player::Update() {
     // health cap + dodging stuff
     if (DodgeHealthResetTimer > 0) {
         DodgeHealthResetTimer -= GetFrameTime();
-    } else {
-        DodgeHealthResetTimer = -1;
     }
 
     // dodge health reset
-    if (DodgeHealthResetTimer <= 0 && DodgeHealthResetTimer > -1) {
+    if (DodgeHealthResetTimer <= 0 && isInvincible) {
         Health = PrevHealthBeforeDodge;
-        DodgeHealthResetTimer = -1;
+        isInvincible = false;
     }
 
     // dashing logic

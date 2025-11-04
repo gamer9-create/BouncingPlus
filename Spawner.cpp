@@ -129,8 +129,8 @@ void Spawner::Update() {
         PlaySound(game->Sounds["spawner_activate"]);
         PlaySound(game->Sounds["spawner_boom"]);
         game->MainCameraManager.ShakeCamera(0.5f);
-        SpawnerIsActive = 15;
-        SpawnerRageCooldown = 5;
+        SpawnerIsActive = GetRandomValue(30, 90);
+        SpawnerRageCooldown = GetRandomValue(5, 10);
         SpawnTimer = GetTime();
     }
 

@@ -39,6 +39,7 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
     Textures = std::unordered_map<std::string, Texture2D>();
     Weapons = std::unordered_map<std::string, Weapon>();
     Sounds = std::unordered_map<std::string, Sound>();
+    Shaders = std::unordered_map<std::string, Shader>();
     WeaponNamesList= std::vector<std::string>();
 
     // extra stuff
@@ -65,6 +66,13 @@ void Game::SetGameData() {
         p.erase(p.end() - 4, p.end());
         Sound sound = LoadSound(entry.path().string().c_str());
         Sounds.insert({p, sound});
+    }
+    path = "assets\\shaders";
+    for (const auto & entry : fs::directory_iterator(path)) {
+        std::string p = entry.path().filename().string();
+        p.erase(p.end() - 5, p.end());
+        Shader shader = LoadShader("",entry.path().string().c_str());
+        Shaders.insert({p, shader});
     }
     path = "assets\\weapondata";
     for (const auto & entry : fs::directory_iterator(path)) {
@@ -181,6 +189,8 @@ void Game::Update(Camera2D camera) {
         MainEntityManager.Update();
 
         MainCameraManager.End();
+
+
     }
 
     MainCameraManager.Display();
@@ -294,7 +304,7 @@ bool Game::RayCastSP(Vector2 origin, Vector2 target, float Precision) { // RayCa
             DrawCircle((int)ray_x-MainCameraManager.CameraPosition.x, (int)ray_y-MainCameraManager.CameraPosition.y, 2, RED);
         std::string coord = std::to_string((int) (ray_x / MainTileManager.TileSize)) + " " + std::to_string((int) (ray_y / MainTileManager.TileSize));
         // if we collide with a wall, raycast failed
-        if (int tile_id = MainTileManager.Map[coord]; tile_id > 0 && tile_id <= 2) {
+        if (int tile_id = MainTileManager.Map[coord]; MainTileManager.TileTypes[tile_id] == WallTileType) {
             return false;
         }
         bool curr_x_side = (target.x - ray_x) < 0;
@@ -336,6 +346,9 @@ void Game::UnloadAssets() {
     }
     for (auto [name,value] : Sounds) {
         UnloadSound(value);
+    }
+    for (auto [name,value] : Shaders) {
+        UnloadShader(value);
     }
 }
 

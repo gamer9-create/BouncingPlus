@@ -33,13 +33,13 @@ int main() {
 
     Camera2D zoom_cam = {{0, 0}, {0, 0}, 0, 1.0f};
 
-    Music music = LoadMusicStream(string("assets/spookypiano.wav").c_str());
+    Music music = LoadMusicStream(string("assets/spookypiano.mp3").c_str());
     SetMusicVolume(music, 1);
     time_t t;
     time(&t);
     struct tm datetime = *localtime(&t);
     cout << (to_string(datetime.tm_mon) == "9" && to_string(datetime.tm_mday) == "31") << endl;
-    if (to_string(datetime.tm_mon) == "9" && to_string(datetime.tm_mday) == "31") {
+    if (to_string(datetime.tm_mon) == "9" && to_string(datetime.tm_mday) == "31" && GetRandomValue(1, 10) == 5) {
         PlayMusicStream(music);
         cout << "spooky scary skel" << endl;
     }
