@@ -48,13 +48,6 @@ void CameraManager::QuickZoom(float Zoom, double Time) {
 }
 
 void CameraManager::Display() {
-    if (IsKeyPressed(KEY_C))
-        ShaderDraw = !ShaderDraw;
-    if (IsKeyDown(KEY_B))
-        ShaderPixelPower += 10 * GetFrameTime();
-    if (IsKeyDown(KEY_N))
-        ShaderPixelPower -= 10 * GetFrameTime();
-
     if (ShaderDraw)
         BeginShaderMode(game->Shaders["pixelizer"]);
     int w = CameraRenderTexture.texture.width;

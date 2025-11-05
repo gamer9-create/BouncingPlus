@@ -92,8 +92,7 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
 
         game->MainCameraManager.CameraPosition += Vector2Normalize({(float)GetRandomValue(-50, 50), (float)GetRandomValue(-50, 50)}) * (VelocityPower / 150);
         game->MainCameraManager.ShakeCamera(VelocityPower / (amount - 50));
-        SetSoundVolume(game->Sounds["dash_hit"], min(max(VelocityPower/amount, 0.0f), 1.0f));
-        PlaySound(game->Sounds["dash_hit"]);
+        game->MainSoundManager.PlaySoundM("dash_hit",min(max(VelocityPower/amount, 0.0f), 1.0f));
 
         // give them pushback force
         entity->VelocityMovement = VelocityMovement;
@@ -177,7 +176,7 @@ void Player::DashLogic() {
         VelocityMovement = Vector2Subtract(WorldMousePos, {BoundingBox.x, BoundingBox.y});
         VelocityPower = 1200.0f * max(min(static_cast<float>(GetTime() - DashTimeStart), 1.1f), 0.35f);
         VelocityPower /= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
-        PlaySound(game->Sounds["dash"]);
+        game->MainSoundManager.PlaySoundM("dash");
         PlayerFrozenTimer = 1.0f;
         if (IsMouseButtonDown(0)) {
             PrevHealthBeforeDodge = Health;
@@ -283,7 +282,7 @@ void Player::Update() {
 
     // did we get a kill? play kill sound game!
     if (Kills != LastKills) {
-        PlaySound(game->Sounds["death"]);
+        game->MainSoundManager.PlaySoundM("death");
     }
     LastKills = Kills;
 

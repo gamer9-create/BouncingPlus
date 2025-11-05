@@ -1,5 +1,6 @@
 {
   "description": "An extremely difficult level. Absolute hell.",
   "inventory": ["Player Gun", "Supercharged Shotgun", "Sword"],
-  "difficulty": 4
+  "difficulty": 4,
+  "starting_health": 400
 }

@@ -38,6 +38,8 @@ add_executable(BouncingPlus main.cpp
         Spawner.cpp
         Spawner.h
         TileType.h
+        SoundManager.cpp
+        SoundManager.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)

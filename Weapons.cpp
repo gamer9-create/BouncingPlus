@@ -252,10 +252,14 @@ void WeaponsSystem::Attack(Vector2 Target) {
         bool Valid = game->RayCast({Owner_cX, Owner_cY}, {cX, cY});
 
         // Play weapon sound
-        if (game->Sounds.contains(CurrentWeapon->sound) && Owner->Type == PlayerType && (CurrentWeapon->isMelee || Valid)) {
-            Sound* s = &game->Sounds[CurrentWeapon->sound];
-            SetSoundVolume(*s, CurrentWeapon->Intensity);
-            PlaySound(*s);
+        if (game->MainSoundManager.Sounds.contains(CurrentWeapon->sound) && (CurrentWeapon->isMelee || Valid)) {
+            float Distance = Vector2Distance({Owner_cX, Owner_cY}, Vector2Add(game->MainCameraManager.CameraPosition, {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f}));
+
+            float DistanceMultiplier = (1000.0f - Distance) / 1000.0f;
+            DistanceMultiplier += GetRandomValue(-20, 20) / 100.0f;
+
+            game->MainSoundManager.PlaySoundM(CurrentWeapon->sound, CurrentWeapon->Intensity * DistanceMultiplier,
+                1.0f + GetRandomValue(-20, 20) / 100.0f);
         }
 
         // Shake camera

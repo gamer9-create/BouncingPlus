@@ -27,6 +27,7 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
     MainParticleManager = ParticleManager(*this);
     MainCameraManager = CameraManager(*this);
     MainEntityManager = EntityManager(*this);
+    MainSoundManager = SoundManager(*this);
 
     // game speed & timing
     GameSpeed = 1.0f;
@@ -38,7 +39,6 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
     // resource maps
     Textures = std::unordered_map<std::string, Texture2D>();
     Weapons = std::unordered_map<std::string, Weapon>();
-    Sounds = std::unordered_map<std::string, Sound>();
     Shaders = std::unordered_map<std::string, Shader>();
     WeaponNamesList= std::vector<std::string>();
 
@@ -59,13 +59,6 @@ void Game::SetGameData() {
         p.erase(p.end() - 4, p.end());
         Texture tex = LoadTexture(entry.path().string().c_str());
         Textures.insert({p, tex});
-    }
-    path = "assets\\sounds";
-    for (const auto & entry : fs::directory_iterator(path)) {
-        std::string p = entry.path().filename().string();
-        p.erase(p.end() - 4, p.end());
-        Sound sound = LoadSound(entry.path().string().c_str());
-        Sounds.insert({p, sound});
     }
     path = "assets\\shaders";
     for (const auto & entry : fs::directory_iterator(path)) {
@@ -152,8 +145,7 @@ void Game::ProcessSlowdownAnimation() {
             GameSpeed = Lerp(0.1f, 1.0f, Percent-0.5f);
         if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
             MainCameraManager.ShakeCamera(SlowdownShakeIntensity);
-            SetSoundVolume(Sounds["dash_hit"], min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
-            PlaySound(Sounds["dash_hit"]);
+            MainSoundManager.PlaySoundM("dash_hit", min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
             SlowdownShakeIntensity = 0;
         }
         SlowdownTime -= GetFrameTime();
@@ -166,13 +158,22 @@ void Game::ProcessSlowdownAnimation() {
 }
 
 void Game::Update(Camera2D camera) {
-
     if (IsKeyPressed(KEY_M))
         Paused = !Paused;
 
     if (!Paused) {
         if (IsKeyPressed(KEY_X))
             DebugDraw = !DebugDraw;
+
+        // shader stuff
+        if (!DebugDraw)
+            MainCameraManager.ShaderDraw = false;
+        if (IsKeyPressed(KEY_C) && DebugDraw)
+            MainCameraManager.ShaderDraw = !MainCameraManager.ShaderDraw;
+        if (IsKeyDown(KEY_B) && MainCameraManager.ShaderDraw)
+            MainCameraManager.ShaderPixelPower += 10 * GetFrameTime();
+        if (IsKeyDown(KEY_N) && MainCameraManager.ShaderDraw)
+            MainCameraManager.ShaderPixelPower -= 10 * GetFrameTime();
 
         if (IsKeyPressed(KEY_E))
         {
@@ -187,9 +188,8 @@ void Game::Update(Camera2D camera) {
         MainTileManager.Update();
         MainParticleManager.Update();
         MainEntityManager.Update();
-
+        MainSoundManager.Update();
         MainCameraManager.End();
-
 
     }
 
@@ -322,6 +322,7 @@ void Game::Clear() {
     MainTileManager.Reset();
     MainParticleManager.Reset();
     MainEntityManager.Reset();
+    MainSoundManager.Reset();
     MainCameraManager.Reset();
     MainPlayer.reset();
 }
@@ -341,15 +342,10 @@ void Game::Reload(std::string MapName) {
 }
 
 void Game::UnloadAssets() {
-    for (auto [name,value] : Textures) {
+    for (auto [name,value] : Textures)
         UnloadTexture(value);
-    }
-    for (auto [name,value] : Sounds) {
-        UnloadSound(value);
-    }
-    for (auto [name,value] : Shaders) {
+    for (auto [name,value] : Shaders)
         UnloadShader(value);
-    }
 }
 
 void Game::Quit() {
@@ -358,6 +354,7 @@ void Game::Quit() {
     MainUIManager.Quit();
     MainParticleManager.Quit();
     MainCameraManager.Quit();
+    MainSoundManager.Quit();
     MainEntityManager.Quit();
     UnloadAssets();
 }

@@ -16,8 +16,8 @@
   "AngleRange": 90,
   "Range": 204,
   "Bullets": -1,
-  "Intensity": 0,
+  "Intensity": 1,
   "texture": "sword",
   "bullet_tex": "",
-  "sound": ""
+  "sound": "enemy_sword_swing"
 }

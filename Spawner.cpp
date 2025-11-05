@@ -126,8 +126,8 @@ void Spawner::Update() {
         PlrPos) < 50 && SpawnerIsActive <= 0 && SpawnerRageCooldown <= 0) {
         game->MainPlayer->VelocityMovement = Vector2Subtract(StartPos, PlrPos);
         game->MainPlayer->VelocityPower = -1500;
-        PlaySound(game->Sounds["spawner_activate"]);
-        PlaySound(game->Sounds["spawner_boom"]);
+        game->MainSoundManager.PlaySoundM("spawner_activate");
+        game->MainSoundManager.PlaySoundM("spawner_boom");
         game->MainCameraManager.ShakeCamera(0.5f);
         SpawnerIsActive = GetRandomValue(30, 90);
         SpawnerRageCooldown = GetRandomValue(5, 10);

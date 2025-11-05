@@ -12,6 +12,7 @@
 #include "EntityManager.h"
 #include "ParticleManager.h"
 #include "Player.h"
+#include "SoundManager.h"
 #include "TileManager.h"
 #include "UIManager.h"
 #include "Weapons.h"
@@ -28,8 +29,6 @@ class Game {
     void SetGameData();
     void ProcessSlowdownAnimation();
 
-
-
     public:
         bool Paused;
         float GameSpeed;
@@ -38,13 +37,13 @@ class Game {
         TileManager MainTileManager;
         EntityManager MainEntityManager;
         CameraManager MainCameraManager;
+        ParticleManager MainParticleManager;
+        SoundManager MainSoundManager;
+        shared_ptr<Player> MainPlayer;
         unordered_map<std::string, Texture2D> Textures;
-        unordered_map<std::string, Sound> Sounds;
         unordered_map<std::string, Shader> Shaders;
         std::vector<std::string> WeaponNamesList;
         unordered_map<std::string, Weapon> Weapons;
-        ParticleManager MainParticleManager;
-        shared_ptr<Player> MainPlayer;
         bool DebugDraw;
         bool ShouldReturn;
         Game(std::unordered_map<std::string, nlohmann::json> json);
