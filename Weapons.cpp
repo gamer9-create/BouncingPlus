@@ -63,6 +63,33 @@ void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
                              height), Vector2(0, height / 2), FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
 } // LOVELY CAVITY!!!
 
+bool WeaponsSystem::GiveWeapon(std::string WeaponName)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (Weapons[i].empty())
+        {
+            Weapons[i] = WeaponName;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool WeaponsSystem::DropWeapon(std::string WeaponName)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (Weapons[i] == WeaponName)
+        {
+            if (CurrentWeaponIndex == i)
+                Unequip();
+            //game->PlaceWeaponPickup()
+            // TODO: finish this
+        }
+    }
+}
+
 void WeaponsSystem::Update() {
 
     // Getting owner variable & updating cooldown info & updating ammo info

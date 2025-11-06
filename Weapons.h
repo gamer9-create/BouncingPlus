@@ -41,8 +41,9 @@ struct WeaponPickup
     float Radius;
     double CreationTime = 0;
     std::string Weapon = "Default Gun";
-    double AnimationSpeed = 1.0f;
+    double AnimationSpeed = 2.5f;
     float AnimationPower = 50.0f;
+    bool PickedUp = false;
 };
 
 class WeaponsSystem {
@@ -73,6 +74,8 @@ class WeaponsSystem {
         virtual ~WeaponsSystem();
         virtual void Equip(int Index);
         virtual void Reload();
+        virtual bool GiveWeapon(std::string WeaponName);
+        virtual bool DropWeapon(std::string WeaponName);
         virtual void Unequip();
         virtual void Update();
         virtual void Attack(Vector2 Target);

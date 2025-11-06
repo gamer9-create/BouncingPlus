@@ -158,17 +158,53 @@ void Game::ProcessSlowdownAnimation() {
     }
 }
 
+void Game::PlaceWeaponPickup(WeaponPickup pickup)
+{
+    WeaponPickups.push_back(pickup);
+}
+
 void Game::DisplayPickups()
 {
     std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
-            return !Weapons.contains(pickup.Weapon);
+            return pickup.PickedUp || !Weapons.contains(pickup.Weapon);
     });
     for (WeaponPickup& pickup : WeaponPickups)
     {
+        // get floating offset
         float AnimationOffset = sin((GetTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
         Weapon& PickupWeapon = Weapons.at(pickup.Weapon);
-        Texture& WeaponTex = Textures[PickupWeapon.texture];
-        // TODO: finish coding the weapon pickup logic + rendering logic, if weapon doesnt have texture render placeholder.png
+        Texture& WeaponTex = Textures["placeholder"];
+        if (Textures.contains(PickupWeapon.texture))
+            WeaponTex = Textures[PickupWeapon.texture];
+
+        Vector2 siz = {(float)WeaponTex.width, (float)WeaponTex.height};
+        siz = Vector2Normalize(siz);
+        siz = Vector2Multiply(siz, {100.0f, 100.0f});
+
+        DrawTexturePro(WeaponTex, {
+            0,
+            0,
+            (float)WeaponTex.width,
+            (float)WeaponTex.height
+        }, {
+            pickup.Position.x,
+            pickup.Position.y - AnimationOffset,
+            siz.x,
+            siz.y
+
+        }, {siz.x / 2, siz.y / 2}, 0, WHITE);
+
+        // get distance
+        float DistanceToPickup = Vector2Distance(pickup.Position, {
+            MainPlayer->BoundingBox.x,
+            MainPlayer->BoundingBox.y
+        });
+
+        // in range?
+        if (DistanceToPickup <= pickup.Radius)
+        {
+            pickup.PickedUp = MainPlayer->weaponsSystem.GiveWeapon(pickup.Weapon);
+        }
     }
 }
 
