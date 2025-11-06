@@ -7,6 +7,7 @@
 #include <raylib.h>
 #include <unordered_map>
 #include <string>
+#include <vector>
 
 class Game;
 
@@ -19,7 +20,7 @@ class SoundManager {
     SoundManager();
     ~SoundManager();
     void PlaySoundM(std::string sound, float volume = 1.0f, float pitch = 1.0f);
-    void Reset();
+    void Clear();
     void Update();
     void Quit();
 };

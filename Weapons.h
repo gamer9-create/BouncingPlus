@@ -35,6 +35,16 @@ struct Weapon {
     std::string sound = "";
 };
 
+struct WeaponPickup
+{
+    Vector2 Position;
+    float Radius;
+    double CreationTime = 0;
+    std::string Weapon = "Default Gun";
+    double AnimationSpeed = 1.0f;
+    float AnimationPower = 50.0f;
+};
+
 class WeaponsSystem {
     void DisplayGunTexture();
     void MeleeAttack(std::shared_ptr<Entity> entity, float Angle);

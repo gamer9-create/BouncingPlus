@@ -1,0 +1,23 @@
+{
+  "isMelee": false,
+  "ShakeScreen": true,
+  "SlowdownOverTime": true,
+  "PushbackForce": 450,
+  "Spread": [-0,0],
+  "WeaponSize": 5,
+  "Speed": 2400,
+  "Ammo": 10,
+  "ReloadTime": 1.5,
+  "BulletLifetime": 0.3,
+  "WeaponWeightSpeedMultiplier": 0.95,
+  "Size": [4, 4],
+  "Damage": 35,
+  "Cooldown": 0.4,
+  "AngleRange": 65.0,
+  "Range": 250.0,
+  "Bullets": 15,
+  "Intensity": 0.85,
+  "texture": "shotgun",
+  "bullet_tex": "",
+  "sound": "shotgun"
+}

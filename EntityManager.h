@@ -26,7 +26,7 @@ public:
     ~EntityManager();
     void AddEntity(EntityType type, std::shared_ptr<Entity> entity);
     void Update();
-    void Reset();
+    void Clear();
     void Quit();
 };
 

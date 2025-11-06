@@ -38,7 +38,7 @@ void ParticleManager::ParticleEffect(ParticleData Data, float Angle, int AngleRa
     }
 }
 
-void ParticleManager::Reset() {
+void ParticleManager::Clear() {
     particles.clear();
 }
 

@@ -5,7 +5,7 @@
 #include "CameraManager.h"
 #include "Game.h"
 
-void CameraManager::Reset() {
+void CameraManager::Clear() {
     if (CamTextureInitialized)
         UnloadRenderTexture(CameraRenderTexture);
     CameraPosition = Vector2(0.0f, 0.0f);
@@ -33,7 +33,7 @@ void CameraManager::Reset() {
 CameraManager::CameraManager(Game &game) {
     this->game = &game;
     CamTextureInitialized = false;
-    Reset();
+    Clear();
 }
 
 CameraManager::CameraManager() {
@@ -63,9 +63,10 @@ void CameraManager::Display() {
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTexturePro(CameraRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
     EndBlendMode();
-    if (ShaderDraw)
+    if (ShaderDraw) {
         EndShaderMode();
-    DrawText(to_string(ShaderPixelPower).c_str(), 150, 150, 50, RED);
+        DrawText(to_string(ShaderPixelPower).c_str(), 150, 150, 50, RED);
+    }
 }
 
 void CameraManager::ProcessCameraShake() {

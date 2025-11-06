@@ -26,7 +26,7 @@ SoundManager::SoundManager() {
 SoundManager::~SoundManager() {
 }
 
-void SoundManager::Reset() {
+void SoundManager::Clear() {
     for (auto& [name,value] : CachedAliases) {
         for (Sound& sound : value) {
             StopSound(sound);

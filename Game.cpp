@@ -41,6 +41,7 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
     Weapons = std::unordered_map<std::string, Weapon>();
     Shaders = std::unordered_map<std::string, Shader>();
     WeaponNamesList= std::vector<std::string>();
+    WeaponPickups = std::vector<WeaponPickup>();
 
     // extra stuff
     MainPlayer = nullptr;
@@ -157,6 +158,20 @@ void Game::ProcessSlowdownAnimation() {
     }
 }
 
+void Game::DisplayPickups()
+{
+    std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
+            return !Weapons.contains(pickup.Weapon);
+    });
+    for (WeaponPickup& pickup : WeaponPickups)
+    {
+        float AnimationOffset = sin((GetTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
+        Weapon& PickupWeapon = Weapons.at(pickup.Weapon);
+        Texture& WeaponTex = Textures[PickupWeapon.texture];
+        // TODO: finish coding the weapon pickup logic + rendering logic, if weapon doesnt have texture render placeholder.png
+    }
+}
+
 void Game::Update(Camera2D camera) {
     if (IsKeyPressed(KEY_M))
         Paused = !Paused;
@@ -184,6 +199,7 @@ void Game::Update(Camera2D camera) {
         }
 
         MainCameraManager.Begin(camera);
+        DisplayPickups();
         ProcessSlowdownAnimation();
         MainTileManager.Update();
         MainParticleManager.Update();
@@ -318,12 +334,14 @@ bool Game::RayCastSP(Vector2 origin, Vector2 target, float Precision) { // RayCa
 
 void Game::Clear() {
     Paused = false;
+    ShouldReturn = false;
     CurrentLevelName.clear();
-    MainTileManager.Reset();
-    MainParticleManager.Reset();
-    MainEntityManager.Reset();
-    MainSoundManager.Reset();
-    MainCameraManager.Reset();
+    WeaponPickups.clear();
+    MainTileManager.Clear();
+    MainParticleManager.Clear();
+    MainEntityManager.Clear();
+    MainSoundManager.Clear();
+    MainCameraManager.Clear();
     MainPlayer.reset();
 }
 

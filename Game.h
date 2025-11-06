@@ -28,6 +28,7 @@ class Game {
     UIManager MainUIManager;
     void SetGameData();
     void ProcessSlowdownAnimation();
+    void DisplayPickups();
 
     public:
         bool Paused;
@@ -40,6 +41,7 @@ class Game {
         ParticleManager MainParticleManager;
         SoundManager MainSoundManager;
         shared_ptr<Player> MainPlayer;
+        std::vector<WeaponPickup> WeaponPickups;
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Shader> Shaders;
         std::vector<std::string> WeaponNamesList;

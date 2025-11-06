@@ -6,6 +6,7 @@
 #include "LevelLoader.h"
 
 int main() {
+    cout << "instant crash vro\n";
     InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "BouncingPlus");
     SetTargetFPS(GetMonitorRefreshRate(0));
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI | FLAG_VSYNC_HINT);

@@ -35,7 +35,7 @@ class ParticleManager {
     ParticleManager();
     ParticleManager(Game &game);
     void ParticleEffect(ParticleData Data, float Angle, int AngleRange, int Amount);
-    void Reset();
+    void Clear();
     void Update();
     void Quit();
 };

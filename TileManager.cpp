@@ -18,7 +18,7 @@ TileManager::TileManager() {
 
 TileManager::TileManager(Game &game) {
     this->game = &game;
-    Reset();
+    Clear();
     TileTypes[0] = NothingTileType; // air
     TileTypes[1] = WallTileType; // bouncy wall
     TileTypes[2] = WallTileType; // delete wall
@@ -145,7 +145,7 @@ void TileManager::ReadMapDataFile(std::string Filename) {
     int y = 0;
     int x = 0;
 
-    Reset();
+    Clear();
 
     bool PlayerSpawnFound = false;
 
@@ -199,7 +199,7 @@ void TileManager::ReadMapDataFile(std::string Filename) {
         PlayerSpawnPosition = {MapWidth * TileSize / 2.0f, MapHeight * TileSize / 2.0f};
 }
 
-void TileManager::Reset()
+void TileManager::Clear()
 {
     Map.clear();
     MapWidth = 0;

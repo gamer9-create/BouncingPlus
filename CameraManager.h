@@ -50,7 +50,7 @@ class CameraManager {
         void Display();
         void Begin(Camera2D rayCam);
         void End();
-        void Reset();
+        void Clear();
         void Quit();
 };
 

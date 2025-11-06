@@ -78,7 +78,7 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
             entity->Health -= Damage;
         else
             entity->Armor -= Damage;
-        Health += Damage / 8.0f;
+        Health += Damage / 3.0f;
 
         float amount = 1500.0f;
 

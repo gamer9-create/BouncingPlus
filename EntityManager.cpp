@@ -90,7 +90,7 @@ void EntityManager::Update()
     EntityClear();
 }
 
-void EntityManager::Reset()
+void EntityManager::Clear()
 {
     for (int e = 0; e < End; e++) {
         std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
