@@ -27,7 +27,7 @@ SoundManager::~SoundManager() {
 }
 
 void SoundManager::Reset() {
-    for (auto [name,value] : CachedAliases) {
+    for (auto& [name,value] : CachedAliases) {
         for (Sound& sound : value) {
             StopSound(sound);
         }
@@ -35,15 +35,16 @@ void SoundManager::Reset() {
 }
 
 void SoundManager::Update() {
-    //value.size() > 10 && ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound))
     int i = 0;
-    for (auto [name,value] : CachedAliases) {
+    if (game->DebugDraw)
+        DrawText("sound management stuff. if the numbers on the right are higher than like 11 somethings wrong", 350,350, 25, RED);
+    for (auto& [name,value] : CachedAliases) {
         if (game->DebugDraw)
-            DrawText((to_string(i) + " " + to_string(value.size())).c_str(), 350,350+(i*25), 25, RED);
+            DrawText((to_string(i) + " " + to_string(value.size())).c_str(), 350,350+((i+1)*25), 25, RED);
         std::erase_if(value, [&](Sound& sound) {
             if (value.size() > 10 && ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound))) {
                 if (IsSoundValid(sound))
-                    UnloadSound(sound);
+                    UnloadSoundAlias(sound);
                 return true;
             }
             return false;
@@ -72,20 +73,15 @@ void SoundManager::PlaySoundM(std::string sound, float volume, float pitch) {
 }
 
 void SoundManager::Quit() {
-    cout << "started!\n";
-    for (auto [name,value] : Sounds) {
-        cout << "started2 "+name << "\n";
+    for (auto& [name,value] : CachedAliases) {
+        for (Sound& sound : value) {
+            if (IsSoundValid(sound)) {
+                UnloadSoundAlias(sound);
+            }
+        }
+    }
+    for (auto& [name,value] : Sounds) {
         if (IsSoundValid(value))
             UnloadSound(value);
-        cout << "ended2 "+name << "\n";
     }
-    for (auto [name,value] : CachedAliases) {
-        cout << "started "+name << "\n";
-        for (Sound& sound : value) {
-            if (IsSoundValid(sound))
-                UnloadSound(sound);
-        }
-        cout << "ended "+name << "\n";
-    }
-    cout << "ended!\n";
 }

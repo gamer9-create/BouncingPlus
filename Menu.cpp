@@ -62,7 +62,7 @@ void Menu::LevelSelect()
     }
     DrawText("LEVEL SELECT", (int)(GetScreenWidth()/2.0f) - (int)(MeasureText("LEVEL SELECT", 50)/2.0f)-cam_x-GetScreenWidth(), 100+off2, 50, WHITE);
     int i = 0;
-    for (auto [name, data] : level_data)
+    for (auto& [name, data] : level_data)
     {
         Rectangle r = {-710.0f, (float)165 + (140 * i)-off3, (float)MeasureText(name.c_str(), 90)+20.0f, 110.0f};
         DrawRectangleRec({r.x-cam_x,r.y,r.width,r.height}, ColorAlpha(BLACK, 0.5f));

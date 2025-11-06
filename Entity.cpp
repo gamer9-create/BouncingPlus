@@ -58,9 +58,12 @@ void Entity::PhysicsUpdate(float dt) {
     if (Vector2Distance({0,0}, vel) != 0 && CollisionsEnabled) {
         BoundingBox.x += FinalMovement.x * dt;
         BoundingBox.y += FinalMovement.y * dt;
+        bool f = false;
         int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
         int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
         for (int y = 0; y < 3; y++) {
+            if (f)
+                break;
             for (int x = 0; x < 3; x++) {
                 int curr_tile_x = tile_x + x - 1;
                 int curr_tile_y = tile_y + y - 1;
@@ -132,7 +135,10 @@ void Entity::PhysicsUpdate(float dt) {
                         VelocityMovement = Vector2(X, Y);
                     }
 
+                    VelocityPower /= 1.5f;
                     LastVelBounceCoord = coord;
+                    f =true;
+                    break;
                 }
             }
         }

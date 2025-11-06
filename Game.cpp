@@ -342,9 +342,9 @@ void Game::Reload(std::string MapName) {
 }
 
 void Game::UnloadAssets() {
-    for (auto [name,value] : Textures)
+    for (auto& [name,value] : Textures)
         UnloadTexture(value);
-    for (auto [name,value] : Shaders)
+    for (auto& [name,value] : Shaders)
         UnloadShader(value);
 }
 
