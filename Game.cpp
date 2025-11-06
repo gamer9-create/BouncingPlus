@@ -158,18 +158,15 @@ void Game::ProcessSlowdownAnimation() {
     }
 }
 
-void Game::PlaceWeaponPickup(WeaponPickup pickup)
-{
-    WeaponPickups.push_back(pickup);
-}
-
 void Game::DisplayPickups()
 {
     std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
+            return !Weapons.contains(pickup.Weapon);
+    });
+    std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
             return pickup.PickedUp || !Weapons.contains(pickup.Weapon);
     });
-    for (WeaponPickup& pickup : WeaponPickups)
-    {
+    for (WeaponPickup& pickup : WeaponPickups) {
         // get floating offset
         float AnimationOffset = sin((GetTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
         Weapon& PickupWeapon = Weapons.at(pickup.Weapon);

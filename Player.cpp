@@ -13,6 +13,8 @@
 
 using namespace std;
 
+// the player's name is Jones
+// little bouncing ballz boy!
 Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game) : Entity(PlayerTexture,
                                                                    Rectangle(X - 18, Y - 18, 36, 36), Speed, game) {
     this->Type = PlayerType;
