@@ -28,6 +28,7 @@ Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::stri
     this->WanderingEnabled = false;
     this->EntityColor = ColorAlpha(WHITE, 0);
     this->ActivationTimer = GetTime();
+    this->WallMovement = {0, 0};
 }
 
 Enemy::Enemy() {
@@ -63,13 +64,16 @@ void Enemy::Wander() {
 }
 
 void Enemy::OnDelete() {
-    game->PlaceWeaponPickup({
-            {BoundingBox.x - BoundingBox.width/2, BoundingBox.y - BoundingBox.height/2},
-                50,
-                weaponsSystem.Weapons[weaponsSystem.CurrentWeaponIndex],
-                3,
-                25
-        });
+    if (GetRandomValue(1, 100) <= 25)
+    {
+        game->PlaceWeaponPickup({
+                {BoundingBox.x - BoundingBox.width/2, BoundingBox.y - BoundingBox.height/2},
+                    40,
+                    weaponsSystem.Weapons[weaponsSystem.CurrentWeaponIndex],
+                    4,
+                    15
+            });
+    }
     Entity::OnDelete();
 }
 
@@ -105,13 +109,15 @@ void Enemy::Update() {
 
         if ((distance <= 800 && (distance <= 36 || game->RayCast({center_x, center_y}, {plr_center_x, plr_center_y}))) || AngeredRangeBypassTimer > 0.0f) {
             if (distance >= 100) {
-                Movement.x = -(plr_center_x - center_x) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
-                Movement.y = -(plr_center_y - center_y) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
+                Movement.x += -(plr_center_x - center_x) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
+                Movement.y += -(plr_center_y - center_y) / distance * Speed * (weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
             }
             weaponsSystem.Attack(Vector2(plr_center_x, plr_center_y));
         } else if (WanderingEnabled) {
             Wander();
         }
+
+        MoveAwayFromWalls();
 
         AnimatedHealth = Lerp(AnimatedHealth, Armor > 0 ? Armor : Health, 10 * GetFrameTime());
 
@@ -153,4 +159,44 @@ void Enemy::Update() {
         if (IsVisible() && Armor > 0)
             DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x - game->MainCameraManager.CameraPosition.x, BoundingBox.y - game->MainCameraManager.CameraPosition.y, BoundingBox.width, BoundingBox.height}, {0, 0}, 0, WHITE);
     }
+}
+
+void Enemy::MoveAwayFromWalls()
+{
+
+    bool nothing_found = true;
+
+    float center_x = BoundingBox.x + (BoundingBox.width / 2);
+    float center_y = BoundingBox.y + (BoundingBox.height / 2);
+    int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
+    int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
+    for (int y = 0; y < 3; y++)
+    {
+        for (int x = 0; x < 3; x++)
+        {
+            int curr_tile_x = tile_x + x - 1;
+            int curr_tile_y = tile_y + y - 1;
+            std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
+            int tile_id = game->MainTileManager.Map[coord];
+
+            float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
+            float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
+
+            float plr_center_x = bbox_x + (game->MainTileManager.TileSize / 2);
+            float plr_center_y = bbox_y + (game->MainTileManager.TileSize / 2);
+
+            float distance = std::sqrt(std::pow(plr_center_x - center_x, 2) + std::pow(plr_center_y - center_y, 2));
+            if (game->MainTileManager.TileTypes[tile_id] == WallTileType)
+            {
+                nothing_found = false;
+                Vector2 d={0,0};
+                d.x = -(plr_center_x - center_x) / distance * Speed;
+                d.y = -(plr_center_y - center_y) / distance * Speed;
+                WallMovement = Vector2Lerp(WallMovement, d, 0.25f);
+            }
+        }
+    }
+
+    if (!nothing_found)
+        Movement = Vector2Add(WallMovement, Movement);
 }

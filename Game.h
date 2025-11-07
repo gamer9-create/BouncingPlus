@@ -33,6 +33,7 @@ class Game {
     int uTextureSize;
     int uOutlineSize;
     int uOutlineColor;
+    int uThreshold;
 
     public:
         bool Paused;
@@ -49,6 +50,7 @@ class Game {
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Shader> Shaders;
         std::vector<std::string> WeaponNamesList;
+        std::vector<std::string> BannedWeaponDrops;
         unordered_map<std::string, Weapon> Weapons;
         bool DebugDraw;
         bool ShouldReturn;

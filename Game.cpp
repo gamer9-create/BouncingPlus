@@ -41,6 +41,7 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
     Weapons = std::unordered_map<std::string, Weapon>();
     Shaders = std::unordered_map<std::string, Shader>();
     WeaponNamesList= std::vector<std::string>();
+    BannedWeaponDrops= std::vector<std::string>();
     WeaponPickups = std::vector<WeaponPickup>();
 
     // extra stuff
@@ -128,6 +129,10 @@ void Game::SetGameData() {
     uOutlineSize = GetShaderLocation(Shaders["outline"], "outlineSize");
     uOutlineColor = GetShaderLocation(Shaders["outline"], "outlineColor");
     uTextureSize = GetShaderLocation(Shaders["outline"], "textureSize");
+    uThreshold = GetShaderLocation(Shaders["outline"], "threshold");
+
+    BannedWeaponDrops.emplace_back("Default Gun");
+    BannedWeaponDrops.emplace_back("Player Gun");
 }
 
 void Game::Slowdown(float Time) {
@@ -163,6 +168,11 @@ void Game::ProcessSlowdownAnimation() {
 }
 
 void Game::PlaceWeaponPickup(WeaponPickup pickup) {
+    for (std::string s : BannedWeaponDrops)
+    {
+        if (s == pickup.Weapon)
+            return;
+    }
     pickup.CreationTime = GetTime();
     WeaponPickups.push_back(pickup);
 }
@@ -170,7 +180,7 @@ void Game::PlaceWeaponPickup(WeaponPickup pickup) {
 void Game::DisplayPickups()
 {
     std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
-            return pickup.PickedUp || !Weapons.contains(pickup.Weapon);
+            return pickup.PickedUp || GetTime() - pickup.CreationTime >= 45 || !Weapons.contains(pickup.Weapon);
     });
     for (WeaponPickup& pickup : WeaponPickups) {
         // get floating offset
@@ -182,20 +192,22 @@ void Game::DisplayPickups()
 
         Vector2 siz = {(float)Textures[TexString].width, (float)Textures[TexString].height};
         siz = Vector2Normalize(siz);
-        siz = Vector2Multiply(siz, {pickup.Radius, pickup.Radius});
+        siz = Vector2Multiply(siz, {pickup.Radius*2.5f, pickup.Radius*2.5f});
 
-        float outlineSize = 1.0f;
-        Color outlineColor = WHITE;
+        float outlineSize = 3.0f;
+        float threshold = 0.5f;
+        Color outlineColor = GREEN;
 
         BeginShaderMode(Shaders["outline"]);
         SetShaderValue(Shaders["outline"], uTextureSize, new float[2] {(float)Textures[TexString].width,
             (float)Textures[TexString].height}, SHADER_UNIFORM_VEC2);
+        SetShaderValue(Shaders["outline"], uThreshold, &threshold, SHADER_UNIFORM_FLOAT);
         SetShaderValue(Shaders["outline"], uOutlineSize, &outlineSize, SHADER_UNIFORM_FLOAT);
         SetShaderValue(Shaders["outline"], uOutlineColor, new float[4] {
-            (float)outlineColor.r,
-                (float)outlineColor.g,
-                (float)outlineColor.b,
-                    (float)outlineColor.a,
+            (float)outlineColor.r / 255.0f,
+                (float)outlineColor.g / 255.0f,
+                (float)outlineColor.b / 255.0f,
+                    (float)outlineColor.a / 255.0f,
         }, SHADER_UNIFORM_VEC4);
 
         DrawTexturePro(Textures[TexString], {
@@ -211,6 +223,10 @@ void Game::DisplayPickups()
 
         }, {siz.x / 2, siz.y / 2}, 0, WHITE);
         EndShaderMode();
+
+        if (DebugDraw)
+            DrawCircleV({pickup.Position.x - MainCameraManager.CameraPosition.x,
+            pickup.Position.y  - MainCameraManager.CameraPosition.y - AnimationOffset}, pickup.Radius, ColorAlpha(RED, 0.5f));
 
         // get distance
         float DistanceToPickup = Vector2Distance(pickup.Position, {

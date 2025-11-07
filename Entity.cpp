@@ -159,9 +159,18 @@ void Entity::PhysicsUpdate(float dt) {
                     int curr_tile_y = tile_y + y - 1;
                     std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
                     int tile_id = game->MainTileManager.Map[coord];
+                    float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
+                    float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
+                    if (game->DebugDraw) {
+                        DrawRectangleRec(
+                            {
+                                bbox_x - game->MainCameraManager.CameraPosition.x,
+                                bbox_y - game->MainCameraManager.CameraPosition.y,
+                                game->MainTileManager.TileSize,
+                                game->MainTileManager.TileSize,
+                            }, ColorAlpha(GREEN, 0.2f));
+                    }
                     if (game->MainTileManager.TileTypes[tile_id] == WallTileType) {
-                        float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
-                        float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
                         Rectangle bbox = Rectangle(bbox_x, bbox_y, game->MainTileManager.TileSize, game->MainTileManager.TileSize);
                         if (CheckCollisionRecs(BoundingBox, bbox)) {
                             //float e_cx = BoundingBox.x + (BoundingBox.width / 2.0f);

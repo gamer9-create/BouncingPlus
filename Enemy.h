@@ -16,6 +16,7 @@ class Enemy : public Entity {
     bool weaponsSystemInit = false;
     bool isActive = false;
     double ActivationTimer;
+    Vector2 WallMovement;
 public:
     float AngeredRangeBypassTimerMax;
     float AngeredRangeBypassTimer;
@@ -25,6 +26,7 @@ public:
     Enemy();
     virtual ~Enemy();
     void Update();
+    void MoveAwayFromWalls();
     void Wander();
     void OnDelete();
 };
