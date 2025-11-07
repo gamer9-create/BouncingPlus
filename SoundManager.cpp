@@ -37,10 +37,10 @@ void SoundManager::Clear() {
 void SoundManager::Update() {
     int i = 0;
     if (game->DebugDraw)
-        DrawText("sound management stuff. if the numbers on the right are higher than like 11 somethings wrong", 350,350, 25, RED);
+        DrawText("sound management stuff. if the numbers on the right are higher than like 11 somethings wrong", 350,350, 10, RED);
     for (auto& [name,value] : CachedAliases) {
         if (game->DebugDraw)
-            DrawText((to_string(i) + " " + to_string(value.size())).c_str(), 350,350+((i+1)*25), 25, RED);
+            DrawText((to_string(i) + " " + to_string(value.size())).c_str(), 350,350+((i+1)*10), 10, RED);
         std::erase_if(value, [&](Sound& sound) {
             if (value.size() > 10 && ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound))) {
                 if (IsSoundValid(sound))

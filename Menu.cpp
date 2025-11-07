@@ -34,7 +34,8 @@ void Menu::Reset()
     off = 0;
     off2 = 0;
     off3 = 0;
-    BlackTransparency= 0.0f;
+    isStarting = true;
+    BlackTransparency= 1.0f;
     miku_offset = 0.0f;
     menu_img_pos_y = GetRandomValue(0, menu_img.height);
     MovingToGame = false;
@@ -121,8 +122,14 @@ void Menu::Update() {
     if (button(play_bbox, "PLAY")) {
         cam_x_targ=-GetScreenWidth();
     }
+    if (isStarting && BlackTransparency > 0)
+        BlackTransparency -= 0.65f * GetFrameTime();
+    else
+    {
+        isStarting = false;
+    }
     if (MovingToGame)
-        BlackTransparency += 0.5f * GetFrameTime();
+        BlackTransparency += 0.65f * GetFrameTime();
     if (MovingToGame && BlackTransparency >= 1.0f) {
         map = target_map;
         StopSound(miku_sound);

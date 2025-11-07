@@ -29,6 +29,7 @@ class Menu {
     float menu_img_pos_y;
     float BlackTransparency;
     bool MovingToGame;
+    bool isStarting;
     bool button(Rectangle rectangle, std::string text);
     void LevelSelect();
     public:

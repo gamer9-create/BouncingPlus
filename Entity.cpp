@@ -168,7 +168,7 @@ void Entity::PhysicsUpdate(float dt) {
                                 bbox_y - game->MainCameraManager.CameraPosition.y,
                                 game->MainTileManager.TileSize,
                                 game->MainTileManager.TileSize,
-                            }, ColorAlpha(GREEN, 0.2f));
+                            }, ColorAlpha(GREEN, 0.05f));
                     }
                     if (game->MainTileManager.TileTypes[tile_id] == WallTileType) {
                         Rectangle bbox = Rectangle(bbox_x, bbox_y, game->MainTileManager.TileSize, game->MainTileManager.TileSize);
@@ -244,12 +244,20 @@ void Entity::Update() {
     }
     Vector2 *CameraPosition = &this->game->MainCameraManager.CameraPosition;
 
-    if (IsVisible() && Texture != nullptr)
+    bool is_visible = IsVisible();
+    if (is_visible && Texture != nullptr)
     {
         DrawTexturePro(*Texture, Rectangle(0, 0, static_cast<float> (Texture->width), static_cast<float> (Texture->height)),
                        Rectangle(BoundingBox.x - CameraPosition->x + BoundingBox.width/2, BoundingBox.y - CameraPosition->y + BoundingBox.height/2, BoundingBox.width,
                                  BoundingBox.height), Vector2(BoundingBox.width/2,BoundingBox.height/2), Rotation, EntityColor);
     }
+    if (game->DebugDraw && is_visible)
+        DrawRectangleRec({
+            BoundingBox.x - game->MainCameraManager.CameraPosition.x,
+            BoundingBox.y - game->MainCameraManager.CameraPosition.y,
+            BoundingBox.width,
+            BoundingBox.height
+        }, ColorAlpha(PINK, 0.5f));
 }
 
 void Entity::OnDelete() {
