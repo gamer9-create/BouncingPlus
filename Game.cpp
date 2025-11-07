@@ -207,7 +207,7 @@ void Game::DisplayPickups()
             (float)outlineColor.r / 255.0f,
                 (float)outlineColor.g / 255.0f,
                 (float)outlineColor.b / 255.0f,
-                    (float)outlineColor.a / 255.0f,
+                    (float)outlineColor.a / 255.0f
         }, SHADER_UNIFORM_VEC4);
 
         DrawTexturePro(Textures[TexString], {

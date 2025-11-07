@@ -67,11 +67,12 @@ void Enemy::OnDelete() {
     if (GetRandomValue(1, 100) <= 25)
     {
         game->PlaceWeaponPickup({
-                {BoundingBox.x - BoundingBox.width/2, BoundingBox.y - BoundingBox.height/2},
-                    40,
-                    weaponsSystem.Weapons[weaponsSystem.CurrentWeaponIndex],
-                    4,
-                    15
+            {BoundingBox.x - BoundingBox.width/2, BoundingBox.y - BoundingBox.height/2},
+            RED,
+            40,
+            weaponsSystem.Weapons[weaponsSystem.CurrentWeaponIndex],
+            4,
+            15
             });
     }
     Entity::OnDelete();
@@ -166,6 +167,8 @@ void Enemy::MoveAwayFromWalls()
 
     bool nothing_found = true;
 
+    std::vector<Vector2> vectors;
+
     float center_x = BoundingBox.x + (BoundingBox.width / 2);
     float center_y = BoundingBox.y + (BoundingBox.height / 2);
     int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
@@ -192,9 +195,14 @@ void Enemy::MoveAwayFromWalls()
                 Vector2 d={0,0};
                 d.x = -(plr_center_x - center_x) / distance * Speed;
                 d.y = -(plr_center_y - center_y) / distance * Speed;
-                WallMovement = Vector2Lerp(WallMovement, d, 0.25f);
+                vectors.push_back(d);
             }
         }
+    }
+
+    for (Vector2& vec : vectors)
+    {
+        WallMovement = Vector2Lerp(WallMovement, vec, 1.0f / vectors.size());
     }
 
     if (!nothing_found)

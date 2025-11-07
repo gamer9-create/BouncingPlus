@@ -38,6 +38,7 @@ struct Weapon {
 struct WeaponPickup
 {
     Vector2 Position;
+    Color PickupColor;
     float Radius;
     std::string Weapon = "Default Gun";
     double AnimationSpeed = 2.5f;

@@ -100,6 +100,7 @@ bool WeaponsSystem::DropWeapon(std::string WeaponName)
                 Unequip();
             game->PlaceWeaponPickup({
                 DropLoc,
+                GREEN,
                 50,
                 WeaponName,
                 2,
