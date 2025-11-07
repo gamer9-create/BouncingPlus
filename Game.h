@@ -30,6 +30,10 @@ class Game {
     void ProcessSlowdownAnimation();
     void DisplayPickups();
 
+    int uTextureSize;
+    int uOutlineSize;
+    int uOutlineColor;
+
     public:
         bool Paused;
         float GameSpeed;

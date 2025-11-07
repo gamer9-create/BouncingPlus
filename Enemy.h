@@ -26,6 +26,7 @@ public:
     virtual ~Enemy();
     void Update();
     void Wander();
+    void OnDelete();
 };
 
 

@@ -39,11 +39,11 @@ struct WeaponPickup
 {
     Vector2 Position;
     float Radius;
-    double CreationTime = 0;
     std::string Weapon = "Default Gun";
     double AnimationSpeed = 2.5f;
     float AnimationPower = 50.0f;
     bool PickedUp = false;
+    double CreationTime = 0;
 };
 
 class WeaponsSystem {

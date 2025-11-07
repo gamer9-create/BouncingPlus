@@ -124,6 +124,10 @@ void Game::SetGameData() {
         Weapons.insert({p, wep});
         g.close();
     }
+
+    uOutlineSize = GetShaderLocation(Shaders["outline"], "outlineSize");
+    uOutlineColor = GetShaderLocation(Shaders["outline"], "outlineColor");
+    uTextureSize = GetShaderLocation(Shaders["outline"], "textureSize");
 }
 
 void Game::Slowdown(float Time) {
@@ -158,11 +162,13 @@ void Game::ProcessSlowdownAnimation() {
     }
 }
 
+void Game::PlaceWeaponPickup(WeaponPickup pickup) {
+    pickup.CreationTime = GetTime();
+    WeaponPickups.push_back(pickup);
+}
+
 void Game::DisplayPickups()
 {
-    std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
-            return !Weapons.contains(pickup.Weapon);
-    });
     std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
             return pickup.PickedUp || !Weapons.contains(pickup.Weapon);
     });
@@ -170,26 +176,41 @@ void Game::DisplayPickups()
         // get floating offset
         float AnimationOffset = sin((GetTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
         Weapon& PickupWeapon = Weapons.at(pickup.Weapon);
-        Texture& WeaponTex = Textures["placeholder"];
+        std::string TexString = "placeholder";
         if (Textures.contains(PickupWeapon.texture))
-            WeaponTex = Textures[PickupWeapon.texture];
+            TexString=PickupWeapon.texture;
 
-        Vector2 siz = {(float)WeaponTex.width, (float)WeaponTex.height};
+        Vector2 siz = {(float)Textures[TexString].width, (float)Textures[TexString].height};
         siz = Vector2Normalize(siz);
-        siz = Vector2Multiply(siz, {100.0f, 100.0f});
+        siz = Vector2Multiply(siz, {pickup.Radius, pickup.Radius});
 
-        DrawTexturePro(WeaponTex, {
+        float outlineSize = 1.0f;
+        Color outlineColor = WHITE;
+
+        BeginShaderMode(Shaders["outline"]);
+        SetShaderValue(Shaders["outline"], uTextureSize, new float[2] {(float)Textures[TexString].width,
+            (float)Textures[TexString].height}, SHADER_UNIFORM_VEC2);
+        SetShaderValue(Shaders["outline"], uOutlineSize, &outlineSize, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(Shaders["outline"], uOutlineColor, new float[4] {
+            (float)outlineColor.r,
+                (float)outlineColor.g,
+                (float)outlineColor.b,
+                    (float)outlineColor.a,
+        }, SHADER_UNIFORM_VEC4);
+
+        DrawTexturePro(Textures[TexString], {
             0,
             0,
-            (float)WeaponTex.width,
-            (float)WeaponTex.height
+            (float)Textures[TexString].width,
+            (float)Textures[TexString].height
         }, {
-            pickup.Position.x,
-            pickup.Position.y - AnimationOffset,
+            pickup.Position.x - MainCameraManager.CameraPosition.x,
+            pickup.Position.y  - MainCameraManager.CameraPosition.y - AnimationOffset,
             siz.x,
             siz.y
 
         }, {siz.x / 2, siz.y / 2}, 0, WHITE);
+        EndShaderMode();
 
         // get distance
         float DistanceToPickup = Vector2Distance(pickup.Position, {

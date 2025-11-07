@@ -62,6 +62,17 @@ void Enemy::Wander() {
     }
 }
 
+void Enemy::OnDelete() {
+    game->PlaceWeaponPickup({
+            {BoundingBox.x - BoundingBox.width/2, BoundingBox.y - BoundingBox.height/2},
+                50,
+                weaponsSystem.Weapons[weaponsSystem.CurrentWeaponIndex],
+                3,
+                25
+        });
+    Entity::OnDelete();
+}
+
 void Enemy::Update() {
     EntityColor = ColorLerp(EntityColor, WHITE, 2 * GetFrameTime());
     if (ActivationTimer != -1)

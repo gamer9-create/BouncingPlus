@@ -78,16 +78,38 @@ bool WeaponsSystem::GiveWeapon(std::string WeaponName)
 
 bool WeaponsSystem::DropWeapon(std::string WeaponName)
 {
+    Vector2 DropLoc = {0, 0};
+    auto Owner = OwnerPtr.lock();
+
+    if (Owner != nullptr) {
+        float dirX = (GetRandomValue(1, 2) == 1) ? 1 : -1;
+        float dirY = (GetRandomValue(1, 2) == 1) ? 1 : -1;
+
+        DropLoc = {Owner->BoundingBox.x - Owner->BoundingBox.width/2, Owner->BoundingBox.y - Owner->BoundingBox.height/2};
+        DropLoc = Vector2Add(DropLoc, {
+            (float)GetRandomValue(0, Owner->BoundingBox.width) * dirX * 1.5f,
+                (float)GetRandomValue(0, Owner->BoundingBox.height) * dirY * 1.5f
+        });
+    }
+
     for (int i = 0; i < 3; i++)
     {
         if (Weapons[i] == WeaponName)
         {
             if (CurrentWeaponIndex == i)
                 Unequip();
-            //game->PlaceWeaponPickup()
-            // TODO: finish this
+            game->PlaceWeaponPickup({
+                DropLoc,
+                50,
+                WeaponName,
+                2,
+                25
+            });
+            Weapons[i].clear();
+            return true;
         }
     }
+    return false;
 }
 
 void WeaponsSystem::Update() {

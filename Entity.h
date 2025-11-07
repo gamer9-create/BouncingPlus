@@ -40,6 +40,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
         bool IsVisible();
         float GetSpeed();
         virtual void Update();
+        virtual void OnDelete();
 };
 
 

@@ -242,3 +242,7 @@ void Entity::Update() {
                                  BoundingBox.height), Vector2(BoundingBox.width/2,BoundingBox.height/2), Rotation, EntityColor);
     }
 }
+
+void Entity::OnDelete() {
+
+}

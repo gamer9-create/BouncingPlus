@@ -69,6 +69,7 @@ void EntityManager::EntityClear()
         int old_size = array->size();
         std::erase_if(*array, [this](shared_ptr<Entity> e) {
             if (e && e->ShouldDelete) {
+                e->OnDelete();
                 if (e != game->MainPlayer) {
                     e.reset();
                 }
