@@ -76,6 +76,7 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
     if (CheckCollisionRecs(BoundingBox, entity->BoundingBox) && !already_attacked) {
         // calculate damage & attack
         float Damage = VelocityPower / 16.0f;
+        Damage *= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
         if (entity->Armor <= 0)
             entity->Health -= Damage;
         else

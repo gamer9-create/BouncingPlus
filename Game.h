@@ -28,8 +28,9 @@ class Game {
     UIManager MainUIManager;
     void SetGameData();
     void ProcessSlowdownAnimation();
-    void DisplayPickups();
+    void DisplayPickups(Camera2D cam);
 
+    RenderTexture2D WeaponPickupTex;
     int uTextureSize;
     int uOutlineSize;
     int uOutlineColor;
@@ -49,7 +50,7 @@ class Game {
         std::vector<WeaponPickup> WeaponPickups;
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Shader> Shaders;
-        std::vector<std::string> WeaponNamesList;
+        std::vector<std::string> EnemyWeaponNamesList;
         std::vector<std::string> BannedWeaponDrops;
         unordered_map<std::string, Weapon> Weapons;
         bool DebugDraw;

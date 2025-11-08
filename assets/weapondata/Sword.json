@@ -1,4 +1,5 @@
  {
+   "EnemiesCanUse": false,
   "isMelee": true,
   "ShakeScreen": false,
   "SlowdownOverTime": false,
@@ -19,5 +20,5 @@
   "Intensity": 1,
   "texture": "sword",
    "bullet_tex": "",
-  "sound": "sword_swing"
+  "sound": ""
 }

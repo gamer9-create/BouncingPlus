@@ -54,7 +54,12 @@ void ParticleManager::Update() {
         p.Position += p.Target * p.Velocity * GetFrameTime();
         p.ParticleColor = ColorLerp(p.ParticleColor, p.Data.TargetColor, Percent);
 
-        DrawCircleV({p.Position.x - game->MainCameraManager.CameraPosition.x, p.Position.y - game->MainCameraManager.CameraPosition.y}, p.Data.Size, p.ParticleColor);
+        DrawRectanglePro({p.Position.x - game->MainCameraManager.CameraPosition.x,
+            p.Position.y - game->MainCameraManager.CameraPosition.y,
+            p.Data.Size,p.Data.Size},
+            {p.Data.Size/2, p.Data.Size/2},
+            (GetTime() - p.SpawnTime) * 100 * (1-Percent),
+            p.ParticleColor);
 
         if (Percent >= 1.0)
             particles.erase(particles.begin() + i);

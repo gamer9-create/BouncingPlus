@@ -132,7 +132,7 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
             Armor = 50.0f;
             break;
         case 5:
-            Weapon = "Shotgun";
+            Weapon = "Enemy Shotgun";
             Speed = 250.0f;
             Health = 140.0f;
             Armor = 0.0f;

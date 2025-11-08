@@ -25,7 +25,13 @@ void main()
         float ra = texture(texture0, fragTexCoord + vec2(outlineSize / textureSize.x, 0)).a;
         float ua = texture(texture0, fragTexCoord - vec2(0, outlineSize / textureSize.y)).a;
         float da = texture(texture0, fragTexCoord + vec2(0, outlineSize / textureSize.y)).a;
-        if (la > threshold || ra > threshold || ua > threshold || da > threshold) {
+
+        float la2 = texture(texture0, fragTexCoord + vec2(outlineSize / textureSize.x, outlineSize / textureSize.y)).a;
+        float ra2 = texture(texture0, fragTexCoord + vec2(outlineSize / textureSize.x, -outlineSize / textureSize.y)).a;
+        float ua2 = texture(texture0, fragTexCoord + vec2(-outlineSize / textureSize.x, outlineSize / textureSize.y)).a;
+        float da2 = texture(texture0, fragTexCoord + vec2(-outlineSize / textureSize.x, -outlineSize / textureSize.y)).a;
+        if (la > threshold || ra > threshold || ua > threshold || da > threshold ||
+        la2 > threshold || ra2 > threshold || ua2 > threshold || da2 > threshold) {
             texel = outlineColor;
         }
     }

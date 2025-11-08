@@ -15,7 +15,6 @@ class CameraManager {
     void BackgroundLines();
     void UpdateCamera();
 
-    RenderTexture CameraRenderTexture;
     bool CamTextureInitialized;
 
     float CameraSpeed;
@@ -36,6 +35,7 @@ class CameraManager {
 
     double ZoomResetTimer;
     public:
+    RenderTexture CameraRenderTexture;
         Game* game;
         Vector2 CameraPosition;
         Vector2 CameraTarget;

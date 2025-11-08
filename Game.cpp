@@ -40,7 +40,7 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
     Textures = std::unordered_map<std::string, Texture2D>();
     Weapons = std::unordered_map<std::string, Weapon>();
     Shaders = std::unordered_map<std::string, Shader>();
-    WeaponNamesList= std::vector<std::string>();
+    EnemyWeaponNamesList= std::vector<std::string>();
     BannedWeaponDrops= std::vector<std::string>();
     WeaponPickups = std::vector<WeaponPickup>();
 
@@ -76,6 +76,8 @@ void Game::SetGameData() {
         std::ifstream g(entry.path().c_str());
         json data = json::parse(g);
         Weapon wep = {};
+        if (data.contains("EnemiesCanUse") && data["EnemiesCanUse"].get<bool>())
+            EnemyWeaponNamesList.push_back(p);
         if (data.contains("isMelee"))
             wep.isMelee = data["isMelee"].get<bool>();
         if (data.contains("ShakeScreen"))
@@ -121,7 +123,6 @@ void Game::SetGameData() {
             wep.BulletTexture = data["bullet_tex"].get<string>();
         if (data.contains("sound"))
             wep.sound = data["sound"].get<string>();
-        WeaponNamesList.push_back(p);
         Weapons.insert({p, wep});
         g.close();
     }
@@ -130,6 +131,8 @@ void Game::SetGameData() {
     uOutlineColor = GetShaderLocation(Shaders["outline"], "outlineColor");
     uTextureSize = GetShaderLocation(Shaders["outline"], "textureSize");
     uThreshold = GetShaderLocation(Shaders["outline"], "threshold");
+
+    WeaponPickupTex = LoadRenderTexture(150, 150);
 
     BannedWeaponDrops.emplace_back("Default Gun");
     BannedWeaponDrops.emplace_back("Player Gun");
@@ -177,7 +180,7 @@ void Game::PlaceWeaponPickup(WeaponPickup pickup) {
     WeaponPickups.push_back(pickup);
 }
 
-void Game::DisplayPickups()
+void Game::DisplayPickups(Camera2D cam)
 {
     std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
             return pickup.PickedUp || GetTime() - pickup.CreationTime >= 45 || !Weapons.contains(pickup.Weapon);
@@ -196,11 +199,35 @@ void Game::DisplayPickups()
 
         float outlineSize = 3.0f;
         float threshold = 0.5f;
-        Color outlineColor = GREEN;
+        Color outlineColor = pickup.PickupColor;
 
+        EndTextureMode();
+        EndMode2D();
+        BeginTextureMode(WeaponPickupTex);
+        ClearBackground(BLANK);
+
+        BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
+
+        DrawTexturePro(Textures[TexString], {
+            0,
+            0,
+            (float)Textures[TexString].width,
+            (float)Textures[TexString].height
+        }, {
+            WeaponPickupTex.texture.width/2.0f,WeaponPickupTex.texture.height/2.0f,
+            siz.x,
+            siz.y
+
+        }, {siz.x / 2, siz.y / 2}, 0, WHITE);
+        EndBlendMode();
+        EndTextureMode();
+        BeginTextureMode(MainCameraManager.CameraRenderTexture);
+        BeginMode2D(cam);
+
+        BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
         BeginShaderMode(Shaders["outline"]);
-        SetShaderValue(Shaders["outline"], uTextureSize, new float[2] {(float)Textures[TexString].width,
-            (float)Textures[TexString].height}, SHADER_UNIFORM_VEC2);
+        SetShaderValue(Shaders["outline"], uTextureSize, new float[2] {(float)WeaponPickupTex.texture.width,
+            (float)WeaponPickupTex.texture.height}, SHADER_UNIFORM_VEC2);
         SetShaderValue(Shaders["outline"], uThreshold, &threshold, SHADER_UNIFORM_FLOAT);
         SetShaderValue(Shaders["outline"], uOutlineSize, &outlineSize, SHADER_UNIFORM_FLOAT);
         SetShaderValue(Shaders["outline"], uOutlineColor, new float[4] {
@@ -209,19 +236,14 @@ void Game::DisplayPickups()
                 (float)outlineColor.b / 255.0f,
                     (float)outlineColor.a / 255.0f
         }, SHADER_UNIFORM_VEC4);
-
-        DrawTexturePro(Textures[TexString], {
-            0,
-            0,
-            (float)Textures[TexString].width,
-            (float)Textures[TexString].height
-        }, {
-            pickup.Position.x - MainCameraManager.CameraPosition.x,
+        DrawTexturePro(WeaponPickupTex.texture, {0,0,(float)WeaponPickupTex.texture.width,
+            (float)-WeaponPickupTex.texture.height
+        }, {pickup.Position.x - MainCameraManager.CameraPosition.x,
             pickup.Position.y  - MainCameraManager.CameraPosition.y - AnimationOffset,
-            siz.x,
-            siz.y
-
-        }, {siz.x / 2, siz.y / 2}, 0, WHITE);
+            (float)WeaponPickupTex.texture.width,
+                (float)WeaponPickupTex.texture.height},
+            {WeaponPickupTex.texture.width/2.0f,WeaponPickupTex.texture.height/2.0f}, 0, WHITE);
+        EndBlendMode();
         EndShaderMode();
 
         if (DebugDraw)
@@ -269,12 +291,12 @@ void Game::Update(Camera2D camera) {
         }
 
         MainCameraManager.Begin(camera);
-        DisplayPickups();
         ProcessSlowdownAnimation();
         MainTileManager.Update();
         MainParticleManager.Update();
         MainEntityManager.Update();
         MainSoundManager.Update();
+        DisplayPickups(camera);
         MainCameraManager.End();
 
     }
@@ -434,6 +456,7 @@ void Game::UnloadAssets() {
         UnloadTexture(value);
     for (auto& [name,value] : Shaders)
         UnloadShader(value);
+    UnloadRenderTexture(WeaponPickupTex);
 }
 
 void Game::Quit() {

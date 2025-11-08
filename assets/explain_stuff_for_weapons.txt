@@ -1,4 +1,5 @@
 
+  "EnemiesCanUse": false, // can enemies spawn with/utilize this weapon?
   "isMelee": false, // is the weapon melee?
   "ShakeScreen": false, // does the weapon induce screen shake?
   "SlowdownOverTime": false, // should bullets the weapon fires slow down over time?

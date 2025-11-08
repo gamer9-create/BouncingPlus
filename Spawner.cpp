@@ -155,7 +155,7 @@ void Spawner::Update() {
                 }
             }
 
-            std::shared_ptr<Enemy> e = make_shared<Enemy>(p.x, p.y, 100, 150, 0, game->WeaponNamesList[GetRandomValue(0, game->WeaponNamesList.size() - 1)], game->Textures["spawned_enemy"], *game);
+            std::shared_ptr<Enemy> e = make_shared<Enemy>(p.x, p.y, 100, 150, 0, game->EnemyWeaponNamesList[GetRandomValue(0, game->EnemyWeaponNamesList.size() - 1)], game->Textures["spawned_enemy"], *game);
             e->WanderingEnabled = true;
             game->MainEntityManager.AddEntity(EnemyType, e);
             game->MainParticleManager.ParticleEffect({
