@@ -1,0 +1,6 @@
+{
+  "description": "No sword guys, no shotgunners, just pure bullets.",
+  "inventory": ["Player Gun"],
+  "difficulty": 4,
+  "starting_health": 200
+}
