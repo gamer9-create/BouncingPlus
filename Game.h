@@ -37,6 +37,7 @@ class Game {
     int uThreshold;
 
     public:
+        bool UpgradeUI;
         bool Paused;
         float GameSpeed;
         std::string CurrentLevelName;

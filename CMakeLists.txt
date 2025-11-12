@@ -40,6 +40,8 @@ add_executable(BouncingPlus main.cpp
         TileType.h
         SoundManager.cpp
         SoundManager.h
+        UpgradeStation.cpp
+        UpgradeStation.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)

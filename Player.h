@@ -12,7 +12,7 @@
 class Player : public Entity {
     void AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked);
     void DashLogic();
-    bool isInvincible;
+
     bool weaponsSystemInit = false;
     double PlayerFrozenTimer = 0;
     float PlayerDashLineThickness = 10;
@@ -26,17 +26,20 @@ class Player : public Entity {
     double LastMovedTime;
     int LastKills;
     public:
+        bool isInvincible;
         float PrevHealthBeforeDodge = 100;
         double DodgeHealthResetTimer = -1;
         WeaponsSystem weaponsSystem;
         int Kills;
-        bool IsDashing = false;
+        bool IsPreparingForDash = false;
+        bool Dodging =false;
 
         Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game);
         Player();
         virtual ~Player();
         void PhysicsUpdate(float dt);
         void Update();
+        void ToggleInvincibility();
 };
 
 

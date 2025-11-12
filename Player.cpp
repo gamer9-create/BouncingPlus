@@ -23,6 +23,7 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->LastKills = 0;
     this->OrigSpeed = Speed;
     this->ExtraSpeed = 0;
+    this->PrevHealthBeforeDodge = 0;
     this->PlayerDashLineThickness = 10;
     this->ShaderUniformLoc = GetShaderLocation(game.Shaders["dash_arrow"], "time");
 }
@@ -32,6 +33,18 @@ Player::Player() {
 
 Player::~Player() {
 
+}
+
+void Player::ToggleInvincibility() {
+    this->isInvincible = !this->isInvincible;
+    if (isInvincible) {
+        PrevHealthBeforeDodge = Health;
+        Health = FLT_MAX;
+        isInvincible = true;
+    } else {
+        Health = PrevHealthBeforeDodge;
+        isInvincible = false;
+    }
 }
 
 void Player::PhysicsUpdate(float dt) {
@@ -136,18 +149,18 @@ void Player::DashLogic() {
 
     auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->MainCameraManager.CameraPosition.x, static_cast<float> (GetMouseY()) + game->MainCameraManager.CameraPosition.y);
     if (DashCooldown <= 0 && IsKeyDown(KEY_LEFT_SHIFT)) {
-        if (!IsDashing) {
+        if (!IsPreparingForDash) {
             DashTimeStart = GetTime();
             PlayerDashLineThickness = 10;
         }
-        IsDashing = true;
+        IsPreparingForDash = true;
     }
-    if (IsDashing && !IsKeyDown(KEY_LEFT_SHIFT)) {
-        IsDashing = false;
+    if (IsPreparingForDash && !IsKeyDown(KEY_LEFT_SHIFT)) {
+        IsPreparingForDash = false;
     }
-    if (game->MainPlayer->IsDashing || game->MainPlayer->weaponsSystem.TimeStartedReloading != -1) {
+    if (game->MainPlayer->IsPreparingForDash || game->MainPlayer->weaponsSystem.TimeStartedReloading != -1) {
         game->MainCameraManager.QuickZoom(1.25f, 0.1f);
-        if (game->MainPlayer->IsDashing)
+        if (game->MainPlayer->IsPreparingForDash)
         {
             if (static_cast<float>(GetTime() - DashTimeStart) / 1.1f > 0.8f)
                 PlayerDashLineThickness = Lerp(PlayerDashLineThickness, 20, 2 * GetFrameTime());
@@ -173,7 +186,7 @@ void Player::DashLogic() {
             EndShaderMode();
         }
     }
-    if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && IsDashing && Health > 0) {
+    if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && IsPreparingForDash && Health > 0) {
         DashCooldown = 1.5f;
         DashedEnemies.clear();
         VelocityMovement = Vector2Subtract(WorldMousePos, {BoundingBox.x, BoundingBox.y});
@@ -181,27 +194,26 @@ void Player::DashLogic() {
         VelocityPower /= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
         game->MainSoundManager.PlaySoundM("dash");
         PlayerFrozenTimer = 1.0f;
-        if (IsMouseButtonDown(0)) {
-            PrevHealthBeforeDodge = Health;
-            Health = FLT_MAX;
-            isInvincible = true;
+        if (IsMouseButtonDown(0) && !isInvincible) {
+            ToggleInvincibility();
+            Dodging = true;
             DodgeHealthResetTimer = 1.0f;
         }
-        IsDashing = false;
+        IsPreparingForDash = false;
     }
 
     // display dashing bar
     int w = 56;
     int h = 15;
     float a = 0.25f;
-    if (IsDashing)
+    if (IsPreparingForDash)
         a = Lerp(0.25f, 0.5f, min( (float)(GetTime() - DashTimeStart) / 0.2f, 1.0f ));
     DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->MainCameraManager.CameraPosition.x),
         (int)(BoundingBox.y + BoundingBox.width + 10 - game->MainCameraManager.CameraPosition.y),
         w, h, ColorAlpha(BLACK, a));
     DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->MainCameraManager.CameraPosition.x)+5,
         (int)(BoundingBox.y + BoundingBox.width + 10 - game->MainCameraManager.CameraPosition.y)+5,
-        (!IsDashing ? 0 : min(static_cast<float>(GetTime() - DashTimeStart) / 1.1f, 1.0f))*(w-10), h-10, ColorAlpha(WHITE, a+0.25f));
+        (!IsPreparingForDash ? 0 : min(static_cast<float>(GetTime() - DashTimeStart) / 1.1f, 1.0f))*(w-10), h-10, ColorAlpha(WHITE, a+0.25f));
 }
 
 void Player::Update() {
@@ -222,19 +234,20 @@ void Player::Update() {
     EntityColor = ColorAlpha(WHITE, Alpha);
     Alpha = Lerp(Alpha, (DodgeHealthResetTimer > 0 ? 0.5f : 1.0f), 5.5f*GetFrameTime());
 
+    // dashing logic
+    DashLogic();
+
     // health cap + dodging stuff
     if (DodgeHealthResetTimer > 0) {
         DodgeHealthResetTimer -= GetFrameTime();
+        if (DodgeHealthResetTimer < 0)
+            Dodging = false;
     }
 
     // dodge health reset
-    if (DodgeHealthResetTimer <= 0 && isInvincible) {
-        Health = PrevHealthBeforeDodge;
-        isInvincible = false;
+    if (DodgeHealthResetTimer <= 0 && isInvincible && Dodging) {
+        ToggleInvincibility();
     }
-
-    // dashing logic
-    DashLogic();
 
     if (PlayerFrozenTimer <= 0) {
         // firing logic
@@ -246,7 +259,7 @@ void Player::Update() {
         }
 
         auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->MainCameraManager.CameraPosition.x, static_cast<float> (GetMouseY()) + game->MainCameraManager.CameraPosition.y);
-        if (IsMouseButtonDown(0) && !IsDashing)
+        if (IsMouseButtonDown(0) && !IsPreparingForDash)
             weaponsSystem.Attack(WorldMousePos);
 
         // reload logic

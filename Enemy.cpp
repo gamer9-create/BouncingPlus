@@ -73,7 +73,7 @@ void Enemy::OnDelete() {
                 1.75f,
                 {255, 0, 0, 255}
             }, Rotation - 180, 360, 15);
-    if (GetRandomValue(1, 100) <= 25)
+    if (GetRandomValue(1, 100) <= 25 )
     {
         game->PlaceWeaponPickup({
             {BoundingBox.x - BoundingBox.width/2, BoundingBox.y - BoundingBox.height/2},

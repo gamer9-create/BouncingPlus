@@ -11,6 +11,7 @@
 #include "Enemy.h"
 #include "Game.h"
 #include "Spawner.h"
+#include "UpgradeStation.h"
 
 TileManager::TileManager() {
 
@@ -28,6 +29,7 @@ TileManager::TileManager(Game &game) {
     TileTypes[6] = PlayerSpawnTileType; // player spawn
     TileTypes[7] = SpawnerTileType; // enemy spawner tile type
     TileTypes[8] = EnemySpawnTileType; // enemy spawn tile type
+    TileTypes[9] = UpgradeStationTileType; // upgrade station tile type
 
 }
 
@@ -178,11 +180,16 @@ void TileManager::ReadMapDataFile(std::string Filename) {
                     PlayerSpawnFound = true;
                     PlayerSpawnPosition = Vector2(bbox_x, bbox_y);
                     break;
-                case SpawnerTileType:
+                case SpawnerTileType: {
                     std::shared_ptr<Spawner> spawner = std::make_shared<Spawner>(*game, bbox_x, bbox_y);
                     game->MainEntityManager.AddEntity(SpawnerType, spawner);
                     break;
-
+                }
+                case UpgradeStationTileType: {
+                    std::shared_ptr<UpgradeStation> station = std::make_shared<UpgradeStation>(*game, bbox_x, bbox_y);
+                    game->MainEntityManager.AddEntity(UpgradeStationType, station);
+                    break;
+                }
             }
 
             x += 1;

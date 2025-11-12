@@ -1,6 +1,0 @@
-{
-  "description": "Time to BOUNCE!!!",
-  "inventory": ["Player Gun", "Shotgun", "Sword"],
-  "difficulty": 4,
-  "starting_health": 200
-}

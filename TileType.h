@@ -9,6 +9,7 @@ enum TileType {
     NothingTileType,
     PlayerSpawnTileType,
     EnemySpawnTileType,
+    UpgradeStationTileType,
     SpawnerTileType,
     WallTileType,
     EnemyTileType,

@@ -23,6 +23,9 @@ class UIManager {
     float HealthBarSize = 250;
     float UITransparency = 1.0f;
     float DeathTextAnimRot = 0.0f;
+    float HealthBarAnimRot = 0.0f;
+    float LastHealth = 0;
+    float ft_size = 92;
     public:
     UIManager(Game &game);
     UIManager();

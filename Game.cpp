@@ -50,6 +50,7 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
     LevelData = json;
     DebugDraw = false;
     ShouldReturn = false;
+    UpgradeUI = false;
 
     SetGameData();
 }
@@ -364,7 +365,7 @@ bool Game::RayCast(Vector2 origin, Vector2 target) {
             int g = MainTileManager.Map[s];
             // cout << s << " " << g << endl;
 
-            if (g >0 && g < 3)
+            if (MainTileManager.TileTypes[g]==WallTileType)
             {
                 bTileFound = true;
                 break;
@@ -448,6 +449,8 @@ void Game::Reload(std::string MapName) {
     MainPlayer = make_shared<Player>(MainTileManager.PlayerSpawnPosition.x,
                                      MainTileManager.PlayerSpawnPosition.y, 350.0f,
                                      Textures["player"], *this);
+    MainPlayer->MaxHealth = LevelData[MapName]["starting_health"];
+    MainPlayer->Health = LevelData[MapName]["starting_health"];
     MainEntityManager.AddEntity(PlayerType, MainPlayer);
 }
 

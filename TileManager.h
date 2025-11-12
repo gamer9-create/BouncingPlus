@@ -24,7 +24,7 @@ class TileManager {
         float TileSize;
         int MapWidth, MapHeight;
         Vector2 PlayerSpawnPosition;
-        TileType TileTypes[9];
+        TileType TileTypes[10];
         std::vector<Vector2> EnemySpawnLocations;
         std::unordered_map<std::string, int> Map;
         TileManager();

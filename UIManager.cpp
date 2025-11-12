@@ -5,6 +5,7 @@
 #include "UIManager.h"
 #include <algorithm>
 #include <iostream>
+#include <raymath.h>
 
 #include "Game.h"
 
@@ -26,6 +27,7 @@ UIManager::UIManager(Game &game) {
     this->DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     this->PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     this->GameWinScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    this->LastHealth = 0;
     button_img = LoadTexture("assets/ui/button.png");
 }
 
@@ -195,10 +197,28 @@ void UIManager::GameUI() {
         );
 
     // health meter
-    float PlrHealth = (game->MainPlayer->DodgeHealthResetTimer <= 0 ? game->MainPlayer->Health : game->MainPlayer->PrevHealthBeforeDodge);
-    float size = MeasureText((std::to_string((int)round(PlrHealth))+"%").c_str(), 92);
-    DrawRectangle((WeaponUITexture.texture.width / 2.0f - size / 2.0f)-margin,(WeaponUITexture.texture.height / 2.0f - 46)-margin,size+(margin*2),92+(margin*2),ColorAlpha((game->MainPlayer->DodgeHealthResetTimer <= 0 ? BLACK : WHITE), alpha));
-    DrawText((std::to_string((int)round(PlrHealth))+"%").c_str(), WeaponUITexture.texture.width / 2.0f - size / 2.0f, WeaponUITexture.texture.height / 2.0f - 46, 92, GetHealthColor(game->MainPlayer->Health/game->MainPlayer->MaxHealth));
+    HealthBarAnimRot = Lerp(HealthBarAnimRot, 0, 3.5f * GetFrameTime());
+    float limit = 25;
+    ft_size = Lerp(ft_size, 92, 3.5f*GetFrameTime());
+    float PlrHealth = (!game->MainPlayer->isInvincible ? game->MainPlayer->Health : game->MainPlayer->PrevHealthBeforeDodge);
+    if (LastHealth != PlrHealth && LastHealth > PlrHealth) {
+        HealthBarAnimRot = limit * (PlrHealth-LastHealth) / abs(PlrHealth-LastHealth);
+    } else if (LastHealth != PlrHealth && PlrHealth > LastHealth) {
+        ft_size = 135;
+    }
+    float size = MeasureText((std::to_string((int)round(PlrHealth))+"%").c_str(), ft_size);
+    DrawRectangle((WeaponUITexture.texture.width / 2.0f - size / 2.0f)-margin,(WeaponUITexture.texture.height / 2.0f - ft_size/2)-margin,size+(margin*2),ft_size+(margin*2),
+        ColorLerp(ColorLerp(ColorAlpha((game->MainPlayer->isInvincible ? WHITE : BLACK), alpha), RED, max(-HealthBarAnimRot,0.01f) / limit),GREEN,
+            (ft_size - 92)/43));
+    DrawTextPro(GetFontDefault(), (std::to_string((int)round(PlrHealth))+"%").c_str(),
+        {WeaponUITexture.texture.width / 2.0f,
+        WeaponUITexture.texture.height / 2.0f},
+        {size/2, ft_size/2},
+        HealthBarAnimRot,
+        ft_size,
+        10,
+        GetHealthColor(game->MainPlayer->Health/game->MainPlayer->MaxHealth));
+    LastHealth = PlrHealth;
 
     if (game->DebugDraw && game->MainPlayer->weaponsSystem.CurrentWeapon != nullptr)
         DrawText(("Weapon info " + to_string(game->MainPlayer->weaponsSystem.CurrentWeaponIndex) + " "

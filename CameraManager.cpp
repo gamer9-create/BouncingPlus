@@ -3,6 +3,9 @@
 //
 
 #include "CameraManager.h"
+
+#include <raymath.h>
+
 #include "Game.h"
 
 void CameraManager::Clear() {
@@ -121,6 +124,9 @@ void CameraManager::UpdateCamera() {
                 game->MainPlayer->BoundingBox.width / 2, game->MainPlayer->BoundingBox.y +
                 game->MainPlayer->BoundingBox.height / 2};
 
+    Vector2 MouseOffset = Vector2Subtract(GetMousePosition(), {static_cast<float>(GetScreenWidth()) / 2.0f, static_cast<float>(GetScreenHeight()) / 2.0f});
+    MouseOffset = Vector2Divide(MouseOffset, {100,100});
+
     float TargetX = CameraTarget.x - CameraPositionUnaffected.x - (static_cast<float>(GetScreenWidth()) / 2.0f);
     float TargetY = CameraTarget.y - CameraPositionUnaffected.y - (static_cast<float>(GetScreenHeight()) / 2.0f);
 
@@ -128,7 +134,9 @@ void CameraManager::UpdateCamera() {
     if (ImportantVal != 0.0f) {
         CameraPositionUnaffected.x += TargetX / ImportantVal;
         CameraPositionUnaffected.y += TargetY / ImportantVal;
+        CameraPositionUnaffected = Vector2Add(CameraPositionUnaffected, MouseOffset);
         CameraPosition = {CameraPositionUnaffected.x - CameraShakeOffset.x, CameraPositionUnaffected.y - CameraShakeOffset.y};
+
     }
 }
 
