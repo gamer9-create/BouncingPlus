@@ -104,6 +104,6 @@ void UpgradeStation::Update() {
     //Rotation = 180-(Vector2LineAngle({BoundingBox.x+BoundingBox.width/2,BoundingBox.y+BoundingBox.height/2}, {game->MainPlayer->BoundingBox.x+game->MainPlayer->BoundingBox.width/2,game->MainPlayer->BoundingBox.y+game->MainPlayer->BoundingBox.height/2})*RAD2DEG);
     AnimateTowards(180-(Vector2LineAngle({BoundingBox.x+BoundingBox.width/2,BoundingBox.y+BoundingBox.height/2}, {game->MainPlayer->BoundingBox.x+game->MainPlayer->BoundingBox.width/2,game->MainPlayer->BoundingBox.y+game->MainPlayer->BoundingBox.height/2})*RAD2DEG)+
         GetRandomValue(-35, 35));
-    Render();
     Entity::Update();
+    Render();
 }
