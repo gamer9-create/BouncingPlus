@@ -15,7 +15,6 @@ class Bullet : public Entity {
     float Damage;
     bool dd=false;
     std::weak_ptr<Entity> OwnerPtr;
-    std::string LastBouncedCoordinate;
 public:
     float Lifetime;
     bool SlowdownOverTime;

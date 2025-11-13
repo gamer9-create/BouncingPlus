@@ -28,7 +28,6 @@ Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float D
     this->Rotation = Angle;//std::atan2(Direction.y, Direction.x) * (180.0f/3.141592653589793238463f);
     this->Damage = Damage;
     this->OwnerPtr = Owner;
-    this->LastBouncedCoordinate = "";
 
     float cX = -cos(Rotation * (2 * PI / 360))*100;
     float cY = -sin(Rotation * (2 * PI / 360))*100;
@@ -53,6 +52,7 @@ void Bullet::PhysicsUpdate(float dt) {
     if (dist != 0) {
         Vector2 FinalMovement = Vector2((Movement.x / dist) * Speed, (Movement.y / dist) * Speed);
 
+        bool can_move = true;
         BoundingBox.x += FinalMovement.x * dt;
         BoundingBox.y += FinalMovement.y * dt;
         int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
@@ -68,7 +68,7 @@ void Bullet::PhysicsUpdate(float dt) {
                     float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
                     Rectangle bbox = Rectangle(bbox_x, bbox_y, game->MainTileManager.TileSize, game->MainTileManager.TileSize);
                     if (CheckCollisionRecs(BoundingBox, bbox)) {
-                        if (tile_id == 1 && coord != LastBouncedCoordinate) {
+                        if (tile_id == 1){// && coord != LastBouncedCoordinate) {
                             int dir_hit = -1; // -1 = none, 0 = left, 1 = up, 2 = right, 3 = down
                             int i= 0;
                             auto dirs = new int[4];
@@ -130,13 +130,18 @@ void Bullet::PhysicsUpdate(float dt) {
 
                             //OwnerPtr.reset();
 
-                            this->LastBouncedCoordinate = coord;
+                            can_move = false;
                         } else if (tile_id == 2) {
                             ShouldDelete = true;
                         }
                     }
                 }
             }
+        }
+
+        if (!can_move) {
+            BoundingBox.x -= FinalMovement.x * dt;
+            BoundingBox.y -= FinalMovement.y * dt;
         }
     }
 }

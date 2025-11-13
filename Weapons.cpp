@@ -275,7 +275,7 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
         // if entity dies, give owner health and increase kill count for player
         if (entity->Health <= 0) {
             if (Owner->Health > 0)
-                Owner->Health += entity->MaxHealth / 2.0f;
+                Owner->Health += CurrentWeapon->Damage;
             if (Owner->Type == PlayerType)
                 game->MainPlayer->Kills += 1;
         }

@@ -12,7 +12,7 @@
   "BulletLifetime": 0.3,
   "WeaponWeightSpeedMultiplier": 0.95,
   "Size": [4, 4],
-  "Damage": 35,
+  "Damage": 15,
   "Cooldown": 0.4,
   "AngleRange": 65.0,
   "Range": 250.0,

@@ -1,6 +1,6 @@
 {
   "description": "Time to BOUNCE!!!",
-  "inventory": ["Player Gun", "Shotgun", "Sword"],
+  "inventory": ["Player Gun"],
   "difficulty": 4,
   "starting_health": 200
 }

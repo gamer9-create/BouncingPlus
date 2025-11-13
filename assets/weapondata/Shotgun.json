@@ -8,7 +8,7 @@
   "WeaponSize": 4,
   "Speed": 1600,
   "Ammo": 3,
-  "ReloadTime": 3,
+  "ReloadTime": 1.5,
   "BulletLifetime": 0.2,
   "WeaponWeightSpeedMultiplier": 0.9,
   "Size": [4, 4],
