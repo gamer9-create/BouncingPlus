@@ -79,6 +79,7 @@ void Enemy::OnDelete() {
             {BoundingBox.x - BoundingBox.width/2, BoundingBox.y - BoundingBox.height/2},
             RED,
             40,
+            -1,
             weaponsSystem.Weapons[weaponsSystem.CurrentWeaponIndex],
             4,
             15

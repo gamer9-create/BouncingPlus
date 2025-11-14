@@ -40,6 +40,7 @@ struct WeaponPickup
     Vector2 Position;
     Color PickupColor;
     float Radius;
+    int Ammo = -1;
     std::string Weapon = "Default Gun";
     double AnimationSpeed = 2.5f;
     float AnimationPower = 50.0f;
@@ -75,7 +76,7 @@ class WeaponsSystem {
         virtual ~WeaponsSystem();
         virtual void Equip(int Index);
         virtual void Reload();
-        virtual bool GiveWeapon(std::string WeaponName);
+        virtual bool GiveWeapon(std::string WeaponName, int Ammo = -1);
         virtual bool DropWeapon(std::string WeaponName);
         virtual void Unequip();
         virtual void Update();

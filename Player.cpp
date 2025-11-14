@@ -266,6 +266,10 @@ void Player::Update() {
         if (IsKeyPressed(KEY_R) && weaponsSystem.TimeStartedReloading == -1)
             weaponsSystem.Reload();
 
+        //dropping stuff
+        if (IsKeyPressed(KEY_Q) && weaponsSystem.CurrentWeaponIndex != -1)
+            weaponsSystem.DropWeapon(weaponsSystem.Weapons[weaponsSystem.CurrentWeaponIndex]);
+
         // inventory input logic
         if (IsKeyPressed(KEY_ONE)) {
             if (weaponsSystem.CurrentWeaponIndex != 0) {

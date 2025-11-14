@@ -63,13 +63,14 @@ void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
                              height), Vector2(0, height / 2), FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
 } // LOVELY CAVITY!!!
 
-bool WeaponsSystem::GiveWeapon(std::string WeaponName)
+bool WeaponsSystem::GiveWeapon(std::string WeaponName, int Ammo)
 {
     for (int i = 0; i < 3; i++)
     {
         if (Weapons[i].empty())
         {
             Weapons[i] = WeaponName;
+            WeaponAmmo[i] = (Ammo == -1) ? game->Weapons[WeaponName].Ammo : Ammo;
             return true;
         }
     }
@@ -102,6 +103,7 @@ bool WeaponsSystem::DropWeapon(std::string WeaponName)
                 DropLoc,
                 GREEN,
                 50,
+                WeaponAmmo[i],
                 WeaponName,
                 2,
                 25
@@ -337,6 +339,10 @@ void WeaponsSystem::Attack(Vector2 Target) {
                 shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed, CurrentWeapon->Damage, BulletLifetime,
                                                                 game->Textures[BulletTexture], Owner, *game);
                 bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
+                if (Owner->Type == PlayerType)
+                    bullet->EntityColor = ColorTint(PINK, WHITE);
+                if (Owner->Type == EnemyType)
+                    bullet->EntityColor = ColorTint(RED, WHITE);
                 game->MainEntityManager.AddEntity(BulletType, bullet);
             }
 

@@ -202,6 +202,8 @@ void Game::DisplayPickups(Camera2D cam)
         float threshold = 0.5f;
         Color outlineColor = pickup.PickupColor;
 
+        DrawCircle(pickup.Position.x - MainCameraManager.CameraPosition.x, pickup.Position.y - MainCameraManager.CameraPosition.y, min(siz.x, siz.y)/2.5f, ColorAlpha(BLACK, 0.2f));
+
         EndTextureMode();
         EndMode2D();
         BeginTextureMode(WeaponPickupTex);
@@ -260,7 +262,7 @@ void Game::DisplayPickups(Camera2D cam)
         // in range?
         if (DistanceToPickup <= pickup.Radius)
         {
-            pickup.PickedUp = MainPlayer->weaponsSystem.GiveWeapon(pickup.Weapon);
+            pickup.PickedUp = MainPlayer->weaponsSystem.GiveWeapon(pickup.Weapon, pickup.Ammo);
         }
     }
 }
