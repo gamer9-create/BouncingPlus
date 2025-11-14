@@ -1,12 +1,12 @@
+#include "raylib.h"
 #include <iostream>
-#include <raylib.h>
 #include <raymath.h>
-#include "Game.h"
-#include "Menu.h"
-#include "LevelLoader.h"
+#include "game/Game.h"
+#include "game/Menu.h"
+#include "game/network/Server.h"
+#include "level/LevelLoader.h"
 
-int main() {
-    cout << "instant crash vro\n";
+void singleplayer() {
     InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "BouncingPlus");
     SetTargetFPS(GetMonitorRefreshRate(0));
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI | FLAG_VSYNC_HINT);
@@ -101,5 +101,28 @@ int main() {
     UnloadMusicStream(music);
     CloseAudioDevice();
     CloseWindow();
+}
+
+void client() {
+
+}
+
+void server() {
+    Server myServer = Server("127.0.0.1", 8080);
+    myServer.Start();
+    myServer.Stop();
+}
+
+int main(int argc, char *argv[]) {
+    cout << "instant crash vro\n";
+
+    if (argc == 0 || argv[0] == "singleplayer") {
+        singleplayer();
+    } else if (argc > 0 && argv[0] == "server") {
+        server();
+    } else if (argc > 0 && argv[0] == "client") {
+        client();
+    }
+
     return 0;
 }

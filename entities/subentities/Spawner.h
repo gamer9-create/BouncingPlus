@@ -4,7 +4,7 @@
 
 #ifndef BOUNCINGPLUS_SPAWNER_H
 #define BOUNCINGPLUS_SPAWNER_H
-#include "Entity.h"
+#include "../Entity.h"
 
 class Spawner : public Entity{
 public:

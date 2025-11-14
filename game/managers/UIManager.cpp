@@ -7,7 +7,7 @@
 #include <iostream>
 #include <raymath.h>
 
-#include "Game.h"
+#include "../Game.h"
 
 Color GetHealthColor(float Percent, float Armor) {
     if (Armor > 0)

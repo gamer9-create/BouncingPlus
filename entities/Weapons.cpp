@@ -5,11 +5,11 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "Entity.h"
-#include "Bullet.h"
-#include "Game.h"
+#include "subentities/Bullet.h"
+#include "../game/Game.h"
 #include "Weapons.h"
 
-#include "Enemy.h"
+#include "subentities/Enemy.h"
 #include "iostream"
 
 using namespace std;

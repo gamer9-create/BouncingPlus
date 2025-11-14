@@ -8,10 +8,10 @@
 #include <raymath.h>
 
 #include "raylib.h"
-#include "Game.h"
+#include "../../game/Game.h"
 #include "Player.h"
 
-#include "UIManager.h"
+#include "../../game/managers/UIManager.h"
 
 Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,
                                                                    Rectangle(X - 18, Y - 18, 36, 36), Speed, game) {

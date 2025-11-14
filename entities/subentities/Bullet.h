@@ -6,7 +6,7 @@
 #define BOUNCINGPLUS_BULLET_H
 #include <string>
 
-#include "Entity.h"
+#include "../Entity.h"
 
 using namespace std;
 

@@ -6,7 +6,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include "Game.h"
+#include "../game/Game.h"
 #include "Entity.h"
 
 EntityManager::EntityManager()

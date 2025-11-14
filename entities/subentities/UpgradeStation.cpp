@@ -7,7 +7,7 @@
 #include <iostream>
 #include <raymath.h>
 
-#include "Game.h"
+#include "../../game/Game.h"
 
 double to_positive_angle(double angle)
 {

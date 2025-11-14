@@ -4,8 +4,8 @@
 
 #ifndef BOUNCINGPLUS_ENEMY_H
 #define BOUNCINGPLUS_ENEMY_H
-#include "Entity.h"
-#include "Weapons.h"
+#include "../Entity.h"
+#include "../Weapons.h"
 
 
 class Enemy : public Entity {

@@ -8,13 +8,13 @@
 #include <raymath.h>
 
 #include "raylib.h"
-#include "Weapons.h"
-#include "UIManager.h"
+#include "../entities/Weapons.h"
+#include "managers/UIManager.h"
 
 #include <filesystem>
 #include <fstream>
 
-#include "LevelLoader.h"
+#include "../level/LevelLoader.h"
 namespace fs = std::filesystem;
 
 using namespace std;

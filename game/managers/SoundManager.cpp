@@ -3,7 +3,7 @@
 //
 
 #include "SoundManager.h"
-#include "Game.h"
+#include "../Game.h"
 #include <filesystem>
 #include <iostream>
 

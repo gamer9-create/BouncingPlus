@@ -9,7 +9,7 @@
 #include <raymath.h>
 #include <nlohmann/json.hpp>
 #include "Enemy.h"
-#include "Game.h"
+#include "../../game/Game.h"
 
 using namespace std;
 

@@ -5,8 +5,8 @@
 #ifndef BOUNCINGPLUS_PLAYER_H
 #define BOUNCINGPLUS_PLAYER_H
 #include "Enemy.h"
-#include "Entity.h"
-#include "Weapons.h"
+#include "../Entity.h"
+#include "../Weapons.h"
 
 
 class Player : public Entity {

@@ -7,15 +7,15 @@
 
 #include <raylib.h>
 #include <nlohmann/json_fwd.hpp>
-#include "CameraManager.h"
-#include "Entity.h"
-#include "EntityManager.h"
-#include "ParticleManager.h"
-#include "Player.h"
-#include "SoundManager.h"
-#include "TileManager.h"
-#include "UIManager.h"
-#include "Weapons.h"
+#include "managers/CameraManager.h"
+#include "../entities/Entity.h"
+#include "../entities/EntityManager.h"
+#include "managers/ParticleManager.h"
+#include "../entities/subentities/Player.h"
+#include "managers/SoundManager.h"
+#include "../level/TileManager.h"
+#include "managers/UIManager.h"
+#include "../entities/Weapons.h"
 
 using namespace std;
 

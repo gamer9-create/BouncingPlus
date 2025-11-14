@@ -6,7 +6,7 @@
 
 #include <raymath.h>
 
-#include "Game.h"
+#include "../../game/Game.h"
 
 Spawner::Spawner() {
 }

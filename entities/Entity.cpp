@@ -8,8 +8,8 @@
 #include <raylib.h>
 #include <raymath.h>
 
-#include "Bullet.h"
-#include "Game.h"
+#include "subentities/Bullet.h"
+#include "../game/Game.h"
 
 void Entity::Initialize(Texture2D &Texture, Rectangle BoundingBox, float Speed) {
     this->Texture = &Texture;

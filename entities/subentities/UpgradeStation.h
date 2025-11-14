@@ -5,7 +5,7 @@
 #ifndef BOUNCINGPLUS_UPGRADESTATION_H
 #define BOUNCINGPLUS_UPGRADESTATION_H
 
-#include "Entity.h"
+#include "../Entity.h"
 
 class Game;
 

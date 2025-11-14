@@ -7,7 +7,7 @@
 #include <iostream>
 #include <raymath.h>
 
-#include "Game.h"
+#include "../Game.h"
 
 ParticleManager::ParticleManager() {
 }

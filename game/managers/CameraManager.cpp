@@ -6,7 +6,7 @@
 
 #include <raymath.h>
 
-#include "Game.h"
+#include "../Game.h"
 
 void CameraManager::Clear() {
     if (CamTextureInitialized)

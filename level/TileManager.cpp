@@ -8,10 +8,10 @@
 #include <fstream>
 #include <string>
 
-#include "Enemy.h"
-#include "Game.h"
-#include "Spawner.h"
-#include "UpgradeStation.h"
+#include "../entities/subentities/Enemy.h"
+#include "../game/Game.h"
+#include "../entities/subentities/Spawner.h"
+#include "../entities/subentities/UpgradeStation.h"
 
 TileManager::TileManager() {
 
