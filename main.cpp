@@ -108,19 +108,20 @@ void client() {
 }
 
 void server() {
-    Server myServer = Server("127.0.0.1", 8080);
-    myServer.Start();
-    myServer.Stop();
+    cout << "server software activated.\n";
+    StartServer();
+    StopServer();
 }
 
 int main(int argc, char *argv[]) {
-    cout << "instant crash vro\n";
+    cout << "instant crash vro, " << argv[1] << endl;
+    cout << argc << endl;
 
-    if (argc == 0 || argv[0] == "singleplayer") {
+    if (argc == 1 || argv[1] == string("singleplayer").c_str()) {
         singleplayer();
-    } else if (argc > 0 && argv[0] == "server") {
+    } else if (argc > 1 && argv[1] == string("server").c_str()) {
         server();
-    } else if (argc > 0 && argv[0] == "client") {
+    } else if (argc > 1 && argv[1] == string("client").c_str()) {
         client();
     }
 

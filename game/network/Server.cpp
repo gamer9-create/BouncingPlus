@@ -3,10 +3,16 @@
 //
 
 #include "Server.h"
-
 #include <iostream>
 
-Server::Server(std::string IPAddress, int Port, int MaxClients) {
+#define ENET_IMPLEMENTATION
+#include "enet/enet.h"
+
+ENetAddress address;
+ENetEvent event;
+ENetHost* server;
+
+bool StartServer(std::string IPAddress, int Port, int MaxClients) {
     enet_initialize();
 
     enet_address_set_host_ip(&address, IPAddress.c_str());
@@ -17,9 +23,7 @@ Server::Server(std::string IPAddress, int Port, int MaxClients) {
     if (server == NULL) {
         std::cout << "Error creating server\n";
     }
-}
 
-void Server::Start() {
     /* Wait up to 1000 milliseconds for an event. (WARNING: blocking) */
     const char* s = "Client information";
     while (enet_host_service(server, &event, 1000) > 0) {
@@ -51,11 +55,10 @@ void Server::Start() {
                 break;
         }
     }
+    return true;
 }
 
-void Server::Stop() {
+void StopServer() {
     enet_host_destroy(server);
     enet_deinitialize();
-
-    delete server;
 }

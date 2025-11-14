@@ -4,9 +4,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(raylib_DIR "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/share/raylib")
 set(raylib_INCLUDE_DIR "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include")
 set(nlohmann_json_DIR "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/share/nlohmann_json")
+set(unofficial-enet_DIR "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/share/unofficial-enet")
 set(raylib_LIBRARY "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/lib/libraylib.dll.a")
 find_package(raylib CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(unofficial-enet CONFIG REQUIRED)
 add_executable(BouncingPlus main.cpp
         game/Game.cpp
         game/Game.h
@@ -47,3 +49,4 @@ add_executable(BouncingPlus main.cpp
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)
+target_link_libraries(BouncingPlus PRIVATE unofficial::enet::enet)
