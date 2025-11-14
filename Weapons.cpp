@@ -340,9 +340,9 @@ void WeaponsSystem::Attack(Vector2 Target) {
                                                                 game->Textures[BulletTexture], Owner, *game);
                 bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
                 if (Owner->Type == PlayerType)
-                    bullet->EntityColor = ColorTint(PINK, WHITE);
+                    bullet->EntityColor = {255, 120, 255, 255};
                 if (Owner->Type == EnemyType)
-                    bullet->EntityColor = ColorTint(RED, WHITE);
+                    bullet->EntityColor = {255, 122, 157, 255};
                 game->MainEntityManager.AddEntity(BulletType, bullet);
             }
 
