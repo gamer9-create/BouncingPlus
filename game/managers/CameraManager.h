@@ -39,6 +39,7 @@ class CameraManager {
         Game* game;
         Vector2 CameraPosition;
         Vector2 CameraTarget;
+        Camera2D RaylibCamera;
         float CameraZoom;
         bool ShaderDraw;
         float ShaderPixelPower;

@@ -46,7 +46,7 @@ WeaponsSystem::~WeaponsSystem() {
 
 void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
     auto Owner = OwnerPtr.lock();
-    Vector2 Target ={(float)GetMouseX(), (float)GetMouseY()};
+    Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
     if (Owner->Type == EnemyType)
         Target = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x,
         game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y
@@ -54,7 +54,7 @@ void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
 
     float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
     float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-    float FinalAngle = (atan2(cy - (Target.y + game->MainCameraManager.CameraPosition.y), cx - (Target.x + game->MainCameraManager.CameraPosition.x)) * RAD2DEG);
+    float FinalAngle = (atan2(cy - Target.y, cx - Target.x) * RAD2DEG);
     MeleeAnimTexture = &game->Textures[CurrentWeapon->texture];
     float width = MeleeAnimTexture->width*CurrentWeapon->WeaponSize;
     float height = MeleeAnimTexture->height*CurrentWeapon->WeaponSize;
@@ -148,7 +148,8 @@ void WeaponsSystem::Update() {
         // get angle
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-        float Angle = (atan2(cy - (GetMouseY() + game->MainCameraManager.CameraPosition.y), cx - (GetMouseX() + game->MainCameraManager.CameraPosition.x)) * RAD2DEG)+180;
+        Vector2 MP = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
+        float Angle = (atan2(cy - MP.y, cx - MP.x) * RAD2DEG)+180;
 
         // get positions
         float z = (Angle - MeleeAnimRange/2) * DEG2RAD;

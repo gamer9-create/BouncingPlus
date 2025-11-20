@@ -267,7 +267,7 @@ void Game::DisplayPickups(Camera2D cam)
     }
 }
 
-void Game::Update(Camera2D camera) {
+void Game::Update() {
     if (IsKeyPressed(KEY_M))
         Paused = !Paused;
 
@@ -293,13 +293,13 @@ void Game::Update(Camera2D camera) {
                 Reload(CurrentLevelName);
         }
 
-        MainCameraManager.Begin(camera);
+        MainCameraManager.Begin();
         ProcessSlowdownAnimation();
         MainTileManager.Update();
         MainParticleManager.Update();
         MainEntityManager.Update();
         MainSoundManager.Update();
-        DisplayPickups(camera);
+        DisplayPickups();
         MainCameraManager.End();
 
     }

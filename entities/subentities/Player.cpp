@@ -147,7 +147,7 @@ void Player::DashLogic() {
         DashedEnemies.clear();
     }
 
-    auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->MainCameraManager.CameraPosition.x, static_cast<float> (GetMouseY()) + game->MainCameraManager.CameraPosition.y);
+    Vector2 WorldMousePos = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
     if (DashCooldown <= 0 && IsKeyDown(KEY_LEFT_SHIFT)) {
         if (!IsPreparingForDash) {
             DashTimeStart = GetTime();
@@ -165,10 +165,10 @@ void Player::DashLogic() {
             if (static_cast<float>(GetTime() - DashTimeStart) / 1.1f > 0.8f)
                 PlayerDashLineThickness = Lerp(PlayerDashLineThickness, 20, 2 * GetFrameTime());
             float alpha = static_cast<float>(GetTime() - DashTimeStart) / 1.1f;
-            Vector2 Target ={(float)GetMouseX(), (float)GetMouseY()};
+            Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
             float cx = BoundingBox.x + BoundingBox.width / 2;
             float cy = BoundingBox.y + BoundingBox.height / 2;
-            float FinalAngle = (atan2(cy - (Target.y + game->MainCameraManager.CameraPosition.y), cx - (Target.x + game->MainCameraManager.CameraPosition.x)) * RAD2DEG);
+            float FinalAngle = (atan2(cy - Target.y, cx - Target.x) * RAD2DEG);
             Texture2D& MeleeAnimTexture = game->Textures["arrow"];
             float width = MeleeAnimTexture.width;
             float height = MeleeAnimTexture.height;
@@ -258,7 +258,7 @@ void Player::Update() {
             weaponsSystem.Reload();
         }
 
-        auto WorldMousePos = Vector2(static_cast<float> (GetMouseX()) + game->MainCameraManager.CameraPosition.x, static_cast<float> (GetMouseY()) + game->MainCameraManager.CameraPosition.y);
+        auto WorldMousePos =  GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
         if (IsMouseButtonDown(0) && !IsPreparingForDash)
             weaponsSystem.Attack(WorldMousePos);
 

@@ -28,7 +28,7 @@ class Game {
     UIManager MainUIManager;
     void SetGameData();
     void ProcessSlowdownAnimation();
-    void DisplayPickups(Camera2D cam);
+    void DisplayPickups();
 
     RenderTexture2D WeaponPickupTex;
     int uTextureSize;
@@ -63,7 +63,7 @@ class Game {
         void Slowdown(float Time);
         void Slowdown(float Time, float ShakeIntensity);
         void Reload(std::string Filename);
-        void Update(Camera2D camera);
+        void Update();
         void Clear();
         void Quit();
         void UnloadAssets();

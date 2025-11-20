@@ -1,3 +1,4 @@
+#include "raylib_win32.h"
 #include "raylib.h"
 #include <iostream>
 #include <raymath.h>
@@ -7,8 +8,8 @@
 #include "level/LevelLoader.h"
 
 void singleplayer() {
-    InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "BouncingPlus");
-    SetTargetFPS(GetMonitorRefreshRate(0));
+    InitWindow(GetMonitorWidth(1), GetMonitorHeight(1), "BouncingPlus");
+    SetTargetFPS(GetMonitorRefreshRate(1));
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI | FLAG_VSYNC_HINT);
 
     SetWindowIcon(LoadImage("assets/img/player.png"));
@@ -32,8 +33,6 @@ void singleplayer() {
     if (OnWeb)
         HasAgreed = false;
 
-    Camera2D zoom_cam = {{0, 0}, {0, 0}, 0, 1.0f};
-
     Music music = LoadMusicStream(string("assets/spookypiano.mp3").c_str());
     SetMusicVolume(music, 1);
     time_t t;
@@ -51,8 +50,6 @@ void singleplayer() {
         if (IsKeyPressed(KEY_F11) && !OnWeb)
             ToggleFullscreen();
 
-        BeginMode2D(zoom_cam);
-
         ClearBackground(BLANK);
         UpdateMusicStream(music);
         if (HasAgreed) {
@@ -66,14 +63,11 @@ void singleplayer() {
                     MainGame.ShouldReturn = false;
                 } else
                 {
-                    MainGame.Update(zoom_cam);
-                    zoom_cam.zoom = lerp(zoom_cam.zoom, MainGame.MainCameraManager.CameraZoom, 4 * GetFrameTime());
-                    zoom_cam.offset = {((float)GetScreenWidth()/2.0f) * (1.0f-zoom_cam.zoom), ((float)GetScreenHeight()/2.0f) * (1.0f-zoom_cam.zoom)};
+                    MainGame.Update();
                 }
 
                 // i am scared!!! i scare you!!!
             } else {
-                zoom_cam = {{0, 0}, {0, 0}, 0, 1.0f};
                 MainMenu.Update();
                 std::string map = MainMenu.LeaveMenu();
                 if (!map.empty()) {
@@ -114,16 +108,7 @@ void server() {
 }
 
 int main(int argc, char *argv[]) {
-    cout << "instant crash vro, " << argv[1] << endl;
-    cout << argc << endl;
-
-    if (argc == 1 || argv[1] == string("singleplayer").c_str()) {
-        singleplayer();
-    } else if (argc > 1 && argv[1] == string("server").c_str()) {
-        server();
-    } else if (argc > 1 && argv[1] == string("client").c_str()) {
-        client();
-    }
+    singleplayer();
 
     return 0;
 }

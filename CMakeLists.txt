@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 4.0)
 project(BouncingPlus)
 set(CMAKE_CXX_STANDARD 20)
-set(raylib_DIR "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/share/raylib")
-set(raylib_INCLUDE_DIR "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include")
-set(nlohmann_json_DIR "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/share/nlohmann_json")
-set(unofficial-enet_DIR "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/share/unofficial-enet")
-set(raylib_LIBRARY "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/lib/libraylib.dll.a")
+#set(raylib_DIR "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/share/raylib")
+#set(raylib_INCLUDE_DIR "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/include")
+#set(nlohmann_json_DIR "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/share/nlohmann_json")
+#set(unofficial-enet_DIR "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/share/unofficial-enet")
+#set(raylib_LIBRARY "C:/Users/7906200/.vcpkg-clion/vcpkg/installed/x64-mingw-dynamic/lib/libraylib.dll.a")
 find_package(raylib CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(unofficial-enet CONFIG REQUIRED)
@@ -46,7 +46,9 @@ add_executable(BouncingPlus main.cpp
         entities/subentities/UpgradeStation.h
         game/network/Server.cpp
         game/network/Server.h
+        raylib_win32.h
+        enet.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)
-target_link_libraries(BouncingPlus PRIVATE unofficial::enet::enet)
+target_link_libraries(BouncingPlus PRIVATE unofficial::enet::enet winmm ws2_32)

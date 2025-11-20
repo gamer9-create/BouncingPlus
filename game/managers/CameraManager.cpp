@@ -31,6 +31,7 @@ void CameraManager::Clear() {
     uWidth = -1;
     uHeight = -1;
     uPixelSize = -1;
+    RaylibCamera = {CameraPosition, {0, 0}, 0, 1.0f};
 }
 
 CameraManager::CameraManager(Game &game) {
@@ -63,9 +64,13 @@ void CameraManager::Display() {
     SetShaderValue(game->Shaders["pixelizer"], uWidth, &w, SHADER_UNIFORM_INT);
     SetShaderValue(game->Shaders["pixelizer"], uHeight, &h, SHADER_UNIFORM_INT);
     SetShaderValue(game->Shaders["pixelizer"], uPixelSize, &ShaderPixelPower, SHADER_UNIFORM_FLOAT);
+    RaylibCamera.zoom = lerp(RaylibCamera.zoom, CameraZoom, 4 * GetFrameTime());
+    RaylibCamera.offset = Vector2Add({((float)GetScreenWidth()/2.0f) * (1.0f-RaylibCamera.zoom), ((float)GetScreenHeight()/2.0f) * (1.0f-RaylibCamera.zoom)},CameraPosition);
+    BeginMode2D(RaylibCamera);
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTexturePro(CameraRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
     EndBlendMode();
+    EndMode2D();
     if (ShaderDraw) {
         EndShaderMode();
         DrawText(to_string(ShaderPixelPower).c_str(), 150, 150, 50, RED);
