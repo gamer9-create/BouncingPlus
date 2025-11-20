@@ -31,7 +31,7 @@ void CameraManager::Clear() {
     uWidth = -1;
     uHeight = -1;
     uPixelSize = -1;
-    RaylibCamera = {CameraPosition, {0, 0}, 0, 1.0f};
+    RaylibCamera = {{0,0}, {0, 0}, 0, 1.0f};
 }
 
 CameraManager::CameraManager(Game &game) {
@@ -64,13 +64,9 @@ void CameraManager::Display() {
     SetShaderValue(game->Shaders["pixelizer"], uWidth, &w, SHADER_UNIFORM_INT);
     SetShaderValue(game->Shaders["pixelizer"], uHeight, &h, SHADER_UNIFORM_INT);
     SetShaderValue(game->Shaders["pixelizer"], uPixelSize, &ShaderPixelPower, SHADER_UNIFORM_FLOAT);
-    RaylibCamera.zoom = lerp(RaylibCamera.zoom, CameraZoom, 4 * GetFrameTime());
-    RaylibCamera.offset = Vector2Add({((float)GetScreenWidth()/2.0f) * (1.0f-RaylibCamera.zoom), ((float)GetScreenHeight()/2.0f) * (1.0f-RaylibCamera.zoom)},CameraPosition);
-    BeginMode2D(RaylibCamera);
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTexturePro(CameraRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
     EndBlendMode();
-    EndMode2D();
     if (ShaderDraw) {
         EndShaderMode();
         DrawText(to_string(ShaderPixelPower).c_str(), 150, 150, 50, RED);
@@ -139,13 +135,15 @@ void CameraManager::UpdateCamera() {
     if (ImportantVal != 0.0f) {
         CameraPositionUnaffected.x += TargetX / ImportantVal;
         CameraPositionUnaffected.y += TargetY / ImportantVal;
-        CameraPositionUnaffected = Vector2Add(CameraPositionUnaffected, MouseOffset);
         CameraPosition = {CameraPositionUnaffected.x - CameraShakeOffset.x, CameraPositionUnaffected.y - CameraShakeOffset.y};
-
+        CameraPosition = Vector2Add(CameraPosition, MouseOffset);
     }
+
+    RaylibCamera.zoom = lerp(RaylibCamera.zoom, CameraZoom, 4 * GetFrameTime());
+    RaylibCamera.target = CameraPosition;//Vector2Add({((float)GetScreenWidth()/2.0f), ((float)GetScreenHeight()/2.0f)},CameraPosition);
 }
 
-void CameraManager::Begin(Camera2D rayCam) {
+void CameraManager::Begin() {
     if (ZoomResetTimer > 0)
         ZoomResetTimer -= GetFrameTime();
     if (ZoomResetTimer <= 0)
@@ -155,9 +153,9 @@ void CameraManager::Begin(Camera2D rayCam) {
     ProcessCameraShake();
     UpdateCamera();
     BeginTextureMode(CameraRenderTexture);
-    BeginMode2D(rayCam);
     ClearBackground(BackgroundColor);
     BackgroundLines();
+    BeginMode2D(RaylibCamera);
 }
 
 void CameraManager::End() {

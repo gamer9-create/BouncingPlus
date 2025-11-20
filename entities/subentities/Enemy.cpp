@@ -159,16 +159,16 @@ void Enemy::Update() {
             else if (t == "131") // idk what that is...
                 t = "132";
             DrawText(t.c_str(),
-                     center_x - total_size / 2 - game->MainCameraManager.CameraPosition.x,
-                     BoundingBox.y - 36 - game->MainCameraManager.CameraPosition.y, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
-            DrawText("%", center_x - total_size/2 - game->MainCameraManager.CameraPosition.x + size+1, BoundingBox.y - 22 - game->MainCameraManager.CameraPosition.y, 18, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
+                     center_x - total_size / 2,
+                     BoundingBox.y - 36, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
+            DrawText("%", center_x - total_size/2 + size+1, BoundingBox.y - 22, 18, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
         }
         weaponsSystem.Update();
     }
     Entity::Update();
     if (isActive) {
         if (IsVisible() && Armor > 0)
-            DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x - game->MainCameraManager.CameraPosition.x, BoundingBox.y - game->MainCameraManager.CameraPosition.y, BoundingBox.width, BoundingBox.height}, {0, 0}, 0, WHITE);
+            DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x, BoundingBox.y, BoundingBox.width, BoundingBox.height}, {0, 0}, 0, WHITE);
     }
 }
 

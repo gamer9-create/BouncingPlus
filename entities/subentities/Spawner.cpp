@@ -76,8 +76,8 @@ void Spawner::Render() {
     F1 /= Dec;
     F2 /= Dec;
     DrawTexturePro(game->Textures["bouncy_wall"], {0, 0, 18, 18},
-        {center_pos.x - game->MainCameraManager.CameraPosition.x + F1 * PosMultiplier - DistF,
-            center_pos.y - game->MainCameraManager.CameraPosition.y + F2 * PosMultiplier - DistF,
+        {center_pos.x + F1 * PosMultiplier - DistF,
+            center_pos.y + F2 * PosMultiplier - DistF,
             Siz, Siz},
         {Siz, Siz}, F1 * RotMultiplier, ColorAlpha(F3, St + F1/TrDec));
     F1 = sin(GetTime()+RandomNumbers[2]);
@@ -85,8 +85,8 @@ void Spawner::Render() {
     F1 /= Dec;
     F2 /= Dec;
     DrawTexturePro(game->Textures["bouncy_wall"], {18, 0, 18, 18},
-        {center_pos.x - game->MainCameraManager.CameraPosition.x + F1 * PosMultiplier + DistF,
-            center_pos.y - game->MainCameraManager.CameraPosition.y + F2 * PosMultiplier-DistF,
+        {center_pos.x + F1 * PosMultiplier + DistF,
+            center_pos.y + F2 * PosMultiplier-DistF,
             Siz, Siz},
         {0, Siz}, F1 * RotMultiplier, ColorAlpha(F3, St + F1/TrDec));
     F1 = sin(GetTime()+RandomNumbers[4]);
@@ -94,8 +94,8 @@ void Spawner::Render() {
     F1 /= Dec;
     F2 /= Dec;
     DrawTexturePro(game->Textures["bouncy_wall"], {0, 18, 18, 18},
-        {center_pos.x - game->MainCameraManager.CameraPosition.x + F1 * PosMultiplier - DistF,
-            center_pos.y - game->MainCameraManager.CameraPosition.y + F2 * PosMultiplier + DistF,
+        {center_pos.x + F1 * PosMultiplier - DistF,
+            center_pos.y + F2 * PosMultiplier + DistF,
             Siz, Siz},
         {Siz, 0}, F1 * RotMultiplier, ColorAlpha(F3, St + F1/TrDec));
     F1 = sin(GetTime()+RandomNumbers[6]);
@@ -103,8 +103,8 @@ void Spawner::Render() {
     F1 /= Dec;
     F2 /= Dec;
     DrawTexturePro(game->Textures["bouncy_wall"], {18, 18, 18, 18},
-        {center_pos.x - game->MainCameraManager.CameraPosition.x + F1 * PosMultiplier + DistF,
-            center_pos.y - game->MainCameraManager.CameraPosition.y + F2 * PosMultiplier+ DistF,
+        {center_pos.x + F1 * PosMultiplier + DistF,
+            center_pos.y + F2 * PosMultiplier+ DistF,
             Siz, Siz},
         {0, 0}, F1 * RotMultiplier, ColorAlpha(F3, St + F1/TrDec));
 }

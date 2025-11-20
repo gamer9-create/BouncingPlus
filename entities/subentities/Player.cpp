@@ -180,8 +180,8 @@ void Player::DashLogic() {
                 SHADER_ATTRIB_FLOAT);
             float size = 0.375f;
             DrawTexturePro(MeleeAnimTexture, Rectangle(0, 0, width, height *6),
-                           Rectangle(BoundingBox.x + BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x - cosf((FinalAngle) * DEG2RAD)*10,
-                               BoundingBox.y +BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y - sinf((FinalAngle) * DEG2RAD)*10, width*size,
+                           Rectangle(BoundingBox.x + BoundingBox.width/2 - cosf((FinalAngle) * DEG2RAD)*10,
+                               BoundingBox.y +BoundingBox.height/2 - sinf((FinalAngle) * DEG2RAD)*10, width*size,
                                      height * 6 * size), Vector2(width * size * 0.5, height*6*size), FinalAngle-90, ColorAlpha(WHITE, alpha));
             EndShaderMode();
         }
@@ -208,11 +208,11 @@ void Player::DashLogic() {
     float a = 0.25f;
     if (IsPreparingForDash)
         a = Lerp(0.25f, 0.5f, min( (float)(GetTime() - DashTimeStart) / 0.2f, 1.0f ));
-    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->MainCameraManager.CameraPosition.x),
-        (int)(BoundingBox.y + BoundingBox.width + 10 - game->MainCameraManager.CameraPosition.y),
+    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2)),
+        (int)(BoundingBox.y + BoundingBox.width + 10),
         w, h, ColorAlpha(BLACK, a));
-    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2) - game->MainCameraManager.CameraPosition.x)+5,
-        (int)(BoundingBox.y + BoundingBox.width + 10 - game->MainCameraManager.CameraPosition.y)+5,
+    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2))+5,
+        (int)(BoundingBox.y + BoundingBox.width + 10)+5,
         (!IsPreparingForDash ? 0 : min(static_cast<float>(GetTime() - DashTimeStart) / 1.1f, 1.0f))*(w-10), h-10, ColorAlpha(WHITE, a+0.25f));
 }
 

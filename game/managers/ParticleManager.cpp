@@ -54,8 +54,8 @@ void ParticleManager::Update() {
         p.Position += p.Target * p.Velocity * GetFrameTime();
         p.ParticleColor = ColorLerp(p.ParticleColor, p.Data.TargetColor, Percent);
 
-        DrawRectanglePro({p.Position.x - game->MainCameraManager.CameraPosition.x,
-            p.Position.y - game->MainCameraManager.CameraPosition.y,
+        DrawRectanglePro({p.Position.x,
+            p.Position.y,
             p.Data.Size,p.Data.Size},
             {p.Data.Size/2, p.Data.Size/2},
             (GetTime() - p.SpawnTime) * 100 * (1-Percent),

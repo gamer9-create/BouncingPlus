@@ -80,40 +80,40 @@ void TileManager::Update() {
                 }
 
                 if (left) {
-                    DrawTexturePro(*tile_tex, {10,0,1,36}, Rectangle(bbox_x - CameraPosition->x,
-                bbox_y - CameraPosition->y, 8, 72), {}, 0, WHITE);
+                    DrawTexturePro(*tile_tex, {10,0,1,36}, Rectangle(bbox_x,
+                bbox_y, 8, 72), {}, 0, WHITE);
                 }
                 if (right) {
-                    DrawTexturePro(*tile_tex, {10,0,1,36}, Rectangle(bbox_x - CameraPosition->x+TileSize-8,
-                bbox_y - CameraPosition->y, 8, 72), {}, 0, WHITE);
+                    DrawTexturePro(*tile_tex, {10,0,1,36}, Rectangle(bbox_x+TileSize-8,
+                bbox_y, 8, 72), {}, 0, WHITE);
                 }
                 if (up) {
-                    DrawTexturePro(*tile_tex, {0,10,36,1}, Rectangle(bbox_x - CameraPosition->x,
-                bbox_y - CameraPosition->y, 72, 8), {}, 0, WHITE);
+                    DrawTexturePro(*tile_tex, {0,10,36,1}, Rectangle(bbox_x,
+                bbox_y, 72, 8), {}, 0, WHITE);
                 }
                 if (down) {
-                    DrawTexturePro(*tile_tex, {0,10,36,1}, Rectangle(bbox_x - CameraPosition->x,
-                bbox_y - CameraPosition->y+TileSize-8, 72, 8), {}, 0, WHITE);
+                    DrawTexturePro(*tile_tex, {0,10,36,1}, Rectangle(bbox_x,
+                bbox_y+TileSize-8, 72, 8), {}, 0, WHITE);
                 }
 
-                DrawTexturePro(*tile_tex, rec, Rectangle(bbox_x - CameraPosition->x + (rec.x*2),
-                    bbox_y - CameraPosition->y +(rec.y*2), rec.width*2, rec.height*2), {}, 0, WHITE);
+                DrawTexturePro(*tile_tex, rec, Rectangle(bbox_x + (rec.x*2),
+                    bbox_y +(rec.y*2), rec.width*2, rec.height*2), {}, 0, WHITE);
 
                 if (left && up && diagonal_lu)
                     DrawTexturePro(*tile_tex,{10,10,1,1},
-                        {bbox_x - CameraPosition->x, bbox_y - CameraPosition->y,8,8},
+                        {bbox_x, bbox_y,8,8},
                         {},0,WHITE);
                 if (left && down && diagonal_ld)
                     DrawTexturePro(*tile_tex,{10,10,1,1},
-                        {bbox_x - CameraPosition->x, bbox_y - CameraPosition->y + TileSize-8,8,8},
+                        {bbox_x, bbox_y + TileSize-8,8,8},
                         {},0,WHITE);
                 if (right && up && diagonal_ru)
                     DrawTexturePro(*tile_tex,{10,10,1,1},
-                        {bbox_x - CameraPosition->x+TileSize-8, bbox_y - CameraPosition->y,8,8},
+                        {bbox_x+TileSize-8, bbox_y,8,8},
                         {},0,WHITE);
                 if (right && down && diagonal_rd)
                     DrawTexturePro(*tile_tex,{10,10,1,1},
-                        {bbox_x - CameraPosition->x+TileSize-8, bbox_y - CameraPosition->y + TileSize-8,8,8},
+                        {bbox_x+TileSize-8, bbox_y + TileSize-8,8,8},
                         {},0,WHITE);
             }
         }

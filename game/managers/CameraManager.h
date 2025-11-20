@@ -49,7 +49,7 @@ class CameraManager {
         void ShakeCamera(float Intensity);
         void QuickZoom(float Zoom, double Time);
         void Display();
-        void Begin(Camera2D rayCam);
+        void Begin();
         void End();
         void Clear();
         void Quit();

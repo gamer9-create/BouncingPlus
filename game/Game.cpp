@@ -181,7 +181,7 @@ void Game::PlaceWeaponPickup(WeaponPickup pickup) {
     WeaponPickups.push_back(pickup);
 }
 
-void Game::DisplayPickups(Camera2D cam)
+void Game::DisplayPickups()
 {
     std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
             return pickup.PickedUp || GetTime() - pickup.CreationTime >= 45 || !Weapons.contains(pickup.Weapon);
@@ -202,7 +202,7 @@ void Game::DisplayPickups(Camera2D cam)
         float threshold = 0.5f;
         Color outlineColor = pickup.PickupColor;
 
-        DrawCircle(pickup.Position.x - MainCameraManager.CameraPosition.x, pickup.Position.y - MainCameraManager.CameraPosition.y, min(siz.x, siz.y)/2.5f, ColorAlpha(BLACK, 0.2f));
+        DrawCircle(pickup.Position.x, pickup.Position.y, min(siz.x, siz.y)/2.5f, ColorAlpha(BLACK, 0.2f));
 
         EndTextureMode();
         EndMode2D();
@@ -225,7 +225,7 @@ void Game::DisplayPickups(Camera2D cam)
         EndBlendMode();
         EndTextureMode();
         BeginTextureMode(MainCameraManager.CameraRenderTexture);
-        BeginMode2D(cam);
+        BeginMode2D(MainCameraManager.RaylibCamera);
 
         BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
         BeginShaderMode(Shaders["outline"]);
@@ -241,8 +241,8 @@ void Game::DisplayPickups(Camera2D cam)
         }, SHADER_UNIFORM_VEC4);
         DrawTexturePro(WeaponPickupTex.texture, {0,0,(float)WeaponPickupTex.texture.width,
             (float)-WeaponPickupTex.texture.height
-        }, {pickup.Position.x - MainCameraManager.CameraPosition.x,
-            pickup.Position.y  - MainCameraManager.CameraPosition.y - AnimationOffset,
+        }, {pickup.Position.x,
+            pickup.Position.y - AnimationOffset,
             (float)WeaponPickupTex.texture.width,
                 (float)WeaponPickupTex.texture.height},
             {WeaponPickupTex.texture.width/2.0f,WeaponPickupTex.texture.height/2.0f}, 0, WHITE);
@@ -250,8 +250,8 @@ void Game::DisplayPickups(Camera2D cam)
         EndShaderMode();
 
         if (DebugDraw)
-            DrawCircleV({pickup.Position.x - MainCameraManager.CameraPosition.x,
-            pickup.Position.y  - MainCameraManager.CameraPosition.y - AnimationOffset}, pickup.Radius, ColorAlpha(RED, 0.5f));
+            DrawCircleV({pickup.Position.x,
+            pickup.Position.y - AnimationOffset}, pickup.Radius, ColorAlpha(RED, 0.5f));
 
         // get distance
         float DistanceToPickup = Vector2Distance(pickup.Position, {
@@ -412,7 +412,7 @@ bool Game::RayCastSP(Vector2 origin, Vector2 target, float Precision) { // RayCa
         ray_x += step_x;
         ray_y += step_y;
         if (DebugDraw)
-            DrawCircle((int)ray_x-MainCameraManager.CameraPosition.x, (int)ray_y-MainCameraManager.CameraPosition.y, 2, RED);
+            DrawCircle((int)ray_x, (int)ray_y, 2, RED);
         std::string coord = std::to_string((int) (ray_x / MainTileManager.TileSize)) + " " + std::to_string((int) (ray_y / MainTileManager.TileSize));
         // if we collide with a wall, raycast failed
         if (int tile_id = MainTileManager.Map[coord]; MainTileManager.TileTypes[tile_id] == WallTileType) {

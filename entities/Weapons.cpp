@@ -59,7 +59,7 @@ void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
     float width = MeleeAnimTexture->width*CurrentWeapon->WeaponSize;
     float height = MeleeAnimTexture->height*CurrentWeapon->WeaponSize;
     DrawTexturePro(*MeleeAnimTexture, Rectangle(0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)),
-                   Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x - cosf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y - sinf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, width,
+                   Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - cosf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - sinf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, width,
                              height), Vector2(0, height / 2), FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
 } // LOVELY CAVITY!!!
 
@@ -166,7 +166,7 @@ void WeaponsSystem::Update() {
         AnglePos2.y += OwnerPos.y;
 
         // render cone
-        DrawTriangle(AnglePos1 - game->MainCameraManager.CameraPosition, OwnerPos - game->MainCameraManager.CameraPosition, AnglePos2 - game->MainCameraManager.CameraPosition, ColorAlpha(WHITE, 0.5f));
+        DrawTriangle(AnglePos1, OwnerPos, AnglePos2, ColorAlpha(WHITE, 0.5f));
     }
 
     // Display melee animation points
@@ -243,7 +243,7 @@ void WeaponsSystem::Update() {
 
         // render sword
         DrawTexturePro(*MeleeAnimTexture, Rectangle(0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)),
-                   Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x - cosf((FinalAngle+90) * DEG2RAD)*150, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y - sinf((FinalAngle+90) * DEG2RAD)*150, width,
+                   Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - cosf((FinalAngle+90) * DEG2RAD)*150, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - sinf((FinalAngle+90) * DEG2RAD)*150, width,
                              height), Vector2(width / 2, height / 2), FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
 
     }
