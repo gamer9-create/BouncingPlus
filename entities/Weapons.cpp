@@ -48,8 +48,8 @@ void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
     auto Owner = OwnerPtr.lock();
     Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
     if (Owner->Type == EnemyType)
-        Target = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2 - game->MainCameraManager.CameraPosition.x,
-        game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2 - game->MainCameraManager.CameraPosition.y
+        Target = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2,
+        game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2
         };
 
     float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;

@@ -15,6 +15,7 @@ Spawner::Spawner(Game &game, float bbox_x, float bbox_y) :Entity(game.Textures["
     StartPos = Vector2(bbox_x, bbox_y);
     RandPoint = {0, 0};
     DistF =0;
+    this->Type = SpawnerType;
     SpawnerIsActive = 0;
     SpawnerRageCooldown = 0;
     PosMultiplier = 10;

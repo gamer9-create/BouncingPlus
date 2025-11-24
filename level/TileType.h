@@ -13,6 +13,7 @@ enum TileType {
     SpawnerTileType,
     WallTileType,
     EnemyTileType,
+    BossTileType,
     TileTypeEnd
 };
 

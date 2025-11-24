@@ -2,5 +2,6 @@
   "description": "Simple testing level. Nothing fancy.",
   "inventory": ["Sword", "", ""],
   "difficulty": 3,
-  "starting_health": 150
+  "starting_health": 150,
+  "boss": ""
 }

@@ -98,18 +98,18 @@ void CameraManager::BackgroundLines() {
 
     for (int i = -1; i < round(GetScreenHeight() / BackgroundGridSize)+1; i++) {
         int y = (int)(ParallaxCamY / BackgroundGridSize);
-        DrawLineEx({0, ((y+i)*BackgroundGridSize) - ParallaxCamY}, {(float) GetScreenWidth(), ((y+i)*BackgroundGridSize) - ParallaxCamY}, 7, ColorBrightness(WHITE, -0.5f));
+        DrawLineEx({CameraPosition.x, ((y+i)*BackgroundGridSize) - ParallaxCamY + CameraPosition.y}, {(float) GetScreenWidth()+CameraPosition.x, ((y+i)*BackgroundGridSize) - ParallaxCamY + CameraPosition.y}, 7, ColorBrightness(WHITE, -0.5f));
     }
 
     for (int i = -1; i < round(GetScreenWidth() / BackgroundGridSize)+1; i++) {
         int x = (int)(ParallaxCamX / BackgroundGridSize);
-        DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX, 0}, {((x+i)*BackgroundGridSize) - ParallaxCamX, (float) GetScreenHeight()}, 7, ColorBrightness(WHITE, -0.5f));
-        DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX, 0}, {((x+i)*BackgroundGridSize) - ParallaxCamX, (float) GetScreenHeight()}, 3, ColorAlpha(WHITE, 0.5f));
+        DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX + CameraPosition.x, CameraPosition.y}, {((x+i)*BackgroundGridSize) - ParallaxCamX + CameraPosition.x, (float) GetScreenHeight()+CameraPosition.y}, 7, ColorBrightness(WHITE, -0.5f));
+        DrawLineEx({((x+i)*BackgroundGridSize) - ParallaxCamX + CameraPosition.x, CameraPosition.y}, {((x+i)*BackgroundGridSize) - ParallaxCamX + CameraPosition.x, (float) GetScreenHeight()+CameraPosition.y}, 3, ColorAlpha(WHITE, 0.5f));
     }
 
     for (int i = -1; i < round(GetScreenHeight() / BackgroundGridSize)+1; i++) {
         int y = (int)(ParallaxCamY / BackgroundGridSize);
-        DrawLineEx({0, ((y+i)*BackgroundGridSize) - ParallaxCamY}, {(float) GetScreenWidth(), ((y+i)*BackgroundGridSize) - ParallaxCamY}, 3, ColorAlpha(WHITE, 0.5f));
+        DrawLineEx({CameraPosition.x, ((y+i)*BackgroundGridSize) - ParallaxCamY + CameraPosition.y}, {(float) GetScreenWidth()+CameraPosition.x, ((y+i)*BackgroundGridSize) - ParallaxCamY + CameraPosition.y}, 3, ColorAlpha(WHITE, 0.5f));
     }
 }
 
@@ -139,8 +139,9 @@ void CameraManager::UpdateCamera() {
         CameraPosition = Vector2Add(CameraPosition, MouseOffset);
     }
 
-    RaylibCamera.zoom = lerp(RaylibCamera.zoom, CameraZoom, 4 * GetFrameTime());
+    RaylibCamera.zoom = lerp(RaylibCamera.zoom, CameraZoom, 4.0f * GetFrameTime());
     RaylibCamera.target = CameraPosition;//Vector2Add({((float)GetScreenWidth()/2.0f), ((float)GetScreenHeight()/2.0f)},CameraPosition);
+    RaylibCamera.offset = {((float)GetScreenWidth()/2.0f) * (1-RaylibCamera.zoom), ((float)GetScreenHeight()/2.0f) * (1-RaylibCamera.zoom)};
 }
 
 void CameraManager::Begin() {
@@ -154,8 +155,8 @@ void CameraManager::Begin() {
     UpdateCamera();
     BeginTextureMode(CameraRenderTexture);
     ClearBackground(BackgroundColor);
-    BackgroundLines();
     BeginMode2D(RaylibCamera);
+    BackgroundLines();
 }
 
 void CameraManager::End() {

@@ -46,11 +46,13 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
 
     // extra stuff
     MainPlayer = nullptr;
+    CurrentBoss = nullptr;
     CurrentLevelName = "";
     LevelData = json;
     DebugDraw = false;
     ShouldReturn = false;
     UpgradeUI = false;
+    CurrentBossName = "";
 
     SetGameData();
 }
@@ -306,6 +308,9 @@ void Game::Update() {
 
     MainCameraManager.Display();
     MainUIManager.GameUI();
+
+    if (ShouldReturn)
+        MainSoundManager.Clear();
 }
 
 bool Game::RayCast(Vector2 origin, Vector2 target) {
@@ -430,7 +435,9 @@ bool Game::RayCastSP(Vector2 origin, Vector2 target, float Precision) { // RayCa
 void Game::Clear() {
     Paused = false;
     ShouldReturn = false;
+    CurrentBoss = nullptr;
     CurrentLevelName.clear();
+    CurrentBossName.clear();
     WeaponPickups.clear();
     MainTileManager.Clear();
     MainParticleManager.Clear();
@@ -446,7 +453,7 @@ void Game::Reload(std::string MapName) {
 
     CurrentLevelName = MapName;
 
-    MainTileManager.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv");
+    MainTileManager.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv", LevelData[MapName]["boss"]);
 
     MainPlayer = make_shared<Player>(MainTileManager.PlayerSpawnPosition.x,
                                      MainTileManager.PlayerSpawnPosition.y, 350.0f,

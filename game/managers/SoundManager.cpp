@@ -32,6 +32,9 @@ void SoundManager::Clear() {
             StopSound(sound);
         }
     }
+    for (auto& [name,value] : Sounds) {
+        StopSound(value);
+    }
 }
 
 void SoundManager::Update() {

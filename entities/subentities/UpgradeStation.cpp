@@ -25,6 +25,8 @@ UpgradeStation::UpgradeStation(Game &game, float bbox_x, float bbox_y) :Entity(g
     CooldownTimer = 0;
     SecondArmRot = 0;
     Ani1Timer = 0;
+    this->Type = UpgradeStationType;
+    s = {0,0};
 }
 
 void UpgradeStation::Render() {
@@ -50,7 +52,7 @@ void UpgradeStation::Render() {
         float A = F - Rotation;
         if (Vector2Distance(s, PlayerPos) <= 50)
             A = -180;
-        SecondArmRot = Lerp(SecondArmRot, A, 2 * GetFrameTime());
+        SecondArmRot = Lerp(SecondArmRot, A, 2.0f * GetFrameTime());
     }
     DrawTexturePro(game->Textures["arm_tip"],{0,0,36,36},{s.x,s.y,36,36},{18,36},Rotation+SecondArmRot-90,GRAY);
     for (int i = 0; i < 3; i ++) {
@@ -97,7 +99,7 @@ void UpgradeStation::Update() {
         } else {
             Ani1Timer += GetFrameTime();
             if (!(Ani1Timer >= 0.4f && Ani1Timer <= 0.45f))
-                Rotation -= 0.5f * GetFrameTime() * (Rotation - GoalAngle > 0) ? 1 : -1;
+                Rotation -= 30 * GetFrameTime() * (Rotation - GoalAngle > 0 ? 1.0f : -1.0f);
         }
     }
 

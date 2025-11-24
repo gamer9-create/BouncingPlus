@@ -8,6 +8,7 @@
 #include <fstream>
 #include <string>
 
+#include "../entities/bosses/FaceBoss.h"
 #include "../entities/subentities/Enemy.h"
 #include "../game/Game.h"
 #include "../entities/subentities/Spawner.h"
@@ -30,6 +31,7 @@ TileManager::TileManager(Game &game) {
     TileTypes[7] = SpawnerTileType; // enemy spawner tile type
     TileTypes[8] = EnemySpawnTileType; // enemy spawn tile type
     TileTypes[9] = UpgradeStationTileType; // upgrade station tile type
+    TileTypes[10] = BossTileType; // boss
 
 }
 
@@ -143,7 +145,7 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
     game->MainEntityManager.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->Textures["enemy"], *game));
 }
 
-void TileManager::ReadMapDataFile(std::string Filename) {
+void TileManager::ReadMapDataFile(std::string Filename, std::string BossName) {
     int y = 0;
     int x = 0;
 
@@ -185,6 +187,14 @@ void TileManager::ReadMapDataFile(std::string Filename) {
                     game->MainEntityManager.AddEntity(SpawnerType, spawner);
                     break;
                 }
+                case BossTileType: {
+                    std::shared_ptr<Entity> boss;
+                    if (BossName == "Face")
+                        boss = std::make_shared<FaceBoss>(*game, bbox_x, bbox_y);
+                    if (boss != nullptr)
+                        game->MainEntityManager.AddEntity(BossType, boss);
+                    break;
+                };
                 case UpgradeStationTileType: {
                     std::shared_ptr<UpgradeStation> station = std::make_shared<UpgradeStation>(*game, bbox_x, bbox_y);
                     game->MainEntityManager.AddEntity(UpgradeStationType, station);

@@ -40,10 +40,8 @@ void Player::ToggleInvincibility() {
     if (isInvincible) {
         PrevHealthBeforeDodge = Health;
         Health = FLT_MAX;
-        isInvincible = true;
     } else {
         Health = PrevHealthBeforeDodge;
-        isInvincible = false;
     }
 }
 
@@ -240,13 +238,11 @@ void Player::Update() {
     // health cap + dodging stuff
     if (DodgeHealthResetTimer > 0) {
         DodgeHealthResetTimer -= GetFrameTime();
-        if (DodgeHealthResetTimer < 0)
+        if (DodgeHealthResetTimer <= 0) {
             Dodging = false;
-    }
-
-    // dodge health reset
-    if (DodgeHealthResetTimer <= 0 && isInvincible && Dodging) {
-        ToggleInvincibility();
+            if (isInvincible)
+                ToggleInvincibility();
+        }
     }
 
     if (PlayerFrozenTimer <= 0) {

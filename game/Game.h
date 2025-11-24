@@ -37,6 +37,10 @@ class Game {
     int uThreshold;
 
     public:
+
+        Entity* CurrentBoss;
+        std::string CurrentBossName;
+
         bool UpgradeUI;
         bool Paused;
         float GameSpeed;

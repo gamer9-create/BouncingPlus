@@ -17,6 +17,7 @@ class Enemy : public Entity {
     bool isActive = false;
     double ActivationTimer;
     Vector2 WallMovement;
+    float Alpha = 0;
 public:
     float AngeredRangeBypassTimerMax;
     float AngeredRangeBypassTimer;

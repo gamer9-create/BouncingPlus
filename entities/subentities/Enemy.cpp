@@ -26,7 +26,8 @@ Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::stri
     this->MyWeapon = Weapon;
     this->WanderPos = {BoundingBox.x, BoundingBox.y};
     this->WanderingEnabled = false;
-    this->EntityColor = ColorAlpha(WHITE, 0);
+    this->Alpha = 0;
+    this->EntityColor = ColorAlpha(WHITE, Alpha);
     this->ActivationTimer = GetTime();
     this->WallMovement = {0, 0};
 }
@@ -89,7 +90,8 @@ void Enemy::OnDelete() {
 }
 
 void Enemy::Update() {
-    EntityColor = ColorLerp(EntityColor, WHITE, 2 * GetFrameTime());
+    Alpha = Lerp(Alpha, 1.0f, 2 * GetFrameTime());
+    EntityColor = ColorAlpha(WHITE, Alpha);
     if (ActivationTimer != -1)
         ActivationTimer += GetFrameTime();
     if (ActivationTimer > 1) {

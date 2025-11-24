@@ -24,13 +24,13 @@ class TileManager {
         float TileSize;
         int MapWidth, MapHeight;
         Vector2 PlayerSpawnPosition;
-        TileType TileTypes[10];
+        TileType TileTypes[11];
         std::vector<Vector2> EnemySpawnLocations;
         std::unordered_map<std::string, int> Map;
         TileManager();
         TileManager(Game &game);
         void Update();
-        void ReadMapDataFile(std::string Filename);
+        void ReadMapDataFile(std::string Filename, std::string BossName = "");
         void Clear();
         void Quit();
 };

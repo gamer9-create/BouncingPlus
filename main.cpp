@@ -8,8 +8,8 @@
 #include "level/LevelLoader.h"
 
 void singleplayer() {
-    InitWindow(GetMonitorWidth(1), GetMonitorHeight(1), "BouncingPlus");
-    SetTargetFPS(GetMonitorRefreshRate(1));
+    InitWindow(1480, 920, "BouncingPlus");
+    SetTargetFPS(GetMonitorRefreshRate(0));
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI | FLAG_VSYNC_HINT);
 
     SetWindowIcon(LoadImage("assets/img/player.png"));
@@ -38,7 +38,6 @@ void singleplayer() {
     time_t t;
     time(&t);
     struct tm datetime = *localtime(&t);
-    //cout << (to_string(datetime.tm_mon) == "9" && to_string(datetime.tm_mday) == "31") << endl;
     if (to_string(datetime.tm_mon) == "9" && to_string(datetime.tm_mday) == "31" && GetRandomValue(1, 10) == 5) {
         PlayMusicStream(music);
         cout << "spooky scary skel" << endl;
