@@ -437,7 +437,7 @@ void Game::Clear() {
     ShouldReturn = false;
     CurrentBoss = nullptr;
     CurrentLevelName.clear();
-    CurrentBossName.clear();
+    CurrentBossName.clear() ;
     WeaponPickups.clear();
     MainTileManager.Clear();
     MainParticleManager.Clear();

@@ -44,10 +44,6 @@ add_executable(BouncingPlus main.cpp
         game/managers/SoundManager.h
         entities/subentities/UpgradeStation.cpp
         entities/subentities/UpgradeStation.h
-        game/network/Server.cpp
-        game/network/Server.h
-        raylib_win32.h
-        enet.h
         entities/bosses/FaceBoss.cpp
         entities/bosses/FaceBoss.h
 )

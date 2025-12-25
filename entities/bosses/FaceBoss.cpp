@@ -60,7 +60,7 @@ void FaceBoss::Update() {
             game->MainSoundManager.PlaySoundM("badtime");
         BossFightStarted = true;
         this->game->CurrentBoss = this;
-        this->game->CurrentBossName = "Face";
+        this->game->CurrentBossName = "The Bouncing Face";
     }
     if (Health <= 0)
         BossFightStarted = false;

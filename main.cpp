@@ -1,13 +1,10 @@
-#include "raylib_win32.h"
 #include "raylib.h"
 #include <iostream>
-#include <raymath.h>
 #include "game/Game.h"
 #include "game/Menu.h"
-#include "game/network/Server.h"
 #include "level/LevelLoader.h"
 
-void singleplayer() {
+int main(int argc, char *argv[]) {
     InitWindow(1480, 920, "BouncingPlus");
     SetTargetFPS(GetMonitorRefreshRate(0));
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI | FLAG_VSYNC_HINT);
@@ -94,20 +91,6 @@ void singleplayer() {
     UnloadMusicStream(music);
     CloseAudioDevice();
     CloseWindow();
-}
-
-void client() {
-
-}
-
-void server() {
-    cout << "server software activated.\n";
-    StartServer();
-    StopServer();
-}
-
-int main(int argc, char *argv[]) {
-    singleplayer();
 
     return 0;
 }
