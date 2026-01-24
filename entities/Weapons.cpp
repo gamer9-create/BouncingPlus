@@ -8,7 +8,7 @@
 #include "subentities/Bullet.h"
 #include "../game/Game.h"
 #include "Weapons.h"
-
+#include "subentities/Player.h"
 #include "subentities/Enemy.h"
 #include "iostream"
 
@@ -143,12 +143,16 @@ void WeaponsSystem::Update() {
 
     // Display weapon cone if using melee weapon
 
-    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown && Owner->Type == PlayerType) {
+    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && Owner->Type == PlayerType)
+    {
+        if (AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown)
+            MeleeDisplayRenderTarget = GetMousePosition();
+
         MeleeAnimRange = CurrentWeapon->AngleRange;
         // get angle
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-        Vector2 MP = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
+        Vector2 MP = GetScreenToWorld2D(MeleeDisplayRenderTarget, game->MainCameraManager.RaylibCamera);
         float Angle = (atan2(cy - MP.y, cx - MP.x) * RAD2DEG)+180;
 
         // get positions
@@ -166,8 +170,9 @@ void WeaponsSystem::Update() {
         AnglePos2.y += OwnerPos.y;
 
         // render cone
-        DrawTriangle(AnglePos1, OwnerPos, AnglePos2, ColorAlpha(WHITE, 0.5f));
+        DrawTriangle(AnglePos1, OwnerPos, AnglePos2, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
     }
+
 
     // Display melee animation points
 
@@ -341,9 +346,9 @@ void WeaponsSystem::Attack(Vector2 Target) {
                                                                 game->Textures[BulletTexture], Owner, *game);
                 bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
                 if (Owner->Type == PlayerType)
-                    bullet->EntityColor = {255, 120, 255, 255};
+                    bullet->EntityColor = {255, 180, 255, 255};
                 if (Owner->Type == EnemyType)
-                    bullet->EntityColor = {255, 122, 157, 255};
+                    bullet->EntityColor = {255, 182, 217, 255};
                 game->MainEntityManager.AddEntity(BulletType, bullet);
             }
 

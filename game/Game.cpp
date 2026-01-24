@@ -32,6 +32,7 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
     // game speed & timing
     GameSpeed = 1.0f;
     SlowdownTime = 0;
+    LevelTimer = -1;
     MaxSlowdownTime = 0;
 
     Paused = false;
@@ -277,6 +278,9 @@ void Game::Update() {
         if (IsKeyPressed(KEY_X))
             DebugDraw = !DebugDraw;
 
+        if (LevelTimer > 0)
+            LevelTimer -= GetFrameTime();
+
         // shader stuff
         if (!DebugDraw)
             MainCameraManager.ShaderDraw = false;
@@ -436,6 +440,7 @@ void Game::Clear() {
     Paused = false;
     ShouldReturn = false;
     CurrentBoss = nullptr;
+    LevelTimer = -1;
     CurrentLevelName.clear();
     CurrentBossName.clear() ;
     WeaponPickups.clear();
@@ -452,6 +457,7 @@ void Game::Reload(std::string MapName) {
     Clear();
 
     CurrentLevelName = MapName;
+    LevelTimer = LevelData[MapName]["timer"];
 
     MainTileManager.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv", LevelData[MapName]["boss"]);
 

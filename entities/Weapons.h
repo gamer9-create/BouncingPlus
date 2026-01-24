@@ -9,6 +9,7 @@
 #include <string>
 #include "raylib.h"
 
+class Player;
 using namespace std;
 
 struct Weapon {
@@ -48,6 +49,8 @@ struct WeaponPickup
     double CreationTime = 0;
 };
 
+
+
 class WeaponsSystem {
     void DisplayGunTexture();
     void MeleeAttack(std::shared_ptr<Entity> entity, float Angle);
@@ -62,6 +65,7 @@ class WeaponsSystem {
     float MeleeAnimRange;
     float MeleeAnimPercent;
     float MeleeAnimAlpha;
+    Vector2 MeleeDisplayRenderTarget;
 
     public:
     std::string Weapons[3];

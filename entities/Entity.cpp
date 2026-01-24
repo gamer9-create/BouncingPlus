@@ -46,9 +46,13 @@ float Entity::GetSpeed() {
     return Speed * WeaponWeightSpeedMultiplier;
 }
 
+void Entity::OnWallVelocityBump(float Power)
+{
+}
+
 void Entity::PhysicsUpdate(float dt) {
     if (abs(VelocityPower) > 0) {
-        VelocityPower += 1000.0f * dt * (VelocityPower > 0 ? -1 : 1);
+        VelocityPower += 4500.0f * dt * (VelocityPower > 0 ? -1 : 1);
         if (abs(VelocityPower) < 5)
             VelocityPower = 0;
     }
@@ -135,6 +139,7 @@ void Entity::PhysicsUpdate(float dt) {
                         VelocityMovement = Vector2(X, Y);
                     }
 
+                    OnWallVelocityBump(VelocityPower);
                     VelocityPower /= 1.5f;
                     LastVelBounceCoord = coord;
                     f =true;

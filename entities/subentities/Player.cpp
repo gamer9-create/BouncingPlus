@@ -3,9 +3,7 @@
 //
 
 #include "Player.h"
-
 #include <cfloat>
-#include <iostream>
 #include <raymath.h>
 #include <nlohmann/json.hpp>
 #include "Enemy.h"
@@ -24,6 +22,11 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->OrigSpeed = Speed;
     this->ExtraSpeed = 0;
     this->PrevHealthBeforeDodge = 0;
+    this->IntervalHealth = Health;
+    this->LastInterval = GetTime();
+    this->LastWarningSign = GetTime();
+    this->HealthConcern = false;
+    this->WarningSign = false;
     this->PlayerDashLineThickness = 10;
     this->ShaderUniformLoc = GetShaderLocation(game.Shaders["dash_arrow"], "time");
 }
@@ -62,6 +65,10 @@ void Player::PhysicsUpdate(float dt) {
             MovementX += Speed;
         }
     }
+    if (VelocityPower < 50)
+    {
+        VelocityPower = 0;
+    }
     if (IsMouseButtonPressed(0) && PlayerFrozenTimer > 0 && PlayerFrozenTimer <= 0.9f) {
         PlayerFrozenTimer = 0;
         DodgeHealthResetTimer = 0;
@@ -76,7 +83,7 @@ void Player::PhysicsUpdate(float dt) {
         ExtraSpeed = 0;
     ExtraSpeed = min(ExtraSpeed, 400.0f);
     if ((Health/MaxHealth) > 2.0f)
-        Speed = (OrigSpeed + ExtraSpeed) * (1.0f - min(((Health/MaxHealth)-2.0f) / 2.0f, 0.5f));
+        Speed = (OrigSpeed + ExtraSpeed) * (1.0f - min(((Health/MaxHealth)-3.0f) / 2.0f, 0.5f));
     else
         Speed = (OrigSpeed + ExtraSpeed);
     Entity::PhysicsUpdate(dt);
@@ -86,7 +93,7 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
     // check if we're colliding with them. if so, attack!
     if (CheckCollisionRecs(BoundingBox, entity->BoundingBox) && !already_attacked) {
         // calculate damage & attack
-        float Damage = VelocityPower / 16.0f;
+        float Damage = VelocityPower / 15.0f;
         Damage *= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
         if (entity->Armor <= 0)
             entity->Health -= Damage;
@@ -106,6 +113,8 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
 
         game->MainCameraManager.CameraPosition += Vector2Normalize({(float)GetRandomValue(-50, 50), (float)GetRandomValue(-50, 50)}) * (VelocityPower / 150);
         game->MainCameraManager.ShakeCamera(VelocityPower / (amount - 50));
+        game->MainCameraManager.QuickZoom(0.8f, 0.05f);
+        game->Slowdown(0.5f);
         game->MainSoundManager.PlaySoundM("dash_hit",min(max(VelocityPower/amount, 0.0f), 1.0f));
 
         // give them pushback force
@@ -113,8 +122,26 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
         entity->VelocityPower = -VelocityPower/2;
 
         // increase velocity and mark enemy as attacked
-        VelocityPower += VelocityPower / (amount/300);
+        VelocityPower += VelocityPower / (amount/200);
         DashedEnemies.push_back(std::weak_ptr(entity));
+    }
+}
+
+void Player::OnWallVelocityBump(float Power)
+{
+    if (Power > 400)
+    {
+        float PreviousH = Health;
+        Entity::OnWallVelocityBump(Power);
+        game->MainSoundManager.PlaySoundM("dash_wall_hit");
+        float Damage = Power / 80.0f;
+        if (Health - Damage >= 20)
+        {
+            Health -= Damage;
+        } else if (PreviousH >= 20)
+        {
+            Health = 20;
+        }
     }
 }
 
@@ -185,33 +212,65 @@ void Player::DashLogic() {
         }
     }
     if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && IsPreparingForDash && Health > 0) {
-        DashCooldown = 1.5f;
+        DashCooldown = 1.1f;
         DashedEnemies.clear();
         VelocityMovement = Vector2Subtract(WorldMousePos, {BoundingBox.x, BoundingBox.y});
-        VelocityPower = 1200.0f * max(min(static_cast<float>(GetTime() - DashTimeStart), 1.1f), 0.35f);
+        VelocityPower = 2500.0f * max(min(static_cast<float>(GetTime() - DashTimeStart), 1.1f), 0.35f);
         VelocityPower /= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
         game->MainSoundManager.PlaySoundM("dash");
-        PlayerFrozenTimer = 1.0f;
+        PlayerFrozenTimer = .5f * min(max((VelocityPower / 2500.0f), 0.35f), 1.1f);
+        /*
         if (IsMouseButtonDown(0) && !isInvincible) {
             ToggleInvincibility();
             Dodging = true;
             DodgeHealthResetTimer = 1.0f;
         }
+        */
         IsPreparingForDash = false;
     }
 
     // display dashing bar
     int w = 56;
     int h = 15;
-    float a = 0.25f;
+    float a = 0;
     if (IsPreparingForDash)
-        a = Lerp(0.25f, 0.5f, min( (float)(GetTime() - DashTimeStart) / 0.2f, 1.0f ));
+        a = Lerp(0, 0.6f, min( (float)(GetTime() - DashTimeStart) / 0.2f, 1.0f ));
+
     DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2)),
         (int)(BoundingBox.y + BoundingBox.width + 10),
         w, h, ColorAlpha(BLACK, a));
-    DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2))+5,
+
+    DrawRectangle(
+        (int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2))+5,
         (int)(BoundingBox.y + BoundingBox.width + 10)+5,
-        (!IsPreparingForDash ? 0 : min(static_cast<float>(GetTime() - DashTimeStart) / 1.1f, 1.0f))*(w-10), h-10, ColorAlpha(WHITE, a+0.25f));
+        (!IsPreparingForDash ? 0 : min(static_cast<float>(GetTime() - DashTimeStart) / 1.1f, 1.0f))*(w-10),
+        h-10,
+        ColorAlpha(WHITE, a*1.25f));
+
+    // Health bar
+    DrawRectangle((int)(BoundingBox.x-20-h),
+       (int)(BoundingBox.y + (BoundingBox.height / 2) - (w/2)),
+       h, w,
+       ColorAlpha(BLACK, 0.4f));
+
+    DrawRectangle((int)(BoundingBox.x-20-h)+5,
+       (int)(BoundingBox.y + (BoundingBox.height / 2) - (w/2))+5,
+       h - 10, min(Health / 100, 1.0f) * (w - 10.0f),
+       ColorAlpha(GREEN, (HealthConcern ? (WarningSign ? 0 : 0.8f) : 0.8f) ));
+
+    // Ammo bar
+    if (weaponsSystem.CurrentWeapon != nullptr && weaponsSystem.CurrentWeapon->Ammo > 0)
+    {
+        DrawRectangle((int)(BoundingBox.x+BoundingBox.height+20),
+       (int)(BoundingBox.y + (BoundingBox.height / 2) - (w/2)),
+       h, w,
+       ColorAlpha(BLACK, 0.4f));
+
+        DrawRectangle((int)(BoundingBox.x+BoundingBox.height+20)+5,
+           (int)(BoundingBox.y + (BoundingBox.height / 2) - (w/2))+5,
+           h - 10, ((float)weaponsSystem.WeaponAmmo[weaponsSystem.CurrentWeaponIndex] / weaponsSystem.CurrentWeapon->Ammo) * (w - 10.0f),
+           ColorAlpha(YELLOW, 0.8f ));
+    }
 }
 
 void Player::Update() {
@@ -219,6 +278,7 @@ void Player::Update() {
     // is the weapon system not initialized?? init it now!!!
     if (!this->weaponsSystemInit) {
         this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
+        this->powerupSystem = PowerupSystem(dynamic_pointer_cast<Player>(shared_from_this()), *game);
         auto f = game->LevelData[game->CurrentLevelName]["inventory"];
         for (int i = 0; i < f.size(); i++) {
             this->weaponsSystem.Weapons[i] = f[i];
@@ -227,6 +287,27 @@ void Player::Update() {
         this->weaponsSystem.Equip(0);
         this->weaponsSystemInit = true;
     }
+
+    // warning sign interval
+    if (GetTime() - LastInterval >= 1.5f)
+    {
+        HealthConcern = (IntervalHealth - Health) >= 75;
+        LastInterval = GetTime();
+    }
+    if (Health < 50)
+        HealthConcern = true;
+
+    if (GetTime() - LastWarningSign >= 0.1f)
+    {
+        WarningSign = !WarningSign;
+        LastWarningSign = GetTime();
+    }
+
+    if (Health > 0 && HealthConcern && WarningSign)
+    {
+        DrawTexturePro(game->Textures["warning"], {0,0,33,34},{BoundingBox.x + BoundingBox.width/2 + 12,BoundingBox.y - 24 - 10,24,24},{0,0},0,WHITE);
+    }
+
 
     // player transparency processing
     EntityColor = ColorAlpha(WHITE, Alpha);

@@ -31,6 +31,8 @@ class UIManager {
     UIManager();
     bool button(Vector2 pos, std::string text);
     void PauseMenu();
+    void DeathMenu();
+    void DisplayTimer();
     void GameWin();
     void GameUI();
     void Quit();

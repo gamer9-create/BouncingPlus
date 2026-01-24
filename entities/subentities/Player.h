@@ -7,6 +7,7 @@
 #include "Enemy.h"
 #include "../Entity.h"
 #include "../Weapons.h"
+#include "../Powerups.h"
 
 
 class Player : public Entity {
@@ -25,11 +26,19 @@ class Player : public Entity {
     float ExtraSpeed;
     double LastMovedTime;
     int LastKills;
+
+    float IntervalHealth;
+    double LastInterval;
+    double LastWarningSign;
+    bool WarningSign;
+    bool HealthConcern;
+
     public:
         bool isInvincible;
         float PrevHealthBeforeDodge = 100;
         double DodgeHealthResetTimer = -1;
         WeaponsSystem weaponsSystem;
+        PowerupSystem powerupSystem;
         int Kills;
         bool IsPreparingForDash = false;
         bool Dodging =false;
@@ -39,6 +48,7 @@ class Player : public Entity {
         virtual ~Player();
         void PhysicsUpdate(float dt);
         void Update();
+        void OnWallVelocityBump(float Power);
         void ToggleInvincibility();
 };
 

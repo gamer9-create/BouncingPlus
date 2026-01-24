@@ -17,4 +17,4 @@ enum TileType {
     TileTypeEnd
 };
 
-#endif //BOUNCINGPLUS_TILETYPE_H
+#endif BOUNCINGPLUS_TILETYPE_H

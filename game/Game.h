@@ -41,6 +41,8 @@ class Game {
         Entity* CurrentBoss;
         std::string CurrentBossName;
 
+        double LevelTimer;
+
         bool UpgradeUI;
         bool Paused;
         float GameSpeed;

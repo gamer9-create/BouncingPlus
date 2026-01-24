@@ -39,6 +39,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
         virtual void PhysicsUpdate(float dt);
         bool IsVisible();
         float GetSpeed();
+        virtual void OnWallVelocityBump(float Power);
         virtual void Update();
         virtual void OnDelete();
 };

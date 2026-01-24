@@ -201,9 +201,12 @@ void UIManager::GameUI() {
     float limit = 25;
     ft_size = Lerp(ft_size, 92, 3.5f*GetFrameTime());
     float PlrHealth = (!game->MainPlayer->isInvincible ? game->MainPlayer->Health : game->MainPlayer->PrevHealthBeforeDodge);
-    if (LastHealth != PlrHealth && LastHealth > PlrHealth) {
-        HealthBarAnimRot = limit * (PlrHealth-LastHealth) / abs(PlrHealth-LastHealth);
-    } else if (LastHealth != PlrHealth && PlrHealth > LastHealth) {
+    if (LastHealth != PlrHealth)
+    {
+        HealthBarAnimRot = limit * ((PlrHealth-LastHealth) / abs(PlrHealth-LastHealth));
+        game->MainCameraManager.QuickZoom(PlrHealth - LastHealth > 0 ? 0.9f : 1.1f, 0.1f);
+    }
+    if (LastHealth != PlrHealth && PlrHealth > LastHealth) {
         ft_size = 135;
     }
     float size = MeasureText((std::to_string((int)round(PlrHealth))+"%").c_str(), ft_size);
@@ -231,32 +234,19 @@ void UIManager::GameUI() {
 
     DeathTextAnimRot = sin(GetTime()*2) * 6;
 
-    if (game->MainPlayer->ShouldDelete || game->MainPlayer->Health <= 0) {
-        BeginTextureMode(DeathScreen);
+    BeginTextureMode(DeathScreen);
+    ClearBackground(ColorAlpha(RED, 0.2f));
+    EndTextureMode();
 
-        ClearBackground(ColorAlpha(RED, 0.2f));
+    BeginTextureMode(GameWinScreen);
+    ClearBackground(ColorAlpha(GREEN, 0.2f));
+    EndTextureMode();
 
-        DrawTextPro(GetFontDefault(), "You died!", {GetScreenWidth()/2.0f, 250.0f}, {MeasureTextEx(GetFontDefault(), "You died!", 100, 10.0f).x/2.0f, 50.0f}, DeathTextAnimRot, 100, 10, ColorBrightness(RED, -0.3f));
+    if (game->MainPlayer->ShouldDelete || game->MainPlayer->Health <= 0)
+        DeathMenu();
 
-        int ey = GetScreenHeight()-400;
-        int es = 50;
-        std::string txt = "YOU KILLED " + to_string(game->MainPlayer->Kills) + " ENEMIES";
-        if (game->MainPlayer->Kills == 1)
-            txt = "YOU KILLED 1 ENEMY";
-        if (game->MainPlayer->Kills == 0)
-            txt = "YOU DID NOT KILL ANY ENEMIES";
-        std::string txt_2 = "PRESS E TO RESPAWN";
-        float size = MeasureText(txt.c_str(), es);
-        float size2 = MeasureText(txt_2.c_str(), es);
-
-        DrawText(txt.c_str(), GetScreenWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
-        DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
-
-        EndTextureMode();
-    }
-
-    //if (game->DebugDraw)
-    //    DrawText(to_string(UIManagerTransparency).c_str(), 50, 250, 10, WHITE);
+    if (game->DebugDraw)
+        DrawText(to_string(UITransparency).c_str(), 50, 250, 10, WHITE);
 
     if (game->MainEntityManager.Entities[EnemyType].size() <= 0)
         GameWin();
@@ -271,8 +261,55 @@ void UIManager::GameUI() {
         UITransparency -= 2.2f*GetFrameTime();
     }
 
+    if (game->LevelTimer > 0)
+        DisplayTimer();
+
     if (game->Paused)
         PauseMenu();
+}
+
+void UIManager::DisplayTimer()
+{
+    int minutes = (int)(this
+        ->game->LevelTimer / 60);
+    int seconds = (int)(this->game->LevelTimer - (minutes * 60.0f));
+    std::string txt = to_string(minutes) + ":" + to_string(seconds);
+    if (seconds < 10)
+        txt = to_string(minutes) + ":0" + to_string(seconds);
+    int font_size = 50;
+    int width = MeasureText(txt.c_str(), font_size);
+    float x = GetScreenWidth() / 2 - width / 2;
+    float y = 50 + font_size;
+    Rectangle rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
+    DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, UITransparency * 0.75f));
+    DrawText(txt.c_str(), x, y, font_size, ColorAlpha(WHITE, UITransparency));
+    DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
+
+    std::string o_txt = "YOU MUST SURVIVE FOR";
+    DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
+}
+
+void UIManager::DeathMenu()
+{
+    BeginTextureMode(DeathScreen);
+
+    DrawTextPro(GetFontDefault(), "You died!", {GetScreenWidth()/2.0f, 250.0f}, {MeasureTextEx(GetFontDefault(), "You died!", 100, 10.0f).x/2.0f, 50.0f}, DeathTextAnimRot, 100, 10, ColorBrightness(RED, -0.3f));
+
+    int ey = GetScreenHeight()-400;
+    int es = 50;
+    std::string txt = "YOU KILLED " + to_string(game->MainPlayer->Kills) + " ENEMIES";
+    if (game->MainPlayer->Kills == 1)
+        txt = "YOU KILLED 1 ENEMY";
+    if (game->MainPlayer->Kills == 0)
+        txt = "YOU DID NOT KILL ANY ENEMIES";
+    std::string txt_2 = "PRESS E TO RESPAWN";
+    float size = MeasureText(txt.c_str(), es);
+    float size2 = MeasureText(txt_2.c_str(), es);
+
+    DrawText(txt.c_str(), GetScreenWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
+    DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
+
+    EndTextureMode();
 }
 
 void UIManager::PauseMenu() {
@@ -285,7 +322,7 @@ void UIManager::PauseMenu() {
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTextureRec(PauseScreen.texture, Rectangle(0, 0, PauseScreen.texture.width, -PauseScreen.texture.height), Vector2(0, GetScreenHeight() - PauseScreen.texture.height), WHITE);
     EndBlendMode();
-    DrawTextureRec(GameWinScreen.texture, Rectangle(0, 0, GameWinScreen.texture.width, -GameWinScreen.texture.height), Vector2(0, GetScreenHeight() - GameWinScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
+
 }
 
 void UIManager::GameWin()
@@ -310,6 +347,7 @@ void UIManager::GameWin()
     DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
 
     EndTextureMode();
+    DrawTextureRec(GameWinScreen.texture, Rectangle(0, 0, GameWinScreen.texture.width, -GameWinScreen.texture.height), Vector2(0, GetScreenHeight() - GameWinScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
 }
 
 void UIManager::Quit() {

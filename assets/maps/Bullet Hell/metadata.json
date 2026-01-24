@@ -3,5 +3,6 @@
   "inventory": ["Player Gun"],
   "difficulty": 4,
   "starting_health": 200,
+  "timer": -1,
   "boss": ""
 }

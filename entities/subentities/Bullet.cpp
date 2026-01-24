@@ -17,7 +17,7 @@ Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float D
     this->Speed = Speed;
     this->Type = BulletType;
     this->ExistenceTimer = 0;
-    this->BoundingBox=Rectangle(X - (10 * Size.x / 2.0f), Y - (5 * Size.y / 2.0f), 10 * Size.x, 5 * Size.y);
+    this->BoundingBox=Rectangle(X - (15 * Size.x / 2.0f), Y - (7.5f * Size.y / 2.0f), 15 * Size.x, 7.5f * Size.y);
     this->Texture=&BulletTexture;
     this->ShouldDelete = false;
     this->SlowdownOverTime = false;
@@ -147,7 +147,7 @@ void Bullet::PhysicsUpdate(float dt) {
 }
 
 void Bullet::Attack(shared_ptr<Entity> entity) {
-    if (CheckCollisionRecs(BoundingBox, entity->BoundingBox) && !entity->ShouldDelete) {
+    if (CheckCollisionCircleRec({BoundingBox.x,BoundingBox.y}, 12, entity->BoundingBox) && !entity->ShouldDelete) {
         bool ShouldDamage = true;
         float ThisDamage = Damage;
         auto Owner = OwnerPtr.lock();

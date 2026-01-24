@@ -56,8 +56,10 @@ void FaceBoss::Update() {
     float Distance = Vector2Distance({this->game->MainPlayer->BoundingBox.x + this->game->MainPlayer->BoundingBox.width/2,
         this->game->MainPlayer->BoundingBox.y + this->game->MainPlayer->BoundingBox.width/2}, StartPos);
     if (Distance <= 450 && Health > 0) {
-        if (!BossFightStarted)
+        if (!BossFightStarted) {
             game->MainSoundManager.PlaySoundM("badtime");
+            this->game->LevelTimer = 300;
+        }
         BossFightStarted = true;
         this->game->CurrentBoss = this;
         this->game->CurrentBossName = "The Bouncing Face";
@@ -68,7 +70,7 @@ void FaceBoss::Update() {
         std::vector<shared_ptr<Entity>> array = game->MainEntityManager.Entities[SpawnerType];
         for (int i = 0; i < array.size(); i++) {
             if (shared_ptr<Spawner> entity = dynamic_pointer_cast<Spawner>(array.at(i)); entity != nullptr and !entity->ShouldDelete) {
-                entity->SpawnerIsActive = 999;
+                entity->SpawnerIsActive = this->game->LevelTimer > 0 ? 999 : 0;
             }
         }
     }

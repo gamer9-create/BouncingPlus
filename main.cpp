@@ -39,6 +39,7 @@ int main(int argc, char *argv[]) {
         PlayMusicStream(music);
         cout << "spooky scary skel" << endl;
     }
+    // tip of advice: dont look into any other code file that isnt a manager... youre gonna find some... uhhh... extremely readable code!
 
     while (!WindowShouldClose()) {
         BeginDrawing();

@@ -1,7 +1,8 @@
 {
   "description": "Simple testing level. Nothing fancy.",
-  "inventory": ["Sword", "", ""],
+  "inventory": ["Sword", "Shotgun", ""],
   "difficulty": 3,
   "starting_health": 150,
+  "timer": -1,
   "boss": ""
 }

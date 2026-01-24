@@ -160,6 +160,8 @@ void Enemy::Update() {
                 t = "35";
             else if (t == "131") // idk what that is...
                 t = "132";
+            else if (t == "420") // i dont think an enemy can even get to this health level... welp i dont like gooners so its gotta go
+                t = "419";
             DrawText(t.c_str(),
                      center_x - total_size / 2,
                      BoundingBox.y - 36, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));
@@ -170,7 +172,7 @@ void Enemy::Update() {
     Entity::Update();
     if (isActive) {
         if (IsVisible() && Armor > 0)
-            DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x, BoundingBox.y, BoundingBox.width, BoundingBox.height}, {0, 0}, 0, WHITE);
+            DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x, BoundingBox.y, BoundingBox.width, BoundingBox.height}, {0, 0}, 0, EntityColor);
     }
 }
 
