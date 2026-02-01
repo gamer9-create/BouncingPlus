@@ -127,7 +127,7 @@ void WeaponsSystem::Update() {
 
     for (int i = 0; i < 3; i++) {
         if (!Weapons[i].empty()) {
-            AttackCooldowns[i] += GetFrameTime();
+            AttackCooldowns[i] += game->GetGameDeltaTime();
         } else {
             AttackCooldowns[i] = 0;
             WeaponAmmo[i] = 0;
@@ -135,7 +135,7 @@ void WeaponsSystem::Update() {
     }
 
     // reload weps
-    if (CurrentWeapon != nullptr && TimeStartedReloading != -1 && GetTime() - TimeStartedReloading >= CurrentWeapon->ReloadTime)
+    if (CurrentWeapon != nullptr && TimeStartedReloading != -1 && game->GetGameTime() - TimeStartedReloading >= CurrentWeapon->ReloadTime)
     {
         WeaponAmmo[CurrentWeaponIndex] = CurrentWeapon->Ammo;
         TimeStartedReloading = -1;
@@ -152,50 +152,25 @@ void WeaponsSystem::Update() {
         // get angle
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-        Vector2 MP = GetScreenToWorld2D(MeleeDisplayRenderTarget, game->MainCameraManager.RaylibCamera);
+        Vector2 MP = Vector2Add(MeleeDisplayRenderTarget, game->MainCameraManager.CameraPositionUnaffected);
         float Angle = (atan2(cy - MP.y, cx - MP.x) * RAD2DEG)+180;
 
-        // get positions
-        float z = (Angle - MeleeAnimRange/2) * DEG2RAD;
-        float dist = CurrentWeapon->Range;
-        Vector2 AnglePos1 = {cosf(z)*dist, sinf(z)*dist};
-        z = (Angle + MeleeAnimRange/2) * DEG2RAD;
-        Vector2 AnglePos2 = {cosf(z)*dist, sinf(z)*dist};
+        float LeftAngle = (Angle - MeleeAnimRange/2);
+        float RightAngle = (Angle + MeleeAnimRange/2);
+        float Dist = CurrentWeapon->Range;
 
-        // modify positions a little
-        Vector2 OwnerPos = {cx, cy};
-        AnglePos1.x += OwnerPos.x;
-        AnglePos1.y += OwnerPos.y;
-        AnglePos2.x += OwnerPos.x;
-        AnglePos2.y += OwnerPos.y;
-
-        // render cone
-        DrawTriangle(AnglePos1, OwnerPos, AnglePos2, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
+        DrawCircleSector({cx,cy}, Dist, LeftAngle, RightAngle, 40, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
     }
 
-
-    // Display melee animation points
-
-    /* this stuff was causing fps issues sooooo imma disable it
-    if (points.size() != 0) {
-        for (int i = 0; i < points.size(); i++) {
-            if (i != 0) {
-                Vector2 f1 = {points.at(i-1).x + Owner->BoundingBox.x + Owner->BoundingBox.width/2 - game->MainCamera.CameraPosition.x, points.at(i-1).y+Owner->BoundingBox.y + Owner->BoundingBox.height/2  - game->MainCamera.CameraPosition.y};
-                Vector2 f = {points.at(i).x + Owner->BoundingBox.x + Owner->BoundingBox.width/2 - game->MainCamera.CameraPosition.x, points.at(i).y+ Owner->BoundingBox.y + Owner->BoundingBox.height/2 - game->MainCamera.CameraPosition.y};
-                DrawLineBezier(f, f1, 10, WHITE);
-            }
-        }
-    }
-    */
 
     // display gun tex
     if (CurrentWeapon != nullptr && (!CurrentWeapon->texture.empty()) && (!CurrentWeapon->isMelee))
         DisplayGunTexture();
 
     // Clear out melee animation points
-    if (GetTime() - PointRemovalTimer >= 0.001 && points.size() > 0) {
+    if (game->GetGameTime() - PointRemovalTimer >= 0.001 && points.size() > 0) {
         points.erase(points.begin()+points.size()-1);
-        PointRemovalTimer = GetTime();
+        PointRemovalTimer = game->GetGameTime();
     }
 
     // Melee animation (signma)
@@ -214,7 +189,7 @@ void WeaponsSystem::Update() {
         }
         // increase the animation's progress
         if (MeleeAnimPercent <= 1.0)
-            MeleeAnimPercent += 3 * GetFrameTime();
+            MeleeAnimPercent += 3 * game->GetGameDeltaTime();
 
         // set the animation's state to stop/start with the progress
         MeleeAnim = MeleeAnimPercent <= 1.0 || MeleeAnimAlpha > 0;
@@ -226,24 +201,10 @@ void WeaponsSystem::Update() {
 
         // adding points
         if (MeleeAnimPercent <= 1.0) {
-            /*
-             this code was causing performance issues so i have it turned off
-            points.clear();
-            float length = 30;
-            int times = 5;
-            // getting the point postions and adding them
-            for (int i = 0; i < times; i++) {
-                for (int x = 5; x < 10; x++) {
-                    float ThisAngle = max(MeleeAnimAngle - (MeleeAnimRange/2), FinalAngle - ((length/times) * i));;
-                    points.push_back({-cosf((ThisAngle+90) * DEG2RAD)*(20.4f)*x,
-                        -sinf((ThisAngle+90) * DEG2RAD)*(20.4f)*x});
-                }
-            }
-            */
             MeleeAnimAlpha = 1;
         } else {
             // if the animation is already complete, phase out the sword
-            MeleeAnimAlpha -= 3 * GetFrameTime();
+            MeleeAnimAlpha -= 3 * game->GetGameDeltaTime();
         }
 
         // render sword
@@ -268,26 +229,8 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
     float cy = entity->BoundingBox.y + entity->BoundingBox.height / 2;
 
     // if enemy is in sight & within range, attack!
-    if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range && game->RayCast({owner_cx, owner_cy}, {cx, cy})) {
-
-        if (entity->Type == EnemyType) { // if victim is enemy, check for armor damage
-            shared_ptr<Enemy> enemy = dynamic_pointer_cast<Enemy>(entity);
-            if (enemy->Armor <= 0)
-                enemy->Health -= CurrentWeapon->Damage;
-            else
-                enemy->Armor -= CurrentWeapon->Damage;
-        } else { // if they are normal, just damage them normally
-            entity->Health -= CurrentWeapon->Damage;
-        }
-
-        // if entity dies, give owner health and increase kill count for player
-        if (entity->Health <= 0) {
-            if (Owner->Health > 0)
-                Owner->Health += CurrentWeapon->Damage;
-            if (Owner->Type == PlayerType)
-                game->MainPlayer->Kills += 1;
-        }
-    }
+    if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range && game->RayCast({owner_cx, owner_cy}, {cx, cy}))
+        Owner->DamageOther(entity, CurrentWeapon->Damage);
 }
 
 
@@ -368,7 +311,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
             if (Owner->Type != PlayerType)
                 MeleeAttack(game->MainPlayer, TargetAngle);
 
-            // Loop through all enemies in game
+            // Loop through all behaviors in game
             std::vector<shared_ptr<Entity>>* array = &game->MainEntityManager.Entities[EnemyType];
             for (int i = 0; i < array->size(); i++) {
                 if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != Owner && entity != nullptr && !entity->ShouldDelete) {
@@ -407,5 +350,5 @@ void WeaponsSystem::Unequip() {
 void WeaponsSystem::Reload()
 {
     if (CurrentWeapon != nullptr && CurrentWeapon->Ammo > 0 && TimeStartedReloading == -1)
-        TimeStartedReloading = GetTime();
+        TimeStartedReloading = game->GetGameTime();
 }

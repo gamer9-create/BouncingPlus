@@ -24,6 +24,7 @@ class Menu {
     Texture2D menu_img;
     Texture2D button_img;
     Texture2D miku_img;
+    Texture2D credits_img;
     Sound miku_sound;
     float miku_offset;
     float menu_img_pos_y;

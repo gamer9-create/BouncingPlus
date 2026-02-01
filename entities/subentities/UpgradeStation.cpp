@@ -52,7 +52,7 @@ void UpgradeStation::Render() {
         float A = F - Rotation;
         if (Vector2Distance(s, PlayerPos) <= 50)
             A = -180;
-        SecondArmRot = Lerp(SecondArmRot, A, 2.0f * GetFrameTime());
+        SecondArmRot = Lerp(SecondArmRot, A, 2.0f * game->GetGameDeltaTime());
     }
     DrawTexturePro(game->Textures["arm_tip"],{0,0,36,36},{s.x,s.y,36,36},{18,36},Rotation+SecondArmRot-90,GRAY);
     for (int i = 0; i < 3; i ++) {
@@ -72,9 +72,6 @@ void UpgradeStation::PhysicsUpdate(float dt) {
         game->MainPlayer->weaponsSystem.Unequip();
         if (!game->MainPlayer->isInvincible)
             game->MainPlayer->ToggleInvincibility();
-        if (Vector2Distance({BoundingBox.x, BoundingBox.y}, PlayerPos) <= 10) {
-            game->UpgradeUI = true;
-        }
     }
 }
 
@@ -93,13 +90,13 @@ void UpgradeStation::AnimateTowards(float Angle) {
 void UpgradeStation::Update() {
     if (isAnimating) {
         if (abs(Rotation-GoalAngle) <= 10) {
-            CooldownTimer += GetFrameTime();
+            CooldownTimer += game->GetGameDeltaTime();
             if (CooldownTimer >= 4)
                 isAnimating = false;
         } else {
-            Ani1Timer += GetFrameTime();
+            Ani1Timer += game->GetGameDeltaTime();
             if (!(Ani1Timer >= 0.4f && Ani1Timer <= 0.45f))
-                Rotation -= 30 * GetFrameTime() * (Rotation - GoalAngle > 0 ? 1.0f : -1.0f);
+                Rotation -= 30 * game->GetGameDeltaTime() * (Rotation - GoalAngle > 0 ? 1.0f : -1.0f);
         }
     }
 

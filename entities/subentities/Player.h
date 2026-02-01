@@ -37,6 +37,7 @@ class Player : public Entity {
         bool isInvincible;
         float PrevHealthBeforeDodge = 100;
         double DodgeHealthResetTimer = -1;
+        double LastDodgeHealthResetTimer = -1;
         WeaponsSystem weaponsSystem;
         PowerupSystem powerupSystem;
         int Kills;

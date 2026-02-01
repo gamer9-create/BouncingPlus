@@ -67,7 +67,7 @@ void Bullet::PhysicsUpdate(float dt) {
                     float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
                     float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
                     Rectangle bbox = Rectangle(bbox_x, bbox_y, game->MainTileManager.TileSize, game->MainTileManager.TileSize);
-                    if (CheckCollisionRecs(BoundingBox, bbox)) {
+                    if (CheckCollisionCircleRec({BoundingBox.x,BoundingBox.y}, BoundingBox.height, bbox)) {
                         if (tile_id == 1){// && coord != LastBouncedCoordinate) {
                             int dir_hit = -1; // -1 = none, 0 = left, 1 = up, 2 = right, 3 = down
                             int i= 0;
@@ -147,38 +147,15 @@ void Bullet::PhysicsUpdate(float dt) {
 }
 
 void Bullet::Attack(shared_ptr<Entity> entity) {
-    if (CheckCollisionCircleRec({BoundingBox.x,BoundingBox.y}, 12, entity->BoundingBox) && !entity->ShouldDelete) {
-        bool ShouldDamage = true;
-        float ThisDamage = Damage;
-        auto Owner = OwnerPtr.lock();
-        if (entity->Type == EnemyType) {
-            shared_ptr<Enemy> enemy = dynamic_pointer_cast<Enemy>(entity);
-            if (Owner != nullptr && Owner->Type == PlayerType)
-                enemy->AngeredRangeBypassTimer = enemy->AngeredRangeBypassTimerMax;
-            if (Owner != nullptr && Owner->Health > Owner->MaxHealth) {
-                float percent = (Owner->Health-Owner->MaxHealth) / Owner->MaxHealth;
-                ThisDamage = Damage * (1.0f - min(percent, 0.75f));
-            }
-            if (enemy->Armor > 0)// && ( (!CloseRangingAllowed && Vector2Distance({BoundingBox.x,BoundingBox.y}, this->FirePoint) > 36) || CloseRangingAllowed ))
-            {
-                ShouldDamage = false;
-                enemy->Armor -= ThisDamage * (1.0f+(GetRandomValue(1, 10)/10.0f));
-            }
-        }
-        if (ShouldDamage)// && ( (!CloseRangingAllowed && Vector2Distance({BoundingBox.x,BoundingBox.y}, this->FirePoint) > 36) || CloseRangingAllowed ))
-            entity->Health -= ThisDamage;
-        if (Owner != nullptr && entity->Health <= 0 && Owner->Health > 0) {
-            Owner->Health += ThisDamage;
-            entity->ShouldDelete = true;
-            if (Owner->Type == PlayerType)
-                game->MainPlayer->Kills += 1;
-        }
+    auto Owner = OwnerPtr.lock();
+    if (CheckCollisionCircleRec({BoundingBox.x,BoundingBox.y}, BoundingBox.width, entity->BoundingBox) && !entity->ShouldDelete) {
+        DamageOther(entity, Damage, Owner);
         ShouldDelete = true;
     }
 }
 
 void Bullet::Update() {
-    ExistenceTimer += GetFrameTime();
+    ExistenceTimer += game->GetGameDeltaTime();
     if (!SlowdownOverTime) {
 
         if (ExistenceTimer >= Lifetime) {

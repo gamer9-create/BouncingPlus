@@ -16,6 +16,10 @@ public:
     double SpawnTimer;
     double SpawnerIsActive;
     double SpawnerRageCooldown;
+
+    float EnemyDifficulty;
+    double SpawnCooldown;
+
     double timer;
     float DistF;
     float RandomNumbers[8];

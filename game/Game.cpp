@@ -28,11 +28,12 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
     MainCameraManager = CameraManager(*this);
     MainEntityManager = EntityManager(*this);
     MainSoundManager = SoundManager(*this);
+    MainGameModeManager = GameModeManager(*this);
 
     // game speed & timing
     GameSpeed = 1.0f;
     SlowdownTime = 0;
-    LevelTimer = -1;
+    GameTime = 0.0f;
     MaxSlowdownTime = 0;
 
     Paused = false;
@@ -47,13 +48,10 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
 
     // extra stuff
     MainPlayer = nullptr;
-    CurrentBoss = nullptr;
     CurrentLevelName = "";
     LevelData = json;
     DebugDraw = false;
     ShouldReturn = false;
-    UpgradeUI = false;
-    CurrentBossName = "";
 
     SetGameData();
 }
@@ -142,6 +140,16 @@ void Game::SetGameData() {
     BannedWeaponDrops.emplace_back("Player Gun");
 }
 
+float Game::GetGameDeltaTime()
+{
+    return GetFrameTime() * GameSpeed;
+}
+
+double Game::GetGameTime()
+{
+    return GameTime;
+}
+
 void Game::Slowdown(float Time) {
     SlowdownTime = Time;
     MaxSlowdownTime = Time;
@@ -155,11 +163,15 @@ void Game::Slowdown(float Time, float CrashIntensity) {
 
 void Game::ProcessSlowdownAnimation() {
     if (SlowdownTime > 0 && MaxSlowdownTime > 0) {
+        GameSpeed = 0.0f;
         float Percent = SlowdownTime / MaxSlowdownTime;
-        if (Percent < 0.5)
-            GameSpeed = Lerp(1.0f, 0.1f, Percent-0.5f);
-        else
-            GameSpeed = Lerp(0.1f, 1.0f, Percent-0.5f);
+        if (Percent >= 0.1)
+        {
+            if (Percent < 0.5)
+                GameSpeed = Lerp(1.0f, 0.1f, Percent / 0.5f);
+            else
+                GameSpeed = Lerp(0.1f, 1.0f, (Percent-0.5f) / 0.5f);
+        }
         if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
             MainCameraManager.ShakeCamera(SlowdownShakeIntensity);
             MainSoundManager.PlaySoundM("dash_hit", min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
@@ -180,18 +192,18 @@ void Game::PlaceWeaponPickup(WeaponPickup pickup) {
         if (s == pickup.Weapon)
             return;
     }
-    pickup.CreationTime = GetTime();
+    pickup.CreationTime = GetGameTime();
     WeaponPickups.push_back(pickup);
 }
 
 void Game::DisplayPickups()
 {
     std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
-            return pickup.PickedUp || GetTime() - pickup.CreationTime >= 45 || !Weapons.contains(pickup.Weapon);
+            return pickup.PickedUp || GetGameTime() - pickup.CreationTime >= 45 || !Weapons.contains(pickup.Weapon);
     });
     for (WeaponPickup& pickup : WeaponPickups) {
         // get floating offset
-        float AnimationOffset = sin((GetTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
+        float AnimationOffset = sin((GetGameTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
         Weapon& PickupWeapon = Weapons.at(pickup.Weapon);
         std::string TexString = "placeholder";
         if (Textures.contains(PickupWeapon.texture))
@@ -278,8 +290,7 @@ void Game::Update() {
         if (IsKeyPressed(KEY_X))
             DebugDraw = !DebugDraw;
 
-        if (LevelTimer > 0)
-            LevelTimer -= GetFrameTime();
+        GameTime += GetGameDeltaTime();
 
         // shader stuff
         if (!DebugDraw)
@@ -287,17 +298,19 @@ void Game::Update() {
         if (IsKeyPressed(KEY_C) && DebugDraw)
             MainCameraManager.ShaderDraw = !MainCameraManager.ShaderDraw;
         if (IsKeyDown(KEY_B) && MainCameraManager.ShaderDraw)
-            MainCameraManager.ShaderPixelPower += 10 * GetFrameTime();
+            MainCameraManager.ShaderPixelPower += 10 * GetGameDeltaTime();
         if (IsKeyDown(KEY_N) && MainCameraManager.ShaderDraw)
-            MainCameraManager.ShaderPixelPower -= 10 * GetFrameTime();
+            MainCameraManager.ShaderPixelPower -= 10 * GetGameDeltaTime();
+
 
         if (IsKeyPressed(KEY_E))
         {
-            if (MainEntityManager.Entities[EnemyType].size() <= 0)
-                ShouldReturn = true;
+            //if (MainEntityManager.Entities[EnemyType].size() <= 0)
+            //    ShouldReturn = true;
             if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && !CurrentLevelName.empty())
                 Reload(CurrentLevelName);
         }
+
 
         MainCameraManager.Begin();
         ProcessSlowdownAnimation();
@@ -305,6 +318,7 @@ void Game::Update() {
         MainParticleManager.Update();
         MainEntityManager.Update();
         MainSoundManager.Update();
+        MainGameModeManager.Update();
         DisplayPickups();
         MainCameraManager.End();
 
@@ -439,16 +453,15 @@ bool Game::RayCastSP(Vector2 origin, Vector2 target, float Precision) { // RayCa
 void Game::Clear() {
     Paused = false;
     ShouldReturn = false;
-    CurrentBoss = nullptr;
-    LevelTimer = -1;
+    GameTime = 0;
     CurrentLevelName.clear();
-    CurrentBossName.clear() ;
     WeaponPickups.clear();
     MainTileManager.Clear();
     MainParticleManager.Clear();
     MainEntityManager.Clear();
     MainSoundManager.Clear();
     MainCameraManager.Clear();
+    MainGameModeManager.Clear();
     MainPlayer.reset();
 }
 
@@ -457,9 +470,9 @@ void Game::Reload(std::string MapName) {
     Clear();
 
     CurrentLevelName = MapName;
-    LevelTimer = LevelData[MapName]["timer"];
 
-    MainTileManager.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv", LevelData[MapName]["boss"]);
+    MainTileManager.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv");
+    MainGameModeManager.PrepareGameMode(LevelData[MapName]);
 
     MainPlayer = make_shared<Player>(MainTileManager.PlayerSpawnPosition.x,
                                      MainTileManager.PlayerSpawnPosition.y, 350.0f,
@@ -485,5 +498,6 @@ void Game::Quit() {
     MainCameraManager.Quit();
     MainSoundManager.Quit();
     MainEntityManager.Quit();
+    MainGameModeManager.Quit();
     UnloadAssets();
 }

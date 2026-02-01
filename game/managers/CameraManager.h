@@ -23,7 +23,6 @@ class CameraManager {
     float CameraShakeIntensity;
     double CameraShakeTimer;
     Vector2 CameraShakeOffset;
-    Vector2 CameraPositionUnaffected;
 
     float BackgroundDepth;
     float BackgroundGridSize;
@@ -33,11 +32,19 @@ class CameraManager {
     int uHeight;
     int uPixelSize;
 
+    int uWidth2;
+    int uHeight2;
+
+    bool ShowLines;
+
+    int BGTexture;
+
     double ZoomResetTimer;
     public:
     RenderTexture CameraRenderTexture;
         Game* game;
         Vector2 CameraPosition;
+        Vector2 CameraPositionUnaffected;
         Vector2 CameraTarget;
         Camera2D RaylibCamera;
         float CameraZoom;
@@ -47,7 +54,7 @@ class CameraManager {
         CameraManager();
         ~CameraManager();
         void ShakeCamera(float Intensity);
-        void QuickZoom(float Zoom, double Time);
+        void QuickZoom(float Zoom, double Time, bool Instant=false);
         void Display();
         void Begin();
         void End();

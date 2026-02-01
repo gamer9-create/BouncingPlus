@@ -154,8 +154,8 @@ void UIManager::GameUI() {
         if (WeaponSlotIndex == i) {
             MainColor = GREEN;
             if (Found) {
-                WeaponSlotOffset += 240 * GetFrameTime();
-                WeaponSlotSize += 100 * GetFrameTime();
+                WeaponSlotOffset += 240 * game->GetGameDeltaTime();
+                WeaponSlotSize += 100 * game->GetGameDeltaTime();
             }
             WeaponSlotOffset = clamp(WeaponSlotOffset, 0.0f, 60.0f);
             WeaponSlotSize = clamp(WeaponSlotSize, 0.0f, 15.0f);
@@ -175,8 +175,8 @@ void UIManager::GameUI() {
         Prev += 20 + size + 15;
     }
     if (!Found) {
-        WeaponSlotOffset -= 240 * GetFrameTime();
-        WeaponSlotSize -= 100 * GetFrameTime();
+        WeaponSlotOffset -= 240 * game->GetGameDeltaTime();
+        WeaponSlotSize -= 100 * game->GetGameDeltaTime();
         WeaponSlotOffset = clamp(WeaponSlotOffset, 0.0f, 60.0f);
         WeaponSlotSize = clamp(WeaponSlotSize, 0.0f, 15.0f);
         if (WeaponSlotOffset <= 0 && WeaponSlotSize <= 0)
@@ -197,9 +197,9 @@ void UIManager::GameUI() {
         );
 
     // health meter
-    HealthBarAnimRot = Lerp(HealthBarAnimRot, 0, 3.5f * GetFrameTime());
+    HealthBarAnimRot = Lerp(HealthBarAnimRot, 0, 3.5f * game->GetGameDeltaTime());
     float limit = 25;
-    ft_size = Lerp(ft_size, 92, 3.5f*GetFrameTime());
+    ft_size = Lerp(ft_size, 92, 3.5f*game->GetGameDeltaTime());
     float PlrHealth = (!game->MainPlayer->isInvincible ? game->MainPlayer->Health : game->MainPlayer->PrevHealthBeforeDodge);
     if (LastHealth != PlrHealth)
     {
@@ -248,20 +248,25 @@ void UIManager::GameUI() {
     if (game->DebugDraw)
         DrawText(to_string(UITransparency).c_str(), 50, 250, 10, WHITE);
 
-    if (game->MainEntityManager.Entities[EnemyType].size() <= 0)
+    /*
+    *if (game->MainEntityManager.Entities[EnemyType].size() <= 0)
         GameWin();
     else
         DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
 
+     */
+
+    DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
+
     DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
 
-    if ((game->MainPlayer->Health > 0 && game->MainEntityManager.Entities[EnemyType].size() > 0) && UITransparency < 1.0f) {
-        UITransparency += 3 * GetFrameTime();
+    if (game->MainPlayer->Health > 0 && UITransparency < 1.0f) {
+        UITransparency += 3 * game->GetGameDeltaTime();
     } else if (UITransparency > 0) {
-        UITransparency -= 2.2f*GetFrameTime();
+        UITransparency -= 2.2f*game->GetGameDeltaTime();
     }
 
-    if (game->LevelTimer > 0)
+    if (game->MainGameModeManager.LevelTimer > 0)
         DisplayTimer();
 
     if (game->Paused)
@@ -271,8 +276,8 @@ void UIManager::GameUI() {
 void UIManager::DisplayTimer()
 {
     int minutes = (int)(this
-        ->game->LevelTimer / 60);
-    int seconds = (int)(this->game->LevelTimer - (minutes * 60.0f));
+        ->game->MainGameModeManager.LevelTimer / 60);
+    int seconds = (int)(this->game->MainGameModeManager.LevelTimer - (minutes * 60.0f));
     std::string txt = to_string(minutes) + ":" + to_string(seconds);
     if (seconds < 10)
         txt = to_string(minutes) + ":0" + to_string(seconds);
@@ -285,7 +290,15 @@ void UIManager::DisplayTimer()
     DrawText(txt.c_str(), x, y, font_size, ColorAlpha(WHITE, UITransparency));
     DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
 
-    std::string o_txt = "YOU MUST SURVIVE FOR";
+    std::string o_txt = "TIME LEFT";
+    if (game->MainGameModeManager.CurrentGameMode == "wave")
+    {
+        if (!game->MainGameModeManager.InWave)
+            o_txt = "INTERMISSION TO WAVE " + to_string(game->MainGameModeManager.CurrentWave + 1);
+        else
+            o_txt = "SURVIVE WAVE " + to_string(game->MainGameModeManager.CurrentWave);
+    }
+
     DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
 }
 

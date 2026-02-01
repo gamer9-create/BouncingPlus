@@ -43,7 +43,7 @@ void FaceBoss::Render() {
 
 
     DrawTexturePro(game->Textures["mouth"], {0, 0, 300, 36},
-            {StartPos.x+(float)cos(GetTime()) * 5, StartPos.y+60+(float)sin(GetTime()) * 5, 300, 36},
+            {StartPos.x+(float)cos(game->GetGameTime()) * 5, StartPos.y+60+(float)sin(game->GetGameTime()) * 5, 300, 36},
             {150, 18}, 0, BLUE);
 
 
@@ -58,11 +58,11 @@ void FaceBoss::Update() {
     if (Distance <= 450 && Health > 0) {
         if (!BossFightStarted) {
             game->MainSoundManager.PlaySoundM("badtime");
-            this->game->LevelTimer = 300;
+            this->game->MainGameModeManager.LevelTimer = 300;
         }
         BossFightStarted = true;
-        this->game->CurrentBoss = this;
-        this->game->CurrentBossName = "The Bouncing Face";
+        this->game->MainGameModeManager.CurrentBoss = this;
+        this->game->MainGameModeManager.CurrentBossName = "The Bouncing Face";
     }
     if (Health <= 0)
         BossFightStarted = false;
@@ -70,7 +70,7 @@ void FaceBoss::Update() {
         std::vector<shared_ptr<Entity>> array = game->MainEntityManager.Entities[SpawnerType];
         for (int i = 0; i < array.size(); i++) {
             if (shared_ptr<Spawner> entity = dynamic_pointer_cast<Spawner>(array.at(i)); entity != nullptr and !entity->ShouldDelete) {
-                entity->SpawnerIsActive = this->game->LevelTimer > 0 ? 999 : 0;
+                entity->SpawnerIsActive = this->game->MainGameModeManager.LevelTimer > 0 ? 999 : 0;
             }
         }
     }

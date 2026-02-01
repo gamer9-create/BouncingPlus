@@ -18,6 +18,7 @@ Menu::Menu(std::unordered_map<std::string,json> level_data)
     menu_img = LoadTexture("assets/ui/menu_img.png");
     miku_img = LoadTexture("assets/ui/miku.png");
     miku_sound = LoadSound("assets/ui/lovely_cavity.mp3");
+    credits_img = LoadTexture("assets/ui/credits.png");
     Reset();
     PlaySound(miku_sound);
 }
@@ -43,8 +44,11 @@ void Menu::Reset()
 }
 
 bool Menu::button(Rectangle rectangle, std::string text) {
+    float tx_size = MeasureText(text.c_str(), 50);
+    float mul = 50 / (tx_size / (rectangle.width-10));
+    tx_size = MeasureText(text.c_str(), mul);
     DrawTexture(button_img, rectangle.x-cam_x, rectangle.y, WHITE);
-    DrawText(text.c_str(), rectangle.x-cam_x + button_img.width/2 - MeasureText(text.c_str(), 50)/2, rectangle.y + button_img.height/2 - 25, 50, WHITE);
+    DrawText(text.c_str(), rectangle.x-cam_x + button_img.width/2 - tx_size/2, rectangle.y + button_img.height/2 - (mul/2), mul, WHITE);
 
     if (CheckCollisionPointRec(mouse_pos, rectangle)) {
         DrawRectangleLinesEx({rectangle.x-cam_x,rectangle.y,rectangle.width,rectangle.height}, 4, WHITE);
@@ -55,13 +59,11 @@ bool Menu::button(Rectangle rectangle, std::string text) {
 
 void Menu::LevelSelect()
 {
-    float f = 400;
-
-    Rectangle play_bbox = {(GetScreenWidth()/2.0f) - GetScreenWidth() - (int)(button_img.width/2.0f), (float)play_button_offset_y +f+off,150,56};
+    Rectangle play_bbox = {(GetScreenWidth()/2.0f) - GetScreenWidth() - (int)(button_img.width/2.0f), GetScreenHeight() - 106 + off,150,56};
     if (button(play_bbox, "BACK")) {
         cam_x_targ=0;
     }
-    DrawText("LEVEL SELECT", (int)(GetScreenWidth()/2.0f) - (int)(MeasureText("LEVEL SELECT", 50)/2.0f)-cam_x-GetScreenWidth(), 100+off2, 50, WHITE);
+    DrawText("LEVEL SELECT", (int)(GetScreenWidth()/2.0f) - (int)(MeasureText("LEVEL SELECT", 50)/2.0f)-cam_x-GetScreenWidth(), 100+(off2/1.5f), 50, WHITE);
     int i = 0;
     for (auto& [name, data] : level_data)
     {
@@ -122,6 +124,17 @@ void Menu::Update() {
     if (button(play_bbox, "PLAY")) {
         cam_x_targ=-GetScreenWidth();
     }
+    DrawTexture(credits_img,GetScreenWidth()-cam_x, 0, WHITE);
+
+    if (button({GetScreenWidth() + (GetScreenWidth() / 2.0f) - 75.0f, GetScreenHeight() - 106.0f, 150, 56}, "BACK"))
+        cam_x_targ=0;
+
+
+    Rectangle credits_bbox = {(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f), (float)play_button_offset_y +off3 + play_bbox.height + 18,150,56};
+    if (button(credits_bbox, "CREDITS")) {
+        cam_x_targ=GetScreenWidth();
+    }
+
     if (isStarting && BlackTransparency > 0)
         BlackTransparency -= 0.65f * GetFrameTime();
     else
@@ -161,4 +174,5 @@ void Menu::Quit() {
     UnloadTexture(menu_img);
     UnloadTexture(button_img);
     UnloadTexture(miku_img);
+    UnloadTexture(credits_img);
 }

@@ -1,0 +1,42 @@
+//
+// Created by lalit on 1/26/2026.
+//
+
+#ifndef BOUNCINGPLUS_GAMEMODE_H
+#define BOUNCINGPLUS_GAMEMODE_H
+
+#include <nlohmann/json_fwd.hpp>
+
+#include "string"
+
+class Game;
+class Entity;
+
+/*
+ Game Modes:
+boss
+wave
+default
+ */
+
+class GameModeManager
+{
+    public:
+    Game *game;
+    Entity* CurrentBoss;
+    std::string CurrentBossName;
+    std::string CurrentGameMode;
+    int CurrentWave;
+    bool InWave;
+    double LevelTimer;
+    ~GameModeManager();
+    GameModeManager();
+    GameModeManager(Game &game);
+    void PrepareGameMode(nlohmann::json data);
+    void Update();
+    void Clear();
+    void Quit();
+};
+
+
+#endif //BOUNCINGPLUS_GAMEMODE_H

@@ -4,6 +4,7 @@
 
 #include "Player.h"
 #include <cfloat>
+#include <iostream>
 #include <raymath.h>
 #include <nlohmann/json.hpp>
 #include "Enemy.h"
@@ -23,8 +24,8 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->ExtraSpeed = 0;
     this->PrevHealthBeforeDodge = 0;
     this->IntervalHealth = Health;
-    this->LastInterval = GetTime();
-    this->LastWarningSign = GetTime();
+    this->LastInterval = game.GetGameTime();
+    this->LastWarningSign = game.GetGameTime();
     this->HealthConcern = false;
     this->WarningSign = false;
     this->PlayerDashLineThickness = 10;
@@ -69,20 +70,15 @@ void Player::PhysicsUpdate(float dt) {
     {
         VelocityPower = 0;
     }
-    if (IsMouseButtonPressed(0) && PlayerFrozenTimer > 0 && PlayerFrozenTimer <= 0.9f) {
-        PlayerFrozenTimer = 0;
-        DodgeHealthResetTimer = 0;
-        VelocityPower = 0;
-    }
     Movement = Vector2(MovementX, MovementY);
     if (Vector2Distance({0,0},Movement) > 0) {
-        LastMovedTime = GetTime();
+        LastMovedTime = game->GetGameTime();
         ExtraSpeed += 10 * dt;
     }
-    if (GetTime() - LastMovedTime > 1)
+    if (game->GetGameTime() - LastMovedTime > 1)
         ExtraSpeed = 0;
     ExtraSpeed = min(ExtraSpeed, 400.0f);
-    if ((Health/MaxHealth) > 2.0f)
+    if ((Health/MaxHealth) > 2.0f && !isInvincible)
         Speed = (OrigSpeed + ExtraSpeed) * (1.0f - min(((Health/MaxHealth)-3.0f) / 2.0f, 0.5f));
     else
         Speed = (OrigSpeed + ExtraSpeed);
@@ -95,10 +91,14 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
         // calculate damage & attack
         float Damage = VelocityPower / 15.0f;
         Damage *= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
+        cout << "dashed, " << to_string(entity->Armor) << "\n";
         if (entity->Armor <= 0)
             entity->Health -= Damage;
         else
+        {
             entity->Armor -= Damage;
+            cout << "fgf" << endl;
+        }
         Health += Damage / 3.0f;
 
         float amount = 1500.0f;
@@ -111,10 +111,10 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
             Kills+=1;
         }
 
-        game->MainCameraManager.CameraPosition += Vector2Normalize({(float)GetRandomValue(-50, 50), (float)GetRandomValue(-50, 50)}) * (VelocityPower / 150);
-        game->MainCameraManager.ShakeCamera(VelocityPower / (amount - 50));
-        game->MainCameraManager.QuickZoom(0.8f, 0.05f);
-        game->Slowdown(0.5f);
+        game->MainCameraManager.CameraPosition += Vector2Normalize({(float)GetRandomValue(-25, 25), (float)GetRandomValue(-25, 25)}) * (VelocityPower / 150);
+        game->MainCameraManager.ShakeCamera(VelocityPower / (amount - 50) / 1.5f);
+        game->MainCameraManager.QuickZoom(0.95f, 0.05f, false);
+        //game->Slowdown(0.5f);
         game->MainSoundManager.PlaySoundM("dash_hit",min(max(VelocityPower/amount, 0.0f), 1.0f));
 
         // give them pushback force
@@ -134,7 +134,7 @@ void Player::OnWallVelocityBump(float Power)
         float PreviousH = Health;
         Entity::OnWallVelocityBump(Power);
         game->MainSoundManager.PlaySoundM("dash_wall_hit");
-        float Damage = Power / 80.0f;
+        float Damage = Power / 130.0f;
         if (Health - Damage >= 20)
         {
             Health -= Damage;
@@ -148,10 +148,10 @@ void Player::OnWallVelocityBump(float Power)
 void Player::DashLogic() {
     // update dash cooldownm
     if (DashCooldown > 0)
-        DashCooldown -= GetFrameTime();
+        DashCooldown -= game->GetGameDeltaTime();
 
-    if (VelocityPower > 0 && DodgeHealthResetTimer <= 0) {
-        // get enemies list
+    if (VelocityPower > 0 && !Dodging) {
+        // get behaviors list
         std::vector<shared_ptr<Entity>>* array = &game->MainEntityManager.Entities[EnemyType];
         for (int i = 0; i < array->size(); i++) {
             if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != nullptr and !entity->ShouldDelete) {
@@ -175,7 +175,7 @@ void Player::DashLogic() {
     Vector2 WorldMousePos = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
     if (DashCooldown <= 0 && IsKeyDown(KEY_LEFT_SHIFT)) {
         if (!IsPreparingForDash) {
-            DashTimeStart = GetTime();
+            DashTimeStart = game->GetGameTime();
             PlayerDashLineThickness = 10;
         }
         IsPreparingForDash = true;
@@ -187,9 +187,9 @@ void Player::DashLogic() {
         game->MainCameraManager.QuickZoom(1.25f, 0.1f);
         if (game->MainPlayer->IsPreparingForDash)
         {
-            if (static_cast<float>(GetTime() - DashTimeStart) / 1.1f > 0.8f)
-                PlayerDashLineThickness = Lerp(PlayerDashLineThickness, 20, 2 * GetFrameTime());
-            float alpha = static_cast<float>(GetTime() - DashTimeStart) / 1.1f;
+            if (static_cast<float>(game->GetGameTime() - DashTimeStart) / 1.1f > 0.8f)
+                PlayerDashLineThickness = Lerp(PlayerDashLineThickness, 20, 2 * game->GetGameDeltaTime());
+            float alpha = static_cast<float>(game->GetGameTime() - DashTimeStart) / 1.1f;
             Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
             float cx = BoundingBox.x + BoundingBox.width / 2;
             float cy = BoundingBox.y + BoundingBox.height / 2;
@@ -198,7 +198,7 @@ void Player::DashLogic() {
             float width = MeleeAnimTexture.width;
             float height = MeleeAnimTexture.height;
             BeginShaderMode(game->Shaders["dash_arrow"]);
-            float t = static_cast<float>(GetTime() - DashTimeStart);
+            float t = static_cast<float>(game->GetGameTime() - DashTimeStart);
             SetShaderValue(game->Shaders["dash_arrow"],
                 ShaderUniformLoc,
                 &t,
@@ -215,17 +215,21 @@ void Player::DashLogic() {
         DashCooldown = 1.1f;
         DashedEnemies.clear();
         VelocityMovement = Vector2Subtract(WorldMousePos, {BoundingBox.x, BoundingBox.y});
-        VelocityPower = 2500.0f * max(min(static_cast<float>(GetTime() - DashTimeStart), 1.1f), 0.35f);
+        VelocityPower = 2500.0f * max(min(static_cast<float>(game->GetGameTime() - DashTimeStart), 1.1f), 0.35f);
         VelocityPower /= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
         game->MainSoundManager.PlaySoundM("dash");
         PlayerFrozenTimer = .5f * min(max((VelocityPower / 2500.0f), 0.35f), 1.1f);
-        /*
-        if (IsMouseButtonDown(0) && !isInvincible) {
+        if (!isInvincible)
+        {
             ToggleInvincibility();
+            DodgeHealthResetTimer= 0.1f;
+        }
+        if (IsMouseButtonDown(0)) {
+
             Dodging = true;
             DodgeHealthResetTimer = 1.0f;
+            DashCooldown = 3.0f;
         }
-        */
         IsPreparingForDash = false;
     }
 
@@ -234,7 +238,7 @@ void Player::DashLogic() {
     int h = 15;
     float a = 0;
     if (IsPreparingForDash)
-        a = Lerp(0, 0.6f, min( (float)(GetTime() - DashTimeStart) / 0.2f, 1.0f ));
+        a = Lerp(0, 0.6f, min( (float)(game->GetGameTime() - DashTimeStart) / 0.2f, 1.0f ));
 
     DrawRectangle((int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2)),
         (int)(BoundingBox.y + BoundingBox.width + 10),
@@ -243,7 +247,7 @@ void Player::DashLogic() {
     DrawRectangle(
         (int)(BoundingBox.x + (BoundingBox.width / 2) - (w/2))+5,
         (int)(BoundingBox.y + BoundingBox.width + 10)+5,
-        (!IsPreparingForDash ? 0 : min(static_cast<float>(GetTime() - DashTimeStart) / 1.1f, 1.0f))*(w-10),
+        (!IsPreparingForDash ? 0 : min(static_cast<float>(game->GetGameTime() - DashTimeStart) / 1.1f, 1.0f))*(w-10),
         h-10,
         ColorAlpha(WHITE, a*1.25f));
 
@@ -289,18 +293,18 @@ void Player::Update() {
     }
 
     // warning sign interval
-    if (GetTime() - LastInterval >= 1.5f)
+    if (game->GetGameTime() - LastInterval >= 1.5f)
     {
         HealthConcern = (IntervalHealth - Health) >= 75;
-        LastInterval = GetTime();
+        LastInterval = game->GetGameTime();
     }
     if (Health < 50)
         HealthConcern = true;
 
-    if (GetTime() - LastWarningSign >= 0.1f)
+    if (game->GetGameTime() - LastWarningSign >= 0.1f)
     {
         WarningSign = !WarningSign;
-        LastWarningSign = GetTime();
+        LastWarningSign = game->GetGameTime();
     }
 
     if (Health > 0 && HealthConcern && WarningSign)
@@ -311,19 +315,20 @@ void Player::Update() {
 
     // player transparency processing
     EntityColor = ColorAlpha(WHITE, Alpha);
-    Alpha = Lerp(Alpha, (DodgeHealthResetTimer > 0 ? 0.5f : 1.0f), 5.5f*GetFrameTime());
+    Alpha = Lerp(Alpha, (DodgeHealthResetTimer > 0 ? 0.5f : 1.0f), 5.5f*game->GetGameDeltaTime());
 
     // dashing logic
     DashLogic();
 
     // health cap + dodging stuff
-    if (DodgeHealthResetTimer > 0) {
-        DodgeHealthResetTimer -= GetFrameTime();
-        if (DodgeHealthResetTimer <= 0) {
-            Dodging = false;
-            if (isInvincible)
-                ToggleInvincibility();
-        }
+    if (DodgeHealthResetTimer > 0)
+        DodgeHealthResetTimer -= game->GetGameDeltaTime();
+
+    if (DodgeHealthResetTimer <= 0 && LastDodgeHealthResetTimer > 0) {
+        Dodging = false;
+        DodgeHealthResetTimer = -1;
+        if (isInvincible)
+            ToggleInvincibility();
     }
 
     if (PlayerFrozenTimer <= 0) {
@@ -335,7 +340,7 @@ void Player::Update() {
             weaponsSystem.Reload();
         }
 
-        auto WorldMousePos =  GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
+        auto WorldMousePos = Vector2Add(GetMousePosition(), game->MainCameraManager.CameraPositionUnaffected);
         if (IsMouseButtonDown(0) && !IsPreparingForDash)
             weaponsSystem.Attack(WorldMousePos);
 
@@ -370,7 +375,7 @@ void Player::Update() {
             }
         }
     } else {
-        PlayerFrozenTimer -= GetFrameTime();
+        PlayerFrozenTimer -= game->GetGameDeltaTime();
     }
 
     // update entity
@@ -382,5 +387,5 @@ void Player::Update() {
         game->MainSoundManager.PlaySoundM("death");
     }
     LastKills = Kills;
-
+    LastDodgeHealthResetTimer = DodgeHealthResetTimer;
 }

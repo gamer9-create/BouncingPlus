@@ -44,6 +44,16 @@ void SoundManager::Update() {
     for (auto& [name,value] : CachedAliases) {
         if (game->DebugDraw)
             DrawText((to_string(i) + " " + to_string(value.size())).c_str(), 350,350+((i+1)*10), 10, RED);
+        if (game->GameSpeed != 1.0f)
+        {
+            for (Sound& sound : value)
+            {
+                if (IsSoundPlaying(sound))
+                {
+
+                }
+            }
+        }
         std::erase_if(value, [&](Sound& sound) {
             if (value.size() > 10 && ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound))) {
                 if (IsSoundValid(sound))

@@ -24,7 +24,7 @@ void ParticleManager::ParticleEffect(ParticleData Data, float Angle, int AngleRa
             Data.StartPosition,
             {0, 0},
             Data.StartVelocity + GetRandomValue(-50,50),
-            GetTime(),
+            game->GetGameTime(),
             Data.StartColor
         };
         newParticle.Position += {(float) GetRandomValue(-15, 15), (float) GetRandomValue(-15, 15)};
@@ -46,19 +46,19 @@ void ParticleManager::Update() {
     for (int i = particles.size() - 1; i >= 0; i--) {
         Particle &p = particles[i];
 
-        double Percent = (GetTime() - p.SpawnTime) / p.Data.Lifetime;
+        double Percent = (game->GetGameTime() - p.SpawnTime) / p.Data.Lifetime;
 
-        p.Velocity -= p.Data.VelocitySlowdown * GetFrameTime();
+        p.Velocity -= p.Data.VelocitySlowdown * game->GetGameDeltaTime();
         if (p.Velocity <= 0)
             p.Velocity = 0;
-        p.Position += p.Target * p.Velocity * GetFrameTime();
+        p.Position += p.Target * p.Velocity * game->GetGameDeltaTime();
         p.ParticleColor = ColorLerp(p.ParticleColor, p.Data.TargetColor, Percent);
 
         DrawRectanglePro({p.Position.x,
             p.Position.y,
             p.Data.Size,p.Data.Size},
             {p.Data.Size/2, p.Data.Size/2},
-            (GetTime() - p.SpawnTime) * 100 * (1-Percent),
+            (game->GetGameTime() - p.SpawnTime) * 100 * (1-Percent),
             p.ParticleColor);
 
         if (Percent >= 1.0)

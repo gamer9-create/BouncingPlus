@@ -3,6 +3,9 @@
   "inventory": ["Sword", "Shotgun", ""],
   "difficulty": 3,
   "starting_health": 150,
-  "timer": -1,
-  "boss": ""
+  "game": {
+    "timer": -1,
+    "boss": "",
+    "mode": "default"
+  }
 }

@@ -145,7 +145,7 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
     game->MainEntityManager.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->Textures["enemy"], *game));
 }
 
-void TileManager::ReadMapDataFile(std::string Filename, std::string BossName) {
+void TileManager::ReadMapDataFile(std::string Filename) {
     int y = 0;
     int x = 0;
 
@@ -188,11 +188,7 @@ void TileManager::ReadMapDataFile(std::string Filename, std::string BossName) {
                     break;
                 }
                 case BossTileType: {
-                    std::shared_ptr<Entity> boss;
-                    if (BossName == "Face")
-                        boss = std::make_shared<FaceBoss>(*game, bbox_x, bbox_y);
-                    if (boss != nullptr)
-                        game->MainEntityManager.AddEntity(BossType, boss);
+                    BossSpawnPosition = Vector2(bbox_x, bbox_y);
                     break;
                 };
                 case UpgradeStationTileType: {
@@ -222,6 +218,7 @@ void TileManager::Clear()
     MapWidth = 0;
     MapHeight = 0;
     PlayerSpawnPosition = {0, 0};
+    BossSpawnPosition = {0,0};
     EnemySpawnLocations = std::vector<Vector2>();
     TileSize = 72;
     UpdateDistance = Vector2((int) (GetScreenWidth() / 61.0f), (int)(GetScreenHeight() / 48.0f));

@@ -7,6 +7,8 @@
 
 #include <raylib.h>
 #include <nlohmann/json_fwd.hpp>
+
+#include "managers/GameModeManager.h"
 #include "managers/CameraManager.h"
 #include "../entities/Entity.h"
 #include "../entities/EntityManager.h"
@@ -37,31 +39,37 @@ class Game {
     int uThreshold;
 
     public:
-
-        Entity* CurrentBoss;
-        std::string CurrentBossName;
-
-        double LevelTimer;
-
-        bool UpgradeUI;
-        bool Paused;
+        // Timing, Speed, and Menu Management
+        double GameTime;
         float GameSpeed;
+        bool Paused;
+        bool ShouldReturn;
+        bool DebugDraw;
+
+        // Level Information
         std::string CurrentLevelName;
         std::unordered_map<std::string, nlohmann::json> LevelData;
+
+        // Managers
         TileManager MainTileManager;
         EntityManager MainEntityManager;
         CameraManager MainCameraManager;
         ParticleManager MainParticleManager;
         SoundManager MainSoundManager;
+        GameModeManager MainGameModeManager;
+
         shared_ptr<Player> MainPlayer;
         std::vector<WeaponPickup> WeaponPickups;
+
+        // Assets
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Shader> Shaders;
+        unordered_map<std::string, Weapon> Weapons;
+
+        // Extra Assets
         std::vector<std::string> EnemyWeaponNamesList;
         std::vector<std::string> BannedWeaponDrops;
-        unordered_map<std::string, Weapon> Weapons;
-        bool DebugDraw;
-        bool ShouldReturn;
+
         Game(std::unordered_map<std::string, nlohmann::json> json);
         bool RayCastSP(Vector2 origin, Vector2 target, float Precision = 36);
         bool RayCast(Vector2 origin, Vector2 target);
@@ -73,6 +81,8 @@ class Game {
         void Clear();
         void Quit();
         void UnloadAssets();
+        float GetGameDeltaTime();
+        double GetGameTime();
 };
 
 

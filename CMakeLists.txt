@@ -43,6 +43,16 @@ add_executable(BouncingPlus main.cpp
         entities/bosses/FaceBoss.h
         entities/Powerups.cpp
         entities/Powerups.h
+        game/managers/GameModeManager.cpp
+        game/managers/GameModeManager.h
+        game/saves/Achievements.cpp
+        game/saves/Achievements.h
+        game/saves/Saves.cpp
+        game/saves/Saves.h
+        entities/subentities/behaviors/EnemyBehavior.cpp
+        entities/subentities/behaviors/EnemyBehavior.h
+        entities/subentities/behaviors/WeaponBehavior.cpp
+        entities/subentities/behaviors/WeaponBehavior.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)
