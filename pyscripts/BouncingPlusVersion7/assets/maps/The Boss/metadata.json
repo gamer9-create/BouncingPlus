@@ -1,0 +1,11 @@
+{
+  "description": "Someone's gonna get bossed around...",
+  "inventory": ["Shotgun", "Virtue Sword", ""],
+  "difficulty": 4,
+  "starting_health": 150,
+  "game": {
+    "timer": -1,
+    "boss": "face",
+    "mode": "boss"
+  }
+}

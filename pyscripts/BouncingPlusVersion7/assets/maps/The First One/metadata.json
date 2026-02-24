@@ -1,0 +1,11 @@
+{
+  "description": "A true test!",
+  "inventory": ["Sword", "Shotgun", ""],
+  "difficulty": 3,
+  "starting_health": 150,
+  "game": {
+    "timer": -1,
+    "boss": "",
+    "mode": "default"
+  }
+}

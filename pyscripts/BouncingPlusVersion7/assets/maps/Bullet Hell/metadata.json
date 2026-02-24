@@ -1,0 +1,11 @@
+{
+  "description": "No special dudes, just pure bullets.",
+  "inventory": ["Player Gun"],
+  "difficulty": 4,
+  "starting_health": 200,
+  "game": {
+    "timer": -1,
+    "boss": "",
+    "mode": "default"
+  }
+}

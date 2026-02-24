@@ -1,0 +1,11 @@
+{
+  "description": "Learning the ropes!",
+  "inventory": [],
+  "difficulty": 1,
+  "starting_health": 100,
+  "game": {
+    "timer": -1,
+    "boss": "",
+    "mode": "default"
+  }
+}
