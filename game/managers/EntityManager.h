@@ -7,7 +7,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include "EntityType.h"
+#include "../../entities/EntityType.h"
 
 class Game;
 class Entity;

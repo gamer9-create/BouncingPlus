@@ -4,9 +4,12 @@
 
 #include "Spawner.h"
 
+#include <iostream>
 #include <raymath.h>
 
 #include "../../game/Game.h"
+#include "behaviors/CatchBehavior.h"
+#include "behaviors/WeaponBehavior.h"
 
 Spawner::Spawner() {
 }
@@ -158,8 +161,26 @@ void Spawner::Update() {
                 }
             }
 
-            std::shared_ptr<Enemy> e = make_shared<Enemy>(p.x, p.y, 75, 150 + (GetRandomValue(1, 100) / 10.0f < EnemyDifficulty ? GetRandomValue(10, 75) : 0), GetRandomValue(1, 100) / 100.0f < EnemyDifficulty ? GetRandomValue(50, 100) : 0, game->EnemyWeaponNamesList[GetRandomValue(0, game->EnemyWeaponNamesList.size() - 1)], game->Textures["spawned_enemy"], *game);
-            e->WanderingEnabled = true;            game->MainEntityManager.AddEntity(EnemyType, e);
+            std::unique_ptr<EnemyBehavior> behavior = make_unique<WeaponBehavior>();
+            if (GetRandomValue(1, 3) == 2)
+            {
+                behavior.reset();
+                behavior = make_unique<CatchBehavior>();
+            }
+
+            std::shared_ptr<Enemy> e = make_shared<Enemy>(
+                p.x,
+                p.y,
+                75,
+                150 + (GetRandomValue(1, 100) / 10.0f < EnemyDifficulty ? GetRandomValue(10, 75) : 0),
+                GetRandomValue(1, 100) / 100.0f < EnemyDifficulty ? GetRandomValue(25, 50) : 0,
+                game->EnemyWeaponNamesList[GetRandomValue(0, game->EnemyWeaponNamesList.size() - 1)],
+                std::move(behavior),
+                game->Textures["spawned_enemy"],
+                *game
+                );
+            e->WanderingEnabled = true;
+            game->MainEntityManager.AddEntity(EnemyType, e);
             game->MainParticleManager.ParticleEffect({
                 p,
                 150,

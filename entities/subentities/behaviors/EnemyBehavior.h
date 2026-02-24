@@ -15,6 +15,7 @@ class EnemyBehavior
     Game* game;
     EnemyBehavior();
     EnemyBehavior(Enemy& Owner, Game& game);
+    virtual ~EnemyBehavior();
     virtual void Update();
 };
 

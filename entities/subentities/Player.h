@@ -23,7 +23,7 @@ class Player : public Entity {
     float Alpha = 1;
     std::vector<std::weak_ptr<Enemy>> DashedEnemies;
     float OrigSpeed;
-    float ExtraSpeed;
+
     double LastMovedTime;
     int LastKills;
 
@@ -35,11 +35,10 @@ class Player : public Entity {
 
     public:
         bool isInvincible;
-        float PrevHealthBeforeDodge = 100;
-        double DodgeHealthResetTimer = -1;
-        double LastDodgeHealthResetTimer = -1;
+    float ExtraSpeed;
         WeaponsSystem weaponsSystem;
         PowerupSystem powerupSystem;
+        double InvincibilityResetTimer;
         int Kills;
         bool IsPreparingForDash = false;
         bool Dodging =false;

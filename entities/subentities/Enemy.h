@@ -20,16 +20,16 @@ class Enemy : public Entity {
     double ActivationTimer;
     Vector2 WallMovement;
     float Alpha = 0;
-    void Init(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, EnemyBehavior EnemyBehavior, Texture2D& EnemyTexture, Game &game);
+    void Init(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game &game);
 public:
-    EnemyBehavior Behavior;
+    std::unique_ptr<EnemyBehavior> Behavior = nullptr;
     WeaponsSystem weaponsSystem;
     float AngeredRangeBypassTimerMax;
     float AngeredRangeBypassTimer;
     float Armor;
     bool WanderingEnabled;
     Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game);
-    Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, EnemyBehavior EnemyBehavior, Texture2D& EnemyTexture, Game &game);
+    Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game &game);
     Enemy();
     virtual ~Enemy();
     void Update();

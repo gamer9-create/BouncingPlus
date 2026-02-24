@@ -10,7 +10,7 @@
 #include "../level/LevelLoader.h"
 
 class Menu {
-    std::unordered_map<std::string,json> level_data;
+    std::map<std::string,json> level_data;
     std::string map;
     std::string target_map;
     Vector2 mouse_pos;
@@ -34,7 +34,7 @@ class Menu {
     bool button(Rectangle rectangle, std::string text);
     void LevelSelect();
     public:
-        Menu(std::unordered_map<std::string,json> level_data);
+        Menu(std::map<std::string,json> level_data);
         void Update();
         void Reset();
         std::string LeaveMenu();

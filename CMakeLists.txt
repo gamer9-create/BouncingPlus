@@ -19,8 +19,8 @@ add_executable(BouncingPlus main.cpp
         entities/subentities/Bullet.h
         entities/Weapons.h
         entities/Weapons.cpp
-        game/managers/UIManager.cpp
-        game/managers/UIManager.h
+        game/ui/UIManager.cpp
+        game/ui/UIManager.h
         game/Menu.cpp
         game/Menu.h
         game/managers/ParticleManager.cpp
@@ -29,8 +29,8 @@ add_executable(BouncingPlus main.cpp
         level/LevelLoader.h
         game/managers/CameraManager.cpp
         game/managers/CameraManager.h
-        entities/EntityManager.cpp
-        entities/EntityManager.h
+        game/managers/EntityManager.cpp
+        game/managers/EntityManager.h
         entities/EntityType.h
         entities/subentities/Spawner.cpp
         entities/subentities/Spawner.h
@@ -53,6 +53,12 @@ add_executable(BouncingPlus main.cpp
         entities/subentities/behaviors/EnemyBehavior.h
         entities/subentities/behaviors/WeaponBehavior.cpp
         entities/subentities/behaviors/WeaponBehavior.h
+        entities/subentities/behaviors/CatchBehavior.cpp
+        entities/subentities/behaviors/CatchBehavior.h
+        game/ui/Tutorial.cpp
+        game/ui/Tutorial.h
+        game/Profiler.cpp
+        game/Profiler.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)

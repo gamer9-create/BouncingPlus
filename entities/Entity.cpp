@@ -52,6 +52,8 @@ void Entity::OnWallVelocityBump(float Power)
 
 void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shared_ptr<Entity> owner )
 {
+    if (entity->Type == PlayerType && game->MainPlayer->isInvincible)
+        return;
     if (owner == nullptr)
     {
         owner = shared_from_this();

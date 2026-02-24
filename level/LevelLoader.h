@@ -10,7 +10,7 @@ using json = nlohmann::json;
 class LevelLoader {
 public:
     LevelLoader();
-    std::unordered_map<std::string,json> GetLevelsData();
+    std::map<std::string,json> GetLevelsData();
 };
 
 

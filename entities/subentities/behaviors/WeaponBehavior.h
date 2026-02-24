@@ -12,7 +12,8 @@ class WeaponBehavior : public EnemyBehavior
     public:
     WeaponBehavior();
     WeaponBehavior(Enemy& Owner, Game& game);
-    void Update();
+    ~WeaponBehavior();
+    void Update() override;
 };
 
 

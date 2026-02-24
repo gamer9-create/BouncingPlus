@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     InitAudioDevice();
 
     LevelLoader level_loader = LevelLoader();
-    std::unordered_map<std::string,json> level_data = level_loader.GetLevelsData();
+    std::map<std::string,json> level_data = level_loader.GetLevelsData();
 
     Game MainGame = Game(level_data);
     Menu MainMenu = Menu(level_data);
@@ -40,6 +40,13 @@ int main(int argc, char *argv[]) {
         cout << "spooky scary skel" << endl;
     }
     // tip of advice: dont look into any other code file that isnt a manager... youre gonna find some... uhhh... extremely readable code!
+
+    if (!OnWeb && false
+        )
+    {
+        SetWindowSize(GetMonitorWidth(0), GetMonitorHeight(0));
+        ToggleFullscreen();
+    }
 
     while (!WindowShouldClose()) {
         BeginDrawing();

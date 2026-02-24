@@ -3,8 +3,19 @@
 //
 
 #include "EnemyBehavior.h"
+
+#include <iostream>
+
 #include "../Enemy.h"
 #include "../../../game/Game.h"
+
+EnemyBehavior::EnemyBehavior()
+{
+}
+
+EnemyBehavior::~EnemyBehavior()
+{
+}
 
 EnemyBehavior::EnemyBehavior(Enemy& Owner, Game& game)
 {
@@ -14,5 +25,4 @@ EnemyBehavior::EnemyBehavior(Enemy& Owner, Game& game)
 
 void EnemyBehavior::Update()
 {
-
 }

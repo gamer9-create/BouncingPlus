@@ -3,7 +3,18 @@
 //
 
 #include "WeaponBehavior.h"
+
+#include <iostream>
+
 #include "../../../game/Game.h"
+
+WeaponBehavior::WeaponBehavior()
+{
+}
+
+WeaponBehavior::~WeaponBehavior()
+{
+}
 
 WeaponBehavior::WeaponBehavior(Enemy& Owner, Game& game) : EnemyBehavior(Owner,game)
 {
@@ -11,6 +22,9 @@ WeaponBehavior::WeaponBehavior(Enemy& Owner, Game& game) : EnemyBehavior(Owner,g
 
 void WeaponBehavior::Update()
 {
+
+    // programming is so fun and awesome!!!!!!!!
+
     float center_x = Owner->BoundingBox.x + (Owner->BoundingBox.width / 2);
     float center_y = Owner->BoundingBox.y + (Owner->BoundingBox.height / 2);
 

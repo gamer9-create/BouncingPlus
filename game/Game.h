@@ -8,15 +8,16 @@
 #include <raylib.h>
 #include <nlohmann/json_fwd.hpp>
 
+#include "Profiler.h"
 #include "managers/GameModeManager.h"
 #include "managers/CameraManager.h"
 #include "../entities/Entity.h"
-#include "../entities/EntityManager.h"
+#include "managers/EntityManager.h"
 #include "managers/ParticleManager.h"
 #include "../entities/subentities/Player.h"
 #include "managers/SoundManager.h"
 #include "../level/TileManager.h"
-#include "managers/UIManager.h"
+#include "ui/UIManager.h"
 #include "../entities/Weapons.h"
 
 using namespace std;
@@ -28,6 +29,7 @@ class Game {
     float SlowdownShakeIntensity;
 
     UIManager MainUIManager;
+    Profiler profiler;
     void SetGameData();
     void ProcessSlowdownAnimation();
     void DisplayPickups();
@@ -48,7 +50,7 @@ class Game {
 
         // Level Information
         std::string CurrentLevelName;
-        std::unordered_map<std::string, nlohmann::json> LevelData;
+        std::map<std::string, nlohmann::json> LevelData;
 
         // Managers
         TileManager MainTileManager;
@@ -65,12 +67,13 @@ class Game {
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Shader> Shaders;
         unordered_map<std::string, Weapon> Weapons;
+        unordered_map<std::string, Powerup> Powerups;
 
         // Extra Assets
         std::vector<std::string> EnemyWeaponNamesList;
         std::vector<std::string> BannedWeaponDrops;
 
-        Game(std::unordered_map<std::string, nlohmann::json> json);
+        Game(std::map<std::string, nlohmann::json> json);
         bool RayCastSP(Vector2 origin, Vector2 target, float Precision = 36);
         bool RayCast(Vector2 origin, Vector2 target);
         void PlaceWeaponPickup(WeaponPickup pickup);

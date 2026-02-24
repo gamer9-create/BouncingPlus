@@ -10,7 +10,7 @@ using json = nlohmann::json;
 
 using namespace std;
 
-Menu::Menu(std::unordered_map<std::string,json> level_data)
+Menu::Menu(std::map<std::string,json> level_data)
 {
     this->level_data = level_data;
     title_img = LoadTexture("assets/ui/title.png");
@@ -44,11 +44,22 @@ void Menu::Reset()
 }
 
 bool Menu::button(Rectangle rectangle, std::string text) {
-    float tx_size = MeasureText(text.c_str(), 50);
-    float mul = 50 / (tx_size / (rectangle.width-10));
+
+    int f= 50;
+    if (CheckCollisionPointRec(mouse_pos, rectangle))
+    {
+        rectangle.width += 20;
+        rectangle.height += 20;
+        rectangle.x -= 10;
+        rectangle.y -=10;
+        f += 10;
+    }
+
+    float tx_size = MeasureText(text.c_str(), f);
+    float mul = f / (tx_size / (rectangle.width-10));
     tx_size = MeasureText(text.c_str(), mul);
-    DrawTexture(button_img, rectangle.x-cam_x, rectangle.y, WHITE);
-    DrawText(text.c_str(), rectangle.x-cam_x + button_img.width/2 - tx_size/2, rectangle.y + button_img.height/2 - (mul/2), mul, WHITE);
+    DrawTexturePro(button_img, {0,0,(float)button_img.width,(float)button_img.height}, {rectangle.x-cam_x, rectangle.y, rectangle.width, rectangle.height}, {0, 0}, 0, WHITE);
+    DrawText(text.c_str(), rectangle.x-cam_x + rectangle.width/2 - tx_size/2, rectangle.y + rectangle.height/2 - (mul/2), mul, WHITE);
 
     if (CheckCollisionPointRec(mouse_pos, rectangle)) {
         DrawRectangleLinesEx({rectangle.x-cam_x,rectangle.y,rectangle.width,rectangle.height}, 4, WHITE);
@@ -67,6 +78,7 @@ void Menu::LevelSelect()
     int i = 0;
     for (auto& [name, data] : level_data)
     {
+        i = data["order"];
         Rectangle r = {-710.0f, (float)165 + (140 * i)-off3, (float)MeasureText(name.c_str(), 90)+20.0f, 110.0f};
         DrawRectangleRec({r.x-cam_x,r.y,r.width,r.height}, ColorAlpha(BLACK, 0.5f));
         Color c = RED;
@@ -76,7 +88,7 @@ void Menu::LevelSelect()
             DrawRectangle(-(GetScreenWidth()-125)-cam_x, 200-comb, GetScreenWidth()-900, GetScreenHeight()-450, ColorAlpha(BLACK, 0.5f));
             DrawText(name.c_str(), -(GetScreenWidth()-145)-cam_x, 220-comb, 50, WHITE);
 
-            std::string description = to_string(data["description"]);
+            std::string description = data["description"];
 
             DrawText(description.c_str(), -(GetScreenWidth()-145)-cam_x, 270-comb, 25, WHITE);
             DrawText(("Difficulty level: "+to_string(data["difficulty"])).c_str(), -(GetScreenWidth()-145)-cam_x, 200-comb + GetScreenHeight()-450 - 70 - 64, 25, ColorBrightness(RED, -1 + ((float)data["difficulty"] * 0.25f) ));
@@ -90,7 +102,6 @@ void Menu::LevelSelect()
             DrawRectangleLinesEx({r.x-cam_x,r.y,r.width,r.height}, 4, WHITE);
             target_map = IsMouseButtonPressed(0) ? (target_map != name ? name : "") : target_map;
         }
-        i+=1;
     }
 }
 

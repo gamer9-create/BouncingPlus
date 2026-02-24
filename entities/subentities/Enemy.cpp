@@ -11,18 +11,16 @@
 
 #include "Player.h"
 #include "behaviors/WeaponBehavior.h"
-#include "../../game/managers/UIManager.h"
+#include "../../game/ui/UIManager.h"
 #include "../../game/Game.h"
 
-Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,
-                                                                   Rectangle(X - 18, Y - 18, 36, 36), Speed, game) {
-    Init(X,Y,Health,Speed,Armor,Weapon,WeaponBehavior(*this, game),EnemyTexture,game);
+Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,Rectangle(X - 18, Y - 18, 36, 36), Speed, game) {
+    Init(X,Y,Health,Speed,Armor,Weapon,make_unique<WeaponBehavior>(*this, game),EnemyTexture,game);
 }
 
-Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, EnemyBehavior EnemyBehavior,
-    Texture2D& EnemyTexture, Game& game)
+Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game& game) : Entity(EnemyTexture,Rectangle(X - 18, Y - 18, 36, 36), Speed, game)
 {
-    Init(X,Y,Health,Speed,Armor,Weapon,EnemyBehavior,EnemyTexture,game);
+    Init(X,Y,Health,Speed,Armor,Weapon,std::move(EnemyBehavior),EnemyTexture,game);
 }
 
 Enemy::Enemy() {
@@ -33,7 +31,7 @@ Enemy::~Enemy() {
 }
 
 void Enemy::Init(float X, float Y, float Health, float Speed, float Armor, std::string Weapon,
-    EnemyBehavior EnemyBehavior, Texture2D& EnemyTexture, Game& game)
+    std::unique_ptr<EnemyBehavior> behavior, Texture2D& EnemyTexture, Game& game)
 {
     this->MaxHealth = Health;
     this->Health = Health;
@@ -50,7 +48,9 @@ void Enemy::Init(float X, float Y, float Health, float Speed, float Armor, std::
     this->EntityColor = ColorAlpha(WHITE, Alpha);
     this->ActivationTimer = game.GetGameTime();
     this->WallMovement = {0, 0};
-    this->Behavior = EnemyBehavior;
+    this->Behavior = std::move(behavior);
+    this->Behavior->Owner = this;
+    this->Behavior->game = &game;
 }
 
 void Enemy::Wander() {
@@ -88,7 +88,7 @@ void Enemy::OnDelete() {
                 1.75f,
                 {255, 0, 0, 255}
             }, Rotation - 180, 360, 15);
-    if (GetRandomValue(1, 100) <= 25 )
+    if (GetRandomValue(1, 100) <= 25 && weaponsSystem.CurrentWeaponIndex >= 0 && weaponsSystem.CurrentWeaponIndex <= 2)
     {
         game->PlaceWeaponPickup({
             {BoundingBox.x - BoundingBox.width/2, BoundingBox.y - BoundingBox.height/2},
@@ -100,6 +100,8 @@ void Enemy::OnDelete() {
             15
             });
     }
+    if (this->Behavior != nullptr)
+        this->Behavior.reset();
     Entity::OnDelete();
 }
 
@@ -122,8 +124,8 @@ void Enemy::Update() {
 
     float center_x = BoundingBox.x + (BoundingBox.width / 2);
 
-    if (isActive)
-        Behavior.Update();
+    if (isActive && Behavior != nullptr)
+        Behavior->Update();
     AnimatedHealth = Lerp(AnimatedHealth, Armor > 0 ? Armor : Health, 10 * game->GetGameDeltaTime());
 
     float size = MeasureText(std::to_string((int)round(AnimatedHealth)).c_str(), 36);
@@ -163,7 +165,7 @@ void Enemy::Update() {
     weaponsSystem.Update();
     Entity::Update();
     if (IsVisible() && Armor > 0)
-        DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x, BoundingBox.y, BoundingBox.width, BoundingBox.height}, {0, 0}, 0, EntityColor);
+        DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width, BoundingBox.height}, Vector2(BoundingBox.width/2,BoundingBox.height/2), Rotation, EntityColor);
 }
 
 void Enemy::MoveAwayFromWalls()

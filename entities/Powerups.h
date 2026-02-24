@@ -22,10 +22,12 @@ struct Powerup
 
 struct SpeedPowerup : Powerup
 {
-    float Cooldown = 7;
-    float Length = 5;
+    float Cooldown = 30;
+    float Length = 3;
     std::string Name = "Speed";
     std::string Texture = "speed_powerup_icon";
+    void complete(std::shared_ptr<Player> Owner);
+    void undo(std::shared_ptr<Player> Owner);
 };
 
 class PowerupSystem
@@ -40,6 +42,8 @@ class PowerupSystem
     PowerupSystem(std::shared_ptr<Player> Owner, Game &game);
     PowerupSystem();
     void Update();
+    void Activate();
+    void SetPowerup(Powerup *Powerup);
     virtual ~PowerupSystem();
 };
 

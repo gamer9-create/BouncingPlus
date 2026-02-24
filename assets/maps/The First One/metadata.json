@@ -1,5 +1,5 @@
 {
-  "description": "Simple testing level. Nothing fancy.",
+  "description": "A true test!",
   "inventory": ["Sword", "Shotgun", ""],
   "difficulty": 3,
   "starting_health": 150,

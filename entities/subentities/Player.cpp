@@ -22,12 +22,12 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->LastKills = 0;
     this->OrigSpeed = Speed;
     this->ExtraSpeed = 0;
-    this->PrevHealthBeforeDodge = 0;
     this->IntervalHealth = Health;
     this->LastInterval = game.GetGameTime();
     this->LastWarningSign = game.GetGameTime();
     this->HealthConcern = false;
     this->WarningSign = false;
+    this->InvincibilityResetTimer = 0;
     this->PlayerDashLineThickness = 10;
     this->ShaderUniformLoc = GetShaderLocation(game.Shaders["dash_arrow"], "time");
 }
@@ -41,12 +41,6 @@ Player::~Player() {
 
 void Player::ToggleInvincibility() {
     this->isInvincible = !this->isInvincible;
-    if (isInvincible) {
-        PrevHealthBeforeDodge = Health;
-        Health = FLT_MAX;
-    } else {
-        Health = PrevHealthBeforeDodge;
-    }
 }
 
 void Player::PhysicsUpdate(float dt) {
@@ -91,13 +85,11 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
         // calculate damage & attack
         float Damage = VelocityPower / 15.0f;
         Damage *= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
-        cout << "dashed, " << to_string(entity->Armor) << "\n";
         if (entity->Armor <= 0)
             entity->Health -= Damage;
         else
         {
             entity->Armor -= Damage;
-            cout << "fgf" << endl;
         }
         Health += Damage / 3.0f;
 
@@ -222,12 +214,12 @@ void Player::DashLogic() {
         if (!isInvincible)
         {
             ToggleInvincibility();
-            DodgeHealthResetTimer= 0.1f;
+            InvincibilityResetTimer= 0.1f;
         }
         if (IsMouseButtonDown(0)) {
 
             Dodging = true;
-            DodgeHealthResetTimer = 1.0f;
+            InvincibilityResetTimer = 1.0f;
             DashCooldown = 3.0f;
         }
         IsPreparingForDash = false;
@@ -315,23 +307,27 @@ void Player::Update() {
 
     // player transparency processing
     EntityColor = ColorAlpha(WHITE, Alpha);
-    Alpha = Lerp(Alpha, (DodgeHealthResetTimer > 0 ? 0.5f : 1.0f), 5.5f*game->GetGameDeltaTime());
+    Alpha = Lerp(Alpha, (InvincibilityResetTimer > 0 ? 0.5f : 1.0f), 5.5f*game->GetGameDeltaTime());
 
     // dashing logic
     DashLogic();
 
-    // health cap + dodging stuff
-    if (DodgeHealthResetTimer > 0)
-        DodgeHealthResetTimer -= game->GetGameDeltaTime();
-
-    if (DodgeHealthResetTimer <= 0 && LastDodgeHealthResetTimer > 0) {
-        Dodging = false;
-        DodgeHealthResetTimer = -1;
-        if (isInvincible)
-            ToggleInvincibility();
+    if (InvincibilityResetTimer > 0)
+        InvincibilityResetTimer -= game->GetGameDeltaTime();
+    if (InvincibilityResetTimer <= 0)
+    {
+        isInvincible = false;
+        Dodging=false;
     }
 
     if (PlayerFrozenTimer <= 0) {
+        // powerup logic
+        if (IsKeyDown(KEY_F))
+        {
+            cout << "PRESSING" << endl;
+            powerupSystem.Activate();
+        }
+
         // firing logic
         if (IsMouseButtonDown(0) && weaponsSystem.CurrentWeapon != nullptr &&
             weaponsSystem.CurrentWeapon->Ammo > 0 && weaponsSystem.WeaponAmmo[weaponsSystem.CurrentWeaponIndex] <=0 &&
@@ -381,11 +377,13 @@ void Player::Update() {
     // update entity
     Entity::Update();
     weaponsSystem.Update();
+    powerupSystem.Update();
 
     // did we get a kill? play kill sound game!
     if (Kills != LastKills) {
         game->MainSoundManager.PlaySoundM("death");
+        if (Kills >= 15)
+            powerupSystem.SetPowerup(&game->Powerups["speed"]);
     }
     LastKills = Kills;
-    LastDodgeHealthResetTimer = DodgeHealthResetTimer;
 }

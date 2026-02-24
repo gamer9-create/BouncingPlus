@@ -56,6 +56,9 @@ UIManager::UIManager() {
 
 void UIManager::GameUI() {
 
+    if (game->CurrentLevelName == "Tutorial")
+        this->Tutorial.do_stuff(this);
+
     if (WeaponUITexture.texture.width != GetScreenWidth()) {
         UnloadRenderTexture(WeaponUITexture);
         WeaponUITexture = LoadRenderTexture(GetScreenWidth(), WeaponUITexture.texture.height);
@@ -200,7 +203,7 @@ void UIManager::GameUI() {
     HealthBarAnimRot = Lerp(HealthBarAnimRot, 0, 3.5f * game->GetGameDeltaTime());
     float limit = 25;
     ft_size = Lerp(ft_size, 92, 3.5f*game->GetGameDeltaTime());
-    float PlrHealth = (!game->MainPlayer->isInvincible ? game->MainPlayer->Health : game->MainPlayer->PrevHealthBeforeDodge);
+    float PlrHealth = game->MainPlayer->Health;
     if (LastHealth != PlrHealth)
     {
         HealthBarAnimRot = limit * ((PlrHealth-LastHealth) / abs(PlrHealth-LastHealth));

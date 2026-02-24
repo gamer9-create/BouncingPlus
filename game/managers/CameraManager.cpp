@@ -54,7 +54,7 @@ CameraManager::~CameraManager() {
 void CameraManager::QuickZoom(float Zoom, double Time, bool Instant) {
     this->CameraZoom = Zoom;
     if (Instant)
-        RaylibCamera.zoom = Zoom;
+        RaylibCamera.zoom = Zoom * GetNaturalZoom();
     ZoomResetTimer = Time;
 }
 
@@ -162,6 +162,11 @@ void CameraManager::ShakeCamera(float Intensity) {
     this->CameraShakes = 14;
 }
 
+float CameraManager::GetNaturalZoom()
+{
+    return 1.0f;//GetScreenWidth() / 1480.0f;
+}
+
 void CameraManager::UpdateCamera() {
     CameraTarget = {game->MainPlayer->BoundingBox.x +
                 game->MainPlayer->BoundingBox.width / 2, game->MainPlayer->BoundingBox.y +
@@ -181,7 +186,7 @@ void CameraManager::UpdateCamera() {
         CameraPosition = Vector2Add(CameraPosition, MouseOffset);
     }
 
-    RaylibCamera.zoom = lerp(RaylibCamera.zoom, CameraZoom, 4.0f * game->GetGameDeltaTime());
+    RaylibCamera.zoom = lerp(RaylibCamera.zoom, CameraZoom * GetNaturalZoom(), 4.0f * game->GetGameDeltaTime());
     RaylibCamera.target = CameraPosition;//Vector2Add({((float)GetScreenWidth()/2.0f), ((float)GetScreenHeight()/2.0f)},CameraPosition);
     RaylibCamera.offset = {((float)GetScreenWidth()/2.0f) * (1-RaylibCamera.zoom), ((float)GetScreenHeight()/2.0f) * (1-RaylibCamera.zoom)};
 }

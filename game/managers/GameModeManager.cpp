@@ -30,7 +30,6 @@ void GameModeManager::PrepareGameMode(nlohmann::json data)
     Clear();
     this->CurrentGameMode = data["game"]["mode"].get<std::string>();
     this->LevelTimer = data["game"]["timer"].get<float>();
-    std::cout << this->CurrentGameMode << "\n";
     if (this->CurrentGameMode == "boss")
     {
         std::shared_ptr<Entity> boss;

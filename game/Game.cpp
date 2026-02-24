@@ -9,7 +9,8 @@
 
 #include "raylib.h"
 #include "../entities/Weapons.h"
-#include "managers/UIManager.h"
+#include "../entities/Powerups.h"
+#include "ui/UIManager.h"
 
 #include <filesystem>
 #include <fstream>
@@ -19,7 +20,7 @@ namespace fs = std::filesystem;
 
 using namespace std;
 
-Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
+Game::Game(std::map<std::string, nlohmann::json> json) {
 
     // init game services
     MainUIManager = UIManager(*this);
@@ -29,6 +30,9 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
     MainEntityManager = EntityManager(*this);
     MainSoundManager = SoundManager(*this);
     MainGameModeManager = GameModeManager(*this);
+
+    // profiler
+    profiler = Profiler(*this);
 
     // game speed & timing
     GameSpeed = 1.0f;
@@ -41,6 +45,7 @@ Game::Game(std::unordered_map<std::string, nlohmann::json> json) {
     // resource maps
     Textures = std::unordered_map<std::string, Texture2D>();
     Weapons = std::unordered_map<std::string, Weapon>();
+    Powerups = std::unordered_map<std::string, Powerup>();
     Shaders = std::unordered_map<std::string, Shader>();
     EnemyWeaponNamesList= std::vector<std::string>();
     BannedWeaponDrops= std::vector<std::string>();
@@ -128,6 +133,9 @@ void Game::SetGameData() {
         Weapons.insert({p, wep});
         g.close();
     }
+
+    Powerups.insert({"speed", SpeedPowerup() });
+    cout << Powerups["speed"].Cooldown << endl;
 
     uOutlineSize = GetShaderLocation(Shaders["outline"], "outlineSize");
     uOutlineColor = GetShaderLocation(Shaders["outline"], "outlineColor");
@@ -311,14 +319,36 @@ void Game::Update() {
                 Reload(CurrentLevelName);
         }
 
-
         MainCameraManager.Begin();
         ProcessSlowdownAnimation();
+
+        profiler.log("tiles");
         MainTileManager.Update();
+
+        profiler.log("particles");
         MainParticleManager.Update();
+
+        profiler.log("entities");
         MainEntityManager.Update();
+
+        profiler.log("sound");
         MainSoundManager.Update();
+
+        profiler.log("gameplay");
         MainGameModeManager.Update();
+
+        std::map<std::string, double> times = profiler.finish();
+
+        if (DebugDraw)
+        {
+            int i = 0;
+            for (auto [name,val] : times)
+            {
+                DrawText((name + ", " + to_string((int)(val * 1000.0f)) + "ms").c_str(), 250 + MainCameraManager.RaylibCamera.target.x, 150 + (i * 25)+ MainCameraManager.RaylibCamera.target.y, 25, RED);
+                i++;
+            }
+        }
+
         DisplayPickups();
         MainCameraManager.End();
 
@@ -382,6 +412,9 @@ bool Game::RayCast(Vector2 origin, Vector2 target) {
             fDistance = vRayLength1D.y;
             vRayLength1D.y += vRayUnitStepSize.y;
         }
+
+        if (DebugDraw)
+            DrawCircle((int)vMapCheck.x, (int)vMapCheck.y, 2, RED);
 
         // Test tile at new test point
         if (vMapCheck.x >= 0 && vMapCheck.x < MainTileManager.MapWidth*MainTileManager.TileSize && vMapCheck.y >= 0 && vMapCheck.y < MainTileManager.MapHeight*MainTileManager.TileSize)
@@ -483,6 +516,11 @@ void Game::Reload(std::string MapName) {
 }
 
 void Game::UnloadAssets() {
+    WeaponPickups.clear();
+    Weapons.clear();
+    BannedWeaponDrops.clear();
+    EnemyWeaponNamesList.clear();
+    Powerups.clear();
     for (auto& [name,value] : Textures)
         UnloadTexture(value);
     for (auto& [name,value] : Shaders)

@@ -6,6 +6,8 @@
 
 #include <nlohmann/json.hpp>
 
+// TODO: finish achievement system
+
 Achievements::Achievements()
 {
     achievements = std::unordered_map<std::string,Achievement>();

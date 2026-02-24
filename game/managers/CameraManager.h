@@ -14,6 +14,7 @@ class CameraManager {
     void UpdateScreenImageSize();
     void BackgroundLines();
     void UpdateCamera();
+    float GetNaturalZoom();
 
     bool CamTextureInitialized;
 

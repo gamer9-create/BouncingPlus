@@ -6,12 +6,15 @@
 #define BOUNCINGPLUS_UI_H
 #include <raylib.h>
 #include <string>
+
+#include "Tutorial.h"
 class Game;
 
 Color GetHealthColor(float Percent, float Armor = 0.0f);
 
 class UIManager {
-    Game *game;
+
+    Tutorial Tutorial;
     RenderTexture2D WeaponUITexture;
     RenderTexture2D DeathScreen;
     RenderTexture2D PauseScreen;
@@ -27,6 +30,7 @@ class UIManager {
     float LastHealth = 0;
     float ft_size = 92;
     public:
+    Game *game;
     UIManager(Game &game);
     UIManager();
     bool button(Vector2 pos, std::string text);

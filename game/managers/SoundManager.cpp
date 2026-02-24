@@ -40,10 +40,10 @@ void SoundManager::Clear() {
 void SoundManager::Update() {
     int i = 0;
     if (game->DebugDraw)
-        DrawText("sound management stuff. if the numbers on the right are higher than like 11 somethings wrong", 350,350, 10, RED);
+        DrawText("sound management stuff. if the numbers on the right are higher than like 11 somethings wrong", 350+game->MainCameraManager.RaylibCamera.target.x,350+game->MainCameraManager.RaylibCamera.target.y, 10, RED);
     for (auto& [name,value] : CachedAliases) {
         if (game->DebugDraw)
-            DrawText((to_string(i) + " " + to_string(value.size())).c_str(), 350,350+((i+1)*10), 10, RED);
+            DrawText((to_string(i) + " " + to_string(value.size())).c_str(), 350+game->MainCameraManager.RaylibCamera.target.x,350+((i+1)*10)+game->MainCameraManager.RaylibCamera.target.y, 10, RED);
         if (game->GameSpeed != 1.0f)
         {
             for (Sound& sound : value)

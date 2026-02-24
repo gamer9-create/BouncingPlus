@@ -1,10 +1,10 @@
 {
-  "description": "Someone's gonna get bossed around...",
+  "description": "\"IT NEVER ENDS!!!!\" - bouncingballz player, 2026",
   "inventory": ["Shotgun", "Sword", ""],
   "difficulty": 4,
   "starting_health": 150,
   "game": {
-    "timer": 10,
+    "timer": 5,
     "boss": "",
     "mode": "wave"
   }

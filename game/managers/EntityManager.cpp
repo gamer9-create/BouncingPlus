@@ -6,8 +6,8 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include "../game/Game.h"
-#include "Entity.h"
+#include "../Game.h"
+#include "../../entities/Entity.h"
 
 EntityManager::EntityManager()
 {
@@ -79,7 +79,7 @@ void EntityManager::EntityClear()
         });
         if (game->DebugDraw) {
             std::string f = to_string(e)+"/typa shit ive been on/ de old size(TALLY HALL DETECTED) " + to_string(old_size) + ", new size? (BANANA MAN IS COMING TO NUKE YOU) " + to_string(array->size());
-            DrawText(f.c_str(), 500, 500 + 10*e, 10, WHITE);
+            DrawText(f.c_str(), 500+game->MainCameraManager.RaylibCamera.target.x, 500 + 10*e +game->MainCameraManager.RaylibCamera.target.y, 10, WHITE);
         }
     }
 }
