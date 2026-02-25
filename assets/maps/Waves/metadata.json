@@ -1,11 +1,13 @@
 {
   "description": "\"IT NEVER ENDS!!!!\" - bouncingballz player, 2026",
   "inventory": ["Shotgun", "Sword", ""],
+  "powerup": "speed",
   "difficulty": 4,
   "starting_health": 150,
   "game": {
     "timer": 5,
     "boss": "",
-    "mode": "wave"
+    "mode": "wave",
+    "banned_spawn_weapons": ["Default Gun","Player Gun"]
   }
 }

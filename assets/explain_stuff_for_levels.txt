@@ -1,0 +1,22 @@
+right, level making. its a bit more complex than weps but still easier
+
+levels are two files:
+
+map_data.csv
+metadata.json
+
+for metadata.json:
+
+  "description": "No special dudes, just pure bullets.", // in-game description for the level
+  "inventory": ["Player Gun"], // what weapons will the player spawn with? check the weapondata folder for available weaponsj
+  "powerup": "speed", // what powerups will the player have? only 1 powerup, powerups include: speed
+  "difficulty": 4, // difficulty level. 1-5 range
+  "starting_health": 200, // starting player health
+  "game": { // game mode info
+    "timer": -1, // will the level have a timer?
+    "boss": "", // will the level have a boss? current bosses: face
+    "mode": "default", // what game mode is the level? current game modes: default, boss, wave
+    "banned_spawn_weapons": ["Default Gun","Player Gun"] // what weapons can are enemy not allowed to spawn with?
+
+for map_data.csv, you need the tiled map editor software and tileset. u can get the tileset from the BouncingPlus github repo
+make a map in tiled. once done, export the map as .csv and save as map_data.csv

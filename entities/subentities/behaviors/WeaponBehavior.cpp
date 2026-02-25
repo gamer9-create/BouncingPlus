@@ -28,6 +28,7 @@ void WeaponBehavior::Update()
     float center_x = Owner->BoundingBox.x + (Owner->BoundingBox.width / 2);
     float center_y = Owner->BoundingBox.y + (Owner->BoundingBox.height / 2);
 
+    // checks for enemy anger
     if (Owner->AngeredRangeBypassTimer > 0)
         Owner->AngeredRangeBypassTimer -= game->GetGameDeltaTime();
 
@@ -36,6 +37,7 @@ void WeaponBehavior::Update()
     if (Owner->weaponsSystem.CurrentWeapon != nullptr && Owner->weaponsSystem.TimeStartedReloading == -1 && Owner->weaponsSystem.CurrentWeapon->Ammo > 0 && Owner->weaponsSystem.WeaponAmmo[Owner->weaponsSystem.CurrentWeaponIndex] <= 0)
         Owner->weaponsSystem.Reload();
 
+    // distance/firing checks
     Owner->Movement = Vector2(0, 0);
     float plr_center_x = game->MainPlayer->BoundingBox.x + (game->MainPlayer->BoundingBox.width / 2);
     float plr_center_y = game->MainPlayer->BoundingBox.y + (game->MainPlayer->BoundingBox.height / 2);
@@ -49,7 +51,7 @@ void WeaponBehavior::Update()
         }
         Owner->weaponsSystem.Attack(Vector2(plr_center_x, plr_center_y));
     } else if (Owner->WanderingEnabled) {
-        Owner->Wander();
+        Owner->Wander(); // enemy wandering
     }
 
     Owner->MoveAwayFromWalls();

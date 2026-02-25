@@ -8,6 +8,7 @@
 class Enemy;
 class Game;
 
+// default enemy behavior class
 class EnemyBehavior
 {
     public:

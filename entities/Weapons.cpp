@@ -88,8 +88,8 @@ bool WeaponsSystem::DropWeapon(std::string WeaponName)
 
         DropLoc = {Owner->BoundingBox.x - Owner->BoundingBox.width/2, Owner->BoundingBox.y - Owner->BoundingBox.height/2};
         DropLoc = Vector2Add(DropLoc, {
-            (float)GetRandomValue(0, Owner->BoundingBox.width) * dirX * 1.5f,
-                (float)GetRandomValue(0, Owner->BoundingBox.height) * dirY * 1.5f
+            (float)GetRandomValue(0, Owner->BoundingBox.width) * dirX * 2.5f,
+                (float)GetRandomValue(0, Owner->BoundingBox.height) * dirY * 2.5f
         });
     }
 

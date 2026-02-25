@@ -13,11 +13,11 @@ class CatchBehavior : public EnemyBehavior
 {
     void ResetDirection();
 public:
-    Vector2 currentDir = {0, 0};
-    float currentSpeed = 0;
-    Vector2 lastPosition = {0, 0};
-    double lastTime = 0;
-    double attackCooldown = 0;
+    Vector2 currentDir = {0, 0}; // current enemy movement direction
+    float currentSpeed = 0; // current enemy speed
+    Vector2 lastPosition = {0, 0}; // last frame position
+    double lastTime = 0; // last frame time
+    double attackCooldown = 0; // attack cooldown
     CatchBehavior();
     CatchBehavior(Enemy& Owner, Game& game);
     ~CatchBehavior();

@@ -67,7 +67,7 @@ class Game {
         unordered_map<std::string, Texture2D> Textures;
         unordered_map<std::string, Shader> Shaders;
         unordered_map<std::string, Weapon> Weapons;
-        unordered_map<std::string, Powerup> Powerups;
+        unordered_map<std::string, Powerup*> Powerups;
 
         // Extra Assets
         std::vector<std::string> EnemyWeaponNamesList;

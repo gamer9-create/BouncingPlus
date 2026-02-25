@@ -21,18 +21,26 @@ void Powerup::undo(std::shared_ptr<Player> Owner)
 
 void SpeedPowerup::complete(std::shared_ptr<Player> Owner)
 {
-    Owner->ExtraSpeed += 200 * Owner->game->GetGameDeltaTime();
+    Owner->SpeedBuff += 250.0f * Owner->game->GetGameDeltaTime();
 }
 
 void SpeedPowerup::undo(std::shared_ptr<Player> Owner)
 {
+    Owner->SpeedBuff -= 240.0f * Length;
+}
+
+SpeedPowerup::SpeedPowerup()
+{
+    Cooldown = 12;
+    Length = 5;
+    Name = "Speed";
+    Texture = "speed_powerup_icon";
 }
 
 void PowerupSystem::Activate()
 {
     if (CurrentPowerup != nullptr && CurrentCooldown <= 0 && CurrentLength <= 0)
     {
-        cout << "ACTIV" << endl;
         CurrentCooldown = CurrentPowerup->Cooldown;
         CurrentLength = CurrentPowerup->Length;
         PowerupIsActive = true;
@@ -74,10 +82,6 @@ PowerupSystem::PowerupSystem(std::shared_ptr<Player> Owner, Game& game)
 {
     this->game = &game;
     this->Owner = Owner;
-    CurrentCooldown = 0;
-    CurrentLength = 0;
-    PowerupIsActive = false;
-    CurrentPowerup = nullptr;
 }
 
 PowerupSystem::PowerupSystem()

@@ -16,18 +16,15 @@ struct Powerup
     float Length = 0;
     std::string Name = "";
     std::string Texture = "";
-    void complete(std::shared_ptr<Player> Owner);
-    void undo(std::shared_ptr<Player> Owner);
+    virtual void complete(std::shared_ptr<Player> Owner);
+    virtual void undo(std::shared_ptr<Player> Owner);
 };
 
 struct SpeedPowerup : Powerup
 {
-    float Cooldown = 30;
-    float Length = 3;
-    std::string Name = "Speed";
-    std::string Texture = "speed_powerup_icon";
-    void complete(std::shared_ptr<Player> Owner);
-    void undo(std::shared_ptr<Player> Owner);
+    SpeedPowerup();
+    void complete(std::shared_ptr<Player> Owner) override;
+    void undo(std::shared_ptr<Player> Owner) override;
 };
 
 class PowerupSystem
@@ -35,10 +32,10 @@ class PowerupSystem
     public:
     std::shared_ptr<Player> Owner;
     Game* game;
-    float CurrentCooldown;
-    float CurrentLength;
-    bool PowerupIsActive;
-    Powerup *CurrentPowerup;
+    float CurrentCooldown = 0;
+    float CurrentLength = 0;
+    bool PowerupIsActive = false;
+    Powerup *CurrentPowerup = nullptr;
     PowerupSystem(std::shared_ptr<Player> Owner, Game &game);
     PowerupSystem();
     void Update();

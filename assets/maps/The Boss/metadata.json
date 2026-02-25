@@ -1,11 +1,13 @@
 {
   "description": "Someone's gonna get bossed around...",
   "inventory": ["Shotgun", "Virtue Sword", ""],
+  "powerup": "",
   "difficulty": 4,
   "starting_health": 150,
   "game": {
     "timer": -1,
     "boss": "face",
-    "mode": "boss"
+    "mode": "boss",
+    "banned_spawn_weapons": ["Default Gun","Player Gun"]
   }
 }

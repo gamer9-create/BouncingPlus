@@ -199,6 +199,38 @@ void UIManager::GameUI() {
     WeaponUITexture.texture.height - (100+margin) + 100 - s3 - 10, s3, WHITE
         );
 
+    // powerup meter
+    if (game->MainPlayer->powerupSystem.CurrentPowerup != nullptr)
+    {
+        DrawRectangle(GetScreenWidth()-(125+margin)*2, WeaponUITexture.texture.height - (100+margin), 125, 100, ColorAlpha(BLACK, alpha));
+
+        s3 = 20;
+        s4 = MeasureText("Powerup", s3);
+        DrawText("Powerup", (int)(GetScreenWidth()-(125+margin)*2 + 125/2 - s4/2),
+        WeaponUITexture.texture.height - (100+margin) + 100 - s3 - 10, s3, WHITE
+            );
+        float Number = game->MainPlayer->powerupSystem.CurrentLength;
+        Color MainColor = YELLOW;
+        if (!game->MainPlayer->powerupSystem.PowerupIsActive)
+        {
+            Number = game->MainPlayer->powerupSystem.CurrentCooldown;
+            MainColor = RED;
+            if (Number <= 0)
+            {
+                MainColor = GREEN;
+                Number = 0;
+            }
+        }
+        s4 = MeasureText(game->MainPlayer->powerupSystem.CurrentPowerup->Name.c_str(), s3);
+        DrawText(game->MainPlayer->powerupSystem.CurrentPowerup->Name.c_str(), (int)(GetScreenWidth()-(125+margin)*2 + 125/2 - s4/2),
+        WeaponUITexture.texture.height - (100+margin) + 10, s3, WHITE
+            );
+        float s2 = 50;
+        float s = MeasureText((to_string((int)Number) + "s").c_str(), s2);
+        DrawText((to_string((int)Number) + "s").c_str(), (int)(GetScreenWidth()-(125+margin)*2 + 125/2 - s/2),
+        WeaponUITexture.texture.height - (100+margin) + 50 - s2/2, s2, MainColor);
+    }
+
     // health meter
     HealthBarAnimRot = Lerp(HealthBarAnimRot, 0, 3.5f * game->GetGameDeltaTime());
     float limit = 25;

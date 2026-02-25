@@ -1,11 +1,13 @@
 {
   "description": "No special dudes, just pure bullets.",
   "inventory": ["Player Gun"],
+  "powerup": "speed",
   "difficulty": 4,
   "starting_health": 200,
   "game": {
     "timer": -1,
     "boss": "",
-    "mode": "default"
+    "mode": "default",
+    "banned_spawn_weapons": ["Default Gun","Player Gun"]
   }
 }

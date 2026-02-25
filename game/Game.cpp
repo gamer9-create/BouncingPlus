@@ -45,7 +45,7 @@ Game::Game(std::map<std::string, nlohmann::json> json) {
     // resource maps
     Textures = std::unordered_map<std::string, Texture2D>();
     Weapons = std::unordered_map<std::string, Weapon>();
-    Powerups = std::unordered_map<std::string, Powerup>();
+    Powerups = std::unordered_map<std::string, Powerup*>();
     Shaders = std::unordered_map<std::string, Shader>();
     EnemyWeaponNamesList= std::vector<std::string>();
     BannedWeaponDrops= std::vector<std::string>();
@@ -134,8 +134,8 @@ void Game::SetGameData() {
         g.close();
     }
 
-    Powerups.insert({"speed", SpeedPowerup() });
-    cout << Powerups["speed"].Cooldown << endl;
+    SpeedPowerup* p = new SpeedPowerup();
+    Powerups.insert({"speed", p});
 
     uOutlineSize = GetShaderLocation(Shaders["outline"], "outlineSize");
     uOutlineColor = GetShaderLocation(Shaders["outline"], "outlineColor");
@@ -487,6 +487,7 @@ void Game::Clear() {
     Paused = false;
     ShouldReturn = false;
     GameTime = 0;
+    BannedWeaponDrops.clear();
     CurrentLevelName.clear();
     WeaponPickups.clear();
     MainTileManager.Clear();
@@ -504,6 +505,11 @@ void Game::Reload(std::string MapName) {
 
     CurrentLevelName = MapName;
 
+    for (std::string s : LevelData[MapName]["game"]["banned_spawn_weapons"])
+    {
+        BannedWeaponDrops.emplace_back(s);
+    }
+
     MainTileManager.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv");
     MainGameModeManager.PrepareGameMode(LevelData[MapName]);
 
@@ -520,7 +526,8 @@ void Game::UnloadAssets() {
     Weapons.clear();
     BannedWeaponDrops.clear();
     EnemyWeaponNamesList.clear();
-    Powerups.clear();
+    for (auto& [name,value] : Powerups)
+        free(value);
     for (auto& [name,value] : Textures)
         UnloadTexture(value);
     for (auto& [name,value] : Shaders)

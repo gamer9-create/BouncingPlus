@@ -1,11 +1,13 @@
 {
   "description": "A true test!",
   "inventory": ["Sword", "Shotgun", ""],
+  "powerup": "speed",
   "difficulty": 3,
   "starting_health": 150,
   "game": {
     "timer": -1,
     "boss": "",
-    "mode": "default"
+    "mode": "default",
+    "banned_spawn_weapons": ["Default Gun","Player Gun"]
   }
 }

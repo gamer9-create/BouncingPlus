@@ -8,8 +8,8 @@
 
 class FaceBoss : public Entity{
 public:
-    bool BossFightStarted;
-    Vector2 StartPos;
+    bool BossFightStarted; // bossfight tracker
+    Vector2 StartPos; // boss starting position
     FaceBoss(Game &game, float bbox_x, float bbox_y);
     FaceBoss();
     virtual ~FaceBoss();

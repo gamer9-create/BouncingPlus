@@ -27,6 +27,7 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->LastWarningSign = game.GetGameTime();
     this->HealthConcern = false;
     this->WarningSign = false;
+    this->SpeedBuff = 0;
     this->InvincibilityResetTimer = 0;
     this->PlayerDashLineThickness = 10;
     this->ShaderUniformLoc = GetShaderLocation(game.Shaders["dash_arrow"], "time");
@@ -72,10 +73,30 @@ void Player::PhysicsUpdate(float dt) {
     if (game->GetGameTime() - LastMovedTime > 1)
         ExtraSpeed = 0;
     ExtraSpeed = min(ExtraSpeed, 400.0f);
+    Speed = (OrigSpeed + ExtraSpeed + SpeedBuff);
     if ((Health/MaxHealth) > 2.0f && !isInvincible)
-        Speed = (OrigSpeed + ExtraSpeed) * (1.0f - min(((Health/MaxHealth)-3.0f) / 2.0f, 0.5f));
-    else
-        Speed = (OrigSpeed + ExtraSpeed);
+        Speed *= (1.0f - min(((Health/MaxHealth)-3.0f) / 2.0f, 0.5f));
+    if (VelocityPower > 0 && !Dodging) {
+        // get behaviors list
+        std::vector<shared_ptr<Entity>>* array = &game->MainEntityManager.Entities[EnemyType];
+        for (int i = 0; i < array->size(); i++) {
+            if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != nullptr and !entity->ShouldDelete) {
+                // have we already attacked them? if so, ignore this!!!
+                bool already_attacked = false;
+                for (auto e : DashedEnemies) {
+                    if (!e.owner_before(entity) && !entity.owner_before(e)) {
+                        already_attacked = true;
+                        break;
+                    }
+                }
+
+                // attack them
+                AttackDashedEnemy(entity, already_attacked);
+            }
+        }
+    } else {
+        DashedEnemies.clear();
+    }
     Entity::PhysicsUpdate(dt);
 }
 
@@ -141,28 +162,6 @@ void Player::DashLogic() {
     // update dash cooldownm
     if (DashCooldown > 0)
         DashCooldown -= game->GetGameDeltaTime();
-
-    if (VelocityPower > 0 && !Dodging) {
-        // get behaviors list
-        std::vector<shared_ptr<Entity>>* array = &game->MainEntityManager.Entities[EnemyType];
-        for (int i = 0; i < array->size(); i++) {
-            if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != nullptr and !entity->ShouldDelete) {
-                // have we already attacked them? if so, ignore this!!!
-                bool already_attacked = false;
-                for (auto e : DashedEnemies) {
-                    if (!e.owner_before(entity) && !entity.owner_before(e)) {
-                        already_attacked = true;
-                        break;
-                    }
-                }
-
-                // attack them
-                AttackDashedEnemy(entity, already_attacked);
-            }
-        }
-    } else {
-        DashedEnemies.clear();
-    }
 
     Vector2 WorldMousePos = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
     if (DashCooldown <= 0 && IsKeyDown(KEY_LEFT_SHIFT)) {
@@ -276,9 +275,13 @@ void Player::Update() {
         this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
         this->powerupSystem = PowerupSystem(dynamic_pointer_cast<Player>(shared_from_this()), *game);
         auto f = game->LevelData[game->CurrentLevelName]["inventory"];
-        for (int i = 0; i < f.size(); i++) {
+        for (int i = 0; i < (int)min((float)f.size(),3.0f); i++) {
             this->weaponsSystem.Weapons[i] = f[i];
             this->weaponsSystem.WeaponAmmo[i] = game->Weapons[f[i]].Ammo;
+        }
+        if (game->Powerups.contains(game->LevelData[game->CurrentLevelName]["powerup"]))
+        {
+            powerupSystem.SetPowerup(game->Powerups[game->LevelData[game->CurrentLevelName]["powerup"]]);
         }
         this->weaponsSystem.Equip(0);
         this->weaponsSystemInit = true;
@@ -324,7 +327,6 @@ void Player::Update() {
         // powerup logic
         if (IsKeyDown(KEY_F))
         {
-            cout << "PRESSING" << endl;
             powerupSystem.Activate();
         }
 
@@ -382,8 +384,6 @@ void Player::Update() {
     // did we get a kill? play kill sound game!
     if (Kills != LastKills) {
         game->MainSoundManager.PlaySoundM("death");
-        if (Kills >= 15)
-            powerupSystem.SetPowerup(&game->Powerups["speed"]);
     }
     LastKills = Kills;
 }

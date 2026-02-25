@@ -13,13 +13,19 @@ FaceBoss::FaceBoss() {
 }
 
 FaceBoss::FaceBoss(Game &game, float bbox_x, float bbox_y) :Entity(game.Textures["boss1_img"], {bbox_x, bbox_y, 112*4, 71*4}, 0, game) {
+    // Exact starting position of the boss
     StartPos = Vector2(bbox_x+BoundingBox.width/2, bbox_y+BoundingBox.height/2);
+
+    // Tracking the bossfight progress
     BossFightStarted = false;
+
+    // Setting entity type to boss
     this->Type = BossType;
 }
 
 void FaceBoss::Render() {
 
+    // Rendering of eyes
     Vector2 Eye1Position = {StartPos.x - 75, StartPos.y-75};
     Vector2 Eye2Position = {StartPos.x + 75, StartPos.y-75};
 
@@ -42,6 +48,7 @@ void FaceBoss::Render() {
             {18, 18}, 0, BLUE);
 
 
+    // Mouth rendering
     DrawTexturePro(game->Textures["mouth"], {0, 0, 300, 36},
             {StartPos.x+(float)cos(game->GetGameTime()) * 5, StartPos.y+60+(float)sin(game->GetGameTime()) * 5, 300, 36},
             {150, 18}, 0, BLUE);
@@ -53,6 +60,7 @@ FaceBoss::~FaceBoss() {
 }
 
 void FaceBoss::Update() {
+    // Player boss trigger
     float Distance = Vector2Distance({this->game->MainPlayer->BoundingBox.x + this->game->MainPlayer->BoundingBox.width/2,
         this->game->MainPlayer->BoundingBox.y + this->game->MainPlayer->BoundingBox.width/2}, StartPos);
     if (Distance <= 450 && Health > 0) {
@@ -64,8 +72,12 @@ void FaceBoss::Update() {
         this->game->MainGameModeManager.CurrentBoss = this;
         this->game->MainGameModeManager.CurrentBossName = "The Bouncing Face";
     }
+
+    // Stops bossfight if boss is dead
     if (Health <= 0)
         BossFightStarted = false;
+
+    // Forces spawners to be active
     if (BossFightStarted) {
         std::vector<shared_ptr<Entity>> array = game->MainEntityManager.Entities[SpawnerType];
         for (int i = 0; i < array.size(); i++) {
