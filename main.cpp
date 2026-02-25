@@ -6,7 +6,7 @@
 
 int main(int argc, char *argv[]) {
     InitWindow(1480, 920, "BouncingPlus");
-    SetTargetFPS(GetMonitorRefreshRate(0));
+    SetTargetFPS(60);
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI | FLAG_VSYNC_HINT);
 
     SetWindowIcon(LoadImage("assets/img/player.png"));

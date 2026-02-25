@@ -9,5 +9,9 @@
     "boss": "",
     "mode": "wave",
     "banned_spawn_weapons": ["Default Gun","Player Gun"]
+  },
+  "enemy_weapons": {
+    "shotgun": "Enemy Shotgun",
+    "sword": "Enemy Sword"
   }
 }

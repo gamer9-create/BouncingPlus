@@ -49,6 +49,7 @@ Game::Game(std::map<std::string, nlohmann::json> json) {
     Shaders = std::unordered_map<std::string, Shader>();
     EnemyWeaponNamesList= std::vector<std::string>();
     BannedWeaponDrops= std::vector<std::string>();
+    EnemyRoleWeapons = unordered_map<std::string, std::string>();
     WeaponPickups = std::vector<WeaponPickup>();
 
     // extra stuff
@@ -488,6 +489,7 @@ void Game::Clear() {
     ShouldReturn = false;
     GameTime = 0;
     BannedWeaponDrops.clear();
+    EnemyRoleWeapons.clear();
     CurrentLevelName.clear();
     WeaponPickups.clear();
     MainTileManager.Clear();
@@ -509,6 +511,7 @@ void Game::Reload(std::string MapName) {
     {
         BannedWeaponDrops.emplace_back(s);
     }
+    EnemyRoleWeapons= LevelData[MapName]["enemy_weapons"].get<unordered_map<std::string, std::string>>();
 
     MainTileManager.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv");
     MainGameModeManager.PrepareGameMode(LevelData[MapName]);
@@ -522,6 +525,7 @@ void Game::Reload(std::string MapName) {
 }
 
 void Game::UnloadAssets() {
+    EnemyRoleWeapons.clear();
     WeaponPickups.clear();
     Weapons.clear();
     BannedWeaponDrops.clear();

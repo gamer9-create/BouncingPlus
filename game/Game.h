@@ -70,6 +70,7 @@ class Game {
         unordered_map<std::string, Powerup*> Powerups;
 
         // Extra Assets
+        unordered_map<std::string, std::string> EnemyRoleWeapons;
         std::vector<std::string> EnemyWeaponNamesList;
         std::vector<std::string> BannedWeaponDrops;
 
