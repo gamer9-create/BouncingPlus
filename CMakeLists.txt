@@ -3,7 +3,6 @@ project(BouncingPlus)
 set(CMAKE_CXX_STANDARD 20)
 find_package(raylib CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
-find_package(unofficial-enet CONFIG REQUIRED)
 add_executable(BouncingPlus main.cpp
         game/Game.cpp
         game/Game.h
@@ -62,4 +61,3 @@ add_executable(BouncingPlus main.cpp
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)
-target_link_libraries(BouncingPlus PRIVATE unofficial::enet::enet winmm ws2_32)

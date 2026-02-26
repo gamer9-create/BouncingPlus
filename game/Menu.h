@@ -20,6 +20,8 @@ class Menu {
     float title_img_pos_y;
     float title_img_offset_y;
     float play_button_offset_y;
+    float sett_button_offset_y;
+    float cred_button_offset_y;
     Texture2D title_img;
     Texture2D menu_img;
     Texture2D button_img;
@@ -31,10 +33,12 @@ class Menu {
     float BlackTransparency;
     bool MovingToGame;
     bool isStarting;
+    float* master_volume;
     bool button(Rectangle rectangle, std::string text);
+    Rectangle slider(Vector2 position, std::string text, float* value, float min, float max);
     void LevelSelect();
     public:
-        Menu(std::map<std::string,json> level_data);
+        Menu(std::map<std::string,json> level_data, float* master_volume);
         void Update();
         void Reset();
         std::string LeaveMenu();

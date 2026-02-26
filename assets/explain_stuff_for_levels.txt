@@ -17,6 +17,10 @@ for metadata.json:
     "boss": "", // will the level have a boss? current bosses: face
     "mode": "default", // what game mode is the level? current game modes: default, boss, wave
     "banned_spawn_weapons": ["Default Gun","Player Gun"] // what weapons can are enemy not allowed to spawn with?
+  "enemy_weapons": { // what weapons certain types of enemies can spawn with
+    "shotgun": "Enemy Shotgun",
+    "sword": "Enemy Sword"
+  }
 
 for map_data.csv, you need the tiled map editor software and tileset. u can get the tileset from the BouncingPlus github repo
 make a map in tiled. once done, export the map as .csv and save as map_data.csv

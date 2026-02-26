@@ -10,9 +10,56 @@ using json = nlohmann::json;
 
 using namespace std;
 
-Menu::Menu(std::map<std::string,json> level_data)
+Rectangle Menu::slider(Vector2 position, std::string text, float* value, float min, float max)
+{
+    float percentage = std::max(std::min((*value - min) / (max - min), 1.0f), 0.0f);
+
+    float slider_size = 350;
+
+    float fnt_size = 50;
+    float tx_size = MeasureText(text.c_str(), fnt_size);
+    float w = tx_size + slider_size + 32;
+    float h = fnt_size + 16;
+    position.x -= w/2;
+    Rectangle rec = {position.x, position.y,w, h};
+
+    Rectangle slider_rec = {position.x + tx_size + 16, position.y + (rec.height / 2) - (fnt_size / 2.5f), slider_size, fnt_size / 1.25f};
+
+    Rectangle green_slider_rec = {slider_rec.x, slider_rec.y, slider_rec.width * percentage, slider_rec.height};
+
+    Rectangle red_slider_rec = {slider_rec.x + (slider_rec.width * percentage), slider_rec.y, slider_rec.width * (1.0f - percentage), slider_rec.height};
+
+    bool colliding = CheckCollisionPointRec(mouse_pos, slider_rec);
+    bool clicking = IsMouseButtonDown(0);
+    bool dragging = colliding && clicking;
+
+    if (dragging)
+    {
+        float distance = mouse_pos.x - slider_rec.x;
+        float percent = distance / slider_size;
+        *value = min + (max - min) * percent;
+        if (*value >= 0.95f)
+            *value = 1.0f;
+        if (*value <= 0.05f)
+            *value = 0.0f;
+        if (*value >= 0.45f && *value <= 0.55f)
+            *value = 0.5f;
+    }
+
+    DrawRectangleRec({rec.x - cam_x,rec.y,rec.width,rec.height}, ColorAlpha(WHITE,
+        (colliding ? (clicking ? 0.2f : 0.4f) : 0.5f)
+    ));
+    DrawRectangleRec({green_slider_rec.x - cam_x,green_slider_rec.y,green_slider_rec.width,green_slider_rec.height}, GREEN);
+    DrawRectangleRec({red_slider_rec.x - cam_x,red_slider_rec.y,red_slider_rec.width,red_slider_rec.height}, RED);
+    DrawTextEx(GetFontDefault(), text.c_str(), {position.x + 16 - cam_x, position.y + (rec.height / 2.0f) - (fnt_size / 2.0f)}, fnt_size, 1, BLACK);
+
+    return rec;
+}
+
+Menu::Menu(std::map<std::string,json> level_data, float* master_volume)
 {
     this->level_data = level_data;
+    this->master_volume = master_volume;
     title_img = LoadTexture("assets/ui/title.png");
     button_img = LoadTexture("assets/ui/button.png");
     menu_img = LoadTexture("assets/ui/menu_img.png");
@@ -30,6 +77,8 @@ void Menu::Reset()
     title_img_pos_y = -title_img.height;
     title_img_offset_y = 0;
     play_button_offset_y = -100;
+    sett_button_offset_y = -100;
+    cred_button_offset_y = -100;
     cam_x = 0;
     cam_x_targ = 0;
     off = 0;
@@ -117,8 +166,12 @@ void Menu::Update() {
 
     title_img_pos_y = Lerp(title_img_pos_y, -100, 5 * GetFrameTime());
     title_img_offset_y = off;
-    if (abs(title_img_pos_y) - 100 <= 10)
+    if (abs(title_img_pos_y + 100) <= 10)
         play_button_offset_y = Lerp(play_button_offset_y, 550, 5 * GetFrameTime());
+    if (abs(play_button_offset_y - 550) <= 45)
+        sett_button_offset_y = Lerp(sett_button_offset_y, 624, 7 * GetFrameTime());
+    if (abs(sett_button_offset_y - 624) <= 45)
+        cred_button_offset_y = Lerp(cred_button_offset_y, 698, 9 * GetFrameTime());
 
     menu_img_pos_y += GetFrameTime()*15;
     float zoom = 1.35f;
@@ -131,20 +184,23 @@ void Menu::Update() {
 
     DrawTexture(title_img, (int)(GetScreenWidth()/2.0f) - (int)(title_img.width/2.0f)-cam_x, (int)title_img_pos_y - (int)title_img_offset_y, WHITE);
 
+    slider({(float)GetScreenWidth() * 1.5f,300 + (off + off2)/4}, "VOLUME", master_volume, 0, 1.0f);
+
     Rectangle play_bbox = {(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f), (float)play_button_offset_y +off3,150,56};
     if (button(play_bbox, "PLAY")) {
         cam_x_targ=-GetScreenWidth();
     }
-    DrawTexture(credits_img,GetScreenWidth()-cam_x, 0, WHITE);
+    DrawTexture(credits_img,(GetScreenWidth()*2)-cam_x, 0, WHITE);
 
-    if (button({GetScreenWidth() + (GetScreenWidth() / 2.0f) - 75.0f, GetScreenHeight() - 106.0f, 150, 56}, "BACK"))
+    if (button({GetScreenWidth()*2 + (GetScreenWidth() / 2.0f) - 75.0f, GetScreenHeight() - 106.0f, 150, 56}, "BACK") ||
+        button({GetScreenWidth() + (GetScreenWidth() / 2.0f) - 75.0f, GetScreenHeight() - 106.0f + (off2 + off3)/2, 150, 56}, "BACK"))
         cam_x_targ=0;
 
-
-    Rectangle credits_bbox = {(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f), (float)play_button_offset_y +off3 + play_bbox.height + 18,150,56};
-    if (button(credits_bbox, "CREDITS")) {
+    if (button({(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f), (float)sett_button_offset_y + (off2 + off3)/2,150,56}, "SETTINGS"))
         cam_x_targ=GetScreenWidth();
-    }
+
+    if (button({(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f), (float)cred_button_offset_y +off2,150,56}, "CREDITS"))
+        cam_x_targ=GetScreenWidth()*2;
 
     if (isStarting && BlackTransparency > 0)
         BlackTransparency -= 0.65f * GetFrameTime();

@@ -311,7 +311,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
             if (Owner->Type != PlayerType)
                 MeleeAttack(game->MainPlayer, TargetAngle);
 
-            // Loop through all behaviors in game
+            // Loop through all enemies in game
             std::vector<shared_ptr<Entity>>* array = &game->MainEntityManager.Entities[EnemyType];
             for (int i = 0; i < array->size(); i++) {
                 if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != Owner && entity != nullptr && !entity->ShouldDelete) {

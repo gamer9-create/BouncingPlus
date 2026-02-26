@@ -221,6 +221,7 @@ void UIManager::GameUI() {
                 Number = 0;
             }
         }
+        Number = round(Number);
         s4 = MeasureText(game->MainPlayer->powerupSystem.CurrentPowerup->Name.c_str(), s3);
         DrawText(game->MainPlayer->powerupSystem.CurrentPowerup->Name.c_str(), (int)(GetScreenWidth()-(125+margin)*2 + 125/2 - s4/2),
         WeaponUITexture.texture.height - (100+margin) + 10, s3, WHITE

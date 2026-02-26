@@ -15,8 +15,10 @@ int main(int argc, char *argv[]) {
     LevelLoader level_loader = LevelLoader();
     std::map<std::string,json> level_data = level_loader.GetLevelsData();
 
+    float MasterVolume = 1.0f;
+
     Game MainGame = Game(level_data);
-    Menu MainMenu = Menu(level_data);
+    Menu MainMenu = Menu(level_data, &MasterVolume);
 
     bool InGame = false;
 
@@ -50,6 +52,8 @@ int main(int argc, char *argv[]) {
 
     while (!WindowShouldClose()) {
         BeginDrawing();
+
+        SetMasterVolume(MasterVolume);
 
         if (IsKeyPressed(KEY_F11) && !OnWeb)
             ToggleFullscreen();
