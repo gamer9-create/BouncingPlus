@@ -1,7 +1,7 @@
 {
   "description": "A true test!",
   "inventory": ["Sword", "Shotgun", ""],
-  "powerup": "speed",
+  "powerup": "shield",
   "difficulty": 3,
   "starting_health": 150,
   "game": {

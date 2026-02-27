@@ -77,8 +77,8 @@ void Menu::Reset()
     title_img_pos_y = -title_img.height;
     title_img_offset_y = 0;
     play_button_offset_y = -100;
-    sett_button_offset_y = -100;
-    cred_button_offset_y = -100;
+    sett_button_offset_y = -200;
+    cred_button_offset_y = -300;
     cam_x = 0;
     cam_x_targ = 0;
     off = 0;

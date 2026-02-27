@@ -53,6 +53,11 @@ int main(int argc, char *argv[]) {
     while (!WindowShouldClose()) {
         BeginDrawing();
 
+        if (!IsCursorOnScreen())
+        {
+            SetMousePosition(min(max(GetMouseX(), 0), GetScreenWidth()), min(max(GetMouseY(), 0), GetScreenHeight()));
+        }
+
         SetMasterVolume(MasterVolume);
 
         if (IsKeyPressed(KEY_F11) && !OnWeb)

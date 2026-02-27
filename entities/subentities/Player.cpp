@@ -72,6 +72,15 @@ void Player::PhysicsUpdate(float dt) {
     }
     if (game->GetGameTime() - LastMovedTime > 1)
         ExtraSpeed = 0;
+    if (ReduceSpeedBuff)
+    {
+        SpeedBuff -= 100 * dt;
+        if (SpeedBuff <= 0)
+        {
+            SpeedBuff = 0;
+            ReduceSpeedBuff = false;
+        }
+    }
     ExtraSpeed = min(ExtraSpeed, 400.0f);
     Speed = (OrigSpeed + ExtraSpeed + SpeedBuff);
     if ((Health/MaxHealth) > 2.0f && !isInvincible)

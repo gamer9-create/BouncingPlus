@@ -14,8 +14,9 @@ class Bullet : public Entity {
     float ExistenceTimer;
     float Damage;
     bool dd=false;
-    std::weak_ptr<Entity> OwnerPtr;
+
 public:
+    std::weak_ptr<Entity> OwnerPtr;
     float Lifetime;
     bool SlowdownOverTime;
     Vector2 FirePoint;

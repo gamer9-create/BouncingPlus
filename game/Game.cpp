@@ -135,8 +135,10 @@ void Game::SetGameData() {
         g.close();
     }
 
-    SpeedPowerup* p = new SpeedPowerup();
+    auto* p = new SpeedPowerup();
+    auto* s = new ShieldPowerup();
     Powerups.insert({"speed", p});
+    Powerups.insert({"shield", s});
 
     uOutlineSize = GetShaderLocation(Shaders["outline"], "outlineSize");
     uOutlineColor = GetShaderLocation(Shaders["outline"], "outlineColor");

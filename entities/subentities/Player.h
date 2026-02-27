@@ -37,6 +37,7 @@ class Player : public Entity {
         bool isInvincible;
     float ExtraSpeed;
     float SpeedBuff;
+    bool ReduceSpeedBuff = false;
         WeaponsSystem weaponsSystem;
         PowerupSystem powerupSystem;
         double InvincibilityResetTimer;
