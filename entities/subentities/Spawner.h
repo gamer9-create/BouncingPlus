@@ -5,7 +5,7 @@
 #ifndef BOUNCINGPLUS_SPAWNER_H
 #define BOUNCINGPLUS_SPAWNER_H
 #include "../Entity.h"
-
+#include <raylib.h>
 class Spawner : public Entity{
 public:
     Vector2 StartPos;

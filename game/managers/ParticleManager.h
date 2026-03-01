@@ -4,8 +4,8 @@
 
 #ifndef BOUNCINGPLUS_PARTICLESYSTEM_H
 #define BOUNCINGPLUS_PARTICLESYSTEM_H
-#include <raylib.h>
 #include <vector>
+#include <raylib.h>
 
 class Game;
 

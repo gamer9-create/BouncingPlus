@@ -25,17 +25,22 @@ class Menu {
     Texture2D title_img;
     Texture2D menu_img;
     Texture2D button_img;
+    Texture2D button_small_img;
     Texture2D miku_img;
     Texture2D credits_img;
     Sound miku_sound;
+    Sound slider_drag;
+    Sound button_click;
     float miku_offset;
     float menu_img_pos_y;
     float BlackTransparency;
     bool MovingToGame;
     bool isStarting;
     float* master_volume;
+    bool slider_bars;
+    float last_played_prog;
     bool button(Rectangle rectangle, std::string text);
-    Rectangle slider(Vector2 position, std::string text, float* value, float min, float max);
+    Rectangle slider(Vector2 position, std::string text, float* value, float* last_played_progress, bool* prev_state, float min, float max);
     void LevelSelect();
     public:
         Menu(std::map<std::string,json> level_data, float* master_volume);

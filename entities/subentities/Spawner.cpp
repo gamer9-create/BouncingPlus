@@ -5,12 +5,11 @@
 #include "Spawner.h"
 
 #include <iostream>
-#include <raymath.h>
 
 #include "../../game/Game.h"
 #include "behaviors/CatchBehavior.h"
 #include "behaviors/WeaponBehavior.h"
-
+#include <raymath.h>
 Spawner::Spawner() {
 }
 
@@ -145,8 +144,15 @@ void Spawner::Update() {
         {
             Vector2 p = game->MainTileManager.EnemySpawnLocations[GetRandomValue(0,
                 game->MainTileManager.EnemySpawnLocations.size() - 1)];
+            int times = 0;
+            while (Vector2Distance(p, {game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y}) >= 3000 && times < 10)
+            {
+                p = game->MainTileManager.EnemySpawnLocations[GetRandomValue(0,game->MainTileManager.EnemySpawnLocations.size() - 1)];
+                times++;
+            }
             Vector2 g = Vector2Add(p, {(float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100)});
-            while (true)
+            times = 0;
+            while (times < 10)
             {
                 int tile_x = static_cast<int> (g.x / game->MainTileManager.TileSize);
                 int tile_y = static_cast<int> (g.y / game->MainTileManager.TileSize);
@@ -159,6 +165,7 @@ void Spawner::Update() {
                 {
                     break;
                 }
+                times++;
             }
 
             std::unique_ptr<EnemyBehavior> behavior = make_unique<WeaponBehavior>();

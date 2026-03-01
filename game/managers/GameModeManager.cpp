@@ -6,10 +6,12 @@
 
 #include <iostream>
 
+
 #include "../../entities/bosses/FaceBoss.h"
 #include <nlohmann/json.hpp>
 #include "../../entities/subentities/Spawner.h"
 #include "../Game.h"
+#include <raymath.h>
 
 GameModeManager::~GameModeManager()
 {
@@ -50,19 +52,29 @@ void GameModeManager::Update()
         if (LevelTimer <= 0 && InWave)
         {
             InWave = false;
-            LevelTimer = max(20 - CurrentWave,10);
+            LevelTimer = max(10 - CurrentWave*2,3);
         } else if (LevelTimer <= 0 && !InWave)
         {
             InWave = true;
-            LevelTimer = min(15.0f + (CurrentWave * 2.5f), 50.0f);
+            LevelTimer = min(25.0f + (CurrentWave * 10.0f), 180.0f);
             CurrentWave += 1;
         }
         std::vector<shared_ptr<Entity>> array = game->MainEntityManager.Entities[SpawnerType];
         for (int i = 0; i < array.size(); i++) {
             if (shared_ptr<Spawner> entity = dynamic_pointer_cast<Spawner>(array.at(i)); entity != nullptr and !entity->ShouldDelete) {
                 entity->SpawnerIsActive = LevelTimer > 0 && InWave ? 999 : 0;
-                entity->SpawnCooldown = LevelTimer > 0 && InWave ? max(10.0f - (CurrentWave / 4.0f), 1.0f) : 999;
-                entity->EnemyDifficulty = LevelTimer > 0 && InWave ? min(CurrentWave * 1.1f, 8.0f) : -1.0f;
+                entity->SpawnCooldown = LevelTimer > 0 && InWave ? max(10.0f - (CurrentWave / 2.0f), 1.0f) : 999;
+                entity->EnemyDifficulty = LevelTimer > 0 && InWave ? min(CurrentWave * 1.6f, 8.0f) : -1.0f;
+            }
+        }
+
+        std::vector<shared_ptr<Entity>> enemyArray = game->MainEntityManager.Entities[EnemyType];
+        for (int i = 0; i < enemyArray.size(); i++) {
+            if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(enemyArray.at(i)); entity != nullptr and !entity->ShouldDelete) {
+                if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) > 4000)
+                {
+                    entity->ShouldDelete = true;
+                }
             }
         }
     }

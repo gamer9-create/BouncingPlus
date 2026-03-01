@@ -43,7 +43,7 @@ Bullet::~Bullet() {
 
 }
 
-void Bullet::PhysicsUpdate(float dt) {
+void Bullet::PhysicsUpdate(float dt, double time) {
 
     if (SlowdownOverTime)
         Speed = Lerp(Speed, 0, 10*ExistenceTimer*dt);

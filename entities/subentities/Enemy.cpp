@@ -141,6 +141,8 @@ void Enemy::Update() {
         std::string t = std::to_string((int)round(AnimatedHealth));
         if (t == "67") // getting rid of "6 7" meme
             t = "66";
+        if (t == "13") // FRIDAY THE 13TH
+            t = "12";
         else if (t == "41") // getting rid of 41 meme
             t = "40";
         else if (t == "69") // getting rid of 69 nice number
@@ -149,13 +151,17 @@ void Enemy::Update() {
             t = "62";
         else if (t == "21") // 9 + 10 = ?
             t = "20";
+        else if (t == "29") // i blame an old recording of me saying "TWENTY NINE" a year before the "6 7" meme for this
+            t = "28";
         else if (t == "34") // stop gooning. just stop. please.
             t = "35";
-        else if (t == "131") // idk what that is...
+        else if (t == "131") // idk what this is...
             t = "132";
-        else if (t == "420")
-            // i dont think an enemy can even get to this health level... welp i dont like gooners so its gotta go
+        else if (t == "420")// i dont think an enemy can even get to this health level... welp i dont like gooners so its gotta go
             t = "419";
+        else if (t == "666") // gotta make sure this number doesnt come touchin my game
+            t = "665";
+
         DrawText(t.c_str(),
                  center_x - total_size / 2,
                  BoundingBox.y - 36, 36, GetHealthColor((Armor > 0 ? Armor : AnimatedHealth) / MaxHealth, Armor));

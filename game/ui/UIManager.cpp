@@ -32,24 +32,34 @@ UIManager::UIManager(Game &game) {
 }
 
 bool UIManager::button(Vector2 pos, std::string text) {
-    Rectangle rectangle = {0,0, (float)MeasureText(text.c_str(), 50)+25, (float)button_img.height};
-    rectangle.x=pos.x - rectangle.width/2;
-    rectangle.y=pos.y - rectangle.height/2;
 
-    DrawTexturePro(button_img, {0,0,8,56}, {rectangle.x,rectangle.y,7,56}, {0,0}, 0, WHITE);
-    DrawTexturePro(button_img, {143,0,7,56}, {rectangle.x+rectangle.width-7,rectangle.y,7,56}, {0,0}, 0, WHITE);
-    DrawTexturePro(button_img, {8,0,135,56}, {rectangle.x+7,rectangle.y,rectangle.width-14,56}, {0,0}, 0, WHITE);
+    Vector2 mouse_pos = GetMousePosition();
+    Rectangle rectangle = {
+        pos.x - (float)button_img.width/2,pos.y - (float)button_img.height/2,(float)button_img.width,(float)button_img.height
+    };
+    int f= 50;
+    if (CheckCollisionPointRec(mouse_pos, rectangle))
+    {
+        rectangle.width += 20;
+        rectangle.height += 20;
+        f += 10;
+    }
+    rectangle.x = pos.x - rectangle.width/2;
+    rectangle.y = pos.y - rectangle.height/2;
 
-    DrawText(text.c_str(), rectangle.x + rectangle.width/2 - MeasureText(text.c_str(), 50)/2, rectangle.y + rectangle.height/2 - 25, 50, WHITE);
+    float tx_size = MeasureText(text.c_str(), f);
+    float mul = f / (tx_size / (rectangle.width-10));
+    tx_size = MeasureText(text.c_str(), mul);
+    DrawTexturePro(button_img, {0,0,(float)button_img.width,(float)button_img.height}, {rectangle.x, rectangle.y, rectangle.width, rectangle.height}, {0, 0}, 0, WHITE);
+    DrawText(text.c_str(), rectangle.x + rectangle.width/2 - tx_size/2, rectangle.y + rectangle.height/2 - (mul/2), mul, WHITE);
 
-    if (CheckCollisionPointRec(GetMousePosition(), rectangle)) {
-        DrawRectangleLinesEx(rectangle, 4, WHITE);
+    if (CheckCollisionPointRec(mouse_pos, rectangle)) {
+        DrawRectangleLinesEx({rectangle.x,rectangle.y,rectangle.width,rectangle.height}, 4, WHITE);
         return IsMouseButtonPressed(0);
     }
-
     return false;
-
 }
+
 
 UIManager::UIManager() {
 }

@@ -5,6 +5,7 @@
 #ifndef BOUNCINGPLUS_FACEBOSS_H
 #define BOUNCINGPLUS_FACEBOSS_H
 #include "../Entity.h"
+#include <raylib.h>
 
 class FaceBoss : public Entity{
 public:

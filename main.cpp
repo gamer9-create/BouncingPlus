@@ -16,86 +16,62 @@ int main(int argc, char *argv[]) {
     std::map<std::string,json> level_data = level_loader.GetLevelsData();
 
     float MasterVolume = 1.0f;
+    bool LockCursor = false;
 
     Game MainGame = Game(level_data);
     Menu MainMenu = Menu(level_data, &MasterVolume);
 
     bool InGame = false;
 
-    bool OnWeb = false;
-    #ifdef PLATFORM_WEB
-        OnWeb = true;
-    #endif
-
-    bool HasAgreed = true;
-
-    if (OnWeb)
-        HasAgreed = false;
-
     Music music = LoadMusicStream(string("assets/spookypiano.mp3").c_str());
     SetMusicVolume(music, 1);
     time_t t;
     time(&t);
-    struct tm datetime = *localtime(&t);
+    tm datetime = *localtime(&t);
     if (to_string(datetime.tm_mon) == "9" && to_string(datetime.tm_mday) == "31" && GetRandomValue(1, 10) == 5) {
         PlayMusicStream(music);
         cout << "spooky scary skel" << endl;
     }
     // tip of advice: dont look into any other code file that isnt a manager... youre gonna find some... uhhh... extremely readable code!
 
-    if (!OnWeb && false
-        )
-    {
-        SetWindowSize(GetMonitorWidth(0), GetMonitorHeight(0));
-        ToggleFullscreen();
-    }
-
     while (!WindowShouldClose()) {
         BeginDrawing();
 
-        if (!IsCursorOnScreen())
+        if (LockCursor && !IsCursorOnScreen())
         {
-            SetMousePosition(min(max(GetMouseX(), 0), GetScreenWidth()), min(max(GetMouseY(), 0), GetScreenHeight()));
+            SetMousePosition(min(max(GetMouseX(), 25), GetScreenWidth() - 25), min(max(GetMouseY(), 25), GetScreenHeight() - 25));
         }
 
         SetMasterVolume(MasterVolume);
 
-        if (IsKeyPressed(KEY_F11) && !OnWeb)
+        if (IsKeyPressed(KEY_F11))
             ToggleFullscreen();
 
         ClearBackground(BLANK);
         UpdateMusicStream(music);
-        if (HasAgreed) {
+        if (InGame) {
 
-            if (InGame) {
-
-                if (MainGame.ShouldReturn)
-                {
-                    InGame = false;
-                    MainMenu.Reset();
-                    MainGame.ShouldReturn = false;
-                } else
-                {
-                    MainGame.Update();
-                }
-
-                // i am scared!!! i scare you!!!
-            } else {
-                MainMenu.Update();
-                std::string map = MainMenu.LeaveMenu();
-                if (!map.empty()) {
-                    InGame = true;
-                    MainGame.ShouldReturn = false;
-                    MainGame.Reload(map);
-                }
+            if (MainGame.ShouldReturn)
+            {
+                InGame = false;
+                MainMenu.Reset();
+                MainGame.ShouldReturn = false;
+            } else
+            {
+                MainGame.Update();
             }
-            DrawFPS(0,0);
+
+            // i am scared!!! i scare you!!!
         } else {
-            DrawText("WARNING: This game runs better on Native Hardware! The web version may be glitchy/laggy. Please L to skip this warning.", 20, 20, 20, RED);
-            DrawText("Make sure to fullscreen before playing too!", 20, 40, 20, RED);
-            if (IsKeyPressed(KEY_L))
-                HasAgreed = true;
+            MainMenu.Update();
+            std::string map = MainMenu.LeaveMenu();
+            if (!map.empty()) {
+                InGame = true;
+                MainGame.ShouldReturn = false;
+                MainGame.Reload(map);
+            }
         }
+        DrawFPS(0,0);
 
         EndMode2D();
         EndDrawing();

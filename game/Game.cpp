@@ -39,6 +39,7 @@ Game::Game(std::map<std::string, nlohmann::json> json) {
     SlowdownTime = 0;
     GameTime = 0.0f;
     MaxSlowdownTime = 0;
+    GameScore = 0;
 
     Paused = false;
 
@@ -490,6 +491,7 @@ void Game::Clear() {
     Paused = false;
     ShouldReturn = false;
     GameTime = 0;
+    GameScore = 0;
     BannedWeaponDrops.clear();
     EnemyRoleWeapons.clear();
     CurrentLevelName.clear();

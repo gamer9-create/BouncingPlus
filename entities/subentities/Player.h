@@ -9,6 +9,7 @@
 #include "../Weapons.h"
 #include "../Powerups.h"
 
+struct Vector2;
 
 class Player : public Entity {
     void AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked);
@@ -23,6 +24,9 @@ class Player : public Entity {
     float Alpha = 1;
     std::vector<std::weak_ptr<Enemy>> DashedEnemies;
     float OrigSpeed;
+    Vector2 LastPos = Vector2(0, 0);
+
+    std::vector<Vector3> damageNotifs;
 
     double LastMovedTime;
     int LastKills;
@@ -32,6 +36,7 @@ class Player : public Entity {
     double LastWarningSign;
     bool WarningSign;
     bool HealthConcern;
+    double LastTanked;
 
     public:
         bool isInvincible;
@@ -48,7 +53,9 @@ class Player : public Entity {
         Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game);
         Player();
         virtual ~Player();
-        void PhysicsUpdate(float dt);
+        void DamageNotification(Vector2 from);
+        void PhysicsUpdate(float dt, double time);
+        void DisplayDamageNotifs();
         void Update();
         void OnWallVelocityBump(float Power);
         void ToggleInvincibility();

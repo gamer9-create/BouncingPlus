@@ -3,12 +3,12 @@
 //
 
 #include "Player.h"
-#include <cfloat>
-#include <iostream>
-#include <raymath.h>
 #include <nlohmann/json.hpp>
 #include "Enemy.h"
 #include "../../game/Game.h"
+
+#include "raylib.h"
+#include <raymath.h>
 
 using namespace std;
 
@@ -28,6 +28,9 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->HealthConcern = false;
     this->WarningSign = false;
     this->SpeedBuff = 0;
+    this->LastTanked = 0;
+    this->damageNotifs = std::vector<Vector3>();
+    this->LastPos = Vector2(0, 0);
     this->InvincibilityResetTimer = 0;
     this->PlayerDashLineThickness = 10;
     this->ShaderUniformLoc = GetShaderLocation(game.Shaders["dash_arrow"], "time");
@@ -44,7 +47,12 @@ void Player::ToggleInvincibility() {
     this->isInvincible = !this->isInvincible;
 }
 
-void Player::PhysicsUpdate(float dt) {
+void Player::DamageNotification(Vector2 from)
+{
+    this->damageNotifs.push_back({from.x, from.y, (float) game->GetGameTime()});
+}
+
+void Player::PhysicsUpdate(float dt, double time) {
     float MovementX = 0;
     float MovementY = 0;
     if (PlayerFrozenTimer <= 0) {
@@ -61,16 +69,22 @@ void Player::PhysicsUpdate(float dt) {
             MovementX += Speed;
         }
     }
+    if (Health >= 200 && time - LastTanked >= 2)
+    {
+        Health -= 2;
+        LastTanked = time;
+    }
     if (VelocityPower < 50)
     {
         VelocityPower = 0;
     }
     Movement = Vector2(MovementX, MovementY);
-    if (Vector2Distance({0,0},Movement) > 0) {
-        LastMovedTime = game->GetGameTime();
+    if (Vector2Distance(LastPos, {BoundingBox.x,BoundingBox.y}) > 0 && Vector2Distance({0,0}, Movement) > 0) {
+        LastMovedTime = time;
         ExtraSpeed += 10 * dt;
     }
-    if (game->GetGameTime() - LastMovedTime > 1)
+    LastPos = {BoundingBox.x,BoundingBox.y};
+    if (time - LastMovedTime > 1)
         ExtraSpeed = 0;
     if (ReduceSpeedBuff)
     {
@@ -86,7 +100,7 @@ void Player::PhysicsUpdate(float dt) {
     if ((Health/MaxHealth) > 2.0f && !isInvincible)
         Speed *= (1.0f - min(((Health/MaxHealth)-3.0f) / 2.0f, 0.5f));
     if (VelocityPower > 0 && !Dodging) {
-        // get behaviors list
+        // get enemies list
         std::vector<shared_ptr<Entity>>* array = &game->MainEntityManager.Entities[EnemyType];
         for (int i = 0; i < array->size(); i++) {
             if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(array->at(i)); entity != nullptr and !entity->ShouldDelete) {
@@ -106,33 +120,35 @@ void Player::PhysicsUpdate(float dt) {
     } else {
         DashedEnemies.clear();
     }
-    Entity::PhysicsUpdate(dt);
+    Entity::PhysicsUpdate(dt, time);
 }
 
 void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked) {
     // check if we're colliding with them. if so, attack!
     if (CheckCollisionRecs(BoundingBox, entity->BoundingBox) && !already_attacked) {
         // calculate damage & attack
-        float Damage = VelocityPower / 15.0f;
-        Damage *= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
+        float Damage = VelocityPower / 22.5f;
+        Damage *= min(max((Health / MaxHealth)-2.0f, 1.0f), 5.5f);
         if (entity->Armor <= 0)
             entity->Health -= Damage;
         else
         {
             entity->Armor -= Damage;
         }
-        Health += Damage / 3.0f;
+        Health += Damage / 5.5f;
 
         float amount = 1500.0f;
 
         // did we kill them? if so, give health & kills
         if (entity->Health <= 0) {
-            Health += Damage * 0.45f;
+            Health += Damage * 0.55f;
             //game->Slowdown(0.35f, VelocityPower / 1450.0f);
             amount= 950;
             Kills+=1;
+            game->GameScore += 50;
         }
 
+        game->GameScore += 10;
         game->MainCameraManager.CameraPosition += Vector2Normalize({(float)GetRandomValue(-25, 25), (float)GetRandomValue(-25, 25)}) * (VelocityPower / 150);
         game->MainCameraManager.ShakeCamera(VelocityPower / (amount - 50) / 1.5f);
         game->MainCameraManager.QuickZoom(0.95f, 0.05f, false);
@@ -219,6 +235,7 @@ void Player::DashLogic() {
         VelocityPower /= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
         game->MainSoundManager.PlaySoundM("dash");
         PlayerFrozenTimer = .5f * min(max((VelocityPower / 2500.0f), 0.35f), 1.1f);
+        game->GameScore += 25;
         if (!isInvincible)
         {
             ToggleInvincibility();
@@ -274,6 +291,27 @@ void Player::DashLogic() {
            (int)(BoundingBox.y + (BoundingBox.height / 2) - (w/2))+5,
            h - 10, ((float)weaponsSystem.WeaponAmmo[weaponsSystem.CurrentWeaponIndex] / weaponsSystem.CurrentWeapon->Ammo) * (w - 10.0f),
            ColorAlpha(YELLOW, 0.8f ));
+    }
+}
+
+void Player::DisplayDamageNotifs()
+{
+    std::erase_if(damageNotifs, [this](Vector3 e)
+    {
+        return (float)game->GetGameTime() - e.z >= 1.5f;
+    });
+    for (Vector3 notif : damageNotifs)
+    {
+        float time = (float)game->GetGameTime() - notif.z;
+        Vector2 m = Vector2Multiply(Vector2Normalize(Vector2Subtract({BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2}, {notif.x, notif.y})),
+            {200, 200});
+        float angle = 180 - Vector2LineAngle({0,0},m) * RAD2DEG;
+        float trans = 1.0f;
+        if (time <= 0.5f)
+            trans = time / 0.5f;
+        if (time >= 1.0f)
+            trans = (time - 1.0f) / 0.5f;
+        DrawCircleSector(Vector2Subtract({BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2}, m), 45, (180+angle)-50, (180+angle)+50, 10, ColorAlpha(WHITE, trans/2));
     }
 }
 
@@ -337,6 +375,7 @@ void Player::Update() {
         if (IsKeyDown(KEY_F))
         {
             powerupSystem.Activate();
+            game->GameScore += 5;
         }
 
         // firing logic
@@ -385,14 +424,18 @@ void Player::Update() {
         PlayerFrozenTimer -= game->GetGameDeltaTime();
     }
 
+    game->GameScore += Health * 0.05f * game->GetGameDeltaTime();
+
     // update entity
     Entity::Update();
     weaponsSystem.Update();
     powerupSystem.Update();
+    DisplayDamageNotifs();
 
     // did we get a kill? play kill sound game!
     if (Kills != LastKills) {
         game->MainSoundManager.PlaySoundM("death");
+        game->GameScore += 100;
     }
     LastKills = Kills;
 }

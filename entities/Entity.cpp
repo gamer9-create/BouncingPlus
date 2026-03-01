@@ -68,6 +68,10 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
             enemy->Armor -= Damage;
     } else { // if they are normal, just damage them normally
         entity->Health -= Damage;
+        if (entity->Type == PlayerType)
+        {
+            game->MainPlayer->DamageNotification({owner->BoundingBox.x + owner->BoundingBox.width/2, owner->BoundingBox.y + owner->BoundingBox.height/2});
+        }
     }
 
     // if entity dies, give owner health and increase kill count for player
@@ -80,7 +84,7 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
     }
 }
 
-void Entity::PhysicsUpdate(float dt) {
+void Entity::PhysicsUpdate(float dt, double time) {
     if (abs(VelocityPower) > 0) {
         VelocityPower += 4500.0f * dt * (VelocityPower > 0 ? -1 : 1);
         if (abs(VelocityPower) < 5)

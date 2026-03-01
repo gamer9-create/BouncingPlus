@@ -6,8 +6,8 @@
 #define BOUNCINGPLUS_ENTITY_H
 #include <complex.h>
 #include <memory>
-#include <raylib.h>
 #include "EntityType.h"
+#include <raylib.h>
 
 class Game;
 
@@ -36,7 +36,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
         virtual ~Entity();
 
         Entity(Texture2D &Texture, Rectangle BoundingBox, float Speed, Game &game);
-        virtual void PhysicsUpdate(float dt);
+        virtual void PhysicsUpdate(float dt, double time);
         bool IsVisible();
         float GetSpeed();
         void DamageOther(std::shared_ptr<Entity> other, float Damage, std::shared_ptr<Entity> owner = nullptr);

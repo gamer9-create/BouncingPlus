@@ -22,7 +22,7 @@ public:
     virtual ~UpgradeStation();
     void AnimateTowards(float Angle);
     void Update();
-    void PhysicsUpdate(float dt);
+    void PhysicsUpdate(float dt, double time);
     void Render();
 };
 

@@ -47,6 +47,7 @@ class Game {
         bool Paused;
         bool ShouldReturn;
         bool DebugDraw;
+        float GameScore;
 
         // Level Information
         std::string CurrentLevelName;

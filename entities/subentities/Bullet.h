@@ -23,7 +23,7 @@ public:
     Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float Damage, float Lifetime, Texture2D& BulletTexture, std::shared_ptr<Entity> Owner, Game &game);
     Bullet();
     void Attack(std::shared_ptr<Entity> entity);
-    void PhysicsUpdate(float dt);
+    void PhysicsUpdate(float dt, double time);
     virtual ~Bullet();
     void Update();
 };

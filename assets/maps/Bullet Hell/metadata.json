@@ -1,7 +1,7 @@
 {
   "description": "No special dudes, just pure bullets.",
   "inventory": ["Player Gun"],
-  "powerup": "speed",
+  "powerup": "shield",
   "difficulty": 4,
   "starting_health": 200,
   "game": {

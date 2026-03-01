@@ -10,20 +10,20 @@ using json = nlohmann::json;
 
 using namespace std;
 
-Rectangle Menu::slider(Vector2 position, std::string text, float* value, float min, float max)
+Rectangle Menu::slider(Vector2 position, std::string text, float* value, float* last_played_progress, bool* prev_state, float min, float max)
 {
     float percentage = std::max(std::min((*value - min) / (max - min), 1.0f), 0.0f);
 
     float slider_size = 350;
 
-    float fnt_size = 50;
+    float fnt_size = 35;
     float tx_size = MeasureText(text.c_str(), fnt_size);
-    float w = tx_size + slider_size + 32;
+    float w = tx_size + slider_size + 48;
     float h = fnt_size + 16;
     position.x -= w/2;
     Rectangle rec = {position.x, position.y,w, h};
 
-    Rectangle slider_rec = {position.x + tx_size + 16, position.y + (rec.height / 2) - (fnt_size / 2.5f), slider_size, fnt_size / 1.25f};
+    Rectangle slider_rec = {position.x + tx_size + 32, position.y + (rec.height / 2) - (fnt_size / 2.5f), slider_size, fnt_size / 1.25f};
 
     Rectangle green_slider_rec = {slider_rec.x, slider_rec.y, slider_rec.width * percentage, slider_rec.height};
 
@@ -31,13 +31,21 @@ Rectangle Menu::slider(Vector2 position, std::string text, float* value, float m
 
     bool colliding = CheckCollisionPointRec(mouse_pos, slider_rec);
     bool clicking = IsMouseButtonDown(0);
-    bool dragging = colliding && clicking;
+    if (!clicking)
+        *prev_state = false;
+    bool dragging = (*prev_state || colliding) && clicking;
 
     if (dragging)
     {
-        float distance = mouse_pos.x - slider_rec.x;
+        *prev_state = true;
+        float distance = std::min(std::max(mouse_pos.x - slider_rec.x, 0.0f), slider_size);
         float percent = distance / slider_size;
         *value = min + (max - min) * percent;
+        if (abs(*value - *last_played_progress) >= 0.1f && !IsSoundPlaying(slider_drag))
+        {
+            PlaySound(slider_drag);
+            *last_played_progress = *value;
+        }
         if (*value >= 0.95f)
             *value = 1.0f;
         if (*value <= 0.05f)
@@ -46,12 +54,16 @@ Rectangle Menu::slider(Vector2 position, std::string text, float* value, float m
             *value = 0.5f;
     }
 
-    DrawRectangleRec({rec.x - cam_x,rec.y,rec.width,rec.height}, ColorAlpha(WHITE,
-        (colliding ? (clicking ? 0.2f : 0.4f) : 0.5f)
-    ));
+    DrawRectangleRec({rec.x - cam_x,rec.y,rec.width,rec.height}, ColorAlpha(BLACK, 0.5f));
     DrawRectangleRec({green_slider_rec.x - cam_x,green_slider_rec.y,green_slider_rec.width,green_slider_rec.height}, GREEN);
     DrawRectangleRec({red_slider_rec.x - cam_x,red_slider_rec.y,red_slider_rec.width,red_slider_rec.height}, RED);
-    DrawTextEx(GetFontDefault(), text.c_str(), {position.x + 16 - cam_x, position.y + (rec.height / 2.0f) - (fnt_size / 2.0f)}, fnt_size, 1, BLACK);
+    DrawTextPro(GetFontDefault(), text.c_str(), {position.x + 16 - cam_x, position.y + (rec.height / 2.0f) - (fnt_size / 2.0f)}, {0, 0}, 0, fnt_size, 1, WHITE);
+
+
+    float siz = fnt_size + 5;
+    if (colliding)
+        siz = fnt_size + 7;
+    DrawTexturePro(button_small_img, {0, 0, 56, 56}, {green_slider_rec.x - cam_x + green_slider_rec.width, green_slider_rec.y + green_slider_rec.height/2, siz, siz}, {siz / 2, siz / 2}, 0, WHITE);
 
     return rec;
 }
@@ -61,11 +73,14 @@ Menu::Menu(std::map<std::string,json> level_data, float* master_volume)
     this->level_data = level_data;
     this->master_volume = master_volume;
     title_img = LoadTexture("assets/ui/title.png");
+    button_small_img = LoadTexture("assets/ui/button_small.png");
     button_img = LoadTexture("assets/ui/button.png");
     menu_img = LoadTexture("assets/ui/menu_img.png");
     miku_img = LoadTexture("assets/ui/miku.png");
     miku_sound = LoadSound("assets/ui/lovely_cavity.mp3");
     credits_img = LoadTexture("assets/ui/credits.png");
+    button_click = LoadSound("assets/ui/button_click.wav");
+    slider_drag = LoadSound("assets/ui/slider_dragging.wav");
     Reset();
     PlaySound(miku_sound);
 }
@@ -79,8 +94,10 @@ void Menu::Reset()
     play_button_offset_y = -100;
     sett_button_offset_y = -200;
     cred_button_offset_y = -300;
+    slider_bars = false;
     cam_x = 0;
     cam_x_targ = 0;
+    last_played_prog = 1.0f;
     off = 0;
     off2 = 0;
     off3 = 0;
@@ -112,6 +129,10 @@ bool Menu::button(Rectangle rectangle, std::string text) {
 
     if (CheckCollisionPointRec(mouse_pos, rectangle)) {
         DrawRectangleLinesEx({rectangle.x-cam_x,rectangle.y,rectangle.width,rectangle.height}, 4, WHITE);
+        if (IsMouseButtonPressed(0) && !IsSoundPlaying(button_click))
+        {
+            PlaySound(button_click);
+        }
         return IsMouseButtonPressed(0);
     }
     return false;
@@ -184,7 +205,7 @@ void Menu::Update() {
 
     DrawTexture(title_img, (int)(GetScreenWidth()/2.0f) - (int)(title_img.width/2.0f)-cam_x, (int)title_img_pos_y - (int)title_img_offset_y, WHITE);
 
-    slider({(float)GetScreenWidth() * 1.5f,300 + (off + off2)/4}, "VOLUME", master_volume, 0, 1.0f);
+    slider({(float)GetScreenWidth() * 1.5f,300 + (off + off2)/4}, "VOLUME", master_volume, &last_played_prog, &slider_bars, 0, 1.0f);
 
     Rectangle play_bbox = {(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f), (float)play_button_offset_y +off3,150,56};
     if (button(play_bbox, "PLAY")) {
@@ -238,8 +259,11 @@ std::string Menu::LeaveMenu() {
 void Menu::Quit() {
     UnloadTexture(title_img);
     UnloadSound(miku_sound);
+    UnloadTexture(button_small_img);
     UnloadTexture(menu_img);
     UnloadTexture(button_img);
     UnloadTexture(miku_img);
     UnloadTexture(credits_img);
+    UnloadSound(slider_drag);
+    UnloadSound(button_click);
 }

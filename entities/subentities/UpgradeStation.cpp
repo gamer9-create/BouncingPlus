@@ -62,8 +62,8 @@ void UpgradeStation::Render() {
     }
 }
 
-void UpgradeStation::PhysicsUpdate(float dt) {
-    Entity::PhysicsUpdate(dt);
+void UpgradeStation::PhysicsUpdate(float dt, double time) {
+    Entity::PhysicsUpdate(dt,time);
     Vector2 PlayerPos = {game->MainPlayer->BoundingBox.x+game->MainPlayer->BoundingBox.width/2,game->MainPlayer->BoundingBox.y+game->MainPlayer->BoundingBox.height/2};
     if (Vector2Distance(s, PlayerPos) <= 50) {
         PlayerPos = s;
