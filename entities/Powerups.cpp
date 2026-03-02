@@ -48,7 +48,7 @@ ShieldPowerup::ShieldPowerup()
 {
     Cooldown = 30;
     Length = 15;
-    Name = "Bullet Shield";
+    Name = "B-Shield";
 }
 
 void ShieldPowerup::complete(std::shared_ptr<Player> Owner)

@@ -3,7 +3,7 @@
   "isMelee": false,
   "ShakeScreen": true,
   "SlowdownOverTime": true,
-  "PushbackForce": 550,
+  "PushbackForce": 150,
   "Spread": [-0,0],
   "WeaponSize": 4,
   "Speed": 1900,
@@ -17,7 +17,7 @@
   "AngleRange": 45.0,
   "Range": 180.0,
   "Bullets": 30,
-  "Intensity": 0.55,
+  "Intensity": 0.1,
   "texture": "shotgun",
   "bullet_tex": "",
   "sound": "shotgun"

@@ -14,6 +14,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iso646.h>
 
 #include "../level/LevelLoader.h"
 namespace fs = std::filesystem;
@@ -365,8 +366,9 @@ void Game::Update() {
         MainSoundManager.Clear();
 }
 
-bool Game::RayCast(Vector2 origin, Vector2 target) {
-
+std::pair<bool, Vector2> Game::RayCastPoint(Vector2 origin, Vector2 target)
+{
+    Vector2 p ={0,0};
     Vector2 vRayStart = origin;
     Vector2 vRayDir = Vector2Normalize(target - origin);
     Vector2 vRayUnitStepSize = { sqrt(1 + (vRayDir.y / vRayDir.x) * (vRayDir.y / vRayDir.x)), sqrt(1 + (vRayDir.x / vRayDir.y) * (vRayDir.x / vRayDir.y)) };
@@ -443,7 +445,11 @@ bool Game::RayCast(Vector2 origin, Vector2 target) {
         vIntersection = vRayStart + vRayDir * fDistance;
     }
     */
-    return !bTileFound;
+    return std::pair(!bTileFound, vMapCheck);
+}
+
+bool Game::RayCast(Vector2 origin, Vector2 target) {
+    return RayCastPoint(origin,target).first;
 }
 
 

@@ -52,19 +52,19 @@ void GameModeManager::Update()
         if (LevelTimer <= 0 && InWave)
         {
             InWave = false;
-            LevelTimer = max(10 - CurrentWave*2,3);
+            LevelTimer = max(15.0f - CurrentWave * 1.25f, 5.0f);
         } else if (LevelTimer <= 0 && !InWave)
         {
             InWave = true;
-            LevelTimer = min(25.0f + (CurrentWave * 10.0f), 180.0f);
+            LevelTimer = min(17.5f + (CurrentWave * 4.0f), 60.0f);
             CurrentWave += 1;
         }
         std::vector<shared_ptr<Entity>> array = game->MainEntityManager.Entities[SpawnerType];
         for (int i = 0; i < array.size(); i++) {
             if (shared_ptr<Spawner> entity = dynamic_pointer_cast<Spawner>(array.at(i)); entity != nullptr and !entity->ShouldDelete) {
                 entity->SpawnerIsActive = LevelTimer > 0 && InWave ? 999 : 0;
-                entity->SpawnCooldown = LevelTimer > 0 && InWave ? max(10.0f - (CurrentWave / 2.0f), 1.0f) : 999;
-                entity->EnemyDifficulty = LevelTimer > 0 && InWave ? min(CurrentWave * 1.6f, 8.0f) : -1.0f;
+                entity->SpawnCooldown = LevelTimer > 0 && InWave ? max(11.0f - (CurrentWave * 1.25f), 1.0f) : 999;
+                entity->EnemyDifficulty = LevelTimer > 0 && InWave ? min(CurrentWave * 0.15f, 1.0f) : -1.0f;
             }
         }
 

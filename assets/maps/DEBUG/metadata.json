@@ -1,0 +1,17 @@
+{
+  "description": "According to all known laws of aviation, there is no way that a bee should be able to fly. Its wings are too small to get its fat little body off the ground. The bee, of course, flies anyways. Because bees don't care what humans think is impossible. ",
+  "inventory": ["Player Gun"],
+  "powerup": "shield",
+  "difficulty": 4,
+  "starting_health": 200,
+  "game": {
+    "timer": -1,
+    "boss": "",
+    "mode": "default",
+    "banned_spawn_weapons": ["Default Gun","Player Gun"]
+  },
+  "enemy_weapons": {
+    "shotgun": "Enemy Shotgun",
+    "sword": "Enemy Sword"
+  }
+}

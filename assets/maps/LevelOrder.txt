@@ -1,5 +1,5 @@
+DEBUG
 Tutorial
-The First One
+The Base
 Bullet Hell
 Waves
-The Boss

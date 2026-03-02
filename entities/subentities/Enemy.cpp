@@ -40,6 +40,7 @@ void Enemy::Init(float X, float Y, float Health, float Speed, float Armor, std::
     this->Type = EnemyType;
     this->AngeredRangeBypassTimer = 0;
     this->AngeredRangeBypassTimerMax = 3;
+    this->HealthRegenRate = 0;
     this->AnimatedHealth = 0;
     this->MyWeapon = Weapon;
     this->WanderPos = {BoundingBox.x, BoundingBox.y};

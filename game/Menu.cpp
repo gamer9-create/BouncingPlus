@@ -160,7 +160,29 @@ void Menu::LevelSelect()
 
             std::string description = data["description"];
 
-            DrawText(description.c_str(), -(GetScreenWidth()-145)-cam_x, 270-comb, 25, WHITE);
+            if (!description.empty())
+            {
+                float alloc_size = GetScreenWidth() - 940;
+                int lines = ceil(MeasureText(description.c_str(), 25) / alloc_size);
+
+                int str_prog = 0;
+                int last_str_prog = 0;
+
+                for (int i = 0; i < lines; i++)
+                {
+                    last_str_prog = str_prog;
+                    while (MeasureText(description.substr(last_str_prog, str_prog - last_str_prog).c_str(), 25) < alloc_size && str_prog < description.length())
+                        str_prog++;
+
+                    std::string txt = description.substr(last_str_prog, str_prog - last_str_prog);
+                    if (txt.front() == ' ')
+                        txt.erase(txt.begin());
+                    //description.substr(max((float)(i * (description.size() / lines)), 0.0f), min((i+1) * (description.size() / lines), description.size())).c_str()
+
+                    DrawText(txt.c_str(), -(GetScreenWidth()-145)-cam_x, 270-comb + (35 * i), 25, WHITE);
+                }
+            }
+
             DrawText(("Difficulty level: "+to_string(data["difficulty"])).c_str(), -(GetScreenWidth()-145)-cam_x, 200-comb + GetScreenHeight()-450 - 70 - 64, 25, ColorBrightness(RED, -1 + ((float)data["difficulty"] * 0.25f) ));
             Rectangle play_bbox = {(float)-(GetScreenWidth()-145), 200-comb + GetScreenHeight()-450 - 70,150,56};
             if (button(play_bbox, "PLAY")) {

@@ -27,6 +27,7 @@ public:
     float AngeredRangeBypassTimerMax;
     float AngeredRangeBypassTimer;
     float Armor;
+    float HealthRegenRate;
     bool WanderingEnabled;
     Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game);
     Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game &game);
