@@ -1,4 +1,4 @@
-right, level making. its a bit more complex than weps but still easier
+right, level making. its a bit more complex than weps but still easy
 
 levels are two files:
 

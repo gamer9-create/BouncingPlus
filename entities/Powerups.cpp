@@ -95,12 +95,6 @@ void ShieldPowerup::undo(std::shared_ptr<Player> Owner)
     Powerup::undo(Owner);
     displayFieldSize = 0;
     transBuff = 0;
-    FieldSize -= 35.0f;
-    Cooldown += 5.0f;
-    Length -= 5.0f;
-    Length = max(Length, 5.0f);
-    Cooldown = min(Cooldown, 45.0f);
-    FieldSize = max(FieldSize, 150.0f);
 }
 
 void PowerupSystem::Activate()
