@@ -6,7 +6,6 @@
 
 int main(int argc, char *argv[]) {
     InitWindow(1480, 920, "BouncingPlus");
-    SetTargetFPS(60);
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI | FLAG_VSYNC_HINT);
 
     SetWindowIcon(LoadImage("assets/img/player.png"));
@@ -17,9 +16,11 @@ int main(int argc, char *argv[]) {
 
     float MasterVolume = 1.0f;
     bool LockCursor = false;
+    float Framerate = 60;
+    float LastFramerate = 0;
 
     Game MainGame = Game(level_data);
-    Menu MainMenu = Menu(level_data, &MasterVolume);
+    Menu MainMenu = Menu(level_data, &MasterVolume, &Framerate);
 
     bool InGame = false;
 
@@ -36,6 +37,10 @@ int main(int argc, char *argv[]) {
 
     while (!WindowShouldClose()) {
         BeginDrawing();
+
+        if (Framerate != LastFramerate)
+            SetTargetFPS((int)Framerate);
+        LastFramerate=Framerate;
 
         if (LockCursor && !IsCursorOnScreen())
         {

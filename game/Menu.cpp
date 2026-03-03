@@ -40,25 +40,25 @@ Rectangle Menu::slider(Vector2 position, std::string text, float* value, float* 
         *prev_state = true;
         float distance = std::min(std::max(mouse_pos.x - slider_rec.x, 0.0f), slider_size);
         float percent = distance / slider_size;
+        if (percent >= 0.95f)
+            percent = 1.0f;
+        if (percent <= 0.05f)
+            percent = 0.0f;
+        if (percent >= 0.45f && percent <= 0.55f)
+            percent = 0.5f;
         *value = min + (max - min) * percent;
         if (abs(*value - *last_played_progress) >= 0.1f && !IsSoundPlaying(slider_drag))
         {
             PlaySound(slider_drag);
             *last_played_progress = *value;
         }
-        if (*value >= 0.95f)
-            *value = 1.0f;
-        if (*value <= 0.05f)
-            *value = 0.0f;
-        if (*value >= 0.45f && *value <= 0.55f)
-            *value = 0.5f;
+
     }
 
     DrawRectangleRec({rec.x - cam_x,rec.y,rec.width,rec.height}, ColorAlpha(BLACK, 0.5f));
     DrawRectangleRec({green_slider_rec.x - cam_x,green_slider_rec.y,green_slider_rec.width,green_slider_rec.height}, GREEN);
     DrawRectangleRec({red_slider_rec.x - cam_x,red_slider_rec.y,red_slider_rec.width,red_slider_rec.height}, RED);
     DrawTextPro(GetFontDefault(), text.c_str(), {position.x + 16 - cam_x, position.y + (rec.height / 2.0f) - (fnt_size / 2.0f)}, {0, 0}, 0, fnt_size, 1, WHITE);
-
 
     float siz = fnt_size + 5;
     if (colliding)
@@ -68,12 +68,14 @@ Rectangle Menu::slider(Vector2 position, std::string text, float* value, float* 
     return rec;
 }
 
-Menu::Menu(std::map<std::string,json> level_data, float* master_volume)
+Menu::Menu(std::map<std::string,json> level_data, float* master_volume, float* framerate)
 {
     this->level_data = level_data;
     this->master_volume = master_volume;
+    this->framerate = framerate;
     title_img = LoadTexture("assets/ui/title.png");
     button_small_img = LoadTexture("assets/ui/button_small.png");
+    button_small_img_red = LoadTexture("assets/ui/button_small_red.png");
     button_img = LoadTexture("assets/ui/button.png");
     menu_img = LoadTexture("assets/ui/menu_img.png");
     miku_img = LoadTexture("assets/ui/miku.png");
@@ -95,9 +97,11 @@ void Menu::Reset()
     sett_button_offset_y = -200;
     cred_button_offset_y = -300;
     slider_bars = false;
+    fps_bar = false;
     cam_x = 0;
     cam_x_targ = 0;
     last_played_prog = 1.0f;
+    last_played_prog_2 = 60;
     off = 0;
     off2 = 0;
     off3 = 0;
@@ -108,6 +112,7 @@ void Menu::Reset()
     MovingToGame = false;
     mouse_pos = {0,0};
 }
+
 
 bool Menu::button(Rectangle rectangle, std::string text) {
 
@@ -228,6 +233,7 @@ void Menu::Update() {
     DrawTexture(title_img, (int)(GetScreenWidth()/2.0f) - (int)(title_img.width/2.0f)-cam_x, (int)title_img_pos_y - (int)title_img_offset_y, WHITE);
 
     slider({(float)GetScreenWidth() * 1.5f,300 + (off + off2)/4}, "VOLUME", master_volume, &last_played_prog, &slider_bars, 0, 1.0f);
+    slider({(float)GetScreenWidth() * 1.5f,300 + (off + off2)/4 + 60}, "FRAMERATE", framerate, &last_played_prog_2, &fps_bar, 30, 240);
 
     Rectangle play_bbox = {(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f), (float)play_button_offset_y +off3,150,56};
     if (button(play_bbox, "PLAY")) {
@@ -282,6 +288,7 @@ void Menu::Quit() {
     UnloadTexture(title_img);
     UnloadSound(miku_sound);
     UnloadTexture(button_small_img);
+    UnloadTexture(button_small_img_red);
     UnloadTexture(menu_img);
     UnloadTexture(button_img);
     UnloadTexture(miku_img);
