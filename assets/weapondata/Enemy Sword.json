@@ -10,7 +10,7 @@
   "ReloadTime": 0,
   "BulletLifetime": -1,
   "Speed": 0.4,
-  "WeaponWeightSpeedMultiplier": 1.15,
+  "WeaponWeightSpeedMultiplier": 1.0,
   "Size": [1, 1],
   "Damage": 35,
   "Cooldown": 0.55,

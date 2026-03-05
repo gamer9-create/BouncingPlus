@@ -124,20 +124,20 @@ void TileManager::Update() {
 
 void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
     std::string Weapon = "Default Gun";
-    float Speed = 250.0f;
+    float Speed = 350.0f;
     float Health = 100.0f;
     float Armor = 0.0f;
     switch (tile_id)
     {
         case 4:
             Weapon = game->EnemyRoleWeapons["sword"];
-            Speed = 125.0f;
+            Speed = 375.0f;
             Health = 90.0f;
             Armor = 50.0f;
             break;
         case 5:
             Weapon = game->EnemyRoleWeapons["shotgun"];
-            Speed = 250.0f;
+            Speed = 300.0f;
             Health = 140.0f;
             Armor = 0.0f;
             break;

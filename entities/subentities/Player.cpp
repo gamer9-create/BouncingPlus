@@ -227,15 +227,14 @@ void Player::DashLogic() {
             EndShaderMode();
         }
     }
-    if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && IsPreparingForDash && Health > 0) {
-        DashCooldown = 1.1f;
+    if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && IsPreparingForDash && Health > 0 && game->GetGameTime() - DashTimeStart >= 0.35f) {
+        DashCooldown = 1.1f + (2.2f - min(static_cast<float>(game->GetGameTime() - DashTimeStart), 1.1f) * 2);
         DashedEnemies.clear();
         VelocityMovement = Vector2Subtract(WorldMousePos, {BoundingBox.x, BoundingBox.y});
-        VelocityPower = 2500.0f * max(min(static_cast<float>(game->GetGameTime() - DashTimeStart), 1.1f), 0.35f);
+        VelocityPower = 2500.0f * max(min(static_cast<float>(game->GetGameTime() - DashTimeStart), 1.1f), 0.45f);
         VelocityPower /= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
         game->MainSoundManager.PlaySoundM("dash");
         PlayerFrozenTimer = .5f * min(max((VelocityPower / 2500.0f), 0.35f), 1.1f);
-        game->GameScore += 25;
         if (!isInvincible)
         {
             ToggleInvincibility();
@@ -245,7 +244,7 @@ void Player::DashLogic() {
 
             Dodging = true;
             InvincibilityResetTimer = 1.0f;
-            DashCooldown = 3.0f;
+            DashCooldown = 3.0;
         }
         IsPreparingForDash = false;
     }
@@ -424,7 +423,7 @@ void Player::Update() {
         PlayerFrozenTimer -= game->GetGameDeltaTime();
     }
 
-    game->GameScore += Health * 0.05f * game->GetGameDeltaTime();
+    game->GameScore += Health * 0.005f * game->GetGameDeltaTime();
 
     // update entity
     Entity::Update();

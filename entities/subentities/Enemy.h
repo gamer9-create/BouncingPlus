@@ -14,6 +14,7 @@ class Enemy : public Entity {
     float AnimatedHealth;
     std::string MyWeapon;
     Vector2 WanderPos;
+    float TotalHealth = -1;
 
     bool weaponsSystemInit = false;
     bool isActive = false;
@@ -25,6 +26,7 @@ public:
     std::unique_ptr<EnemyBehavior> Behavior = nullptr;
     WeaponsSystem weaponsSystem;
     float AngeredRangeBypassTimerMax;
+    float RemainingHealthOfOriginalHealth = 0;
     float AngeredRangeBypassTimer;
     float Armor;
     float HealthRegenRate;

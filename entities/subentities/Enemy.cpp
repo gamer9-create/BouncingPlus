@@ -107,6 +107,15 @@ void Enemy::OnDelete() {
 }
 
 void Enemy::Update() {
+    if (TotalHealth == -1)
+        TotalHealth = Health + Armor;
+    RemainingHealthOfOriginalHealth = 0;
+    if (Armor <= 0)
+        RemainingHealthOfOriginalHealth = Health;
+    else
+        RemainingHealthOfOriginalHealth = Health + Armor;
+    RemainingHealthOfOriginalHealth = RemainingHealthOfOriginalHealth / TotalHealth;
+
     Alpha = Lerp(Alpha, 1.0f, 2 * game->GetGameDeltaTime());
     EntityColor = ColorAlpha(WHITE, Alpha);
     if (ActivationTimer != -1)

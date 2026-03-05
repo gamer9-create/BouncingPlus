@@ -45,6 +45,7 @@ class Game {
         double GameTime;
         float GameSpeed;
         bool Paused;
+        bool isReturning;
         bool ShouldReturn;
         bool DebugDraw;
         float GameScore;

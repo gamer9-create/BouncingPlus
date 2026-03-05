@@ -60,6 +60,7 @@ Game::Game(std::map<std::string, nlohmann::json> json) {
     LevelData = json;
     DebugDraw = false;
     ShouldReturn = false;
+    isReturning = false;
 
     SetGameData();
 }
@@ -296,6 +297,7 @@ void Game::DisplayPickups()
 }
 
 void Game::Update() {
+
     if (IsKeyPressed(KEY_M))
         Paused = !Paused;
 
@@ -344,7 +346,7 @@ void Game::Update() {
 
         std::map<std::string, double> times = profiler.finish();
 
-        if (DebugDraw)
+        if (IsKeyDown(KEY_C))
         {
             int i = 0;
             for (auto [name,val] : times)
@@ -362,8 +364,19 @@ void Game::Update() {
     MainCameraManager.Display();
     MainUIManager.GameUI();
 
+    if (isReturning)
+    {
+        MainUIManager.StartingBlackScreenTrans = 0;
+        MainUIManager.EndBlackScreenTrans += 0.65f * GetFrameTime();
+        if (MainUIManager.EndBlackScreenTrans >= 0.9f)
+            ShouldReturn = true;
+    } else
+        MainUIManager.EndBlackScreenTrans = 0;
     if (ShouldReturn)
-        MainSoundManager.Clear();
+    {
+        MainUIManager.StartingBlackScreenTrans = 1.0f;
+        MainUIManager.EndBlackScreenTrans = 0.0f;
+    }
 }
 
 std::pair<bool, Vector2> Game::RayCastPoint(Vector2 origin, Vector2 target)
@@ -496,6 +509,7 @@ bool Game::RayCastSP(Vector2 origin, Vector2 target, float Precision) { // RayCa
 void Game::Clear() {
     Paused = false;
     ShouldReturn = false;
+    isReturning = false;
     GameTime = 0;
     GameScore = 0;
     BannedWeaponDrops.clear();

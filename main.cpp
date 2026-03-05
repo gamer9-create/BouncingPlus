@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     LevelLoader level_loader = LevelLoader();
     std::map<std::string,json> level_data = level_loader.GetLevelsData();
 
-    float MasterVolume = 1.0f;
+    float MasterVolume = 100.0f;
     bool LockCursor = false;
     float Framerate = 60;
     float LastFramerate = 0;
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
             SetMousePosition(min(max(GetMouseX(), 25), GetScreenWidth() - 25), min(max(GetMouseY(), 25), GetScreenHeight() - 25));
         }
 
-        SetMasterVolume(MasterVolume);
+        SetMasterVolume(MasterVolume/100.0f);
 
         if (IsKeyPressed(KEY_F11))
             ToggleFullscreen();

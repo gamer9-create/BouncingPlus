@@ -167,8 +167,8 @@ void UIManager::GameUI() {
         if (WeaponSlotIndex == i) {
             MainColor = GREEN;
             if (Found) {
-                WeaponSlotOffset += 240 * game->GetGameDeltaTime();
-                WeaponSlotSize += 100 * game->GetGameDeltaTime();
+                WeaponSlotOffset += 240 * GetFrameTime();
+                WeaponSlotSize += 100 * GetFrameTime();
             }
             WeaponSlotOffset = clamp(WeaponSlotOffset, 0.0f, 60.0f);
             WeaponSlotSize = clamp(WeaponSlotSize, 0.0f, 15.0f);
@@ -188,8 +188,8 @@ void UIManager::GameUI() {
         Prev += 20 + size + 15;
     }
     if (!Found) {
-        WeaponSlotOffset -= 240 * game->GetGameDeltaTime();
-        WeaponSlotSize -= 100 * game->GetGameDeltaTime();
+        WeaponSlotOffset -= 240 * GetFrameTime();
+        WeaponSlotSize -= 100 * GetFrameTime();
         WeaponSlotOffset = clamp(WeaponSlotOffset, 0.0f, 60.0f);
         WeaponSlotSize = clamp(WeaponSlotSize, 0.0f, 15.0f);
         if (WeaponSlotOffset <= 0 && WeaponSlotSize <= 0)
@@ -243,9 +243,9 @@ void UIManager::GameUI() {
     }
 
     // health meter
-    HealthBarAnimRot = Lerp(HealthBarAnimRot, 0, 3.5f * game->GetGameDeltaTime());
+    HealthBarAnimRot = Lerp(HealthBarAnimRot, 0, 3.5f * GetFrameTime());
     float limit = 25;
-    ft_size = Lerp(ft_size, 92, 3.5f*game->GetGameDeltaTime());
+    ft_size = Lerp(ft_size, 92, 3.5f*GetFrameTime());
     float PlrHealth = game->MainPlayer->Health;
     if (LastHealth != PlrHealth)
     {
@@ -307,45 +307,76 @@ void UIManager::GameUI() {
     DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
 
     if (game->MainPlayer->Health > 0 && UITransparency < 1.0f) {
-        UITransparency += 3 * game->GetGameDeltaTime();
+        UITransparency += 1.9f * GetFrameTime();
+        if (UITransparency > 1.0f)
+            UITransparency = 1.0f;
     } else if (UITransparency > 0) {
-        UITransparency -= 2.2f*game->GetGameDeltaTime();
+        UITransparency -= 2.2f * GetFrameTime();
+        if (UITransparency < 0.0f)
+            UITransparency = 0.0f;
     }
 
-    if (game->MainGameModeManager.LevelTimer > 0)
-        DisplayTimer();
+    DisplayTopHUD();
 
     if (game->Paused)
         PauseMenu();
+    
+    StartingBlackScreenTrans -= 0.65f * GetFrameTime();
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, StartingBlackScreenTrans));
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, EndBlackScreenTrans));
 }
 
-void UIManager::DisplayTimer()
+void UIManager::DisplayTopHUD()
 {
-    int minutes = (int)(this
-        ->game->MainGameModeManager.LevelTimer / 60);
-    int seconds = (int)(this->game->MainGameModeManager.LevelTimer - (minutes * 60.0f));
-    std::string txt = to_string(minutes) + ":" + to_string(seconds);
-    if (seconds < 10)
-        txt = to_string(minutes) + ":0" + to_string(seconds);
+
+    std::string txt = to_string((int)game->GameScore);
+
     int font_size = 50;
     int width = MeasureText(txt.c_str(), font_size);
-    float x = GetScreenWidth() / 2 - width / 2;
+
+    float x = 50;
     float y = 50 + font_size;
+
     Rectangle rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
     DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, UITransparency * 0.75f));
     DrawText(txt.c_str(), x, y, font_size, ColorAlpha(WHITE, UITransparency));
     DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
 
-    std::string o_txt = "TIME LEFT";
-    if (game->MainGameModeManager.CurrentGameMode == "wave")
-    {
-        if (!game->MainGameModeManager.InWave)
-            o_txt = "INTERMISSION TO WAVE " + to_string(game->MainGameModeManager.CurrentWave + 1);
-        else
-            o_txt = "SURVIVE WAVE " + to_string(game->MainGameModeManager.CurrentWave);
-    }
+    std::string o_txt = "SCORE";
 
     DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
+
+    if (game->MainGameModeManager.LevelTimer > 0)
+    {
+        int minutes = (int)(this
+            ->game->MainGameModeManager.LevelTimer / 60);
+        int seconds = (int)(this->game->MainGameModeManager.LevelTimer - (minutes * 60.0f));
+        std::string txt = to_string(minutes) + ":" + to_string(seconds);
+        if (seconds < 10)
+            txt = to_string(minutes) + ":0" + to_string(seconds);
+
+        int font_size = 50;
+        int width = MeasureText(txt.c_str(), font_size);
+
+        float x = GetScreenWidth() / 2 - width / 2;
+        float y = 50 + font_size;
+
+        Rectangle rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
+        DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, UITransparency * 0.75f));
+        DrawText(txt.c_str(), x, y, font_size, ColorAlpha(WHITE, UITransparency));
+        DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
+
+        std::string o_txt = "TIME LEFT";
+        if (game->MainGameModeManager.CurrentGameMode == "wave")
+        {
+            if (!game->MainGameModeManager.InWave)
+                o_txt = "INTERMISSION " + to_string(game->MainGameModeManager.CurrentWave + 1);
+            else
+                o_txt = "WAVE " + to_string(game->MainGameModeManager.CurrentWave);
+        }
+
+        DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
+    }
 }
 
 void UIManager::DeathMenu()
@@ -376,7 +407,8 @@ void UIManager::PauseMenu() {
     ClearBackground(ColorAlpha(BLACK, 0.35f));
     DrawRectangle(PauseScreen.texture.width/2 - 225, PauseScreen.texture.height/2-175,450, 350,ColorAlpha(WHITE,0.85f));
     game->Paused = !button({(float)PauseScreen.texture.width/2,(float)PauseScreen.texture.height/2-100}, "RESUME");
-    game->ShouldReturn = button({(float)PauseScreen.texture.width/2,(float)PauseScreen.texture.height/2+100}, "QUIT");
+    if (button({(float)PauseScreen.texture.width/2,(float)PauseScreen.texture.height/2+100}, "QUIT"))
+        game->isReturning = true;
     EndTextureMode();
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTextureRec(PauseScreen.texture, Rectangle(0, 0, PauseScreen.texture.width, -PauseScreen.texture.height), Vector2(0, GetScreenHeight() - PauseScreen.texture.height), WHITE);

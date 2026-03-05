@@ -65,6 +65,10 @@ Rectangle Menu::slider(Vector2 position, std::string text, float* value, float* 
         siz = fnt_size + 7;
     DrawTexturePro(button_small_img, {0, 0, 56, 56}, {green_slider_rec.x - cam_x + green_slider_rec.width, green_slider_rec.y + green_slider_rec.height/2, siz, siz}, {siz / 2, siz / 2}, 0, WHITE);
 
+    float ind_fnt_size = 20;
+    float ind_size = MeasureText(std::to_string((int)*value).c_str(), ind_fnt_size);
+    DrawTextEx(GetFontDefault(), std::to_string((int)*value).c_str(), {green_slider_rec.x - cam_x + green_slider_rec.width - ind_size/2, green_slider_rec.y + green_slider_rec.height/2 - ind_fnt_size/2}, ind_fnt_size, 1, BLACK);
+
     return rec;
 }
 
@@ -232,7 +236,7 @@ void Menu::Update() {
 
     DrawTexture(title_img, (int)(GetScreenWidth()/2.0f) - (int)(title_img.width/2.0f)-cam_x, (int)title_img_pos_y - (int)title_img_offset_y, WHITE);
 
-    slider({(float)GetScreenWidth() * 1.5f,300 + (off + off2)/4}, "VOLUME", master_volume, &last_played_prog, &slider_bars, 0, 1.0f);
+    slider({(float)GetScreenWidth() * 1.5f,300 + (off + off2)/4}, "VOLUME", master_volume, &last_played_prog, &slider_bars, 0, 100.0f);
     slider({(float)GetScreenWidth() * 1.5f,300 + (off + off2)/4 + 60}, "FRAMERATE", framerate, &last_played_prog_2, &fps_bar, 30, 240);
 
     Rectangle play_bbox = {(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f), (float)play_button_offset_y +off3,150,56};

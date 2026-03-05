@@ -94,7 +94,7 @@ void WeaponBehavior::Update()
 
     float distance = std::sqrt(std::pow(plr_center_x - center_x, 2) + std::pow(plr_center_y - center_y, 2));
 
-    CoverSearching = !(Owner->Health >= 40.0f);
+    CoverSearching = Owner->RemainingHealthOfOriginalHealth <= 0.6f;
     if ((distance <= 800 && (distance <= 36 || game->RayCast({center_x, center_y}, {plr_center_x, plr_center_y}))) || Owner->AngeredRangeBypassTimer > 0.0f) {
         if (distance >= 100 && !CoverSearching) {
             Owner->Movement.x += -(plr_center_x - center_x) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);

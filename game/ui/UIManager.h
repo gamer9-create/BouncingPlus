@@ -13,6 +13,9 @@ class Game;
 Color GetHealthColor(float Percent, float Armor = 0.0f);
 
 class UIManager {
+public:
+    float StartingBlackScreenTrans = 1.0f;
+    float EndBlackScreenTrans = 0.0f;
 
     Tutorial Tutorial;
     RenderTexture2D WeaponUITexture;
@@ -36,7 +39,7 @@ class UIManager {
     bool button(Vector2 pos, std::string text);
     void PauseMenu();
     void DeathMenu();
-    void DisplayTimer();
+    void DisplayTopHUD();
     void GameWin();
     void GameUI();
     void Quit();

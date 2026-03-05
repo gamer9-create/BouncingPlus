@@ -179,7 +179,7 @@ void Spawner::Update() {
                 p.x,
                 p.y,
                 75,
-                150 + (GetRandomValue(1, 100) / 10.0f < EnemyDifficulty ? GetRandomValue(10, 75) : 0),
+                350 + (GetRandomValue(1, 100) / 10.0f < EnemyDifficulty ? GetRandomValue(10, 75) : 0),
                 GetRandomValue(1, 100) / 100.0f < EnemyDifficulty ? GetRandomValue(25, 50) : 0,
                 game->EnemyWeaponNamesList[GetRandomValue(0, game->EnemyWeaponNamesList.size() - 1)],
                 std::move(behavior),
