@@ -77,7 +77,6 @@ class Game {
         std::vector<std::string> BannedWeaponDrops;
 
         Game(std::map<std::string, nlohmann::json> json);
-        bool RayCastSP(Vector2 origin, Vector2 target, float Precision = 36);
         std::pair<bool, Vector2> RayCastPoint(Vector2 origin, Vector2 target);
         bool RayCast(Vector2 origin, Vector2 target);
         void PlaceWeaponPickup(WeaponPickup pickup);

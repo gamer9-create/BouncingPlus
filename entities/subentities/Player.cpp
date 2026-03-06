@@ -6,7 +6,7 @@
 #include <nlohmann/json.hpp>
 #include "Enemy.h"
 #include "../../game/Game.h"
-
+#include "Bullet.h"
 #include "raylib.h"
 #include <raymath.h>
 
@@ -125,7 +125,7 @@ void Player::PhysicsUpdate(float dt, double time) {
 
 void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked) {
     // check if we're colliding with them. if so, attack!
-    if (CheckCollisionRecs(BoundingBox, entity->BoundingBox) && !already_attacked) {
+    if (CheckCollisionRecs(Rectangle{BoundingBox.x - 4, BoundingBox.y - 4, BoundingBox.width + 8, BoundingBox.height + 8}, entity->BoundingBox) && !already_attacked) {
         // calculate damage & attack
         float Damage = VelocityPower / 22.5f;
         Damage *= min(max((Health / MaxHealth)-2.0f, 1.0f), 5.5f);
@@ -135,7 +135,33 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
         {
             entity->Armor -= Damage;
         }
-        Health += Damage / 5.5f;
+
+        float reward = Damage / 5.8f;
+
+        float EnemyConcentration = 1.0;
+
+        std::vector<shared_ptr<Entity>> enemyArray = game->MainEntityManager.Entities[EnemyType];
+        for (int i = 0; i < enemyArray.size(); i++) {
+            if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(enemyArray.at(i)); entity != nullptr and !entity->ShouldDelete) {
+                if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) < 600)
+                {
+                    EnemyConcentration += 0.11f;
+                }
+            }
+        }
+
+        std::vector<shared_ptr<Entity>> bulletArray = game->MainEntityManager.Entities[BulletType];
+        for (int i = 0; i < bulletArray.size(); i++) {
+            if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(bulletArray.at(i)); entity != nullptr and !entity->ShouldDelete) {
+                if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) < 250)
+                {
+                    EnemyConcentration += 0.01f;
+                }
+            }
+        }
+
+        reward *= EnemyConcentration;
+        Health += reward;
 
         float amount = 1500.0f;
 

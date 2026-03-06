@@ -15,7 +15,7 @@ class Enemy : public Entity {
     std::string MyWeapon;
     Vector2 WanderPos;
     float TotalHealth = -1;
-
+double LastSetWanderPos = 0;
     bool weaponsSystemInit = false;
     bool isActive = false;
     double ActivationTimer;

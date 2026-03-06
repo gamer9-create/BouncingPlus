@@ -188,7 +188,7 @@ void Spawner::Update() {
                 );
             if (EnemyDifficulty >= 0.6f)
                 e->HealthRegenRate = GetRandomValue(25, 70) / 10.0f;
-            e->WanderingEnabled = true;
+            e->WanderingEnabled = false;
             game->MainEntityManager.AddEntity(EnemyType, e);
             game->MainParticleManager.ParticleEffect({
                 p,

@@ -131,7 +131,7 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
     {
         case 4:
             Weapon = game->EnemyRoleWeapons["sword"];
-            Speed = 375.0f;
+            Speed = 280.0f;
             Health = 90.0f;
             Armor = 50.0f;
             break;

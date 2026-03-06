@@ -44,8 +44,9 @@ void Enemy::Init(float X, float Y, float Health, float Speed, float Armor, std::
     this->AnimatedHealth = 0;
     this->MyWeapon = Weapon;
     this->WanderPos = {BoundingBox.x, BoundingBox.y};
-    this->WanderingEnabled = false;
+    this->WanderingEnabled = true;
     this->Alpha = 0;
+    LastSetWanderPos = 0;
     this->EntityColor = ColorAlpha(WHITE, Alpha);
     this->ActivationTimer = game.GetGameTime();
     this->WallMovement = {0, 0};
@@ -55,24 +56,39 @@ void Enemy::Init(float X, float Y, float Health, float Speed, float Armor, std::
 }
 
 void Enemy::Wander() {
-    if (Vector2Distance({BoundingBox.x, BoundingBox.y}, WanderPos) <= 18) {
-        int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
-        int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
-        std::vector<Vector2> coords;
-        for (int y = 0; y < 5; y++) {
-            for (int x = 0; x < 5; x++) {
-                int curr_tile_x = tile_x + x - 2;
-                int curr_tile_y = tile_y + y - 2;
-                std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
-                int tile_id = game->MainTileManager.Map[coord];
-                if (game->MainTileManager.TileTypes[tile_id] == NothingTileType) {
-                    coords.push_back({curr_tile_x * game->MainTileManager.TileSize, curr_tile_y * game->MainTileManager.TileSize});
-                }
+    if (Vector2Distance({BoundingBox.x, BoundingBox.y}, WanderPos) <= 36 || game->GetGameTime() - LastSetWanderPos >= 5) {
+        float center_x = BoundingBox.x + (BoundingBox.width / 2);
+        float center_y = BoundingBox.y + (BoundingBox.height / 2);
+
+        Vector2 BestPos = {-1, -1};
+        bool S = false;
+        bool FoundBest = false;
+
+        for (int i = 0; i < 15; i++)
+        {
+            float Angle = i * 24.0f;
+            Angle += GetRandomValue(-10, 10);
+            float X = cos(Angle * (2 * PI / 360))*2000;
+            float Y = sin(Angle * (2 * PI / 360))*2000;
+            std::pair<bool, Vector2> d = game->RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
+            if (!S)
+            {
+                BestPos = d.second;
+                S = true;
+            }
+            if (Vector2Distance(d.second, {center_x,center_y}) >= Vector2Distance(BestPos, {center_x,center_y}))
+            {
+                BestPos = d.second;
+                FoundBest = true;
             }
         }
-
-        if (coords.size() > 0) {
-            WanderPos = coords[GetRandomValue(0, coords.size() - 1)];
+        if (FoundBest)
+        {
+            WanderPos = BestPos;
+            LastSetWanderPos = game->GetGameTime();
+        } else
+        {
+            WanderPos = {BoundingBox.x + GetRandomValue(-100, 100), BoundingBox.y + GetRandomValue(-100, 100)};
         }
     } else {
         Movement = Vector2Subtract(WanderPos, {BoundingBox.x, BoundingBox.y});
@@ -116,8 +132,14 @@ void Enemy::Update() {
         RemainingHealthOfOriginalHealth = Health + Armor;
     RemainingHealthOfOriginalHealth = RemainingHealthOfOriginalHealth / TotalHealth;
 
-    Alpha = Lerp(Alpha, 1.0f, 2 * game->GetGameDeltaTime());
-    EntityColor = ColorAlpha(WHITE, Alpha);
+    if (Alpha < 0.9f)
+    {
+        Alpha = Lerp(Alpha, 1.0f, 2 * game->GetGameDeltaTime());
+        EntityColor = ColorAlpha(WHITE, Alpha);
+    } else
+    {
+        Alpha = 1.0f;
+    }
     if (ActivationTimer != -1)
         ActivationTimer += game->GetGameDeltaTime();
     if (ActivationTimer > 1) {

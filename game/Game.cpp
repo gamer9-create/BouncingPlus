@@ -381,7 +381,6 @@ void Game::Update() {
 
 std::pair<bool, Vector2> Game::RayCastPoint(Vector2 origin, Vector2 target)
 {
-    Vector2 p ={0,0};
     Vector2 vRayStart = origin;
     Vector2 vRayDir = Vector2Normalize(target - origin);
     Vector2 vRayUnitStepSize = { sqrt(1 + (vRayDir.y / vRayDir.x) * (vRayDir.y / vRayDir.x)), sqrt(1 + (vRayDir.x / vRayDir.y) * (vRayDir.x / vRayDir.y)) };
@@ -389,7 +388,6 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 origin, Vector2 target)
     Vector2 vRayLength1D;
     Vector2 vStep;
 
-    // Establish Starting Conditions
     if (vRayDir.x < 0)
     {
         vStep.x = -1;
@@ -412,7 +410,6 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 origin, Vector2 target)
         vRayLength1D.y = (float(vMapCheck.y + 1) - vRayStart.y) * vRayUnitStepSize.y;
     }
 
-    // Perform "Walk" until collision or range check
     bool bTileFound = false;
     float fMaxDistance = Vector2Distance(origin,target);
     float fDistance = 0.0f;
@@ -432,16 +429,10 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 origin, Vector2 target)
             vRayLength1D.y += vRayUnitStepSize.y;
         }
 
-        if (DebugDraw)
-            DrawCircle((int)vMapCheck.x, (int)vMapCheck.y, 2, RED);
-
-        // Test tile at new test point
         if (vMapCheck.x >= 0 && vMapCheck.x < MainTileManager.MapWidth*MainTileManager.TileSize && vMapCheck.y >= 0 && vMapCheck.y < MainTileManager.MapHeight*MainTileManager.TileSize)
         {
             std::string s = to_string((int)(vMapCheck.x/MainTileManager.TileSize)) + " " + to_string((int)(vMapCheck.y/MainTileManager.TileSize));
             int g = MainTileManager.Map[s];
-            // cout << s << " " << g << endl;
-
             if (MainTileManager.TileTypes[g]==WallTileType)
             {
                 bTileFound = true;
@@ -450,60 +441,14 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 origin, Vector2 target)
         }
     }
 
-    /*
-    // Calculate intersection location
-    Vector2 vIntersection;
-    if (bTileFound)
-    {
-        vIntersection = vRayStart + vRayDir * fDistance;
-    }
-    */
+    if (DebugDraw)
+        DrawLine(origin.x,origin.y,vMapCheck.x,vMapCheck.y,RED);
+
     return std::pair(!bTileFound, vMapCheck);
 }
 
 bool Game::RayCast(Vector2 origin, Vector2 target) {
     return RayCastPoint(origin,target).first;
-}
-
-
-bool Game::RayCastSP(Vector2 origin, Vector2 target, float Precision) { // RayCasting (old)function
-
-    if (Precision <= 0)
-        Precision = Vector2Distance(origin, target) / 15.0f;
-
-    // Init starting positions
-    float ray_x = origin.x;
-    float ray_y = origin.y;
-    auto start_distance = static_cast<float>(sqrt(pow(ray_x - target.x, 2) + pow(ray_y - target.y, 2)));
-
-    // Getting the step distance
-
-    const float step_x = ((target.x-ray_x) / start_distance) * Precision;
-    const float step_y = ((target.y-ray_y) / start_distance) * Precision;
-
-    // Getting the side we are on relative to the target
-
-    bool x_side = (target.x - ray_x) < 0;
-    bool y_side = (target.y - ray_y) < 0;
-
-    // marching through the world, check if we collide with something
-    while (sqrt(pow(ray_x - target.x, 2) + pow(ray_y - target.y, 2)) > 2) {
-        ray_x += step_x;
-        ray_y += step_y;
-        if (DebugDraw)
-            DrawCircle((int)ray_x, (int)ray_y, 2, RED);
-        std::string coord = std::to_string((int) (ray_x / MainTileManager.TileSize)) + " " + std::to_string((int) (ray_y / MainTileManager.TileSize));
-        // if we collide with a wall, raycast failed
-        if (int tile_id = MainTileManager.Map[coord]; MainTileManager.TileTypes[tile_id] == WallTileType) {
-            return false;
-        }
-        bool curr_x_side = (target.x - ray_x) < 0;
-        bool curr_y_side = (target.y - ray_y) < 0;
-        if (curr_x_side != x_side || curr_y_side != y_side) { // Have we traveled beyond the target? havent found anything? If so, exit!!
-            return true;
-        }
-    }
-    return true;
 }
 
 void Game::Clear() {

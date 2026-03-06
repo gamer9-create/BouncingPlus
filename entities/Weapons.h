@@ -57,8 +57,6 @@ class WeaponsSystem {
 
     Game* game;
     weak_ptr<Entity> OwnerPtr;
-    double PointRemovalTimer;
-    std::vector<Vector2> points;
     bool MeleeAnim;
     Texture* MeleeAnimTexture;
     float MeleeAnimAngle;

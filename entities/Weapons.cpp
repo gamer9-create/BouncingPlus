@@ -28,7 +28,6 @@ WeaponsSystem::WeaponsSystem(shared_ptr<Entity> Owner, Game& game) {
     MeleeAnimAngle = 0;
     MeleeAnimRange = 45;
     MeleeAnimPercent = 0;
-    PointRemovalTimer = 0;
     TimeStartedReloading = -1;
     MeleeAnimAlpha = 1;
     for (int i = 0; i < 3; i++) {
@@ -173,14 +172,8 @@ void WeaponsSystem::Update() {
 
 
     // display gun tex
-    if (CurrentWeapon != nullptr && (!CurrentWeapon->texture.empty()) && (!CurrentWeapon->isMelee))
+    if (CurrentWeapon != nullptr && (!CurrentWeapon->texture.empty()) && (!CurrentWeapon->isMelee) && Owner->IsVisible())
         DisplayGunTexture();
-
-    // Clear out melee animation points
-    if (game->GetGameTime() - PointRemovalTimer >= 0.001 && points.size() > 0) {
-        points.erase(points.begin()+points.size()-1);
-        PointRemovalTimer = game->GetGameTime();
-    }
 
     // Melee animation (signma)
 

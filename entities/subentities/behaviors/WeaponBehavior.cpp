@@ -114,8 +114,6 @@ void WeaponBehavior::Update()
 
     if (CoverSearching)
         MoveForCover();
-    else
-        Owner->MoveAwayFromWalls();
 
     EnemyBehavior::Update();
 }
