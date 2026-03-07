@@ -300,6 +300,8 @@ void Game::Update() {
 
     if (IsKeyPressed(KEY_M))
         Paused = !Paused;
+    if (!IsWindowFocused())
+        Paused=true;
 
     if (!Paused) {
         if (IsKeyPressed(KEY_X))

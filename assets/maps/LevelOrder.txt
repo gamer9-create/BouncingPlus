@@ -1,5 +1,5 @@
-DEBUG
 Tutorial
+Not Easy
 The Base
 Bullet Hell
 Waves

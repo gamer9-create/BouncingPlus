@@ -16,6 +16,7 @@ class Enemy : public Entity {
     Vector2 WanderPos;
     float TotalHealth = -1;
 double LastSetWanderPos = 0;
+    double wc;
     bool weaponsSystemInit = false;
     bool isActive = false;
     double ActivationTimer;

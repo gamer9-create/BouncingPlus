@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include <string>
+#include <nlohmann/json.hpp>
 
 #include "../entities/bosses/FaceBoss.h"
 #include "../entities/subentities/Enemy.h"
@@ -142,6 +143,10 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
             Armor = 0.0f;
             break;
     }
+    float Multiplier = 1.0f + 0.15f * (game->LevelData[game->CurrentLevelName]["difficulty"].get<int>()-3);
+    Armor *= Multiplier;
+    Speed *= Multiplier;
+    Health *= Multiplier;
     game->MainEntityManager.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->Textures["enemy"], *game));
 }
 

@@ -8,9 +8,9 @@ metadata.json
 for metadata.json:
 
   "description": "No special dudes, just pure bullets.", // in-game description for the level
-  "inventory": ["Player Gun"], // what weapons will the player spawn with? check the weapondata folder for available weaponsj
-  "powerup": "speed", // what powerups will the player have? only 1 powerup, powerups include: speed
-  "difficulty": 4, // difficulty level. 1-5 range
+  "inventory": ["Player Gun"], // what weapons will the player spawn with? check the weapondata folder for available weapons
+  "powerup": "speed", // what powerups will the player have? powerups include: shelid
+  "difficulty": 4, // difficulty level. 1-4 range
   "starting_health": 200, // starting player health
   "game": { // game mode info
     "timer": -1, // will the level have a timer?

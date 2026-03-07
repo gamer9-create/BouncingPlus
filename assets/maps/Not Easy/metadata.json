@@ -1,0 +1,17 @@
+{
+  "description": "Hint: this level is NOT easy.",
+  "inventory": ["Player Gun", "Sword", "Shotgun"],
+  "powerup": "shield",
+  "difficulty": 2,
+  "starting_health": 199,
+  "game": {
+    "timer": -1,
+    "boss": "",
+    "mode": "default",
+    "banned_spawn_weapons": ["Default Gun", "Player Gun"]
+  },
+  "enemy_weapons": {
+    "shotgun": "Enemy Shotgun",
+    "sword": "Virtue Sword"
+  }
+}

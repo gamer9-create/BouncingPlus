@@ -46,7 +46,8 @@ void Enemy::Init(float X, float Y, float Health, float Speed, float Armor, std::
     this->WanderPos = {BoundingBox.x, BoundingBox.y};
     this->WanderingEnabled = true;
     this->Alpha = 0;
-    LastSetWanderPos = 0;
+    wc=GetRandomValue(5,10);
+    LastSetWanderPos = wc;
     this->EntityColor = ColorAlpha(WHITE, Alpha);
     this->ActivationTimer = game.GetGameTime();
     this->WallMovement = {0, 0};
@@ -56,7 +57,7 @@ void Enemy::Init(float X, float Y, float Health, float Speed, float Armor, std::
 }
 
 void Enemy::Wander() {
-    if (Vector2Distance({BoundingBox.x, BoundingBox.y}, WanderPos) <= 36 || game->GetGameTime() - LastSetWanderPos >= 5) {
+    if (game->GetGameTime() - LastSetWanderPos >= wc) {
         float center_x = BoundingBox.x + (BoundingBox.width / 2);
         float center_y = BoundingBox.y + (BoundingBox.height / 2);
 
@@ -64,12 +65,12 @@ void Enemy::Wander() {
         bool S = false;
         bool FoundBest = false;
 
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 10; i++)
         {
-            float Angle = i * 24.0f;
-            Angle += GetRandomValue(-10, 10);
-            float X = cos(Angle * (2 * PI / 360))*2000;
-            float Y = sin(Angle * (2 * PI / 360))*2000;
+            float Angle = i * 36.0f;
+            Angle += GetRandomValue(-30, 30);
+            float X = cos(Angle * (2 * PI / 360))*900;
+            float Y = sin(Angle * (2 * PI / 360))*900;
             std::pair<bool, Vector2> d = game->RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
             if (!S)
             {
@@ -88,9 +89,9 @@ void Enemy::Wander() {
             LastSetWanderPos = game->GetGameTime();
         } else
         {
-            WanderPos = {BoundingBox.x + GetRandomValue(-100, 100), BoundingBox.y + GetRandomValue(-100, 100)};
+            WanderPos = {BoundingBox.x + GetRandomValue(-1000, 0100), BoundingBox.y + GetRandomValue(-1000, 1000)};
         }
-    } else {
+    } else if (Vector2Distance({BoundingBox.x, BoundingBox.y}, WanderPos) >= 36) {
         Movement = Vector2Subtract(WanderPos, {BoundingBox.x, BoundingBox.y});
     }
 }

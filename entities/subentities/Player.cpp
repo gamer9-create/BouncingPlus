@@ -128,15 +128,6 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
     if (CheckCollisionRecs(Rectangle{BoundingBox.x - 4, BoundingBox.y - 4, BoundingBox.width + 8, BoundingBox.height + 8}, entity->BoundingBox) && !already_attacked) {
         // calculate damage & attack
         float Damage = VelocityPower / 22.5f;
-        Damage *= min(max((Health / MaxHealth)-2.0f, 1.0f), 5.5f);
-        if (entity->Armor <= 0)
-            entity->Health -= Damage;
-        else
-        {
-            entity->Armor -= Damage;
-        }
-
-        float reward = Damage / 5.8f;
 
         float EnemyConcentration = 1.0;
 
@@ -145,7 +136,9 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
             if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(enemyArray.at(i)); entity != nullptr and !entity->ShouldDelete) {
                 if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) < 600)
                 {
-                    EnemyConcentration += 0.11f;
+                    EnemyConcentration += 0.18f;
+                    if (EnemyConcentration >= 2.5f)
+                        break;
                 }
             }
         }
@@ -153,25 +146,38 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
         std::vector<shared_ptr<Entity>> bulletArray = game->MainEntityManager.Entities[BulletType];
         for (int i = 0; i < bulletArray.size(); i++) {
             if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(bulletArray.at(i)); entity != nullptr and !entity->ShouldDelete) {
-                if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) < 250)
+                if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) < 400)
                 {
-                    EnemyConcentration += 0.01f;
+                    EnemyConcentration += 0.03f;
+                    if (EnemyConcentration >= 2.5f)
+                        break;
                 }
             }
         }
 
-        reward *= EnemyConcentration;
+        EnemyConcentration = min(EnemyConcentration, 2.5f);
+
+        Damage *= EnemyConcentration;
+        Damage *= min(max((Health / MaxHealth)-2.0f, 1.0f), 5.5f);
+        if (entity->Armor <= 0)
+            entity->Health -= Damage;
+        else
+        {
+            entity->Armor -= Damage;
+        }
+
+        float reward = Damage / 4.7f;
         Health += reward;
 
         float amount = 1500.0f;
 
         // did we kill them? if so, give health & kills
         if (entity->Health <= 0) {
-            Health += Damage * 0.55f;
+            Health += Damage * 0.6f;
             //game->Slowdown(0.35f, VelocityPower / 1450.0f);
             amount= 950;
             Kills+=1;
-            game->GameScore += 50;
+            game->GameScore += 400;
         }
 
         game->GameScore += 10;
@@ -358,6 +364,9 @@ void Player::Update() {
         this->weaponsSystem.Equip(0);
         this->weaponsSystemInit = true;
     }
+
+    if (Health > 1000)
+        Health = 1000;
 
     // warning sign interval
     if (game->GetGameTime() - LastInterval >= 1.5f)
