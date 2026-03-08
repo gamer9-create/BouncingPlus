@@ -19,6 +19,7 @@ public:
     std::weak_ptr<Entity> OwnerPtr;
     float Lifetime;
     bool SlowdownOverTime;
+    float HealthGain;
     Vector2 FirePoint;
     Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float Damage, float Lifetime, Texture2D& BulletTexture, std::shared_ptr<Entity> Owner, Game &game);
     Bullet();

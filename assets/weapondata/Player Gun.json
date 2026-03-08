@@ -13,6 +13,7 @@
   "WeaponWeightSpeedMultiplier": 1,
   "Size": [1, 1],
   "Damage": 40,
+  "HealthGain": 20,
   "Cooldown": 0.2,
   "AngleRange": 0.0,
   "Range": 0.0,

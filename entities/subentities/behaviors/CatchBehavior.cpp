@@ -34,7 +34,6 @@ void CatchBehavior::ResetDirection()
 void CatchBehavior::Update()
 {
     // unequips any weapon, sets everything to proper values
-    Owner->weaponsSystem.Unequip();
     Owner->Speed = currentSpeed;
     Owner->Movement = currentDir;
     Owner->Rotation = 180 - (Vector2LineAngle({Owner->BoundingBox.x, Owner->BoundingBox.y}, lastPosition) * RAD2DEG);

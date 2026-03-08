@@ -21,6 +21,7 @@ Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float D
     this->Texture=&BulletTexture;
     this->ShouldDelete = false;
     this->SlowdownOverTime = false;
+    this->HealthGain = Damage;
     this->Lifetime=Lifetime;
     this->Speed=Speed;
     this->game = &game;
@@ -149,7 +150,7 @@ void Bullet::PhysicsUpdate(float dt, double time) {
 void Bullet::Attack(shared_ptr<Entity> entity) {
     auto Owner = OwnerPtr.lock();
     if (CheckCollisionCircleRec({BoundingBox.x,BoundingBox.y}, BoundingBox.width, entity->BoundingBox) && !entity->ShouldDelete) {
-        DamageOther(entity, Damage, Owner);
+        DamageOther(entity, Damage, Owner, HealthGain);
         ShouldDelete = true;
     }
 }

@@ -45,7 +45,8 @@ WeaponsSystem::~WeaponsSystem() {
 
 void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
     auto Owner = OwnerPtr.lock();
-    Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
+    Vector2 mp1 = Vector2Subtract(GetMousePosition(), Vector2{GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f});
+    Vector2 Target = {Owner->BoundingBox.x + Owner->BoundingBox.width / 2.0f + mp1.x, Owner->BoundingBox.y + Owner->BoundingBox.height / 2.0f + mp1.y};
     if (Owner->Type == EnemyType)
         Target = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2,
         game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2
@@ -78,37 +79,40 @@ bool WeaponsSystem::GiveWeapon(std::string WeaponName, int Ammo)
 
 bool WeaponsSystem::DropWeapon(std::string WeaponName)
 {
-    Vector2 DropLoc = {0, 0};
-    auto Owner = OwnerPtr.lock();
-
-    if (Owner != nullptr) {
-        float dirX = (GetRandomValue(1, 2) == 1) ? 1 : -1;
-        float dirY = (GetRandomValue(1, 2) == 1) ? 1 : -1;
-
-        DropLoc = {Owner->BoundingBox.x - Owner->BoundingBox.width/2, Owner->BoundingBox.y - Owner->BoundingBox.height/2};
-        DropLoc = Vector2Add(DropLoc, {
-            (float)GetRandomValue(0, Owner->BoundingBox.width) * dirX * 2.5f,
-                (float)GetRandomValue(0, Owner->BoundingBox.height) * dirY * 2.5f
-        });
-    }
-
-    for (int i = 0; i < 3; i++)
+    if (!WeaponName.empty())
     {
-        if (Weapons[i] == WeaponName)
-        {
-            if (CurrentWeaponIndex == i)
-                Unequip();
-            game->PlaceWeaponPickup({
-                DropLoc,
-                GREEN,
-                50,
-                WeaponAmmo[i],
-                WeaponName,
-                2,
-                25
+        Vector2 DropLoc = {0, 0};
+        auto Owner = OwnerPtr.lock();
+
+        if (Owner != nullptr) {
+            float dirX = (GetRandomValue(1, 2) == 1) ? 1 : -1;
+            float dirY = (GetRandomValue(1, 2) == 1) ? 1 : -1;
+
+            DropLoc = {Owner->BoundingBox.x - Owner->BoundingBox.width/2, Owner->BoundingBox.y - Owner->BoundingBox.height/2};
+            DropLoc = Vector2Add(DropLoc, {
+                (float)GetRandomValue(0, Owner->BoundingBox.width) * dirX * 3.2f,
+                    (float)GetRandomValue(0, Owner->BoundingBox.height) * dirY * 3.2f
             });
-            Weapons[i].clear();
-            return true;
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (Weapons[i] == WeaponName)
+            {
+                if (CurrentWeaponIndex == i)
+                    Unequip();
+                game->PlaceWeaponPickup({
+                    DropLoc,
+                    GREEN,
+                    50,
+                    WeaponAmmo[i],
+                    WeaponName,
+                    2,
+                    25
+                });
+                Weapons[i].clear();
+                return true;
+            }
         }
     }
     return false;
@@ -144,18 +148,21 @@ void WeaponsSystem::Update() {
 
     if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && Owner->Type == PlayerType)
     {
+        float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
+        float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
         if (AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown)
+        {
             MeleeDisplayRenderTarget = GetMousePosition();
+            MeleeDisplayRenderTarget = Vector2Subtract(MeleeDisplayRenderTarget, Vector2{GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f});
+        }
+
+        Vector2 MP = Vector2Add(MeleeDisplayRenderTarget, Vector2{cx,cy});
 
         MeleeAnimRange = CurrentWeapon->AngleRange;
         // get angle
-        float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
-        float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-        Vector2 MP = Vector2Add(MeleeDisplayRenderTarget, game->MainCameraManager.CameraPositionUnaffected);
         float Angle = (atan2(cy - MP.y, cx - MP.x) * RAD2DEG)+180;
 
         float LeftAngle = (Angle - MeleeAnimRange/2);
-        float RightAngle = (Angle + MeleeAnimRange/2);
         float Dist = CurrentWeapon->Range;
 
         //DrawCircleSector({cx,cy}, Dist, LeftAngle, RightAngle, 40, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
@@ -197,8 +204,8 @@ void WeaponsSystem::Update() {
         MeleeAnim = MeleeAnimPercent <= 1.0 || MeleeAnimAlpha > 0;
 
         // animation variables for image
-        float width = (MeleeAnimTexture->width * 1.35f);
-        float height = (MeleeAnimTexture->height * 1.35f);
+        float width = (MeleeAnimTexture->width * 1.35f * CurrentWeapon->WeaponSize);
+        float height = (MeleeAnimTexture->height * 1.35f * CurrentWeapon->WeaponSize);
         float FinalAngle = MeleeAnimAngle - (MeleeAnimRange/2) + (MeleeAnimPercent * MeleeAnimRange);
 
         // adding points
@@ -232,7 +239,7 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
 
     // if enemy is in sight & within range, attack!
     if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range && game->RayCast({owner_cx, owner_cy}, {cx, cy}))
-        Owner->DamageOther(entity, CurrentWeapon->Damage);
+        Owner->DamageOther(entity, CurrentWeapon->Damage, nullptr, CurrentWeapon->HealthGain);
 }
 
 
@@ -290,6 +297,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
                 shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed, CurrentWeapon->Damage, BulletLifetime,
                                                                 game->Textures[BulletTexture], Owner, *game);
                 bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
+                bullet->HealthGain = CurrentWeapon->HealthGain;
                 if (Owner->Type == PlayerType)
                     bullet->EntityColor = {255, 180, 255, 255};
                 if (Owner->Type == EnemyType)

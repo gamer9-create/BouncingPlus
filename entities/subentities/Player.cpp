@@ -238,7 +238,8 @@ void Player::DashLogic() {
             if (static_cast<float>(game->GetGameTime() - DashTimeStart) / 1.1f > 0.8f)
                 PlayerDashLineThickness = Lerp(PlayerDashLineThickness, 20, 2 * game->GetGameDeltaTime());
             float alpha = static_cast<float>(game->GetGameTime() - DashTimeStart) / 1.1f;
-            Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
+            Vector2 mp1 = Vector2Subtract(GetMousePosition(), Vector2{GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f});
+            Vector2 Target = {BoundingBox.x + BoundingBox.width / 2.0f + mp1.x, BoundingBox.y + BoundingBox.height / 2.0f + mp1.y};
             float cx = BoundingBox.x + BoundingBox.width / 2;
             float cy = BoundingBox.y + BoundingBox.height / 2;
             float FinalAngle = (atan2(cy - Target.y, cx - Target.x) * RAD2DEG);
@@ -262,7 +263,8 @@ void Player::DashLogic() {
     if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && IsPreparingForDash && Health > 0 && game->GetGameTime() - DashTimeStart >= 0.35f) {
         DashCooldown = 1.1f + (2.2f - min(static_cast<float>(game->GetGameTime() - DashTimeStart), 1.1f) * 2);
         DashedEnemies.clear();
-        VelocityMovement = Vector2Subtract(WorldMousePos, {BoundingBox.x, BoundingBox.y});
+        Vector2 mp1 = Vector2Subtract(GetMousePosition(), Vector2{GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f});
+        VelocityMovement = mp1;
         VelocityPower = 2500.0f * max(min(static_cast<float>(game->GetGameTime() - DashTimeStart), 1.1f), 0.45f);
         VelocityPower /= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
         game->MainSoundManager.PlaySoundM("dash");
@@ -388,6 +390,8 @@ void Player::Update() {
         DrawTexturePro(game->Textures["warning"], {0,0,33,34},{BoundingBox.x + BoundingBox.width/2 + 12,BoundingBox.y - 24 - 10,24,24},{0,0},0,WHITE);
     }
 
+    float cx = BoundingBox.x + BoundingBox.width/2;
+    float cy = BoundingBox.y + BoundingBox.height/2;
 
     // player transparency processing
     EntityColor = ColorAlpha(WHITE, Alpha);
@@ -419,10 +423,15 @@ void Player::Update() {
         {
             weaponsSystem.Reload();
         }
-
-        auto WorldMousePos = Vector2Add(GetMousePosition(), game->MainCameraManager.CameraPositionUnaffected);
+        //Vector2 WorldMousePos = Vector2{0, 0};
         if (IsMouseButtonDown(0) && !IsPreparingForDash)
+        {
+            Vector2 WorldMousePos = Vector2{0, 0};
+            WorldMousePos = GetMousePosition();
+            WorldMousePos = Vector2Subtract(WorldMousePos, Vector2{GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f});
+            WorldMousePos = Vector2Add(WorldMousePos, Vector2{cx,cy});
             weaponsSystem.Attack(WorldMousePos);
+        }
 
         // reload logic
         if (IsKeyPressed(KEY_R) && weaponsSystem.TimeStartedReloading == -1)

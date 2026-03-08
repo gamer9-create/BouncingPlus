@@ -118,6 +118,8 @@ void Game::SetGameData() {
             wep.Size = {data["Size"][0], data["Size"][1]};
         if (data.contains("Damage"))
             wep.Damage = data["Damage"].get<float>();
+        if (data.contains("HealthGain"))
+            wep.HealthGain = data["HealthGain"].get<float>();
         if (data.contains("Cooldown"))
             wep.Cooldown = data["Cooldown"].get<float>();
         if (data.contains("AngleRange"))

@@ -50,8 +50,10 @@ void Entity::OnWallVelocityBump(float Power)
 {
 }
 
-void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shared_ptr<Entity> owner )
+void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shared_ptr<Entity> owner, float HealthGain)
 {
+    if (HealthGain <= 0)
+        HealthGain = Damage;
     if (entity->Type == PlayerType && game->MainPlayer->isInvincible)
         return;
     if (owner == nullptr)
@@ -78,7 +80,7 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
     if (entity->Health <= 0) {
         entity->ShouldDelete = true;
         if (owner->Health > 0)
-            owner->Health += Damage;
+            owner->Health += HealthGain;
         if (owner->Type == PlayerType)
             game->MainPlayer->Kills += 1;
     }

@@ -168,11 +168,13 @@ void Spawner::Update() {
                 times++;
             }
 
+            std::string wep = game->EnemyWeaponNamesList[GetRandomValue(0, game->EnemyWeaponNamesList.size() - 1)];
             std::unique_ptr<EnemyBehavior> behavior = make_unique<WeaponBehavior>();
             if (GetRandomValue(1, 3) == 2)
             {
                 behavior.reset();
                 behavior = make_unique<CatchBehavior>();
+                wep.clear();
             }
 
             std::shared_ptr<Enemy> e = make_shared<Enemy>(
@@ -181,7 +183,7 @@ void Spawner::Update() {
                 75,
                 350 + (GetRandomValue(1, 100) / 10.0f < EnemyDifficulty ? GetRandomValue(10, 75) : 0),
                 GetRandomValue(1, 100) / 100.0f < EnemyDifficulty ? GetRandomValue(25, 50) : 0,
-                game->EnemyWeaponNamesList[GetRandomValue(0, game->EnemyWeaponNamesList.size() - 1)],
+                wep,
                 std::move(behavior),
                 game->Textures["spawned_enemy"],
                 *game

@@ -25,6 +25,7 @@ struct Weapon {
     float WeaponWeightSpeedMultiplier = 1;
     Vector2 Size = {1,1};
     float Damage = 0;
+    float HealthGain = -1;
     float BulletLifetime = -1;
     float Cooldown = 0;
     float AngleRange = 0;
