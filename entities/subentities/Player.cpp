@@ -33,7 +33,7 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->LastPos = Vector2(0, 0);
     this->InvincibilityResetTimer = 0;
     this->PlayerDashLineThickness = 10;
-    this->ShaderUniformLoc = GetShaderLocation(game.Shaders["dash_arrow"], "time");
+    this->ShaderUniformLoc = GetShaderLocation(game.MainResourceManager.Shaders["dash_arrow"], "time");
 }
 
 Player::Player() {
@@ -134,9 +134,9 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
         std::vector<shared_ptr<Entity>> enemyArray = game->MainEntityManager.Entities[EnemyType];
         for (int i = 0; i < enemyArray.size(); i++) {
             if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(enemyArray.at(i)); entity != nullptr and !entity->ShouldDelete) {
-                if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) < 600)
+                if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) < 550)
                 {
-                    EnemyConcentration += 0.18f;
+                    EnemyConcentration += 0.06f;
                     if (EnemyConcentration >= 2.5f)
                         break;
                 }
@@ -148,7 +148,7 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
             if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(bulletArray.at(i)); entity != nullptr and !entity->ShouldDelete) {
                 if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) < 400)
                 {
-                    EnemyConcentration += 0.03f;
+                    EnemyConcentration += 0.01f;
                     if (EnemyConcentration >= 2.5f)
                         break;
                 }
@@ -156,6 +156,7 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
         }
 
         EnemyConcentration = min(EnemyConcentration, 2.5f);
+        EnemyConcentration *= game->LevelData[game->CurrentLevelName]["player"]["dash_concentration_boost"].get<float>();
 
         Damage *= EnemyConcentration;
         Damage *= min(max((Health / MaxHealth)-2.0f, 1.0f), 5.5f);
@@ -177,7 +178,7 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
             //game->Slowdown(0.35f, VelocityPower / 1450.0f);
             amount= 950;
             Kills+=1;
-            game->GameScore += 400;
+            game->GameScore += 25;
         }
 
         game->GameScore += 10;
@@ -243,12 +244,12 @@ void Player::DashLogic() {
             float cx = BoundingBox.x + BoundingBox.width / 2;
             float cy = BoundingBox.y + BoundingBox.height / 2;
             float FinalAngle = (atan2(cy - Target.y, cx - Target.x) * RAD2DEG);
-            Texture2D& MeleeAnimTexture = game->Textures["arrow"];
+            Texture2D& MeleeAnimTexture = game->MainResourceManager.Textures["arrow"];
             float width = MeleeAnimTexture.width;
             float height = MeleeAnimTexture.height;
-            BeginShaderMode(game->Shaders["dash_arrow"]);
+            BeginShaderMode(game->MainResourceManager.Shaders["dash_arrow"]);
             float t = static_cast<float>(game->GetGameTime() - DashTimeStart);
-            SetShaderValue(game->Shaders["dash_arrow"],
+            SetShaderValue(game->MainResourceManager.Shaders["dash_arrow"],
                 ShaderUniformLoc,
                 &t,
                 SHADER_ATTRIB_FLOAT);
@@ -261,24 +262,26 @@ void Player::DashLogic() {
         }
     }
     if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && IsPreparingForDash && Health > 0 && game->GetGameTime() - DashTimeStart >= 0.35f) {
-        DashCooldown = 1.1f + (2.2f - min(static_cast<float>(game->GetGameTime() - DashTimeStart), 1.1f) * 2);
+        DashCooldown = game->LevelData[game->CurrentLevelName]["player"]["dash_base_cooldown"].get<float>() + (2.2f - min(static_cast<float>(game->GetGameTime() - DashTimeStart), 1.1f) * 2);
         DashedEnemies.clear();
         Vector2 mp1 = Vector2Subtract(GetMousePosition(), Vector2{GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f});
         VelocityMovement = mp1;
-        VelocityPower = 2500.0f * max(min(static_cast<float>(game->GetGameTime() - DashTimeStart), 1.1f), 0.45f);
-        VelocityPower /= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.5f);
+        VelocityPower = game->LevelData[game->CurrentLevelName]["player"]["dash_base_power"].get<float>() * max(min(static_cast<float>(game->GetGameTime() - DashTimeStart), 1.1f), 0.45f);
+        VelocityPower /= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.25f);
+        VelocityPower *= game->LevelData[game->CurrentLevelName]["player"]["dash_power_multiplier"].get<float>();
         game->MainSoundManager.PlaySoundM("dash");
-        PlayerFrozenTimer = .5f * min(max((VelocityPower / 2500.0f), 0.35f), 1.1f);
+        PlayerFrozenTimer = game->LevelData[game->CurrentLevelName]["player"]["dash_frozen_multiplier"].get<float>() *
+            min(max((VelocityPower / game->LevelData[game->CurrentLevelName]["player"]["dash_base_power"].get<float>()), 0.35f), 1.1f);
         if (!isInvincible)
         {
             ToggleInvincibility();
-            InvincibilityResetTimer= 0.1f;
+            InvincibilityResetTimer = game->LevelData[game->CurrentLevelName]["player"]["dash_iframe_time"].get<float>();
         }
         if (IsMouseButtonDown(0)) {
 
             Dodging = true;
-            InvincibilityResetTimer = 1.0f;
-            DashCooldown = 3.0;
+            InvincibilityResetTimer = game->LevelData[game->CurrentLevelName]["player"]["dodge_iframe_time"].get<float>();
+            DashCooldown = game->LevelData[game->CurrentLevelName]["player"]["dodge_cooldown"].get<float>();
         }
         IsPreparingForDash = false;
     }
@@ -354,14 +357,14 @@ void Player::Update() {
     if (!this->weaponsSystemInit) {
         this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
         this->powerupSystem = PowerupSystem(dynamic_pointer_cast<Player>(shared_from_this()), *game);
-        auto f = game->LevelData[game->CurrentLevelName]["inventory"];
+        auto f = game->LevelData[game->CurrentLevelName]["player"]["inventory"];
         for (int i = 0; i < (int)min((float)f.size(),3.0f); i++) {
             this->weaponsSystem.Weapons[i] = f[i];
-            this->weaponsSystem.WeaponAmmo[i] = game->Weapons[f[i]].Ammo;
+            this->weaponsSystem.WeaponAmmo[i] = game->MainResourceManager.Weapons[f[i]].Ammo;
         }
-        if (game->Powerups.contains(game->LevelData[game->CurrentLevelName]["powerup"]))
+        if (game->MainResourceManager.Powerups.contains(game->LevelData[game->CurrentLevelName]["player"]["powerup"]))
         {
-            powerupSystem.SetPowerup(game->Powerups[game->LevelData[game->CurrentLevelName]["powerup"]]);
+            powerupSystem.SetPowerup(game->MainResourceManager.Powerups[game->LevelData[game->CurrentLevelName]["player"]["powerup"]]);
         }
         this->weaponsSystem.Equip(0);
         this->weaponsSystemInit = true;
@@ -387,7 +390,7 @@ void Player::Update() {
 
     if (Health > 0 && HealthConcern && WarningSign)
     {
-        DrawTexturePro(game->Textures["warning"], {0,0,33,34},{BoundingBox.x + BoundingBox.width/2 + 12,BoundingBox.y - 24 - 10,24,24},{0,0},0,WHITE);
+        DrawTexturePro(game->MainResourceManager.Textures["warning"], {0,0,33,34},{BoundingBox.x + BoundingBox.width/2 + 12,BoundingBox.y - 24 - 10,24,24},{0,0},0,WHITE);
     }
 
     float cx = BoundingBox.x + BoundingBox.width/2;
@@ -413,7 +416,6 @@ void Player::Update() {
         if (IsKeyDown(KEY_F))
         {
             powerupSystem.Activate();
-            game->GameScore += 5;
         }
 
         // firing logic

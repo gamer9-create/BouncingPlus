@@ -13,7 +13,7 @@
 Spawner::Spawner() {
 }
 
-Spawner::Spawner(Game &game, float bbox_x, float bbox_y) :Entity(game.Textures["spawner"], {bbox_x, bbox_y, 36, 36}, 0, game) {
+Spawner::Spawner(Game &game, float bbox_x, float bbox_y) :Entity(game.MainResourceManager.Textures["spawner"], {bbox_x, bbox_y, 36, 36}, 0, game) {
     StartPos = Vector2(bbox_x, bbox_y);
     RandPoint = {0, 0};
     DistF =0;
@@ -80,7 +80,7 @@ void Spawner::Render() {
     F2 = cos(game->GetGameTime()+RandomNumbers[1]);
     F1 /= Dec;
     F2 /= Dec;
-    DrawTexturePro(game->Textures["bouncy_wall"], {0, 0, 18, 18},
+    DrawTexturePro(game->MainResourceManager.Textures["bouncy_wall"], {0, 0, 18, 18},
         {center_pos.x + F1 * PosMultiplier - DistF,
             center_pos.y + F2 * PosMultiplier - DistF,
             Siz, Siz},
@@ -89,7 +89,7 @@ void Spawner::Render() {
     F2 = cos(game->GetGameTime()+RandomNumbers[3]);
     F1 /= Dec;
     F2 /= Dec;
-    DrawTexturePro(game->Textures["bouncy_wall"], {18, 0, 18, 18},
+    DrawTexturePro(game->MainResourceManager.Textures["bouncy_wall"], {18, 0, 18, 18},
         {center_pos.x + F1 * PosMultiplier + DistF,
             center_pos.y + F2 * PosMultiplier-DistF,
             Siz, Siz},
@@ -98,7 +98,7 @@ void Spawner::Render() {
     F2 = cos(game->GetGameTime()+RandomNumbers[5]);
     F1 /= Dec;
     F2 /= Dec;
-    DrawTexturePro(game->Textures["bouncy_wall"], {0, 18, 18, 18},
+    DrawTexturePro(game->MainResourceManager.Textures["bouncy_wall"], {0, 18, 18, 18},
         {center_pos.x + F1 * PosMultiplier - DistF,
             center_pos.y + F2 * PosMultiplier + DistF,
             Siz, Siz},
@@ -107,7 +107,7 @@ void Spawner::Render() {
     F2 = cos(game->GetGameTime()+RandomNumbers[7]);
     F1 /= Dec;
     F2 /= Dec;
-    DrawTexturePro(game->Textures["bouncy_wall"], {18, 18, 18, 18},
+    DrawTexturePro(game->MainResourceManager.Textures["bouncy_wall"], {18, 18, 18, 18},
         {center_pos.x + F1 * PosMultiplier + DistF,
             center_pos.y + F2 * PosMultiplier+ DistF,
             Siz, Siz},
@@ -168,7 +168,7 @@ void Spawner::Update() {
                 times++;
             }
 
-            std::string wep = game->EnemyWeaponNamesList[GetRandomValue(0, game->EnemyWeaponNamesList.size() - 1)];
+            std::string wep = game->MainResourceManager.EnemyWeaponNamesList[GetRandomValue(0, game->MainResourceManager.EnemyWeaponNamesList.size() - 1)];
             std::unique_ptr<EnemyBehavior> behavior = make_unique<WeaponBehavior>();
             if (GetRandomValue(1, 3) == 2)
             {
@@ -185,7 +185,7 @@ void Spawner::Update() {
                 GetRandomValue(1, 100) / 100.0f < EnemyDifficulty ? GetRandomValue(25, 50) : 0,
                 wep,
                 std::move(behavior),
-                game->Textures["spawned_enemy"],
+                game->MainResourceManager.Textures["spawned_enemy"],
                 *game
                 );
             if (EnemyDifficulty >= 0.6f)

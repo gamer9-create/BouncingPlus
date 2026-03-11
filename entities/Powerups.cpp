@@ -101,6 +101,8 @@ void PowerupSystem::Activate()
 {
     if (CurrentPowerup != nullptr && CurrentCooldown <= 0 && CurrentLength <= 0)
     {
+        if (Owner->Type == PlayerType)
+            game->GameScore += 5;
         CurrentCooldown = CurrentPowerup->Cooldown;
         CurrentLength = CurrentPowerup->Length;
         PowerupIsActive = true;

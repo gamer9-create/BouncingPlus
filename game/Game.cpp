@@ -21,8 +21,8 @@ namespace fs = std::filesystem;
 
 using namespace std;
 
-Game::Game(std::map<std::string, nlohmann::json> json) {
-
+Game::Game(std::map<std::string, nlohmann::json> json)
+{
     // init game services
     MainUIManager = UIManager(*this);
     MainTileManager = TileManager(*this);
@@ -31,6 +31,7 @@ Game::Game(std::map<std::string, nlohmann::json> json) {
     MainEntityManager = EntityManager(*this);
     MainSoundManager = SoundManager(*this);
     MainGameModeManager = GameModeManager(*this);
+    MainResourceManager = ResourceManager(*this);
 
     // profiler
     profiler = Profiler(*this);
@@ -44,13 +45,7 @@ Game::Game(std::map<std::string, nlohmann::json> json) {
 
     Paused = false;
 
-    // resource maps
-    Textures = std::unordered_map<std::string, Texture2D>();
-    Weapons = std::unordered_map<std::string, Weapon>();
-    Powerups = std::unordered_map<std::string, Powerup*>();
-    Shaders = std::unordered_map<std::string, Shader>();
-    EnemyWeaponNamesList= std::vector<std::string>();
-    BannedWeaponDrops= std::vector<std::string>();
+    BannedWeaponDrops = std::vector<std::string>();
     EnemyRoleWeapons = unordered_map<std::string, std::string>();
     WeaponPickups = std::vector<WeaponPickup>();
 
@@ -66,89 +61,12 @@ Game::Game(std::map<std::string, nlohmann::json> json) {
 }
 
 void Game::SetGameData() {
-    std::string path = "assets\\img";
-    for (const auto & entry : fs::directory_iterator(path)) {
-        std::string p = entry.path().filename().string();
-        p.erase(p.end() - 4, p.end());
-        Texture tex = LoadTexture(entry.path().string().c_str());
-        Textures.insert({p, tex});
-    }
-    path = "assets\\shaders";
-    for (const auto & entry : fs::directory_iterator(path)) {
-        std::string p = entry.path().filename().string();
-        p.erase(p.end() - 5, p.end());
-        Shader shader = LoadShader("",entry.path().string().c_str());
-        Shaders.insert({p, shader});
-    }
-    path = "assets\\weapondata";
-    for (const auto & entry : fs::directory_iterator(path)) {
-        std::string p = entry.path().filename().string();
-        p.erase(p.end() - 5, p.end());
-        std::ifstream g(entry.path().c_str());
-        json data = json::parse(g);
-        Weapon wep = {};
-        if (data.contains("EnemiesCanUse") && data["EnemiesCanUse"].get<bool>())
-            EnemyWeaponNamesList.push_back(p);
-        if (data.contains("isMelee"))
-            wep.isMelee = data["isMelee"].get<bool>();
-        if (data.contains("ShakeScreen"))
-            wep.ShakeScreen = data["ShakeScreen"].get<bool>();
-        if (data.contains("SlowdownOverTime"))
-            wep.SlowdownOverTime = data["SlowdownOverTime"].get<bool>();
-        if (data.contains("PushbackForce"))
-            wep.PushbackForce = data["PushbackForce"].get<float>();
-        if (data.contains("BulletLifetime"))
-            wep.BulletLifetime = data["BulletLifetime"].get<float>();
-        if (data.contains("Spread"))
-        {
-            wep.SpreadRange[0] = data["Spread"][0].get<int>();
-            wep.SpreadRange[1] = data["Spread"][1].get<int>();
-        }
-        if (data.contains("WeaponWeightSpeedMultiplier"))
-            wep.WeaponWeightSpeedMultiplier = data["WeaponWeightSpeedMultiplier"].get<float>();
-        if (data.contains("Speed"))
-            wep.Speed = data["Speed"].get<float>();
-        if (data.contains("WeaponSize"))
-            wep.WeaponSize = data["WeaponSize"].get<float>();
-        if (data.contains("Ammo"))
-            wep.Ammo = data["Ammo"].get<int>();
-        if (data.contains("ReloadTime"))
-            wep.ReloadTime = data["ReloadTime"].get<double>();
-        if (data.contains("Size"))
-            wep.Size = {data["Size"][0], data["Size"][1]};
-        if (data.contains("Damage"))
-            wep.Damage = data["Damage"].get<float>();
-        if (data.contains("HealthGain"))
-            wep.HealthGain = data["HealthGain"].get<float>();
-        if (data.contains("Cooldown"))
-            wep.Cooldown = data["Cooldown"].get<float>();
-        if (data.contains("AngleRange"))
-            wep.AngleRange = data["AngleRange"].get<float>();
-        if (data.contains("Range"))
-            wep.Range = data["Range"].get<float>();
-        if (data.contains("Bullets"))
-            wep.Bullets = data["Bullets"].get<int>();
-        if (data.contains("Intensity"))
-            wep.Intensity = data["Intensity"].get<float>();
-        if (data.contains("texture"))
-            wep.texture = data["texture"].get<string>();
-        if (data.contains("bullet_tex"))
-            wep.BulletTexture = data["bullet_tex"].get<string>();
-        if (data.contains("sound"))
-            wep.sound = data["sound"].get<string>();
-        Weapons.insert({p, wep});
-        g.close();
-    }
+    MainResourceManager.Load();
 
-    auto* p = new SpeedPowerup();
-    auto* s = new ShieldPowerup();
-    Powerups.insert({"speed", p});
-    Powerups.insert({"shield", s});
-
-    uOutlineSize = GetShaderLocation(Shaders["outline"], "outlineSize");
-    uOutlineColor = GetShaderLocation(Shaders["outline"], "outlineColor");
-    uTextureSize = GetShaderLocation(Shaders["outline"], "textureSize");
-    uThreshold = GetShaderLocation(Shaders["outline"], "threshold");
+    uOutlineSize = GetShaderLocation(MainResourceManager.Shaders["outline"], "outlineSize");
+    uOutlineColor = GetShaderLocation(MainResourceManager.Shaders["outline"], "outlineColor");
+    uTextureSize = GetShaderLocation(MainResourceManager.Shaders["outline"], "textureSize");
+    uThreshold = GetShaderLocation(MainResourceManager.Shaders["outline"], "threshold");
 
     WeaponPickupTex = LoadRenderTexture(150, 150);
 
@@ -215,17 +133,18 @@ void Game::PlaceWeaponPickup(WeaponPickup pickup) {
 void Game::DisplayPickups()
 {
     std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
-            return pickup.PickedUp || GetGameTime() - pickup.CreationTime >= 45 || !Weapons.contains(pickup.Weapon);
+            return pickup.PickedUp || GetGameTime() - pickup.CreationTime >= 45 || !MainResourceManager.Weapons.contains(pickup.Weapon);
     });
-    for (WeaponPickup& pickup : WeaponPickups) {
+    for (WeaponPickup& pickup : WeaponPickups)
+    {
         // get floating offset
         float AnimationOffset = sin((GetGameTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
-        Weapon& PickupWeapon = Weapons.at(pickup.Weapon);
+        Weapon& PickupWeapon = MainResourceManager.Weapons.at(pickup.Weapon);
         std::string TexString = "placeholder";
-        if (Textures.contains(PickupWeapon.texture))
+        if (MainResourceManager.Textures.contains(PickupWeapon.texture))
             TexString=PickupWeapon.texture;
 
-        Vector2 siz = {(float)Textures[TexString].width, (float)Textures[TexString].height};
+        Vector2 siz = {(float)MainResourceManager.Textures[TexString].width, (float)MainResourceManager.Textures[TexString].height};
         siz = Vector2Normalize(siz);
         siz = Vector2Multiply(siz, {pickup.Radius*2.5f, pickup.Radius*2.5f});
 
@@ -242,11 +161,11 @@ void Game::DisplayPickups()
 
         BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
 
-        DrawTexturePro(Textures[TexString], {
+        DrawTexturePro(MainResourceManager.Textures[TexString], {
             0,
             0,
-            (float)Textures[TexString].width,
-            (float)Textures[TexString].height
+            (float)MainResourceManager.Textures[TexString].width,
+            (float)MainResourceManager.Textures[TexString].height
         }, {
             WeaponPickupTex.texture.width/2.0f,WeaponPickupTex.texture.height/2.0f,
             siz.x,
@@ -258,18 +177,22 @@ void Game::DisplayPickups()
         BeginTextureMode(MainCameraManager.CameraRenderTexture);
         BeginMode2D(MainCameraManager.RaylibCamera);
 
-        BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
-        BeginShaderMode(Shaders["outline"]);
-        SetShaderValue(Shaders["outline"], uTextureSize, new float[2] {(float)WeaponPickupTex.texture.width,
-            (float)WeaponPickupTex.texture.height}, SHADER_UNIFORM_VEC2);
-        SetShaderValue(Shaders["outline"], uThreshold, &threshold, SHADER_UNIFORM_FLOAT);
-        SetShaderValue(Shaders["outline"], uOutlineSize, &outlineSize, SHADER_UNIFORM_FLOAT);
-        SetShaderValue(Shaders["outline"], uOutlineColor, new float[4] {
+        Vector2 texSize = {(float)WeaponPickupTex.
+            texture.width,
+            (float)WeaponPickupTex.texture.height};
+        float outlineColorRGB[4] = {
             (float)outlineColor.r / 255.0f,
                 (float)outlineColor.g / 255.0f,
                 (float)outlineColor.b / 255.0f,
                     (float)outlineColor.a / 255.0f
-        }, SHADER_UNIFORM_VEC4);
+        };
+
+        BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
+        BeginShaderMode(MainResourceManager.Shaders["outline"]);
+        SetShaderValue(MainResourceManager.Shaders["outline"], uTextureSize, &texSize, SHADER_UNIFORM_VEC2);
+        SetShaderValue(MainResourceManager.Shaders["outline"], uThreshold, &threshold, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(MainResourceManager.Shaders["outline"], uOutlineSize, &outlineSize, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(MainResourceManager.Shaders["outline"], uOutlineColor, &outlineColorRGB, SHADER_UNIFORM_VEC4);
         DrawTexturePro(WeaponPickupTex.texture, {0,0,(float)WeaponPickupTex.texture.width,
             (float)-WeaponPickupTex.texture.height
         }, {pickup.Position.x,
@@ -481,34 +404,25 @@ void Game::Reload(std::string MapName) {
     CurrentLevelName = MapName;
 
     for (std::string s : LevelData[MapName]["game"]["banned_spawn_weapons"])
-    {
         BannedWeaponDrops.emplace_back(s);
-    }
     EnemyRoleWeapons= LevelData[MapName]["enemy_weapons"].get<unordered_map<std::string, std::string>>();
 
     MainTileManager.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv");
     MainGameModeManager.PrepareGameMode(LevelData[MapName]);
 
     MainPlayer = make_shared<Player>(MainTileManager.PlayerSpawnPosition.x,
-                                     MainTileManager.PlayerSpawnPosition.y, 350.0f,
-                                     Textures["player"], *this);
-    MainPlayer->MaxHealth = LevelData[MapName]["starting_health"];
-    MainPlayer->Health = LevelData[MapName]["starting_health"];
+                                     MainTileManager.PlayerSpawnPosition.y, LevelData[MapName]["player"]["starting_speed"],
+                                     MainResourceManager.Textures["player"], *this);
+    MainPlayer->MaxHealth = LevelData[MapName]["player"]["starting_health"];
+    MainPlayer->Health = LevelData[MapName]["player"]["starting_health"];
     MainEntityManager.AddEntity(PlayerType, MainPlayer);
 }
 
 void Game::UnloadAssets() {
     EnemyRoleWeapons.clear();
     WeaponPickups.clear();
-    Weapons.clear();
+    MainResourceManager.Weapons.clear();
     BannedWeaponDrops.clear();
-    EnemyWeaponNamesList.clear();
-    for (auto& [name,value] : Powerups)
-        free(value);
-    for (auto& [name,value] : Textures)
-        UnloadTexture(value);
-    for (auto& [name,value] : Shaders)
-        UnloadShader(value);
     UnloadRenderTexture(WeaponPickupTex);
 }
 
@@ -519,6 +433,7 @@ void Game::Quit() {
     MainParticleManager.Quit();
     MainCameraManager.Quit();
     MainSoundManager.Quit();
+    MainResourceManager.Quit();
     MainEntityManager.Quit();
     MainGameModeManager.Quit();
     UnloadAssets();

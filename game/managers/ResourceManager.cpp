@@ -1,0 +1,125 @@
+//
+// Created by lalit on 3/8/2026.
+//
+
+#include "ResourceManager.h"
+
+#include <fstream>
+
+#include "../Game.h"
+#include "../../entities/Weapons.h"
+#include "../../entities/Powerups.h"
+#include "filesystem"
+#include "nlohmann/json.hpp"
+namespace fs = std::filesystem;
+
+ResourceManager::ResourceManager()
+{
+}
+
+ResourceManager::~ResourceManager()
+{
+}
+
+ResourceManager::ResourceManager(Game& game)
+{
+    this->game = &game;
+    Textures = std::unordered_map<std::string, Texture2D>();
+    Weapons = std::unordered_map<std::string, Weapon>();
+    Powerups = std::unordered_map<std::string, Powerup*>();
+    Shaders = std::unordered_map<std::string, Shader>();
+    EnemyWeaponNamesList= std::vector<std::string>();
+}
+
+void ResourceManager::Load()
+{
+    std::string path = "assets\\img";
+    for (const auto & entry : fs::directory_iterator(path)) {
+        std::string p = entry.path().filename().string();
+        p.erase(p.end() - 4, p.end());
+        Texture tex = LoadTexture(entry.path().string().c_str());
+        Textures.insert({p, tex});
+    }
+    path = "assets\\shaders";
+    for (const auto & entry : fs::directory_iterator(path)) {
+        std::string p = entry.path().filename().string();
+        p.erase(p.end() - 5, p.end());
+        Shader shader = LoadShader("",entry.path().string().c_str());
+        Shaders.insert({p, shader});
+    }
+    path = "assets\\weapondata";
+    for (const auto & entry : fs::directory_iterator(path)) {
+        std::string p = entry.path().filename().string();
+        p.erase(p.end() - 5, p.end());
+        std::ifstream g(entry.path().c_str());
+        nlohmann::json data = nlohmann::json::parse(g);
+        Weapon wep = {};
+        if (data.contains("EnemiesCanUse") && data["EnemiesCanUse"].get<bool>())
+            EnemyWeaponNamesList.push_back(p);
+        if (data.contains("isMelee"))
+            wep.isMelee = data["isMelee"].get<bool>();
+        if (data.contains("ShakeScreen"))
+            wep.ShakeScreen = data["ShakeScreen"].get<bool>();
+        if (data.contains("SlowdownOverTime"))
+            wep.SlowdownOverTime = data["SlowdownOverTime"].get<bool>();
+        if (data.contains("PushbackForce"))
+            wep.PushbackForce = data["PushbackForce"].get<float>();
+        if (data.contains("BulletLifetime"))
+            wep.BulletLifetime = data["BulletLifetime"].get<float>();
+        if (data.contains("Spread"))
+        {
+            wep.SpreadRange[0] = data["Spread"][0].get<int>();
+            wep.SpreadRange[1] = data["Spread"][1].get<int>();
+        }
+        if (data.contains("WeaponWeightSpeedMultiplier"))
+            wep.WeaponWeightSpeedMultiplier = data["WeaponWeightSpeedMultiplier"].get<float>();
+        if (data.contains("Speed"))
+            wep.Speed = data["Speed"].get<float>();
+        if (data.contains("WeaponSize"))
+            wep.WeaponSize = data["WeaponSize"].get<float>();
+        if (data.contains("Ammo"))
+            wep.Ammo = data["Ammo"].get<int>();
+        if (data.contains("ReloadTime"))
+            wep.ReloadTime = data["ReloadTime"].get<double>();
+        if (data.contains("Size"))
+            wep.Size = {data["Size"][0], data["Size"][1]};
+        if (data.contains("Damage"))
+            wep.Damage = data["Damage"].get<float>();
+        if (data.contains("HealthGain"))
+            wep.HealthGain = data["HealthGain"].get<float>();
+        if (data.contains("Cooldown"))
+            wep.Cooldown = data["Cooldown"].get<float>();
+        if (data.contains("AngleRange"))
+            wep.AngleRange = data["AngleRange"].get<float>();
+        if (data.contains("Range"))
+            wep.Range = data["Range"].get<float>();
+        if (data.contains("Bullets"))
+            wep.Bullets = data["Bullets"].get<int>();
+        if (data.contains("Intensity"))
+            wep.Intensity = data["Intensity"].get<float>();
+        if (data.contains("texture"))
+            wep.texture = data["texture"].get<string>();
+        if (data.contains("bullet_tex"))
+            wep.BulletTexture = data["bullet_tex"].get<string>();
+        if (data.contains("sound"))
+            wep.sound = data["sound"].get<string>();
+        Weapons.insert({p, wep});
+        g.close();
+    }
+
+    auto* p = new SpeedPowerup();
+    auto* s = new ShieldPowerup();
+    Powerups.insert({"speed", p});
+    Powerups.insert({"shield", s});
+}
+
+void ResourceManager::Quit()
+{
+    for (auto& [name,value] : Powerups)
+        delete value;
+    for (auto& [name,value] : Textures)
+        UnloadTexture(value);
+    for (auto& [name,value] : Shaders)
+        UnloadShader(value);
+    EnemyWeaponNamesList.clear();
+}

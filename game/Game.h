@@ -19,6 +19,7 @@
 #include "../level/TileManager.h"
 #include "ui/UIManager.h"
 #include "../entities/Weapons.h"
+#include "managers/ResourceManager.h"
 
 using namespace std;
 
@@ -61,19 +62,13 @@ class Game {
         ParticleManager MainParticleManager;
         SoundManager MainSoundManager;
         GameModeManager MainGameModeManager;
+        ResourceManager MainResourceManager;
 
         shared_ptr<Player> MainPlayer;
         std::vector<WeaponPickup> WeaponPickups;
 
-        // Assets
-        unordered_map<std::string, Texture2D> Textures;
-        unordered_map<std::string, Shader> Shaders;
-        unordered_map<std::string, Weapon> Weapons;
-        unordered_map<std::string, Powerup*> Powerups;
-
         // Extra Assets
         unordered_map<std::string, std::string> EnemyRoleWeapons;
-        std::vector<std::string> EnemyWeaponNamesList;
         std::vector<std::string> BannedWeaponDrops;
 
         Game(std::map<std::string, nlohmann::json> json);

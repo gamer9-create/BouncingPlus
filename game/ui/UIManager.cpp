@@ -316,6 +316,14 @@ void UIManager::GameUI() {
             UITransparency = 0.0f;
     }
 
+    if (game->MainPlayer->IsPreparingForDash || game->MainPlayer->weaponsSystem.CurrentWeapon != nullptr)
+    {
+        float xMov = sin(GetTime() * 2) * 5;
+        float yMov = cos(GetTime() * 2) * 5;
+        for (int i = 0; i < 10; i++)
+            DrawCircleLines(GetScreenWidth()/2.0f + xMov, GetScreenHeight()/2 + yMov, 2.0f + (i / 2.0f), ColorAlpha(WHITE, UITransparency / 2.0f));
+    }
+
     DisplayTopHUD();
 
     if (game->Paused)
@@ -338,7 +346,7 @@ void UIManager::DisplayTopHUD()
     float y = 50 + font_size;
 
     Rectangle rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
-    DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, UITransparency * 0.75f));
+    DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, UITransparency * 0.75f+0.25f));
     DrawText(txt.c_str(), x, y, font_size, ColorAlpha(WHITE, UITransparency));
     DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
 
@@ -362,7 +370,7 @@ void UIManager::DisplayTopHUD()
         float y = 50 + font_size;
 
         Rectangle rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
-        DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, UITransparency * 0.75f));
+        DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, (UITransparency * 0.75f)+0.25f));
         DrawText(txt.c_str(), x, y, font_size, ColorAlpha(WHITE, UITransparency));
         DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
 

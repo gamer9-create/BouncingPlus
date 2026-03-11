@@ -58,6 +58,8 @@ add_executable(BouncingPlus main.cpp
         game/ui/Tutorial.h
         game/Profiler.cpp
         game/Profiler.h
+        game/managers/ResourceManager.cpp
+        game/managers/ResourceManager.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)

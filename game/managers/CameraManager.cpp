@@ -60,17 +60,17 @@ void CameraManager::QuickZoom(float Zoom, double Time, bool Instant) {
 
 void CameraManager::Display() {
     if (ShaderDraw)
-        BeginShaderMode(game->Shaders["pixelizer"]);
+        BeginShaderMode(game->MainResourceManager.Shaders["pixelizer"]);
     int w = CameraRenderTexture.texture.width;
     int h = CameraRenderTexture.texture.height;
     if (uWidth == -1 || uHeight == -1 || uPixelSize == -1) {
-        uWidth = GetShaderLocation(this->game->Shaders["pixelizer"], "renderWidth");
-        uHeight = GetShaderLocation(this->game->Shaders["pixelizer"], "renderHeight");
-        uPixelSize = GetShaderLocation(this->game->Shaders["pixelizer"], "pixelSize");
+        uWidth = GetShaderLocation(this->game->MainResourceManager.Shaders["pixelizer"], "renderWidth");
+        uHeight = GetShaderLocation(this->game->MainResourceManager.Shaders["pixelizer"], "renderHeight");
+        uPixelSize = GetShaderLocation(this->game->MainResourceManager.Shaders["pixelizer"], "pixelSize");
     }
-    SetShaderValue(game->Shaders["pixelizer"], uWidth, &w, SHADER_UNIFORM_INT);
-    SetShaderValue(game->Shaders["pixelizer"], uHeight, &h, SHADER_UNIFORM_INT);
-    SetShaderValue(game->Shaders["pixelizer"], uPixelSize, &ShaderPixelPower, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(game->MainResourceManager.Shaders["pixelizer"], uWidth, &w, SHADER_UNIFORM_INT);
+    SetShaderValue(game->MainResourceManager.Shaders["pixelizer"], uHeight, &h, SHADER_UNIFORM_INT);
+    SetShaderValue(game->MainResourceManager.Shaders["pixelizer"], uPixelSize, &ShaderPixelPower, SHADER_UNIFORM_FLOAT);
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTexturePro(CameraRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
     EndBlendMode();
@@ -122,16 +122,16 @@ void CameraManager::BackgroundLines() {
         }
     } else
     {
-        Texture& bg = game->Textures["bg"+to_string(BGTexture)];
-        BeginShaderMode(game->Shaders["blur"]);
+        Texture& bg = game->MainResourceManager.Textures["bg"+to_string(BGTexture)];
+        BeginShaderMode(game->MainResourceManager.Shaders["blur"]);
         int w = bg.width / (static_cast<int>(abs(sin(game->GetGameTime() / 10.0f) * 12.0f)) + 1);
         int h = bg.height / (static_cast<int>(abs(cos(game->GetGameTime() / 10.0f) * 12.0f)) + 1);
         if (uWidth2 == -1 || uHeight2 == -1) {
-            uWidth2 = GetShaderLocation(this->game->Shaders["blur"], "renderWidth");
-            uHeight2 = GetShaderLocation(this->game->Shaders["blur"], "renderHeight");
+            uWidth2 = GetShaderLocation(this->game->MainResourceManager.Shaders["blur"], "renderWidth");
+            uHeight2 = GetShaderLocation(this->game->MainResourceManager.Shaders["blur"], "renderHeight");
         }
-        SetShaderValue(game->Shaders["blur"], uWidth2, &w, SHADER_UNIFORM_INT);
-        SetShaderValue(game->Shaders["blur"], uHeight2, &h, SHADER_UNIFORM_INT);
+        SetShaderValue(game->MainResourceManager.Shaders["blur"], uWidth2, &w, SHADER_UNIFORM_INT);
+        SetShaderValue(game->MainResourceManager.Shaders["blur"], uHeight2, &h, SHADER_UNIFORM_INT);
         BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
 
         int times_x = (int) ((game->MainTileManager.MapWidth * game->MainTileManager.TileSize) / bg.width) + 1;
@@ -144,8 +144,8 @@ void CameraManager::BackgroundLines() {
 
         w /=2;
         h /=2;
-        SetShaderValue(game->Shaders["blur"], uWidth2, &w, SHADER_UNIFORM_INT);
-        SetShaderValue(game->Shaders["blur"], uHeight2, &h, SHADER_UNIFORM_INT);
+        SetShaderValue(game->MainResourceManager.Shaders["blur"], uWidth2, &w, SHADER_UNIFORM_INT);
+        SetShaderValue(game->MainResourceManager.Shaders["blur"], uHeight2, &h, SHADER_UNIFORM_INT);
         DrawTexturePro(bg, {0, 0, (float)bg.width*3.0f,(float)bg.height*3.0f}, {
             -(ParallaxCamX/2.0f) + CameraPosition.x,
             -(ParallaxCamY/2.0f) + CameraPosition.y,
@@ -184,6 +184,7 @@ void CameraManager::UpdateCamera() {
         CameraPositionUnaffected.y += TargetY / ImportantVal;
         CameraPosition = {CameraPositionUnaffected.x - CameraShakeOffset.x, CameraPositionUnaffected.y - CameraShakeOffset.y};
         CameraPosition = Vector2Add(CameraPosition, MouseOffset);
+        CameraPosition = Vector2Add(CameraPosition, Vector2{(5.0f + min(game->MainPlayer->Kills, 7)) * (float)sin(game->GetGameTime()), (5.0f + min(game->MainPlayer->Kills, 7)) * (float)cos(game->GetGameTime())});
     }
 
     RaylibCamera.zoom = lerp(RaylibCamera.zoom, CameraZoom * GetNaturalZoom(), 4.0f * game->GetGameDeltaTime());

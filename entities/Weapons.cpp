@@ -55,7 +55,7 @@ void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
     float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
     float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
     float FinalAngle = (atan2(cy - Target.y, cx - Target.x) * RAD2DEG);
-    MeleeAnimTexture = &game->Textures[CurrentWeapon->texture];
+    MeleeAnimTexture = &game->MainResourceManager.Textures[CurrentWeapon->texture];
     float width = MeleeAnimTexture->width*CurrentWeapon->WeaponSize;
     float height = MeleeAnimTexture->height*CurrentWeapon->WeaponSize;
     DrawTexturePro(*MeleeAnimTexture, Rectangle(0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)),
@@ -70,7 +70,7 @@ bool WeaponsSystem::GiveWeapon(std::string WeaponName, int Ammo)
         if (Weapons[i].empty())
         {
             Weapons[i] = WeaponName;
-            WeaponAmmo[i] = (Ammo == -1) ? game->Weapons[WeaponName].Ammo : Ammo;
+            WeaponAmmo[i] = (Ammo == -1) ? game->MainResourceManager.Weapons[WeaponName].Ammo : Ammo;
             return true;
         }
     }
@@ -279,7 +279,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
         // Gun attack
         if (Valid && !CurrentWeapon->isMelee) {
 
-            std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->Textures.contains(CurrentWeapon->BulletTexture))
+            std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->MainResourceManager.Textures.contains(CurrentWeapon->BulletTexture))
             ? CurrentWeapon->BulletTexture : "bullet";
 
             float BulletLifetime = 8.5f;
@@ -295,7 +295,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
 
                 // create bullet with weapon settings
                 shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed, CurrentWeapon->Damage, BulletLifetime,
-                                                                game->Textures[BulletTexture], Owner, *game);
+                                                                game->MainResourceManager.Textures[BulletTexture], Owner, *game);
                 bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
                 bullet->HealthGain = CurrentWeapon->HealthGain;
                 if (Owner->Type == PlayerType)
@@ -314,7 +314,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
             // Get angle, set basic starting variables
             this->MeleeAnim = true;
             this->MeleeAnimPercent = 0;
-            this->MeleeAnimTexture = &game->Textures[CurrentWeapon->texture];
+            this->MeleeAnimTexture = &game->MainResourceManager.Textures[CurrentWeapon->texture];
             this->MeleeAnimAngle = TargetAngle - 90;
 
             // player attack check
@@ -342,7 +342,7 @@ void WeaponsSystem::Equip(int Index) {
     // if weapon exists and we have space, equip it
     if (Weapons->length() > Index && !Weapons[Index].empty()) {
         CurrentWeaponIndex = Index;
-        CurrentWeapon = &game->Weapons[Weapons[CurrentWeaponIndex]];
+        CurrentWeapon = &game->MainResourceManager.Weapons[Weapons[CurrentWeaponIndex]];
         TimeStartedReloading = -1;
     }
 }

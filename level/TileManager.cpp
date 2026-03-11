@@ -33,7 +33,6 @@ TileManager::TileManager(Game &game) {
     TileTypes[8] = EnemySpawnTileType; // enemy spawn tile type
     TileTypes[9] = UpgradeStationTileType; // upgrade station tile type
     TileTypes[10] = BossTileType; // boss
-
 }
 
 void TileManager::Update() {
@@ -48,9 +47,9 @@ void TileManager::Update() {
             int tile_id = Map[coord];
             Texture* tile_tex = nullptr;
             if (tile_id == 1)
-                tile_tex = &game->Textures["bouncy_wall"];
+                tile_tex = &game->MainResourceManager.Textures["bouncy_wall"];
             if (tile_id == 2)
-                tile_tex = &game->Textures["delete_wall"];
+                tile_tex = &game->MainResourceManager.Textures["delete_wall"];
 
             if (tile_tex != nullptr) {
                 float bbox_x = curr_tile_x * TileSize;
@@ -147,7 +146,7 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
     Armor *= Multiplier;
     Speed *= Multiplier;
     Health *= Multiplier;
-    game->MainEntityManager.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->Textures["enemy"], *game));
+    game->MainEntityManager.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->MainResourceManager.Textures["enemy"], *game));
 }
 
 void TileManager::ReadMapDataFile(std::string Filename) {

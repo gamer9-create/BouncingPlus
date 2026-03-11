@@ -12,7 +12,7 @@
 FaceBoss::FaceBoss() {
 }
 
-FaceBoss::FaceBoss(Game &game, float bbox_x, float bbox_y) :Entity(game.Textures["boss1_img"], {bbox_x, bbox_y, 112*4, 71*4}, 0, game) {
+FaceBoss::FaceBoss(Game &game, float bbox_x, float bbox_y) :Entity(game.MainResourceManager.Textures["boss1_img"], {bbox_x, bbox_y, 112*4, 71*4}, 0, game) {
     // Exact starting position of the boss
     StartPos = Vector2(bbox_x+BoundingBox.width/2, bbox_y+BoundingBox.height/2);
 
@@ -34,7 +34,7 @@ void FaceBoss::Render() {
         this->game->MainPlayer->BoundingBox.y + this->game->MainPlayer->BoundingBox.width/2
     })), {-25,-25});
 
-    DrawTexturePro(game->Textures["enemy"], {0, 0, 36, 36},
+    DrawTexturePro(game->MainResourceManager.Textures["enemy"], {0, 0, 36, 36},
             {Eye1Position.x + Offset.x, Eye1Position.y + Offset.y, 36, 36},
             {18, 18}, 0, BLUE);
 
@@ -43,13 +43,13 @@ void FaceBoss::Render() {
         this->game->MainPlayer->BoundingBox.y + this->game->MainPlayer->BoundingBox.width/2
     })), {-25,-25});
 
-    DrawTexturePro(game->Textures["enemy"], {0, 0, 36, 36},
+    DrawTexturePro(game->MainResourceManager.Textures["enemy"], {0, 0, 36, 36},
             {Eye2Position.x + Offset.x, Eye2Position.y + Offset.y, 36, 36},
             {18, 18}, 0, BLUE);
 
 
     // Mouth rendering
-    DrawTexturePro(game->Textures["mouth"], {0, 0, 300, 36},
+    DrawTexturePro(game->MainResourceManager.Textures["mouth"], {0, 0, 300, 36},
             {StartPos.x+(float)cos(game->GetGameTime()) * 5, StartPos.y+60+(float)sin(game->GetGameTime()) * 5, 300, 36},
             {150, 18}, 0, BLUE);
 

@@ -7,20 +7,44 @@ metadata.json
 
 for metadata.json:
 
-  "description": "No special dudes, just pure bullets.", // in-game description for the level
-  "inventory": ["Player Gun"], // what weapons will the player spawn with? check the weapondata folder for available weapons
-  "powerup": "speed", // what powerups will the player have? powerups include: shelid
-  "difficulty": 4, // difficulty level. 1-4 range
-  "starting_health": 200, // starting player health
-  "game": { // game mode info
-    "timer": -1, // will the level have a timer?
-    "boss": "", // will the level have a boss? current bosses: face
-    "mode": "default", // what game mode is the level? current game modes: default, boss, wave
-    "banned_spawn_weapons": ["Default Gun","Player Gun"] // what weapons can are enemy not allowed to spawn with?
-  "enemy_weapons": { // what weapons certain types of enemies can spawn with
+  "description": "A true test!", // level description (in-game, does nothing to gameplay)
+  "difficulty": 3, // 1-5 scale. impacts enemy health, armor, and speed values.
+  "player": { // player properties
+    "starting_health": 150, // starting health
+    "starting_speed": 350, // starting speed, pixels per second
+    "inventory": ["Sword", "Shotgun", ""], // loadout
+    "powerup": "shield", // player powerup, powerups: speed and shield
+
+     // a LOT of dash related settings.
+    "dash_base_power": 2500, (pixels per second)
+    "dash_power_multiplier": 1, (multiply the power of the dash)
+    "dash_base_cooldown": 1.1, (seconds)
+    "dash_concentration_boost": 1, (multiplier, increases dashing damage when more enemies/bullets are in the area)
+    "dodge_cooldown": 3.0, (seconds)
+    "dodge_iframe_time": 1.0, (how long is the player made invincible during dodging?)
+    "dash_iframe_time": 0.1,(how long is the player made invincible during dashing?)
+    "dash_frozen_multiplier": 0.5(simple time multiplier for freezing player movement in the middle of a dash/dodge)
+  },
+  "game": { // game properties
+    "timer": -1, // does the level have a timer?
+    "boss": "", // does the level have a boss? bosses: face
+    "mode": "default", // what gamemode is the level? current modes: default,wave,boss
+    "banned_spawn_weapons": ["Default Gun","Player Gun"] // what weapons are spawned enemies from spawners NOT allowed to spawn with?
+  },
+  "enemy_weapons": { // weapon bindings for basic shotgunners and swordsmen
     "shotgun": "Enemy Shotgun",
     "sword": "Enemy Sword"
   }
 
 for map_data.csv, you need the tiled map editor software and tileset. u can get the tileset from the BouncingPlus github repo
 make a map in tiled. once done, export the map as .csv and save as map_data.csv
+
+day 434?876?556?68?63020?e.29402?4500
+
+01010000 01001100 01000101 01000001 01010011 01000101 00100000 01001000 01000101 01001100 01010000 00100000 01001101 01000101
+00101110 00100000 01001001 00100000 01000011 01000001 01001110 00100111 01010100 00100000
+01000010 01000101 01000001 01010010 00100000 01001000 01001001 01001101 00100000 01000001 01001110 01011001 00100000 01001100 01001111
+01001110 01000111 01000101 01010010 00101110 00100000 01001000 01000101 00100000 01001001 01010011 00100000 01000111
+01001111 01001001 01001110 01000111 00100000 01010100 01001111 00100000 01001011 01001001
+
+FEED IT MORE FEED IT MORE FEED IT MORE FEED IT MORE FEED IT MORE FEED IT MORE FEED IT MORE

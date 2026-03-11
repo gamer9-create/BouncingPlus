@@ -1,9 +1,20 @@
 {
   "description": "No special dudes, just pure bullets.",
-  "inventory": ["Player Gun"],
-  "powerup": "shield",
   "difficulty": 4,
-  "starting_health": 200,
+  "player": {
+    "inventory": ["Player Gun"],
+    "powerup": "shield",
+    "starting_health": 200,
+    "starting_speed": 350,
+    "dash_base_power": 2500,
+    "dash_power_multiplier": 1.25,
+    "dash_base_cooldown": 0.8,
+    "dash_concentration_boost": 0.7,
+    "dodge_cooldown": 1.8,
+    "dodge_iframe_time": 1.0,
+    "dash_iframe_time": 0.1,
+    "dash_frozen_multiplier": 0.5
+  },
   "game": {
     "timer": -1,
     "boss": "",

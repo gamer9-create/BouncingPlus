@@ -78,7 +78,6 @@ int main(int argc, char *argv[]) {
         }
         DrawFPS(0,0);
 
-        EndMode2D();
         EndDrawing();
     }
 

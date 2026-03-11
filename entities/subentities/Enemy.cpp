@@ -46,7 +46,7 @@ void Enemy::Init(float X, float Y, float Health, float Speed, float Armor, std::
     this->WanderPos = {BoundingBox.x, BoundingBox.y};
     this->WanderingEnabled = true;
     this->Alpha = 0;
-    wc=GetRandomValue(5,10);
+    wc=GetRandomValue(1,4);
     LastSetWanderPos = wc;
     this->EntityColor = ColorAlpha(WHITE, Alpha);
     this->ActivationTimer = game.GetGameTime();
@@ -204,7 +204,7 @@ void Enemy::Update() {
     weaponsSystem.Update();
     Entity::Update();
     if (IsVisible() && Armor > 0)
-        DrawTexturePro(game->Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width, BoundingBox.height}, Vector2(BoundingBox.width/2,BoundingBox.height/2), Rotation, EntityColor);
+        DrawTexturePro(game->MainResourceManager.Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width, BoundingBox.height}, Vector2(BoundingBox.width/2,BoundingBox.height/2), Rotation, EntityColor);
 }
 
 void Enemy::MoveAwayFromWalls()

@@ -9,100 +9,55 @@
 
 #include "../../game/Game.h"
 
-double to_positive_angle(double angle)
-{
-    angle = fmod(angle, 360);
-    if (angle < 0) angle += 360;
-    return angle;
-}
-
 UpgradeStation::UpgradeStation() {
 }
 
-UpgradeStation::UpgradeStation(Game &game, float bbox_x, float bbox_y) :Entity(game.Textures["nut"], {bbox_x-7, bbox_y-7, 15, 15}, 0, game) {
-    isAnimating=false;
-    GoalAngle=Rotation;
-    CooldownTimer = 0;
-    SecondArmRot = 0;
-    Ani1Timer = 0;
+UpgradeStation::UpgradeStation(Game &game, float bbox_x, float bbox_y) :Entity(game.MainResourceManager.Textures["upgrade_core"], {bbox_x-49.0f, bbox_y-49.0f, 98, 98}, 0, game) {
     this->Type = UpgradeStationType;
-    s = {0,0};
 }
 
 void UpgradeStation::Render() {
-    for (int i = 0; i < 3; i ++) {
-        DrawCircle(BoundingBox.x+7,
-            BoundingBox.y+7,
-            36-i*2, ColorLerp(GRAY, WHITE, 0.1f * i));
-    }
-    float w = 75;
-    Vector2 sv = {cos(Rotation * (2 * PI / 360)),sin(Rotation * (2 * PI / 360))};
-    Vector2 uv = {cos((Rotation+SecondArmRot) * (2 * PI / 360)),sin((Rotation+SecondArmRot) * (2 * PI / 360))};
-    Vector2 v = Vector2Multiply(sv, {-w/2, -w/2});
-    Vector2 u = Vector2Multiply(sv, {-w, -w});
-    uv = Vector2Multiply(uv, {-w, -w});
-    v = Vector2Add({BoundingBox.x+BoundingBox.width/2,BoundingBox.y+BoundingBox.height/2}, v);
-    u = Vector2Add({BoundingBox.x+BoundingBox.width/2,BoundingBox.y+BoundingBox.height/2}, u);
-    s = Vector2Add(u, uv);
-    DrawRectanglePro({v.x, v.y, w, 36}, {w/2, 18}, Rotation, GRAY);
-    DrawRectanglePro({u.x, u.y, w, 36}, {w, 18}, Rotation+SecondArmRot, GRAY);
-    Vector2 PlayerPos = {game->MainPlayer->BoundingBox.x+game->MainPlayer->BoundingBox.width/2,game->MainPlayer->BoundingBox.y+game->MainPlayer->BoundingBox.height/2};
-    float F = 180-(Vector2LineAngle(s, PlayerPos)*RAD2DEG);
-    if (!isAnimating || abs(Rotation-GoalAngle) <= 10) {
-        float A = F - Rotation;
-        if (Vector2Distance(s, PlayerPos) <= 50)
-            A = -180;
-        SecondArmRot = Lerp(SecondArmRot, A, 2.0f * game->GetGameDeltaTime());
-    }
-    DrawTexturePro(game->Textures["arm_tip"],{0,0,36,36},{s.x,s.y,36,36},{18,36},Rotation+SecondArmRot-90,GRAY);
-    for (int i = 0; i < 3; i ++) {
-        DrawCircle(u.x,
-            u.y,
-            18-i*2, ColorLerp(GRAY, WHITE, 0.1f * i));
-    }
+
+    float center_x = BoundingBox.x + BoundingBox.width/2;
+    float center_y = BoundingBox.y + BoundingBox.height/2;
+
+    Vector2 mov = Vector2Normalize(Vector2{1,1});
+    float dist = 58;
+    float div = 12.0f;
+
+    Color my_color1 = ColorLerp(GRAY, DARKGRAY, 0.5f + 0.5f * sin(game->GetGameTime()*2.9f + 184.85f));
+    Color my_color2 = ColorLerp(GRAY, BLACK, 0.5f + 0.5f * sin(game->GetGameTime()*2.2f + 6.29f));
+    Color my_color3 = ColorLerp(GRAY, WHITE, 0.5f + 0.5f * sin(game->GetGameTime()*1.5f - 8.29f));
+    Color my_color4 = ColorLerp(GRAY, LIGHTGRAY, 0.5f + 0.5f * sin(game->GetGameTime()*3.3f - 5.38f));
+
+    float rand_mov_x_1 = sin(game->GetGameTime() * 1.35f) * (dist/div);
+    float rand_mov_y_1 = cos(game->GetGameTime() * 1.35f) * (dist/div);
+
+    float rand_mov_x_2 = sin(game->GetGameTime() * 1.35f + 483.38f) * (dist/div);
+    float rand_mov_y_2 = cos(game->GetGameTime() * 1.35f + 483.38f) * (dist/div);
+
+    float rand_mov_x_3 = sin(game->GetGameTime() * 1.35f - 109.38f) * (dist/div);
+    float rand_mov_y_3 = cos(game->GetGameTime() * 1.35f - 109.38f) * (dist/div);
+
+    float rand_mov_x_4 = sin(game->GetGameTime() * 1.35f+ 584.33f) * (dist/div);
+    float rand_mov_y_4 = cos(game->GetGameTime() * 1.35f+584.33f) * (dist/div);
+
+    DrawTexturePro(game->MainResourceManager.Textures["upgrade_side_blade"],{0, 0, 49, 49}, {center_x - mov.x * dist + rand_mov_x_1, center_y + mov.y * dist + rand_mov_y_1,68.6f, 68.6f}, {34.3f, 34.3f}, 0, my_color1);
+    DrawTexturePro(game->MainResourceManager.Textures["upgrade_side_blade"],{0, 0, 49, 49}, {center_x + mov.x * dist + rand_mov_x_2, center_y + mov.y * dist + rand_mov_y_2,68.6f, 68.6f}, {34.3f, 34.3f}, -90, my_color2);
+
+    DrawTexturePro(game->MainResourceManager.Textures["upgrade_side_blade"],{0, 0, 49, 49}, {center_x - mov.x * dist + rand_mov_x_3, center_y - mov.y * dist  + rand_mov_y_3,68.6f, 68.6f}, {34.3f, 34.3f}, 90, my_color3);
+    DrawTexturePro(game->MainResourceManager.Textures["upgrade_side_blade"],{0, 0, 49, 49}, {center_x + mov.x * dist + rand_mov_x_4, center_y - mov.y * dist + rand_mov_y_4,68.6f, 68.6f}, {34.3f, 34.3f}, 180, my_color4);
 }
 
 void UpgradeStation::PhysicsUpdate(float dt, double time) {
     Entity::PhysicsUpdate(dt,time);
-    Vector2 PlayerPos = {game->MainPlayer->BoundingBox.x+game->MainPlayer->BoundingBox.width/2,game->MainPlayer->BoundingBox.y+game->MainPlayer->BoundingBox.height/2};
-    if (Vector2Distance(s, PlayerPos) <= 50) {
-        PlayerPos = s;
-        game->MainPlayer->BoundingBox.x = PlayerPos.x - game->MainPlayer->BoundingBox.width/2;
-        game->MainPlayer->BoundingBox.y = PlayerPos.y - game->MainPlayer->BoundingBox.height/2;
-        game->MainPlayer->weaponsSystem.Unequip();
-        if (!game->MainPlayer->isInvincible)
-            game->MainPlayer->ToggleInvincibility();
-    }
 }
 
 UpgradeStation::~UpgradeStation() {
 }
 
-void UpgradeStation::AnimateTowards(float Angle) {
-    if (!isAnimating) {
-        GoalAngle = to_positive_angle(Angle);
-        isAnimating = true;
-        CooldownTimer= 0;
-        Ani1Timer=0;
-    }
-}
-
 void UpgradeStation::Update() {
-    if (isAnimating) {
-        if (abs(Rotation-GoalAngle) <= 10) {
-            CooldownTimer += game->GetGameDeltaTime();
-            if (CooldownTimer >= 4)
-                isAnimating = false;
-        } else {
-            Ani1Timer += game->GetGameDeltaTime();
-            if (!(Ani1Timer >= 0.4f && Ani1Timer <= 0.45f))
-                Rotation -= 30 * game->GetGameDeltaTime() * (Rotation - GoalAngle > 0 ? 1.0f : -1.0f);
-        }
-    }
 
-    //Rotation = 180-(Vector2LineAngle({BoundingBox.x+BoundingBox.width/2,BoundingBox.y+BoundingBox.height/2}, {game->MainPlayer->BoundingBox.x+game->MainPlayer->BoundingBox.width/2,game->MainPlayer->BoundingBox.y+game->MainPlayer->BoundingBox.height/2})*RAD2DEG);
-    AnimateTowards(180-(Vector2LineAngle({BoundingBox.x+BoundingBox.width/2,BoundingBox.y+BoundingBox.height/2}, {game->MainPlayer->BoundingBox.x+game->MainPlayer->BoundingBox.width/2,game->MainPlayer->BoundingBox.y+game->MainPlayer->BoundingBox.height/2})*RAD2DEG)+
-        GetRandomValue(-35, 35));
     Entity::Update();
     Render();
 }

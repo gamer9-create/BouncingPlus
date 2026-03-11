@@ -9,7 +9,7 @@
   "WeaponSize": 1, // weapon texture size multiplier
   "Ammo": -1 // how much ammo/ shots fired before reload (-1 for unlimited ammo)
   "ReloadTime": 0 // how much time is needed for reload (seconds)
-    "Spread": [0,0], // angle range of the bullet spread. degrees. example: -45, 45 will mean the bullets can fire in a total of 90 degrees cone
+  "Spread": [0,0], // angle range of the bullet spread. degrees. example: -45, 45 will mean the bullets can fire in a total of 90 degrees cone
   "Size": [1, 1], // how big are the bullets? (multiplier x and y)
   "Damage": 20, // how much damage does each bullet/each swing do? (hp points)
   "HealthGain": 20, // how much health is gained upon killing an enemy? (hp points)
