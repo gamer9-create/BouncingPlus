@@ -89,7 +89,7 @@ void Enemy::Wander() {
             LastSetWanderPos = game->GetGameTime();
         } else
         {
-            WanderPos = {BoundingBox.x + GetRandomValue(-1000, 0100), BoundingBox.y + GetRandomValue(-1000, 1000)};
+            WanderPos = {BoundingBox.x + GetRandomValue(-1000, 1000), BoundingBox.y + GetRandomValue(-1000, 1000)};
         }
     } else if (Vector2Distance({BoundingBox.x, BoundingBox.y}, WanderPos) >= 36) {
         Movement = Vector2Subtract(WanderPos, {BoundingBox.x, BoundingBox.y});
@@ -97,6 +97,13 @@ void Enemy::Wander() {
 }
 
 void Enemy::OnDelete() {
+    if (this->Behavior != nullptr)
+        this->Behavior.reset();
+    Entity::OnDelete();
+}
+
+void Enemy::OnDeath()
+{
     game->MainParticleManager.ParticleEffect({
                 {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2},
                 300,
@@ -118,9 +125,6 @@ void Enemy::OnDelete() {
             15
             });
     }
-    if (this->Behavior != nullptr)
-        this->Behavior.reset();
-    Entity::OnDelete();
 }
 
 void Enemy::Update() {

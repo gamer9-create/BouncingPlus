@@ -116,7 +116,7 @@ void Entity::PhysicsUpdate(float dt, double time) {
 
                     int dir_hit = -1; // -1 = none, 0 = left, 1 = up, 2 = right, 3 = down
                     int i= 0;
-                    auto dirs = new int[4];
+                    int dirs[4] = {0, 0, 0, 0};
 
                     Rectangle left_rect = bbox;
                     left_rect.x -= bbox.width;
@@ -301,5 +301,10 @@ void Entity::Update() {
 }
 
 void Entity::OnDelete() {
+
+}
+
+void Entity::OnDeath()
+{
 
 }

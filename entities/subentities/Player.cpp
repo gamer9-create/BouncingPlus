@@ -97,7 +97,7 @@ void Player::PhysicsUpdate(float dt, double time) {
     }
     ExtraSpeed = min(ExtraSpeed, 400.0f);
     Speed = (OrigSpeed + ExtraSpeed + SpeedBuff);
-    if ((Health/MaxHealth) > 2.0f && !isInvincible)
+    if ((Health/MaxHealth) > 2.0f)
         Speed *= (1.0f - min(((Health/MaxHealth)-3.0f) / 2.0f, 0.5f));
     if (VelocityPower > 0 && !Dodging) {
         // get enemies list
@@ -125,7 +125,11 @@ void Player::PhysicsUpdate(float dt, double time) {
 
 void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked) {
     // check if we're colliding with them. if so, attack!
-    if (CheckCollisionRecs(Rectangle{BoundingBox.x - 4, BoundingBox.y - 4, BoundingBox.width + 8, BoundingBox.height + 8}, entity->BoundingBox) && !already_attacked) {
+    float extra_size = 32;
+    Rectangle myRect = Rectangle{BoundingBox.x - extra_size / 2, BoundingBox.y - extra_size / 2, BoundingBox.width + extra_size, BoundingBox.height + extra_size};
+    if (game->DebugDraw)
+        DrawRectangleRec(myRect, ColorAlpha(RED, 0.5f));
+    if (CheckCollisionRecs(myRect, entity->BoundingBox) && !already_attacked) {
         // calculate damage & attack
         float Damage = VelocityPower / 22.5f;
 
@@ -137,7 +141,7 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
                 if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) < 550)
                 {
                     EnemyConcentration += 0.06f;
-                    if (EnemyConcentration >= 2.5f)
+                    if (EnemyConcentration >= 1.25f)
                         break;
                 }
             }
@@ -149,13 +153,13 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
                 if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) < 400)
                 {
                     EnemyConcentration += 0.01f;
-                    if (EnemyConcentration >= 2.5f)
+                    if (EnemyConcentration >= 1.25f)
                         break;
                 }
             }
         }
 
-        EnemyConcentration = min(EnemyConcentration, 2.5f);
+        EnemyConcentration = min(EnemyConcentration, 1.25f);
         EnemyConcentration *= game->LevelData[game->CurrentLevelName]["player"]["dash_concentration_boost"].get<float>();
 
         Damage *= EnemyConcentration;
@@ -167,16 +171,16 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
             entity->Armor -= Damage;
         }
 
-        float reward = Damage / 4.7f;
+        float reward = Damage / 6.0f;
         Health += reward;
 
         float amount = 1500.0f;
 
         // did we kill them? if so, give health & kills
         if (entity->Health <= 0) {
-            Health += Damage * 0.6f;
+            Health += Damage * 0.1f;
             //game->Slowdown(0.35f, VelocityPower / 1450.0f);
-            amount= 950;
+            amount = 950;
             Kills+=1;
             game->GameScore += 25;
         }
@@ -186,7 +190,7 @@ void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attac
         game->MainCameraManager.ShakeCamera(VelocityPower / (amount - 50) / 1.5f);
         game->MainCameraManager.QuickZoom(0.95f, 0.05f, false);
         //game->Slowdown(0.5f);
-        game->MainSoundManager.PlaySoundM("dash_hit",min(max(VelocityPower/amount, 0.0f), 1.0f));
+        game->MainSoundManager.PlaySoundM("dash_hit",min(max(VelocityPower/amount, 0.0f), 0.8f));
 
         // give them pushback force
         entity->VelocityMovement = VelocityMovement;
@@ -221,7 +225,6 @@ void Player::DashLogic() {
     if (DashCooldown > 0)
         DashCooldown -= game->GetGameDeltaTime();
 
-    Vector2 WorldMousePos = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
     if (DashCooldown <= 0 && IsKeyDown(KEY_LEFT_SHIFT)) {
         if (!IsPreparingForDash) {
             DashTimeStart = game->GetGameTime();
@@ -239,14 +242,13 @@ void Player::DashLogic() {
             if (static_cast<float>(game->GetGameTime() - DashTimeStart) / 1.1f > 0.8f)
                 PlayerDashLineThickness = Lerp(PlayerDashLineThickness, 20, 2 * game->GetGameDeltaTime());
             float alpha = static_cast<float>(game->GetGameTime() - DashTimeStart) / 1.1f;
-            Vector2 mp1 = Vector2Subtract(GetMousePosition(), Vector2{GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f});
-            Vector2 Target = {BoundingBox.x + BoundingBox.width / 2.0f + mp1.x, BoundingBox.y + BoundingBox.height / 2.0f + mp1.y};
+            Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
             float cx = BoundingBox.x + BoundingBox.width / 2;
             float cy = BoundingBox.y + BoundingBox.height / 2;
             float FinalAngle = (atan2(cy - Target.y, cx - Target.x) * RAD2DEG);
-            Texture2D& MeleeAnimTexture = game->MainResourceManager.Textures["arrow"];
-            float width = MeleeAnimTexture.width;
-            float height = MeleeAnimTexture.height;
+            Texture2D& anim_tex = game->MainResourceManager.Textures["arrow"];
+            float width = anim_tex.width;
+            float height = anim_tex.height;
             BeginShaderMode(game->MainResourceManager.Shaders["dash_arrow"]);
             float t = static_cast<float>(game->GetGameTime() - DashTimeStart);
             SetShaderValue(game->MainResourceManager.Shaders["dash_arrow"],
@@ -254,7 +256,7 @@ void Player::DashLogic() {
                 &t,
                 SHADER_ATTRIB_FLOAT);
             float size = 0.375f;
-            DrawTexturePro(MeleeAnimTexture, Rectangle(0, 0, width, height *6),
+            DrawTexturePro(anim_tex, Rectangle(0, 0, width, height *6),
                            Rectangle(BoundingBox.x + BoundingBox.width/2 - cosf((FinalAngle) * DEG2RAD)*10,
                                BoundingBox.y +BoundingBox.height/2 - sinf((FinalAngle) * DEG2RAD)*10, width*size,
                                      height * 6 * size), Vector2(width * size * 0.5, height*6*size), FinalAngle-90, ColorAlpha(WHITE, alpha));
@@ -264,8 +266,7 @@ void Player::DashLogic() {
     if ((IsMouseButtonDown(1) || IsMouseButtonDown(0)) && IsPreparingForDash && Health > 0 && game->GetGameTime() - DashTimeStart >= 0.35f) {
         DashCooldown = game->LevelData[game->CurrentLevelName]["player"]["dash_base_cooldown"].get<float>() + (2.2f - min(static_cast<float>(game->GetGameTime() - DashTimeStart), 1.1f) * 2);
         DashedEnemies.clear();
-        Vector2 mp1 = Vector2Subtract(GetMousePosition(), Vector2{GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f});
-        VelocityMovement = mp1;
+        VelocityMovement = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera), {BoundingBox.x+BoundingBox.width/2, BoundingBox.y+BoundingBox.height/2});
         VelocityPower = game->LevelData[game->CurrentLevelName]["player"]["dash_base_power"].get<float>() * max(min(static_cast<float>(game->GetGameTime() - DashTimeStart), 1.1f), 0.45f);
         VelocityPower /= min(max((Health / MaxHealth)-2.0f, 1.0f), 1.25f);
         VelocityPower *= game->LevelData[game->CurrentLevelName]["player"]["dash_power_multiplier"].get<float>();
@@ -393,9 +394,6 @@ void Player::Update() {
         DrawTexturePro(game->MainResourceManager.Textures["warning"], {0,0,33,34},{BoundingBox.x + BoundingBox.width/2 + 12,BoundingBox.y - 24 - 10,24,24},{0,0},0,WHITE);
     }
 
-    float cx = BoundingBox.x + BoundingBox.width/2;
-    float cy = BoundingBox.y + BoundingBox.height/2;
-
     // player transparency processing
     EntityColor = ColorAlpha(WHITE, Alpha);
     Alpha = Lerp(Alpha, (InvincibilityResetTimer > 0 ? 0.5f : 1.0f), 5.5f*game->GetGameDeltaTime());
@@ -428,11 +426,7 @@ void Player::Update() {
         //Vector2 WorldMousePos = Vector2{0, 0};
         if (IsMouseButtonDown(0) && !IsPreparingForDash)
         {
-            Vector2 WorldMousePos = Vector2{0, 0};
-            WorldMousePos = GetMousePosition();
-            WorldMousePos = Vector2Subtract(WorldMousePos, Vector2{GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f});
-            WorldMousePos = Vector2Add(WorldMousePos, Vector2{cx,cy});
-            weaponsSystem.Attack(WorldMousePos);
+            weaponsSystem.Attack(GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera));
         }
 
         // reload logic

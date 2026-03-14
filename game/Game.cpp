@@ -21,8 +21,11 @@ namespace fs = std::filesystem;
 
 using namespace std;
 
-Game::Game(std::map<std::string, nlohmann::json> json)
+Game::Game(Settings& GameSettings)
 {
+    this->GameSettings = &GameSettings;
+    LevelData = this->GameSettings->LevelData;
+
     // init game services
     MainUIManager = UIManager(*this);
     MainTileManager = TileManager(*this);
@@ -52,7 +55,6 @@ Game::Game(std::map<std::string, nlohmann::json> json)
     // extra stuff
     MainPlayer = nullptr;
     CurrentLevelName = "";
-    LevelData = json;
     DebugDraw = false;
     ShouldReturn = false;
     isReturning = false;
@@ -229,6 +231,9 @@ void Game::Update() {
         Paused=true;
 
     if (!Paused) {
+        if (!IsCursorHidden())
+            HideCursor();
+
         if (IsKeyPressed(KEY_X))
             DebugDraw = !DebugDraw;
 
@@ -247,9 +252,9 @@ void Game::Update() {
 
         if (IsKeyPressed(KEY_E))
         {
-            //if (MainEntityManager.Entities[EnemyType].size() <= 0)
-            //    ShouldReturn = true;
-            if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && !CurrentLevelName.empty())
+            if (MainGameModeManager.WonLevel)
+                isReturning=true;
+            else if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && !CurrentLevelName.empty())
                 Reload(CurrentLevelName);
         }
 
@@ -286,6 +291,9 @@ void Game::Update() {
         DisplayPickups();
         MainCameraManager.End();
 
+    } else if (IsCursorHidden())
+    {
+        ShowCursor();
     }
 
     MainCameraManager.Display();
@@ -384,13 +392,13 @@ void Game::Clear() {
     isReturning = false;
     GameTime = 0;
     GameScore = 0;
+    MainEntityManager.Clear();
     BannedWeaponDrops.clear();
     EnemyRoleWeapons.clear();
     CurrentLevelName.clear();
     WeaponPickups.clear();
     MainTileManager.Clear();
     MainParticleManager.Clear();
-    MainEntityManager.Clear();
     MainSoundManager.Clear();
     MainCameraManager.Clear();
     MainGameModeManager.Clear();
@@ -428,13 +436,13 @@ void Game::UnloadAssets() {
 
 void Game::Quit() {
     Clear();
+    MainEntityManager.Quit();
     MainTileManager.Quit();
     MainUIManager.Quit();
     MainParticleManager.Quit();
     MainCameraManager.Quit();
     MainSoundManager.Quit();
     MainResourceManager.Quit();
-    MainEntityManager.Quit();
     MainGameModeManager.Quit();
     UnloadAssets();
 }

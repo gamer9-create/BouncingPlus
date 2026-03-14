@@ -29,6 +29,7 @@ UIManager::UIManager(Game &game) {
     this->GameWinScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     this->LastHealth = 0;
     button_img = LoadTexture("assets/ui/button.png");
+    cursor = LoadTexture("assets/ui/cursor.png");
 }
 
 bool UIManager::button(Vector2 pos, std::string text) {
@@ -294,40 +295,61 @@ void UIManager::GameUI() {
     if (game->DebugDraw)
         DrawText(to_string(UITransparency).c_str(), 50, 250, 10, WHITE);
 
-    /*
-    *if (game->MainEntityManager.Entities[EnemyType].size() <= 0)
+    if (game->MainGameModeManager.WonLevel)
         GameWin();
     else
-        DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
-
-     */
-
-    DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
+        DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, 1.0f - UITransparency));
 
     DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
 
-    if (game->MainPlayer->Health > 0 && UITransparency < 1.0f) {
+    if (game->MainPlayer->Health > 0 && !game->MainGameModeManager.WonLevel && UITransparency < 1.0f) {
         UITransparency += 1.9f * GetFrameTime();
         if (UITransparency > 1.0f)
             UITransparency = 1.0f;
-    } else if (UITransparency > 0) {
+    } else if (UITransparency > 0 && (game->MainPlayer->Health <= 0 || game->MainGameModeManager.WonLevel)) {
         UITransparency -= 2.2f * GetFrameTime();
         if (UITransparency < 0.0f)
             UITransparency = 0.0f;
-    }
-
-    if (game->MainPlayer->IsPreparingForDash || game->MainPlayer->weaponsSystem.CurrentWeapon != nullptr)
-    {
-        float xMov = sin(GetTime() * 2) * 5;
-        float yMov = cos(GetTime() * 2) * 5;
-        for (int i = 0; i < 10; i++)
-            DrawCircleLines(GetScreenWidth()/2.0f + xMov, GetScreenHeight()/2 + yMov, 2.0f + (i / 2.0f), ColorAlpha(WHITE, UITransparency / 2.0f));
     }
 
     DisplayTopHUD();
 
     if (game->Paused)
         PauseMenu();
+    else
+    {
+        if (!game->MainPlayer->IsPreparingForDash)
+        {
+            DrawTexturePro(cursor, {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 36, 36}, {18, 18}, CursorRotation, YELLOW);
+            if (game->MainPlayer->weaponsSystem.CurrentWeaponIndex != -1)
+            {
+                if (game->MainPlayer->weaponsSystem.AttackCooldowns[game->MainPlayer->weaponsSystem.CurrentWeaponIndex] >= game->MainPlayer->weaponsSystem.CurrentWeapon->Cooldown)
+                    CursorMiddleTrans = lerp(CursorMiddleTrans, 1.0f, 10.5f * GetFrameTime());
+                else
+                    CursorMiddleTrans = lerp(CursorMiddleTrans, 0.0f, 21.5f * GetFrameTime());
+                if (game->MainPlayer->weaponsSystem.CurrentWeapon->Ammo > 0)
+                {
+                    float goal = 360.0f * ((float)game->MainPlayer->weaponsSystem.WeaponAmmo[game->MainPlayer->weaponsSystem.CurrentWeaponIndex] / (float)game->MainPlayer->weaponsSystem.CurrentWeapon->Ammo);
+                    CursorRotation = lerp(CursorRotation, goal, 2.5f * GetFrameTime());
+                } else
+                    CursorRotation = lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
+            } else
+            {
+                CursorMiddleTrans = lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
+                CursorRotation = lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
+            }
+            DrawTexturePro(game->MainResourceManager.Textures["enemy"], {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 10, 10},
+                    {5, 5}, CursorRotation, ColorAlpha(YELLOW, CursorMiddleTrans));
+        } else {
+            Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
+            float cx = game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width / 2;
+            float cy = game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height / 2;
+            float FinalAngle = atan2(cy - Target.y, cx - Target.x) * RAD2DEG - 90;
+            DrawTexturePro(game->MainResourceManager.Textures["arrow"], {0, 0, 80, 80}, {(float)GetMouseX(), (float)GetMouseY(), 36, 36}, {18, 18}, FinalAngle, ORANGE);
+            CursorMiddleTrans = lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
+            CursorRotation = lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
+        }
+    }
     
     StartingBlackScreenTrans -= 0.65f * GetFrameTime();
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, StartingBlackScreenTrans));
@@ -429,7 +451,9 @@ void UIManager::GameWin()
     BeginTextureMode(GameWinScreen);
     ClearBackground(ColorAlpha(GREEN, 0.2f));
 
-    DrawTextPro(GetFontDefault(), "You won!", {GetScreenWidth()/2.0f, 250.0f}, {MeasureTextEx(GetFontDefault(), "You won!", 150, 10.0f).x/2.0f, 50.0f}, DeathTextAnimRot, 150, 10, ColorBrightness(GREEN, -0.3f));
+    DrawTextPro(GetFontDefault(), "You won!", {GetScreenWidth()/2.0f, 250.0f},
+        {MeasureTextEx(GetFontDefault(), "You won!", 150, 10.0f).x/2.0f, 50.0f}, DeathTextAnimRot, 150, 10,
+        ColorBrightness(WHITE, -0.3f));
 
     int ey = GetScreenHeight()-400;
     int es = 50;
@@ -442,8 +466,8 @@ void UIManager::GameWin()
     float size = MeasureText(txt.c_str(), es);
     float size2 = MeasureText(txt_2.c_str(), es);
 
-    DrawText(txt.c_str(), GetScreenWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
-    DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
+    DrawText(txt.c_str(), GetScreenWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
+    DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
 
     EndTextureMode();
     DrawTextureRec(GameWinScreen.texture, Rectangle(0, 0, GameWinScreen.texture.width, -GameWinScreen.texture.height), Vector2(0, GetScreenHeight() - GameWinScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
@@ -453,6 +477,7 @@ void UIManager::Quit() {
     UnloadRenderTexture(WeaponUITexture);
     UnloadRenderTexture(PauseScreen);
     UnloadTexture(button_img);
+    UnloadTexture(cursor);
     UnloadRenderTexture(GameWinScreen);
     UnloadRenderTexture(DeathScreen);
 }

@@ -8,6 +8,7 @@
 #include <string>
 
 #include "../level/LevelLoader.h"
+#include "saves/Settings.h"
 
 class Menu {
     std::map<std::string,json> level_data;
@@ -37,17 +38,16 @@ class Menu {
     float menu_img_pos_y;
     float BlackTransparency;
     bool MovingToGame;
-    float* framerate;
     bool isStarting;
-    float* master_volume;
     bool slider_bars;
     float last_played_prog;
     float last_played_prog_2;
+    Settings* GameSettings;
     bool button(Rectangle rectangle, std::string text);
     Rectangle slider(Vector2 position, std::string text, float* value, float* last_played_progress, bool* prev_state, float min, float max);
     void LevelSelect();
     public:
-        Menu(std::map<std::string,json> level_data, float* master_volume, float* framerate);
+        Menu(Settings& GameSettings);
         void Update();
         void Reset();
         std::string LeaveMenu();

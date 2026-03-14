@@ -47,6 +47,13 @@ void GameModeManager::Update()
     if (LevelTimer > 0)
         LevelTimer -= game->GetGameDeltaTime();
 
+    if (game->LevelData[game->CurrentLevelName]["game"]["win"].get<std::string>() == "kill_all_enemies")
+    {
+        std::vector<shared_ptr<Entity>> array = game->MainEntityManager.Entities[EnemyType];
+        if (array.size() == 0)
+            WonLevel = true;
+    }
+
     if (CurrentGameMode == "wave")
     {
         if (LevelTimer <= 0 && InWave)
@@ -88,6 +95,7 @@ void GameModeManager::Clear()
     this->CurrentGameMode = "";
     this->CurrentWave = 0;
     this->InWave = false;
+    this->WonLevel = false;
 }
 
 void GameModeManager::Quit()

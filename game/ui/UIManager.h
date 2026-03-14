@@ -23,6 +23,11 @@ public:
     RenderTexture2D PauseScreen;
     RenderTexture2D GameWinScreen;
     Texture button_img;
+    Texture cursor;
+
+    float CursorMiddleTrans = 0.0f;
+    float CursorRotation = 0.0f;
+
     int WeaponSlotIndex = -1;
     float WeaponSlotOffset = 0;
     float WeaponSlotSize = 0;
@@ -32,7 +37,7 @@ public:
     float HealthBarAnimRot = 0.0f;
     float LastHealth = 0;
     float ft_size = 92;
-    public:
+
     Game *game;
     UIManager(Game &game);
     UIManager();

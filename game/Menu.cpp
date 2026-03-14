@@ -72,11 +72,10 @@ Rectangle Menu::slider(Vector2 position, std::string text, float* value, float* 
     return rec;
 }
 
-Menu::Menu(std::map<std::string,json> level_data, float* master_volume, float* framerate)
+Menu::Menu(Settings& GameSettings)
 {
-    this->level_data = level_data;
-    this->master_volume = master_volume;
-    this->framerate = framerate;
+    this->GameSettings = &GameSettings;
+    this->level_data = this->GameSettings->LevelData;
     title_img = LoadTexture("assets/ui/title.png");
     button_small_img = LoadTexture("assets/ui/button_small.png");
     button_small_img_red = LoadTexture("assets/ui/button_small_red.png");
@@ -212,6 +211,9 @@ void Menu::Update() {
         mouse_pos = {(float)GetMouseX() + cam_x, (float)GetMouseY()};
     }
 
+    if (IsCursorHidden())
+        ShowCursor();
+
     off = -sin((GetTime()-20.0f) * 3.5f) * 15;
     off2 = -sin((GetTime()+20.0f) * 3.5f) * 15;
     off3 = -sin(GetTime() * 3.5f) * 15;
@@ -236,8 +238,8 @@ void Menu::Update() {
 
     DrawTexture(title_img, (int)(GetScreenWidth()/2.0f) - (int)(title_img.width/2.0f)-cam_x, (int)title_img_pos_y - (int)title_img_offset_y, WHITE);
 
-    slider({(float)GetScreenWidth() * 1.5f,300 + (off + off2)/4}, "VOLUME", master_volume, &last_played_prog, &slider_bars, 0, 100.0f);
-    slider({(float)GetScreenWidth() * 1.5f,300 + (off + off2)/4 + 60}, "FRAMERATE", framerate, &last_played_prog_2, &fps_bar, 30, 240);
+    slider({(float)GetScreenWidth() * 1.5f,300 + (off + off2)/4}, "VOLUME", &GameSettings->Volume, &last_played_prog, &slider_bars, 0, 100.0f);
+    slider({(float)GetScreenWidth() * 1.5f,300 + (off + off2)/4 + 60}, "FRAMERATE", &GameSettings->FrameRate, &last_played_prog_2, &fps_bar, 30, 240);
 
     Rectangle play_bbox = {(GetScreenWidth()/2.0f) - (int)(button_img.width/2.0f), (float)play_button_offset_y +off3,150,56};
     if (button(play_bbox, "PLAY")) {

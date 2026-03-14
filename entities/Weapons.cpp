@@ -45,8 +45,7 @@ WeaponsSystem::~WeaponsSystem() {
 
 void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
     auto Owner = OwnerPtr.lock();
-    Vector2 mp1 = Vector2Subtract(GetMousePosition(), Vector2{GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f});
-    Vector2 Target = {Owner->BoundingBox.x + Owner->BoundingBox.width / 2.0f + mp1.x, Owner->BoundingBox.y + Owner->BoundingBox.height / 2.0f + mp1.y};
+    Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
     if (Owner->Type == EnemyType)
         Target = {game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width/2,
         game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height/2
@@ -151,10 +150,7 @@ void WeaponsSystem::Update() {
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
         if (AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown)
-        {
-            MeleeDisplayRenderTarget = GetMousePosition();
-            MeleeDisplayRenderTarget = Vector2Subtract(MeleeDisplayRenderTarget, Vector2{GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f});
-        }
+            MeleeDisplayRenderTarget = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera), Vector2{cx,cy});
 
         Vector2 MP = Vector2Add(MeleeDisplayRenderTarget, Vector2{cx,cy});
 
@@ -191,7 +187,7 @@ void WeaponsSystem::Update() {
         MeleeAnimRange = 90;
         MeleeAnimPercent = 0;
         MeleeAnimAlpha = 1;
-    } else {
+    } else if ((CurrentWeapon == nullptr || CurrentWeapon->isMelee) && MeleeAnimTexture != nullptr) {
         // if we still have a weapon equipped, set the animation angle range
         if (CurrentWeapon != nullptr) {
             MeleeAnimRange = CurrentWeapon->AngleRange;
@@ -351,6 +347,7 @@ void WeaponsSystem::Unequip() {
     // simply set the current weapon to nothing
     CurrentWeaponIndex = -1;
     CurrentWeapon = nullptr;
+    MeleeAnimTexture = nullptr;
     TimeStartedReloading = -1;
     auto Owner = OwnerPtr.lock();
     if (Owner != nullptr)

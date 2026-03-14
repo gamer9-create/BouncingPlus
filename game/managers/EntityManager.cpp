@@ -71,6 +71,7 @@ void EntityManager::EntityClear()
         int old_size = array->size();
         std::erase_if(*array, [this](shared_ptr<Entity> e) {
             if (e && e->ShouldDelete) {
+                e->OnDeath();
                 e->OnDelete();
                 if (e != game->MainPlayer) {
                     e.reset();
@@ -80,8 +81,8 @@ void EntityManager::EntityClear()
             return false;
         });
         if (game->DebugDraw) {
-            std::string f = to_string(e)+"/typa shit ive been on/ de old size(TALLY HALL DETECTED) " + to_string(old_size) + ", new size? (BANANA MAN IS COMING TO NUKE YOU) " + to_string(array->size());
-            DrawText(f.c_str(), 500+game->MainCameraManager.RaylibCamera.target.x, 500 + 10*e +game->MainCameraManager.RaylibCamera.target.y, 10, WHITE);
+            std::string f = "ENTITY CATEGORY: " + to_string(e) + ", OLD SIZE: " + to_string(old_size) + ", NEW SIZE: " + to_string(array->size());
+            DrawText(f.c_str(), 800+game->MainCameraManager.RaylibCamera.target.x, 50 + 10*e +game->MainCameraManager.RaylibCamera.target.y, 10, WHITE);
         }
     }
 }
@@ -99,6 +100,7 @@ void EntityManager::Clear()
         std::vector<shared_ptr<Entity>>* array = &Entities[(EntityType)e];
         for (int i = 0; i < array->size(); i++) {
             if (shared_ptr<Entity> entity = array->at(i); entity != nullptr) {
+                entity->OnDelete();
                 entity.reset();
             }
         }

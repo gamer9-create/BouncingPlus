@@ -29,6 +29,7 @@ class GameModeManager
     int CurrentWave;
     bool InWave;
     double LevelTimer;
+    bool WonLevel;
     ~GameModeManager();
     GameModeManager();
     GameModeManager(Game &game);

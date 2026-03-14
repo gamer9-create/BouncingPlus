@@ -60,6 +60,7 @@ add_executable(BouncingPlus main.cpp
         game/Profiler.h
         game/managers/ResourceManager.cpp
         game/managers/ResourceManager.h
+        game/saves/Settings.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)

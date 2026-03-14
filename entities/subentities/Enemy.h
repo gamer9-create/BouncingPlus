@@ -40,6 +40,7 @@ public:
     void MoveAwayFromWalls();
     void Wander();
     void OnDelete();
+    void OnDeath();
 };
 
 

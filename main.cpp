@@ -2,6 +2,7 @@
 #include <iostream>
 #include "game/Game.h"
 #include "game/Menu.h"
+#include "game/saves/Settings.h"
 #include "level/LevelLoader.h"
 
 int main(int argc, char *argv[]) {
@@ -14,46 +15,36 @@ int main(int argc, char *argv[]) {
     LevelLoader level_loader = LevelLoader();
     std::map<std::string,json> level_data = level_loader.GetLevelsData();
 
-    float MasterVolume = 100.0f;
-    bool LockCursor = false;
-    float Framerate = 60;
+    Settings gameSettings{};
+    gameSettings.LevelData = level_data;
+    gameSettings.FrameRate = GetMonitorRefreshRate(0);
     float LastFramerate = 0;
 
-    Game MainGame = Game(level_data);
-    Menu MainMenu = Menu(level_data, &MasterVolume, &Framerate);
+    Game MainGame = Game(gameSettings);
+    Menu MainMenu = Menu(gameSettings);
 
     bool InGame = false;
 
-    Music music = LoadMusicStream(string("assets/spookypiano.mp3").c_str());
-    SetMusicVolume(music, 1);
-    time_t t;
-    time(&t);
-    tm datetime = *localtime(&t);
-    if (to_string(datetime.tm_mon) == "9" && to_string(datetime.tm_mday) == "31" && GetRandomValue(1, 10) == 5) {
-        PlayMusicStream(music);
-        cout << "spooky scary skel" << endl;
-    }
     // tip of advice: dont look into any other code file that isnt a manager... youre gonna find some... uhhh... extremely readable code!
 
     while (!WindowShouldClose()) {
         BeginDrawing();
 
-        if (Framerate != LastFramerate)
-            SetTargetFPS((int)Framerate);
-        LastFramerate=Framerate;
+        if (gameSettings.FrameRate != LastFramerate)
+            SetTargetFPS((int)gameSettings.FrameRate);
+        LastFramerate=gameSettings.FrameRate;
 
-        if (LockCursor && !IsCursorOnScreen())
+        if (gameSettings.CursorWindowLock && !IsCursorOnScreen())
         {
             SetMousePosition(min(max(GetMouseX(), 25), GetScreenWidth() - 25), min(max(GetMouseY(), 25), GetScreenHeight() - 25));
         }
 
-        SetMasterVolume(MasterVolume/100.0f);
+        SetMasterVolume(gameSettings.Volume/100.0f);
 
         if (IsKeyPressed(KEY_F11))
             ToggleFullscreen();
 
         ClearBackground(BLANK);
-        UpdateMusicStream(music);
         if (InGame) {
 
             if (MainGame.ShouldReturn)
@@ -61,6 +52,8 @@ int main(int argc, char *argv[]) {
                 InGame = false;
                 MainMenu.Reset();
                 MainGame.ShouldReturn = false;
+                MainGame.Clear();
+                ShowCursor();
             } else
             {
                 MainGame.Update();
@@ -71,6 +64,7 @@ int main(int argc, char *argv[]) {
             MainMenu.Update();
             std::string map = MainMenu.LeaveMenu();
             if (!map.empty()) {
+                HideCursor();
                 InGame = true;
                 MainGame.ShouldReturn = false;
                 MainGame.Reload(map);
@@ -83,9 +77,6 @@ int main(int argc, char *argv[]) {
 
     MainMenu.Quit();
     MainGame.Quit();
-    if (IsMusicStreamPlaying(music))
-        StopMusicStream(music);
-    UnloadMusicStream(music);
     CloseAudioDevice();
     CloseWindow();
 

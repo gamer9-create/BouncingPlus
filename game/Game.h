@@ -20,6 +20,7 @@
 #include "ui/UIManager.h"
 #include "../entities/Weapons.h"
 #include "managers/ResourceManager.h"
+#include "saves/Settings.h"
 
 using namespace std;
 
@@ -42,6 +43,8 @@ class Game {
     int uThreshold;
 
     public:
+        Settings* GameSettings;
+
         // Timing, Speed, and Menu Management
         double GameTime;
         float GameSpeed;
@@ -71,7 +74,7 @@ class Game {
         unordered_map<std::string, std::string> EnemyRoleWeapons;
         std::vector<std::string> BannedWeaponDrops;
 
-        Game(std::map<std::string, nlohmann::json> json);
+        Game(Settings& GameSettings);
         std::pair<bool, Vector2> RayCastPoint(Vector2 origin, Vector2 target);
         bool RayCast(Vector2 origin, Vector2 target);
         void PlaceWeaponPickup(WeaponPickup pickup);

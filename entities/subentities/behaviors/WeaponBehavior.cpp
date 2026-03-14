@@ -97,8 +97,11 @@ void WeaponBehavior::Update()
     CoverSearching = Owner->RemainingHealthOfOriginalHealth <= 0.6f;
     if ((distance <= 800 && (distance <= 36 || game->RayCast({center_x, center_y}, {plr_center_x, plr_center_y}))) || Owner->AngeredRangeBypassTimer > 0.0f) {
         if (distance >= 100 && !CoverSearching) {
-            Owner->Movement.x += -(plr_center_x - center_x) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
-            Owner->Movement.y += -(plr_center_y - center_y) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
+            Vector2 othermov = {0,0};
+            othermov.x += -(plr_center_x - center_x) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
+            othermov.y += -(plr_center_y - center_y) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
+            Owner->MoveAwayFromWalls();
+            Owner->Movement=Vector2Lerp(othermov, Owner->Movement,0.5f);
         }
 
         Vector2 attackPos = Vector2(plr_center_x, plr_center_y);

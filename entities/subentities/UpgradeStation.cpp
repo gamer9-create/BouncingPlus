@@ -23,12 +23,12 @@ void UpgradeStation::Render() {
 
     Vector2 mov = Vector2Normalize(Vector2{1,1});
     float dist = 58;
-    float div = 12.0f;
+    float div = 15.0f;
 
-    Color my_color1 = ColorLerp(GRAY, DARKGRAY, 0.5f + 0.5f * sin(game->GetGameTime()*2.9f + 184.85f));
-    Color my_color2 = ColorLerp(GRAY, BLACK, 0.5f + 0.5f * sin(game->GetGameTime()*2.2f + 6.29f));
-    Color my_color3 = ColorLerp(GRAY, WHITE, 0.5f + 0.5f * sin(game->GetGameTime()*1.5f - 8.29f));
-    Color my_color4 = ColorLerp(GRAY, LIGHTGRAY, 0.5f + 0.5f * sin(game->GetGameTime()*3.3f - 5.38f));
+    Color my_color1 = ColorLerp(GRAY, DARKGRAY, 0.35f + 0.5f * sin(game->GetGameTime()*2.9f + 184.85f));
+    Color my_color2 = ColorLerp(GRAY, BLACK, 0.15f + 0.5f * sin(game->GetGameTime()*2.2f + 6.29f));
+    Color my_color3 = ColorLerp(GRAY, WHITE, 0.75f + 0.5f * sin(game->GetGameTime()*1.5f - 8.29f));
+    Color my_color4 = ColorLerp(GRAY, LIGHTGRAY, 0.75f + 0.5f * sin(game->GetGameTime()*3.3f - 5.38f));
 
     float rand_mov_x_1 = sin(game->GetGameTime() * 1.35f) * (dist/div);
     float rand_mov_y_1 = cos(game->GetGameTime() * 1.35f) * (dist/div);
