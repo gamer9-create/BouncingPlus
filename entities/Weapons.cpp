@@ -59,7 +59,7 @@ void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
     float height = MeleeAnimTexture->height*CurrentWeapon->WeaponSize;
     DrawTexturePro(*MeleeAnimTexture, Rectangle(0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)),
                    Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - cosf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - sinf((FinalAngle) * DEG2RAD)*CurrentWeapon->Range, width,
-                             height), Vector2(0, height / 2), FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
+                             height), Vector2(0, height / 2), FinalAngle, WHITE);
 } // LOVELY CAVITY!!!
 
 bool WeaponsSystem::GiveWeapon(std::string WeaponName, int Ammo)
@@ -89,8 +89,8 @@ bool WeaponsSystem::DropWeapon(std::string WeaponName)
 
             DropLoc = {Owner->BoundingBox.x - Owner->BoundingBox.width/2, Owner->BoundingBox.y - Owner->BoundingBox.height/2};
             DropLoc = Vector2Add(DropLoc, {
-                (float)GetRandomValue(0, Owner->BoundingBox.width) * dirX * 3.2f,
-                    (float)GetRandomValue(0, Owner->BoundingBox.height) * dirY * 3.2f
+                (float)GetRandomValue(0, Owner->BoundingBox.width) * dirX * 1.5f,
+                    (float)GetRandomValue(0, Owner->BoundingBox.height) * dirY * 1.5f
             });
         }
 
@@ -115,6 +115,15 @@ bool WeaponsSystem::DropWeapon(std::string WeaponName)
         }
     }
     return false;
+}
+
+void WeaponsSystem::ResetMeleeAnim()
+{
+    MeleeAnimTexture = nullptr;
+    MeleeAnimAngle = 0;
+    MeleeAnimRange = 90;
+    MeleeAnimPercent = 0;
+    MeleeAnimAlpha = 1;
 }
 
 void WeaponsSystem::Update() {
@@ -182,11 +191,7 @@ void WeaponsSystem::Update() {
 
     if (!MeleeAnim) {
         // set some basic values ready
-        MeleeAnimTexture = nullptr;
-        MeleeAnimAngle = 0;
-        MeleeAnimRange = 90;
-        MeleeAnimPercent = 0;
-        MeleeAnimAlpha = 1;
+        ResetMeleeAnim();
     } else if ((CurrentWeapon == nullptr || CurrentWeapon->isMelee) && MeleeAnimTexture != nullptr) {
         // if we still have a weapon equipped, set the animation angle range
         if (CurrentWeapon != nullptr) {
@@ -336,7 +341,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
 
 void WeaponsSystem::Equip(int Index) {
     // if weapon exists and we have space, equip it
-    if (Weapons->length() > Index && !Weapons[Index].empty()) {
+    if (!Weapons[Index].empty()) {
         CurrentWeaponIndex = Index;
         CurrentWeapon = &game->MainResourceManager.Weapons[Weapons[CurrentWeaponIndex]];
         TimeStartedReloading = -1;
@@ -347,7 +352,7 @@ void WeaponsSystem::Unequip() {
     // simply set the current weapon to nothing
     CurrentWeaponIndex = -1;
     CurrentWeapon = nullptr;
-    MeleeAnimTexture = nullptr;
+    ResetMeleeAnim();
     TimeStartedReloading = -1;
     auto Owner = OwnerPtr.lock();
     if (Owner != nullptr)

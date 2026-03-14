@@ -13,15 +13,15 @@ class Profiler
 {
 public:
     Game *game;
-    std::string last_reason = "";
-    double last_time = -1;
-    std::map<std::string,double> times;
+    std::string LastReason;
+    double LastTime = -1;
+    std::map<std::string,double> Times;
     Profiler();
     Profiler(Game &game);
     ~Profiler();
-    void log(std::string reason);
-    void stop_log();
-    std::map<std::string,double> finish();
+    void ProfilerLog(std::string Reason);
+    void StopLog();
+    std::map<std::string, double> Finish();
 };
 
 

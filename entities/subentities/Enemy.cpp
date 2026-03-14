@@ -46,8 +46,8 @@ void Enemy::Init(float X, float Y, float Health, float Speed, float Armor, std::
     this->WanderPos = {BoundingBox.x, BoundingBox.y};
     this->WanderingEnabled = true;
     this->Alpha = 0;
-    wc=GetRandomValue(1,4);
-    LastSetWanderPos = wc;
+    WanderingCooldown=GetRandomValue(1,4);
+    LastSetWanderPos = WanderingCooldown;
     this->EntityColor = ColorAlpha(WHITE, Alpha);
     this->ActivationTimer = game.GetGameTime();
     this->WallMovement = {0, 0};
@@ -57,7 +57,7 @@ void Enemy::Init(float X, float Y, float Health, float Speed, float Armor, std::
 }
 
 void Enemy::Wander() {
-    if (game->GetGameTime() - LastSetWanderPos >= wc) {
+    if (game->GetGameTime() - LastSetWanderPos >= WanderingCooldown) {
         float center_x = BoundingBox.x + (BoundingBox.width / 2);
         float center_y = BoundingBox.y + (BoundingBox.height / 2);
 

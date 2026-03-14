@@ -66,22 +66,22 @@ void SoundManager::Update() {
     }
 }
 
-void SoundManager::PlaySoundM(std::string sound, float volume, float pitch) {
-    if (Sounds.contains(sound)) {
-        for (Sound& CachedSound : CachedAliases[sound]) {
+void SoundManager::PlaySoundM(std::string SoundName, float SoundVolume, float SoundPitch) {
+    if (Sounds.contains(SoundName)) {
+        for (Sound& CachedSound : CachedAliases[SoundName]) {
             if (IsSoundValid(CachedSound) && !IsSoundPlaying(CachedSound)) {
-                SetSoundVolume(CachedSound, volume);
-                SetSoundPitch(CachedSound, pitch);
+                SetSoundVolume(CachedSound, SoundVolume);
+                SetSoundPitch(CachedSound, SoundPitch);
                 PlaySound(CachedSound);
                 return;
             }
         }
 
-        Sound CachedSound = LoadSoundAlias(Sounds[sound]);
-        SetSoundVolume(CachedSound, volume);
-        SetSoundPitch(CachedSound, pitch);
+        Sound CachedSound = LoadSoundAlias(Sounds[SoundName]);
+        SetSoundVolume(CachedSound, SoundVolume);
+        SetSoundPitch(CachedSound, SoundPitch);
         PlaySound(CachedSound);
-        CachedAliases[sound].push_back(CachedSound);
+        CachedAliases[SoundName].push_back(CachedSound);
     }
 }
 

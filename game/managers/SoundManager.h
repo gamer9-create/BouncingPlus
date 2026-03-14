@@ -19,7 +19,7 @@ class SoundManager {
     SoundManager(Game &game);
     SoundManager();
     ~SoundManager();
-    void PlaySoundM(std::string sound, float volume = 1.0f, float pitch = 1.0f);
+    void PlaySoundM(std::string SoundName, float SoundVolume = 1.0f, float SoundPitch = 1.0f);
     void Clear();
     void Update();
     void Quit();

@@ -20,8 +20,8 @@ add_executable(BouncingPlus main.cpp
         entities/Weapons.cpp
         game/ui/UIManager.cpp
         game/ui/UIManager.h
-        game/Menu.cpp
-        game/Menu.h
+        game/ui/Menu.cpp
+        game/ui/Menu.h
         game/managers/ParticleManager.cpp
         game/managers/ParticleManager.h
         level/LevelLoader.cpp
@@ -61,6 +61,9 @@ add_executable(BouncingPlus main.cpp
         game/managers/ResourceManager.cpp
         game/managers/ResourceManager.h
         game/saves/Settings.h
+        game/saves/Settings.cpp
+        game/ui/UIUtils.cpp
+        game/ui/UIUtils.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)

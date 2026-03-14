@@ -27,15 +27,15 @@ GameModeManager::GameModeManager(Game& game)
     Clear();
 }
 
-void GameModeManager::PrepareGameMode(nlohmann::json data)
+void GameModeManager::PrepareGameMode(nlohmann::json Data)
 {
     Clear();
-    this->CurrentGameMode = data["game"]["mode"].get<std::string>();
-    this->LevelTimer = data["game"]["timer"].get<float>();
+    this->CurrentGameMode = Data["game"]["mode"].get<std::string>();
+    this->LevelTimer = Data["game"]["timer"].get<float>();
     if (this->CurrentGameMode == "boss")
     {
         std::shared_ptr<Entity> boss;
-        if (data["game"]["boss"].get<std::string>() == "face")
+        if (Data["game"]["boss"].get<std::string>() == "face")
             boss = std::make_shared<FaceBoss>(*game, game->MainTileManager.BossSpawnPosition.x, game->MainTileManager.BossSpawnPosition.y);
         if (boss != nullptr)
             game->MainEntityManager.AddEntity(BossType, boss);

@@ -33,7 +33,7 @@ class GameModeManager
     ~GameModeManager();
     GameModeManager();
     GameModeManager(Game &game);
-    void PrepareGameMode(nlohmann::json data);
+    void PrepareGameMode(nlohmann::json Data);
     void Update();
     void Clear();
     void Quit();

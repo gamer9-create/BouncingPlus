@@ -11,11 +11,11 @@
 
 // TODO: finish tutorial
 
-void Tutorial::do_stuff(UIManager* parent)
+void Tutorial::ActivateTutorial(UIManager* Parent)
 {
-    if (stage <= 2)
+    if (Stage <= 2)
     {
-        for (std::shared_ptr e : parent->game->MainEntityManager.Entities[EnemyType])
+        for (std::shared_ptr e : Parent->game->MainEntityManager.Entities[EnemyType])
         {
             if (e->BoundingBox.y >= 5040)
             {
@@ -26,14 +26,14 @@ void Tutorial::do_stuff(UIManager* parent)
         }
     }
 
-    if (parent->game->MainPlayer->BoundingBox.y < 6768 && stage < 0)
-        stage++;
-    if (parent->game->MainPlayer->BoundingBox.y < 6408 && stage < 1)
-        stage++;
-    if (parent->game->MainPlayer->BoundingBox.y < 6120 && stage < 2)
-        stage++;
-    if (parent->game->MainPlayer->BoundingBox.y < 5256 && stage < 3)
-        stage++;
+    if (Parent->game->MainPlayer->BoundingBox.y < 6768 && Stage < 0)
+        Stage++;
+    if (Parent->game->MainPlayer->BoundingBox.y < 6408 && Stage < 1)
+        Stage++;
+    if (Parent->game->MainPlayer->BoundingBox.y < 6120 && Stage < 2)
+        Stage++;
+    if (Parent->game->MainPlayer->BoundingBox.y < 5256 && Stage < 3)
+        Stage++;
     //std::cout << stage << endl;
 
 }

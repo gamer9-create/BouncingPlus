@@ -37,7 +37,7 @@ Game::Game(Settings& GameSettings)
     MainResourceManager = ResourceManager(*this);
 
     // profiler
-    profiler = Profiler(*this);
+    MainProfiler = Profiler(*this);
 
     // game speed & timing
     GameSpeed = 1.0f;
@@ -122,14 +122,14 @@ void Game::ProcessSlowdownAnimation() {
     }
 }
 
-void Game::PlaceWeaponPickup(WeaponPickup pickup) {
+void Game::PlaceWeaponPickup(WeaponPickup Pickup) {
     for (std::string s : BannedWeaponDrops)
     {
-        if (s == pickup.Weapon)
+        if (s == Pickup.Weapon)
             return;
     }
-    pickup.CreationTime = GetGameTime();
-    WeaponPickups.push_back(pickup);
+    Pickup.CreationTime = GetGameTime();
+    WeaponPickups.push_back(Pickup);
 }
 
 void Game::DisplayPickups()
@@ -154,7 +154,7 @@ void Game::DisplayPickups()
         float threshold = 0.5f;
         Color outlineColor = pickup.PickupColor;
 
-        DrawCircle(pickup.Position.x, pickup.Position.y, min(siz.x, siz.y)/2.5f, ColorAlpha(BLACK, 0.2f));
+        DrawCircle(pickup.Position.x, pickup.Position.y, pickup.Radius / 1.125f, ColorAlpha(BLACK, 0.2f));
 
         EndTextureMode();
         EndMode2D();
@@ -216,10 +216,11 @@ void Game::DisplayPickups()
         });
 
         // in range?
-        if (DistanceToPickup <= pickup.Radius)
+        if (DistanceToPickup <= pickup.Radius && pickup.LeftOwner)
         {
-            pickup.PickedUp = MainPlayer->weaponsSystem.GiveWeapon(pickup.Weapon, pickup.Ammo);
-        }
+            pickup.PickedUp = MainPlayer->MainWeaponsSystem.GiveWeapon(pickup.Weapon, pickup.Ammo);
+        } else if (DistanceToPickup > pickup.Radius && !pickup.LeftOwner)
+            pickup.LeftOwner = true;
     }
 }
 
@@ -261,22 +262,22 @@ void Game::Update() {
         MainCameraManager.Begin();
         ProcessSlowdownAnimation();
 
-        profiler.log("tiles");
+        MainProfiler.ProfilerLog("tiles");
         MainTileManager.Update();
 
-        profiler.log("particles");
+        MainProfiler.ProfilerLog("particles");
         MainParticleManager.Update();
 
-        profiler.log("entities");
+        MainProfiler.ProfilerLog("entities");
         MainEntityManager.Update();
 
-        profiler.log("sound");
+        MainProfiler.ProfilerLog("sound");
         MainSoundManager.Update();
 
-        profiler.log("gameplay");
+        MainProfiler.ProfilerLog("gameplay");
         MainGameModeManager.Update();
 
-        std::map<std::string, double> times = profiler.finish();
+        std::map<std::string, double> times = MainProfiler.Finish();
 
         if (IsKeyDown(KEY_C))
         {
@@ -314,12 +315,12 @@ void Game::Update() {
     }
 }
 
-std::pair<bool, Vector2> Game::RayCastPoint(Vector2 origin, Vector2 target)
+std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
 {
-    Vector2 vRayStart = origin;
-    Vector2 vRayDir = Vector2Normalize(target - origin);
+    Vector2 vRayStart = Origin;
+    Vector2 vRayDir = Vector2Normalize(Target - Origin);
     Vector2 vRayUnitStepSize = { sqrt(1 + (vRayDir.y / vRayDir.x) * (vRayDir.y / vRayDir.x)), sqrt(1 + (vRayDir.x / vRayDir.y) * (vRayDir.x / vRayDir.y)) };
-    Vector2 vMapCheck = origin;
+    Vector2 vMapCheck = Origin;
     Vector2 vRayLength1D;
     Vector2 vStep;
 
@@ -346,7 +347,7 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 origin, Vector2 target)
     }
 
     bool bTileFound = false;
-    float fMaxDistance = Vector2Distance(origin,target);
+    float fMaxDistance = Vector2Distance(Origin,Target);
     float fDistance = 0.0f;
     while (!bTileFound && fDistance < fMaxDistance)
     {
@@ -377,13 +378,13 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 origin, Vector2 target)
     }
 
     if (DebugDraw)
-        DrawLine(origin.x,origin.y,vMapCheck.x,vMapCheck.y,RED);
+        DrawLine(Origin.x,Origin.y,vMapCheck.x,vMapCheck.y,RED);
 
     return std::pair(!bTileFound, vMapCheck);
 }
 
-bool Game::RayCast(Vector2 origin, Vector2 target) {
-    return RayCastPoint(origin,target).first;
+bool Game::RayCast(Vector2 Origin, Vector2 Target) {
+    return RayCastPoint(Origin,Target).first;
 }
 
 void Game::Clear() {

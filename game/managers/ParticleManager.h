@@ -30,7 +30,7 @@ struct Particle {
 
 class ParticleManager {
     Game *game;
-    std::vector<Particle> particles;
+    std::vector<Particle> Particles;
     public:
     ParticleManager();
     ParticleManager(Game &game);

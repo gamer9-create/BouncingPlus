@@ -10,21 +10,21 @@
 
 struct Achievement
 {
-    std::string name;
-    std::string description;
-    std::string image;
+    std::string Name;
+    std::string Description;
+    std::string Image;
 };
 
 class Achievements
 {
 public:
-    std::unordered_map<std::string,Achievement> achievements;
-    std::vector<std::string> earnedAchievements;
+    std::unordered_map<std::string,Achievement> AchievementsMap;
+    std::vector<std::string> EarnedAchievements;
     Achievements();
     ~Achievements();
-    void AwardAchievement(std::string name);
+    void AwardAchievement(std::string Name);
     nlohmann::json Save();
-    void Load(nlohmann::json data);
+    void Load(nlohmann::json Data);
 };
 
 #endif //BOUNCINGPLUS_ACHIEVEMENTS_H

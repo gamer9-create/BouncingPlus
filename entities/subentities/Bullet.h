@@ -13,7 +13,7 @@ using namespace std;
 class Bullet : public Entity {
     float ExistenceTimer;
     float Damage;
-    bool dd=false;
+    bool DD=false;
 
 public:
     std::weak_ptr<Entity> OwnerPtr;

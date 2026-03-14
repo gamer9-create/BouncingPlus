@@ -27,33 +27,33 @@ CatchBehavior::~CatchBehavior()
 void CatchBehavior::ResetDirection()
 {
     // changes the direction
-    currentDir = Vector2Normalize({GetRandomValue(1,2) == 1 ? -1.0f : 1.0f, GetRandomValue(1,2) == 1 ? -1.0f : 1.0f});
-    currentSpeed = GetRandomValue(700, 1200);
+    CurrentDir = Vector2Normalize({GetRandomValue(1,2) == 1 ? -1.0f : 1.0f, GetRandomValue(1,2) == 1 ? -1.0f : 1.0f});
+    CurrentSpeed = GetRandomValue(700, 1200);
 }
 
 void CatchBehavior::Update()
 {
     // unequips any weapon, sets everything to proper values
-    Owner->Speed = currentSpeed;
-    Owner->Movement = currentDir;
-    Owner->Rotation = 180 - (Vector2LineAngle({Owner->BoundingBox.x, Owner->BoundingBox.y}, lastPosition) * RAD2DEG);
+    Owner->Speed = CurrentSpeed;
+    Owner->Movement = CurrentDir;
+    Owner->Rotation = 180 - (Vector2LineAngle({Owner->BoundingBox.x, Owner->BoundingBox.y}, LastPosition) * RAD2DEG);
 
     // if not moving fast enough/stuck, move somewhere else
-    float speed = Vector2Distance({Owner->BoundingBox.x, Owner->BoundingBox.y}, lastPosition) / (game->GetGameTime() - lastTime);
+    float speed = Vector2Distance({Owner->BoundingBox.x, Owner->BoundingBox.y}, LastPosition) / (game->GetGameTime() - LastTime);
     if (speed < 150)
         ResetDirection();
 
     // player damage check
     float distance = Vector2Distance({Owner->BoundingBox.x, Owner->BoundingBox.y}, {game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y});
-    if (distance < 600 && game->GetGameTime() - attackCooldown >= 1.5f)
+    if (distance < 600 && game->GetGameTime() - AttackCooldown >= 1.5f)
     {
-        currentDir = Vector2Normalize(Vector2Subtract({game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y}, {Owner->BoundingBox.x, Owner->BoundingBox.y}));
+        CurrentDir = Vector2Normalize(Vector2Subtract({game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y}, {Owner->BoundingBox.x, Owner->BoundingBox.y}));
         if (distance < 100)
         {
             Owner->DamageOther(game->MainPlayer, 10);
             game->MainCameraManager.ShakeCamera(0.15f);
             game->MainSoundManager.PlaySoundM("dash_hit", 0.1f);
-            attackCooldown = game->GetGameTime();
+            AttackCooldown = game->GetGameTime();
         }
 
     }
@@ -61,6 +61,6 @@ void CatchBehavior::Update()
     // updating enemy behavior and last properties
 
     EnemyBehavior::Update();
-    lastPosition = {Owner->BoundingBox.x, Owner->BoundingBox.y};
-    lastTime = game->GetGameTime();
+    LastPosition = {Owner->BoundingBox.x, Owner->BoundingBox.y};
+    LastTime = game->GetGameTime();
 }

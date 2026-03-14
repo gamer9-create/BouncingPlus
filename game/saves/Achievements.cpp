@@ -10,35 +10,35 @@
 
 Achievements::Achievements()
 {
-    achievements = std::unordered_map<std::string,Achievement>();
-    earnedAchievements = std::vector<std::string>();
+    AchievementsMap = std::unordered_map<std::string,Achievement>();
+    EarnedAchievements = std::vector<std::string>();
 }
 
 Achievements::~Achievements()
 {
 }
 
-void Achievements::AwardAchievement(std::string name)
+void Achievements::AwardAchievement(std::string Name)
 {
-    earnedAchievements.push_back(name);
+    EarnedAchievements.push_back(Name);
 }
 
 nlohmann::json Achievements::Save()
 {
     nlohmann::json result;
-    for (std::string s : earnedAchievements)
+    for (std::string s : EarnedAchievements)
     {
         result.push_back(s);
     }
     return result;
 }
 
-void Achievements::Load(nlohmann::json data)
+void Achievements::Load(nlohmann::json Data)
 {
-    earnedAchievements.clear();
-    for (int i = 0; i < data.size(); i++)
+    EarnedAchievements.clear();
+    for (int i = 0; i < Data.size(); i++)
     {
-        std::string s = data[i].get<std::string>();
-        earnedAchievements.push_back(s);
+        std::string s = Data[i].get<std::string>();
+        EarnedAchievements.push_back(s);
     }
 }

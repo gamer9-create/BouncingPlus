@@ -16,28 +16,28 @@ struct Powerup
     float Cooldown = 0;
     float Length = 0;
     std::string Name = "";
-    virtual void complete(std::shared_ptr<Player> Owner);
-    virtual void undo(std::shared_ptr<Player> Owner);
+    virtual void Complete(std::shared_ptr<Player> Owner);
+    virtual void Undo(std::shared_ptr<Player> Owner);
 };
 
 struct SpeedPowerup : Powerup
 {
     SpeedPowerup();
-    void complete(std::shared_ptr<Player> Owner) override;
-    void undo(std::shared_ptr<Player> Owner) override;
+    void Complete(std::shared_ptr<Player> Owner) override;
+    void Undo(std::shared_ptr<Player> Owner) override;
 };
 
 struct ShieldPowerup : Powerup
 {
-    float transBuff = 0;
+    float TransBuff = 0;
     float DefaultTrans = 0.1f;
     float LerpSpeed = 2.0f;
     float FieldSize = 250.0f;
     float displayFieldSize = 0.0f;
     int ShieldThickness = 7;
     ShieldPowerup();
-    void complete(std::shared_ptr<Player> Owner) override;
-    void undo(std::shared_ptr<Player> Owner) override;
+    void Complete(std::shared_ptr<Player> Owner) override;
+    void Undo(std::shared_ptr<Player> Owner) override;
 };
 
 class PowerupSystem

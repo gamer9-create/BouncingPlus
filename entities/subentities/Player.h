@@ -15,7 +15,7 @@ class Player : public Entity {
     void AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked);
     void DashLogic();
 
-    bool weaponsSystemInit = false;
+    bool WeaponsSystemInit = false;
     double PlayerFrozenTimer = 0;
     float PlayerDashLineThickness = 10;
     int ShaderUniformLoc;
@@ -26,7 +26,7 @@ class Player : public Entity {
     float OrigSpeed;
     Vector2 LastPos = Vector2(0, 0);
 
-    std::vector<Vector3> damageNotifs;
+    std::vector<Vector3> DamageNotifs;
 
     double LastMovedTime;
     int LastKills;
@@ -43,8 +43,8 @@ class Player : public Entity {
     float ExtraSpeed;
     float SpeedBuff;
     bool ReduceSpeedBuff = false;
-        WeaponsSystem weaponsSystem;
-        PowerupSystem powerupSystem;
+        WeaponsSystem MainWeaponsSystem;
+        PowerupSystem MainPowerupSystem;
         double InvincibilityResetTimer;
         int Kills;
         bool IsPreparingForDash = false;
@@ -53,8 +53,8 @@ class Player : public Entity {
         Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game);
         Player();
         virtual ~Player();
-        void DamageNotification(Vector2 from);
-        void PhysicsUpdate(float dt, double time);
+        void DamageNotification(Vector2 From);
+        void PhysicsUpdate(float DeltaTime, double Time);
         void DisplayDamageNotifs();
         void Update();
         void OnWallVelocityBump(float Power);

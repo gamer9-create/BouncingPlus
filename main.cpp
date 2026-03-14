@@ -1,7 +1,7 @@
 #include "raylib.h"
 #include <iostream>
 #include "game/Game.h"
-#include "game/Menu.h"
+#include "game/ui/Menu.h"
 #include "game/saves/Settings.h"
 #include "level/LevelLoader.h"
 
@@ -18,6 +18,8 @@ int main(int argc, char *argv[]) {
     Settings gameSettings{};
     gameSettings.LevelData = level_data;
     gameSettings.FrameRate = GetMonitorRefreshRate(0);
+    gameSettings.UIAssets = UIAssets();
+    gameSettings.UIAssets.Load();
     float LastFramerate = 0;
 
     Game MainGame = Game(gameSettings);
@@ -77,6 +79,7 @@ int main(int argc, char *argv[]) {
 
     MainMenu.Quit();
     MainGame.Quit();
+    gameSettings.UIAssets.UnLoad();
     CloseAudioDevice();
     CloseWindow();
 

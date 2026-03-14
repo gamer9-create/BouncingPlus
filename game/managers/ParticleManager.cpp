@@ -14,7 +14,7 @@ ParticleManager::ParticleManager() {
 
 ParticleManager::ParticleManager(Game &game) {
     this->game = &game;
-    particles = std::vector<Particle>();
+    Particles = std::vector<Particle>();
 }
 
 void ParticleManager::ParticleEffect(ParticleData Data, float Angle, int AngleRange, int Amount) {
@@ -34,17 +34,17 @@ void ParticleManager::ParticleEffect(ParticleData Data, float Angle, int AngleRa
         float X = cos(RandomAngle * (2 * PI / 360))*100;
         float Y = sin(RandomAngle * (2 * PI / 360))*100;
         newParticle.Target = Vector2Normalize({X, Y});
-        particles.push_back(newParticle);
+        Particles.push_back(newParticle);
     }
 }
 
 void ParticleManager::Clear() {
-    particles.clear();
+    Particles.clear();
 }
 
 void ParticleManager::Update() {
-    for (int i = particles.size() - 1; i >= 0; i--) {
-        Particle &p = particles[i];
+    for (int i = Particles.size() - 1; i >= 0; i--) {
+        Particle &p = Particles[i];
 
         double Percent = (game->GetGameTime() - p.SpawnTime) / p.Data.Lifetime;
 
@@ -62,7 +62,7 @@ void ParticleManager::Update() {
             p.ParticleColor);
 
         if (Percent >= 1.0)
-            particles.erase(particles.begin() + i);
+            Particles.erase(Particles.begin() + i);
     }
 }
 

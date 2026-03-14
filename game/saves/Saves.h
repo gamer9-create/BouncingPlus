@@ -13,11 +13,11 @@ class Saves
 {
     public:
     nlohmann::json CurrentSave;
-    Achievements achievements;
+    Achievements MainAchievements;
     Saves();
     ~Saves();
-    void Save(std::string filepath);
-    void Load(std::string filepath);
+    void Save(std::string Filepath);
+    void Load(std::string Filepath);
 };
 
 

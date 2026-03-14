@@ -20,10 +20,10 @@ public:
     float EnemyDifficulty;
     double SpawnCooldown;
 
-    double timer;
+    double Timer;
     float DistF;
     float RandomNumbers[8];
-    Spawner(Game &game, float bbox_x, float bbox_y);
+    Spawner(Game &game, float MyX, float MyY);
     Spawner();
     virtual ~Spawner();
     void Update();

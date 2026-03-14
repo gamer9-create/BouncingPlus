@@ -13,8 +13,8 @@
 Spawner::Spawner() {
 }
 
-Spawner::Spawner(Game &game, float bbox_x, float bbox_y) :Entity(game.MainResourceManager.Textures["spawner"], {bbox_x, bbox_y, 36, 36}, 0, game) {
-    StartPos = Vector2(bbox_x, bbox_y);
+Spawner::Spawner(Game &game, float MyX, float MyY) :Entity(game.MainResourceManager.Textures["spawner"], {MyX, MyY, 36, 36}, 0, game) {
+    StartPos = Vector2(MyX, MyY);
     RandPoint = {0, 0};
     DistF =0;
     this->Type = SpawnerType;
@@ -35,8 +35,8 @@ void Spawner::Render() {
 
     float r = 25;
 
-    if (game->GetGameTime() - timer >= 0.1f) {
-        timer = game->GetGameTime();
+    if (game->GetGameTime() - Timer >= 0.1f) {
+        Timer = game->GetGameTime();
         RandPoint = {(float)GetRandomValue(-r, r), (float)GetRandomValue(-r, r)};
     }
 

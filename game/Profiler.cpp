@@ -19,27 +19,27 @@ Profiler::~Profiler()
 {
 }
 
-void Profiler::log(std::string reason)
+void Profiler::ProfilerLog(std::string Reason)
 {
-    stop_log();
-    last_reason = reason;
-    last_time = GetTime();
+    StopLog();
+    LastReason = Reason;
+    LastTime = GetTime();
 }
 
-void Profiler::stop_log()
+void Profiler::StopLog()
 {
-    if (!last_reason.empty())
+    if (!LastReason.empty())
     {
-        times[last_reason] = GetTime() - last_time;
-        last_reason = "";
-        last_time = -1;
+        Times[LastReason] = GetTime() - LastTime;
+        LastReason = "";
+        LastTime = -1;
     }
 }
 
-std::map<std::string, double> Profiler::finish()
+std::map<std::string, double> Profiler::Finish()
 {
-    stop_log();
-    std::map<std::string, double> copy = times;
-    times.clear();
+    StopLog();
+    std::map<std::string, double> copy = Times;
+    Times.clear();
     return copy;
 }

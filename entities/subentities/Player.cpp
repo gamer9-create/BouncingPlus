@@ -29,7 +29,7 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->WarningSign = false;
     this->SpeedBuff = 0;
     this->LastTanked = 0;
-    this->damageNotifs = std::vector<Vector3>();
+    this->DamageNotifs = std::vector<Vector3>();
     this->LastPos = Vector2(0, 0);
     this->InvincibilityResetTimer = 0;
     this->PlayerDashLineThickness = 10;
@@ -47,12 +47,12 @@ void Player::ToggleInvincibility() {
     this->isInvincible = !this->isInvincible;
 }
 
-void Player::DamageNotification(Vector2 from)
+void Player::DamageNotification(Vector2 From)
 {
-    this->damageNotifs.push_back({from.x, from.y, (float) game->GetGameTime()});
+    this->DamageNotifs.push_back({From.x, From.y, (float) game->GetGameTime()});
 }
 
-void Player::PhysicsUpdate(float dt, double time) {
+void Player::PhysicsUpdate(float DeltaTime, double Time) {
     float MovementX = 0;
     float MovementY = 0;
     if (PlayerFrozenTimer <= 0) {
@@ -69,10 +69,10 @@ void Player::PhysicsUpdate(float dt, double time) {
             MovementX += Speed;
         }
     }
-    if (Health >= 200 && time - LastTanked >= 2)
+    if (Health >= 200 && Time - LastTanked >= 2)
     {
         Health -= 2;
-        LastTanked = time;
+        LastTanked = Time;
     }
     if (VelocityPower < 50)
     {
@@ -80,15 +80,15 @@ void Player::PhysicsUpdate(float dt, double time) {
     }
     Movement = Vector2(MovementX, MovementY);
     if (Vector2Distance(LastPos, {BoundingBox.x,BoundingBox.y}) > 0 && Vector2Distance({0,0}, Movement) > 0) {
-        LastMovedTime = time;
-        ExtraSpeed += 10 * dt;
+        LastMovedTime = Time;
+        ExtraSpeed += 10 * DeltaTime;
     }
     LastPos = {BoundingBox.x,BoundingBox.y};
-    if (time - LastMovedTime > 1)
+    if (Time - LastMovedTime > 1)
         ExtraSpeed = 0;
     if (ReduceSpeedBuff)
     {
-        SpeedBuff -= 100 * dt;
+        SpeedBuff -= 100 * DeltaTime;
         if (SpeedBuff <= 0)
         {
             SpeedBuff = 0;
@@ -120,7 +120,7 @@ void Player::PhysicsUpdate(float dt, double time) {
     } else {
         DashedEnemies.clear();
     }
-    Entity::PhysicsUpdate(dt, time);
+    Entity::PhysicsUpdate(DeltaTime, Time);
 }
 
 void Player::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked) {
@@ -235,7 +235,7 @@ void Player::DashLogic() {
     if (IsPreparingForDash && !IsKeyDown(KEY_LEFT_SHIFT)) {
         IsPreparingForDash = false;
     }
-    if (game->MainPlayer->IsPreparingForDash || game->MainPlayer->weaponsSystem.TimeStartedReloading != -1) {
+    if (game->MainPlayer->IsPreparingForDash || game->MainPlayer->MainWeaponsSystem.TimeStartedReloading != -1) {
         game->MainCameraManager.QuickZoom(1.25f, 0.1f);
         if (game->MainPlayer->IsPreparingForDash)
         {
@@ -317,7 +317,7 @@ void Player::DashLogic() {
        ColorAlpha(GREEN, (HealthConcern ? (WarningSign ? 0 : 0.8f) : 0.8f) ));
 
     // Ammo bar
-    if (weaponsSystem.CurrentWeapon != nullptr && weaponsSystem.CurrentWeapon->Ammo > 0)
+    if (MainWeaponsSystem.CurrentWeapon != nullptr && MainWeaponsSystem.CurrentWeapon->Ammo > 0)
     {
         DrawRectangle((int)(BoundingBox.x+BoundingBox.height+20),
        (int)(BoundingBox.y + (BoundingBox.height / 2) - (w/2)),
@@ -326,18 +326,18 @@ void Player::DashLogic() {
 
         DrawRectangle((int)(BoundingBox.x+BoundingBox.height+20)+5,
            (int)(BoundingBox.y + (BoundingBox.height / 2) - (w/2))+5,
-           h - 10, ((float)weaponsSystem.WeaponAmmo[weaponsSystem.CurrentWeaponIndex] / weaponsSystem.CurrentWeapon->Ammo) * (w - 10.0f),
+           h - 10, ((float)MainWeaponsSystem.WeaponAmmo[MainWeaponsSystem.CurrentWeaponIndex] / MainWeaponsSystem.CurrentWeapon->Ammo) * (w - 10.0f),
            ColorAlpha(YELLOW, 0.8f ));
     }
 }
 
 void Player::DisplayDamageNotifs()
 {
-    std::erase_if(damageNotifs, [this](Vector3 e)
+    std::erase_if(DamageNotifs, [this](Vector3 e)
     {
         return (float)game->GetGameTime() - e.z >= 1.5f;
     });
-    for (Vector3 notif : damageNotifs)
+    for (Vector3 notif : DamageNotifs)
     {
         float time = (float)game->GetGameTime() - notif.z;
         Vector2 m = Vector2Multiply(Vector2Normalize(Vector2Subtract({BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2}, {notif.x, notif.y})),
@@ -355,20 +355,20 @@ void Player::DisplayDamageNotifs()
 void Player::Update() {
 
     // is the weapon system not initialized?? init it now!!!
-    if (!this->weaponsSystemInit) {
-        this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
-        this->powerupSystem = PowerupSystem(dynamic_pointer_cast<Player>(shared_from_this()), *game);
+    if (!this->WeaponsSystemInit) {
+        this->MainWeaponsSystem = WeaponsSystem(shared_from_this(), *game);
+        this->MainPowerupSystem = PowerupSystem(dynamic_pointer_cast<Player>(shared_from_this()), *game);
         auto f = game->LevelData[game->CurrentLevelName]["player"]["inventory"];
         for (int i = 0; i < (int)min((float)f.size(),3.0f); i++) {
-            this->weaponsSystem.Weapons[i] = f[i];
-            this->weaponsSystem.WeaponAmmo[i] = game->MainResourceManager.Weapons[f[i]].Ammo;
+            this->MainWeaponsSystem.Weapons[i] = f[i];
+            this->MainWeaponsSystem.WeaponAmmo[i] = game->MainResourceManager.Weapons[f[i]].Ammo;
         }
         if (game->MainResourceManager.Powerups.contains(game->LevelData[game->CurrentLevelName]["player"]["powerup"]))
         {
-            powerupSystem.SetPowerup(game->MainResourceManager.Powerups[game->LevelData[game->CurrentLevelName]["player"]["powerup"]]);
+            MainPowerupSystem.SetPowerup(game->MainResourceManager.Powerups[game->LevelData[game->CurrentLevelName]["player"]["powerup"]]);
         }
-        this->weaponsSystem.Equip(0);
-        this->weaponsSystemInit = true;
+        this->MainWeaponsSystem.Equip(0);
+        this->WeaponsSystemInit = true;
     }
 
     if (Health > 1000)
@@ -413,50 +413,50 @@ void Player::Update() {
         // powerup logic
         if (IsKeyDown(KEY_F))
         {
-            powerupSystem.Activate();
+            MainPowerupSystem.Activate();
         }
 
         // firing logic
-        if (IsMouseButtonDown(0) && weaponsSystem.CurrentWeapon != nullptr &&
-            weaponsSystem.CurrentWeapon->Ammo > 0 && weaponsSystem.WeaponAmmo[weaponsSystem.CurrentWeaponIndex] <=0 &&
-            weaponsSystem.AttackCooldowns[weaponsSystem.CurrentWeaponIndex] >= weaponsSystem.CurrentWeapon->Cooldown)
+        if (IsMouseButtonDown(0) && MainWeaponsSystem.CurrentWeapon != nullptr &&
+            MainWeaponsSystem.CurrentWeapon->Ammo > 0 && MainWeaponsSystem.WeaponAmmo[MainWeaponsSystem.CurrentWeaponIndex] <=0 &&
+            MainWeaponsSystem.AttackCooldowns[MainWeaponsSystem.CurrentWeaponIndex] >= MainWeaponsSystem.CurrentWeapon->Cooldown)
         {
-            weaponsSystem.Reload();
+            MainWeaponsSystem.Reload();
         }
         //Vector2 WorldMousePos = Vector2{0, 0};
         if (IsMouseButtonDown(0) && !IsPreparingForDash)
         {
-            weaponsSystem.Attack(GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera));
+            MainWeaponsSystem.Attack(GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera));
         }
 
         // reload logic
-        if (IsKeyPressed(KEY_R) && weaponsSystem.TimeStartedReloading == -1)
-            weaponsSystem.Reload();
+        if (IsKeyPressed(KEY_R) && MainWeaponsSystem.TimeStartedReloading == -1)
+            MainWeaponsSystem.Reload();
 
         //dropping stuff
-        if (IsKeyPressed(KEY_Q) && weaponsSystem.CurrentWeaponIndex != -1)
-            weaponsSystem.DropWeapon(weaponsSystem.Weapons[weaponsSystem.CurrentWeaponIndex]);
+        if (IsKeyPressed(KEY_Q) && MainWeaponsSystem.CurrentWeaponIndex != -1)
+            MainWeaponsSystem.DropWeapon(MainWeaponsSystem.Weapons[MainWeaponsSystem.CurrentWeaponIndex]);
 
         // inventory input logic
         if (IsKeyPressed(KEY_ONE)) {
-            if (weaponsSystem.CurrentWeaponIndex != 0) {
-                weaponsSystem.Equip(0);
-            } else if (weaponsSystem.CurrentWeaponIndex == 0) {
-                weaponsSystem.Unequip();
+            if (MainWeaponsSystem.CurrentWeaponIndex != 0) {
+                MainWeaponsSystem.Equip(0);
+            } else if (MainWeaponsSystem.CurrentWeaponIndex == 0) {
+                MainWeaponsSystem.Unequip();
             }
         }
         if (IsKeyPressed(KEY_TWO)) {
-            if (weaponsSystem.CurrentWeaponIndex != 1) {
-                weaponsSystem.Equip(1);
-            } else if (weaponsSystem.CurrentWeaponIndex == 1) {
-                weaponsSystem.Unequip();
+            if (MainWeaponsSystem.CurrentWeaponIndex != 1) {
+                MainWeaponsSystem.Equip(1);
+            } else if (MainWeaponsSystem.CurrentWeaponIndex == 1) {
+                MainWeaponsSystem.Unequip();
             }
         }
         if (IsKeyPressed(KEY_THREE)) {
-            if (weaponsSystem.CurrentWeaponIndex != 2) {
-                weaponsSystem.Equip(2);
-            } else if (weaponsSystem.CurrentWeaponIndex == 2) {
-                weaponsSystem.Unequip();
+            if (MainWeaponsSystem.CurrentWeaponIndex != 2) {
+                MainWeaponsSystem.Equip(2);
+            } else if (MainWeaponsSystem.CurrentWeaponIndex == 2) {
+                MainWeaponsSystem.Unequip();
             }
         }
     } else {
@@ -467,8 +467,8 @@ void Player::Update() {
 
     // update entity
     Entity::Update();
-    weaponsSystem.Update();
-    powerupSystem.Update();
+    MainWeaponsSystem.Update();
+    MainPowerupSystem.Update();
     DisplayDamageNotifs();
 
     // did we get a kill? play kill sound game!

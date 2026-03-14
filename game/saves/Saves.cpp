@@ -10,8 +10,8 @@
 
 Saves::Saves()
 {
-    achievements = Achievements();
-    CurrentSave["achievements"] = achievements.earnedAchievements;
+    MainAchievements = Achievements();
+    CurrentSave["achievements"] = MainAchievements.EarnedAchievements;
     CurrentSave["beaten_levels"] = {};
 }
 
@@ -19,13 +19,13 @@ Saves::~Saves()
 {
 }
 
-void Saves::Save(std::string filepath)
+void Saves::Save(std::string Filepath)
 {
 }
 
-void Saves::Load(std::string filepath)
+void Saves::Load(std::string Filepath)
 {
-    std::ifstream g(filepath);
+    std::ifstream g(Filepath);
     CurrentSave = nlohmann::json::parse(g);
-    achievements.Load(CurrentSave["achievements"]);
+    MainAchievements.Load(CurrentSave["achievements"]);
 }

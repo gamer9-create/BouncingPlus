@@ -24,7 +24,7 @@ public:
     EntityManager();
     EntityManager(Game &game);
     ~EntityManager();
-    void AddEntity(EntityType type, std::shared_ptr<Entity> entity);
+    void AddEntity(EntityType Type, std::shared_ptr<Entity> EntityToAdd);
     void Update();
     void Clear();
     void Quit();

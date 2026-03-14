@@ -28,39 +28,7 @@ UIManager::UIManager(Game &game) {
     this->PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     this->GameWinScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     this->LastHealth = 0;
-    button_img = LoadTexture("assets/ui/button.png");
-    cursor = LoadTexture("assets/ui/cursor.png");
 }
-
-bool UIManager::button(Vector2 pos, std::string text) {
-
-    Vector2 mouse_pos = GetMousePosition();
-    Rectangle rectangle = {
-        pos.x - (float)button_img.width/2,pos.y - (float)button_img.height/2,(float)button_img.width,(float)button_img.height
-    };
-    int f= 50;
-    if (CheckCollisionPointRec(mouse_pos, rectangle))
-    {
-        rectangle.width += 20;
-        rectangle.height += 20;
-        f += 10;
-    }
-    rectangle.x = pos.x - rectangle.width/2;
-    rectangle.y = pos.y - rectangle.height/2;
-
-    float tx_size = MeasureText(text.c_str(), f);
-    float mul = f / (tx_size / (rectangle.width-10));
-    tx_size = MeasureText(text.c_str(), mul);
-    DrawTexturePro(button_img, {0,0,(float)button_img.width,(float)button_img.height}, {rectangle.x, rectangle.y, rectangle.width, rectangle.height}, {0, 0}, 0, WHITE);
-    DrawText(text.c_str(), rectangle.x + rectangle.width/2 - tx_size/2, rectangle.y + rectangle.height/2 - (mul/2), mul, WHITE);
-
-    if (CheckCollisionPointRec(mouse_pos, rectangle)) {
-        DrawRectangleLinesEx({rectangle.x,rectangle.y,rectangle.width,rectangle.height}, 4, WHITE);
-        return IsMouseButtonPressed(0);
-    }
-    return false;
-}
-
 
 UIManager::UIManager() {
 }
@@ -68,30 +36,13 @@ UIManager::UIManager() {
 void UIManager::GameUI() {
 
     if (game->CurrentLevelName == "Tutorial")
-        this->Tutorial.do_stuff(this);
+        this->Tutorial.ActivateTutorial(this);
 
-    if (WeaponUITexture.texture.width != GetScreenWidth()) {
-        UnloadRenderTexture(WeaponUITexture);
-        WeaponUITexture = LoadRenderTexture(GetScreenWidth(), WeaponUITexture.texture.height);
-    }
-
-    if (DeathScreen.texture.width != GetScreenWidth() || DeathScreen.texture.height != GetScreenHeight()) {
-        UnloadRenderTexture(DeathScreen);
-        DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-    }
-
-    if (GameWinScreen.texture.width != GetScreenWidth() || GameWinScreen.texture.height != GetScreenHeight()) {
-        UnloadRenderTexture(GameWinScreen);
-        GameWinScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-    }
-
-    if (PauseScreen.texture.width != GetScreenWidth() || PauseScreen.texture.height != GetScreenHeight()) {
-        UnloadRenderTexture(PauseScreen);
-        PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-    }
+    RefreshRenderTextures();
 
     BeginTextureMode(WeaponUITexture);
     ClearBackground(BLANK);
+
     float Prev = 125;
     bool Found = false;
 
@@ -105,7 +56,7 @@ void UIManager::GameUI() {
     {
         float offset = 0;
         float size = 0;
-        if (game->MainPlayer->weaponsSystem.CurrentWeaponIndex == i) {
+        if (game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex == i) {
             WeaponSlotIndex = i;
         }
         if (WeaponSlotIndex == i)
@@ -113,7 +64,7 @@ void UIManager::GameUI() {
             offset=WeaponSlotOffset;
             size=WeaponSlotSize;
         }
-        std::string name = game->MainPlayer->weaponsSystem.Weapons[i];
+        std::string name = game->MainPlayer->MainWeaponsSystem.Weapons[i];
         if (name.empty())
             name = "Empty";
         if (i == 2)
@@ -123,158 +74,27 @@ void UIManager::GameUI() {
         tPrev += 35 + size;
     }
 
-    int margin = 15;
-    float alpha = 0.75f;
-    DrawRectangle(lowest_x-margin,lowest_y-margin,highest_width+(margin*2),highest_height+(margin*2),ColorAlpha(BLACK, alpha));
+    DrawRectangle(lowest_x-Margin,lowest_y-Margin,highest_width+(Margin*2),highest_height+(Margin*2),ColorAlpha(BLACK, Alpha));
 
     // cooldown meter
-    if (game->MainPlayer != nullptr && game->MainPlayer->weaponsSystem.CurrentWeapon != nullptr) {
-        Rectangle r = {lowest_x + highest_width + margin + 50, lowest_y-margin, 65, highest_height+margin*2};
-        DrawRectangle(r.x,r.y,r.width,r.height, ColorAlpha(BLACK, alpha));
-        float percent = min(game->MainPlayer->weaponsSystem.AttackCooldowns[game->MainPlayer->weaponsSystem.CurrentWeaponIndex]/game->MainPlayer->weaponsSystem.CurrentWeapon->Cooldown, 1.0f);
-        Color g = WHITE;
-        if (percent == 1.0f)
-            g = GREEN;
-        DrawRectangle(r.x + 10, r.y + 10 + ((r.height-20) * (1-percent)), r.width-20, (r.height-20) * percent, g);
+    DisplayCooldownMeter(lowest_x, lowest_y, highest_width, highest_height);
 
-        //ammo meter
-        if (game->MainPlayer->weaponsSystem.CurrentWeapon->Ammo > 0)
-        {
-            DrawRectangle(r.x + r.width + margin, WeaponUITexture.texture.height - (100+margin), 125, 100, ColorAlpha(BLACK, alpha));
-            float s2 = 70;
-            float s = MeasureText(to_string(game->MainPlayer->weaponsSystem.WeaponAmmo[game->MainPlayer->weaponsSystem.CurrentWeaponIndex]).c_str(), s2);
-            DrawText(to_string(game->MainPlayer->weaponsSystem.WeaponAmmo[game->MainPlayer->weaponsSystem.CurrentWeaponIndex]).c_str(), (int)(r.x + r.width + margin + 125/2 - s/2),
-            WeaponUITexture.texture.height - (100+margin) + 10, s2, WHITE);
-
-            float s3 = 20;
-            float s4 = MeasureText("Ammo", s3);
-            DrawText("Ammo", (int)(r.x + r.width + margin + 125/2 - s4/2),
-            WeaponUITexture.texture.height - (100+margin) + 100 - s3 - 10, s3, WHITE
-                );
-        }
-    }
-
-    for (int i = 0; i < 3; i++) {
-        std::string name = game->MainPlayer->weaponsSystem.Weapons[i];
-        if (name.empty())
-            name = "Empty";
-        Color MainColor = RED;
-        if (game->MainPlayer->weaponsSystem.CurrentWeaponIndex == i) {
-            Found = true;
-            WeaponSlotIndex = i;
-        }
-        float offset = 0;
-        float size = 0;
-        if (WeaponSlotIndex == i) {
-            MainColor = GREEN;
-            if (Found) {
-                WeaponSlotOffset += 240 * GetFrameTime();
-                WeaponSlotSize += 100 * GetFrameTime();
-            }
-            WeaponSlotOffset = clamp(WeaponSlotOffset, 0.0f, 60.0f);
-            WeaponSlotSize = clamp(WeaponSlotSize, 0.0f, 15.0f);
-            offset=WeaponSlotOffset;
-            size=WeaponSlotSize;
-        }
-        if (MeasureText(name.c_str(), 20+size) > highest_width)
-        {
-            highest_width = MeasureText(name.c_str(), 20+size)+offset;
-        }
-        if (i == 2)
-            highest_height = Prev + 20 + size;
-        DrawLineEx(Vector2(50, Prev+2.0f),
-                Vector2((50 + MeasureText(name.c_str(), 20+size)+offset), Prev+2.0f), 4,
-                       MainColor);
-        DrawText(name.c_str(), 50, Prev+4.0f, 20+size, MainColor);
-        Prev += 20 + size + 15;
-    }
-    if (!Found) {
-        WeaponSlotOffset -= 240 * GetFrameTime();
-        WeaponSlotSize -= 100 * GetFrameTime();
-        WeaponSlotOffset = clamp(WeaponSlotOffset, 0.0f, 60.0f);
-        WeaponSlotSize = clamp(WeaponSlotSize, 0.0f, 15.0f);
-        if (WeaponSlotOffset <= 0 && WeaponSlotSize <= 0)
-            WeaponSlotIndex = -1;
-    }
+    DisplayInventory(Found, Prev, highest_width, &highest_height);
 
     // kill counter
-    DrawRectangle(GetScreenWidth()-(125+margin), WeaponUITexture.texture.height - (100+margin), 125, 100, ColorAlpha(BLACK, alpha));
-    float s2 = 70;
-    float s = MeasureText(to_string(game->MainPlayer->Kills).c_str(), s2);
-    DrawText(to_string(game->MainPlayer->Kills).c_str(), (int)(GetScreenWidth()-(125+margin) + 125/2 - s/2),
-    WeaponUITexture.texture.height - (100+margin) + 10, s2, WHITE);
-
-    float s3 = 20;
-    float s4 = MeasureText("Kills", s3);
-    DrawText("Kills", (int)(GetScreenWidth()-(125+margin) + 125/2 - s4/2),
-    WeaponUITexture.texture.height - (100+margin) + 100 - s3 - 10, s3, WHITE
-        );
+    DisplayKillMeter();
 
     // powerup meter
-    if (game->MainPlayer->powerupSystem.CurrentPowerup != nullptr)
-    {
-        DrawRectangle(GetScreenWidth()-(125+margin)*2, WeaponUITexture.texture.height - (100+margin), 125, 100, ColorAlpha(BLACK, alpha));
-
-        s3 = 20;
-        s4 = MeasureText("Powerup", s3);
-        DrawText("Powerup", (int)(GetScreenWidth()-(125+margin)*2 + 125/2 - s4/2),
-        WeaponUITexture.texture.height - (100+margin) + 100 - s3 - 10, s3, WHITE
-            );
-        float Number = game->MainPlayer->powerupSystem.CurrentLength;
-        Color MainColor = YELLOW;
-        if (!game->MainPlayer->powerupSystem.PowerupIsActive)
-        {
-            Number = game->MainPlayer->powerupSystem.CurrentCooldown;
-            MainColor = RED;
-            if (Number <= 0)
-            {
-                MainColor = GREEN;
-                Number = 0;
-            }
-        }
-        Number = round(Number);
-        s4 = MeasureText(game->MainPlayer->powerupSystem.CurrentPowerup->Name.c_str(), s3);
-        DrawText(game->MainPlayer->powerupSystem.CurrentPowerup->Name.c_str(), (int)(GetScreenWidth()-(125+margin)*2 + 125/2 - s4/2),
-        WeaponUITexture.texture.height - (100+margin) + 10, s3, WHITE
-            );
-        float s2 = 50;
-        float s = MeasureText((to_string((int)Number) + "s").c_str(), s2);
-        DrawText((to_string((int)Number) + "s").c_str(), (int)(GetScreenWidth()-(125+margin)*2 + 125/2 - s/2),
-        WeaponUITexture.texture.height - (100+margin) + 50 - s2/2, s2, MainColor);
-    }
+    DisplayPowerupMeter();
 
     // health meter
-    HealthBarAnimRot = Lerp(HealthBarAnimRot, 0, 3.5f * GetFrameTime());
-    float limit = 25;
-    ft_size = Lerp(ft_size, 92, 3.5f*GetFrameTime());
-    float PlrHealth = game->MainPlayer->Health;
-    if (LastHealth != PlrHealth)
-    {
-        HealthBarAnimRot = limit * ((PlrHealth-LastHealth) / abs(PlrHealth-LastHealth));
-        game->MainCameraManager.QuickZoom(PlrHealth - LastHealth > 0 ? 0.9f : 1.1f, 0.1f);
-    }
-    if (LastHealth != PlrHealth && PlrHealth > LastHealth) {
-        ft_size = 135;
-    }
-    float size = MeasureText((std::to_string((int)round(PlrHealth))+"%").c_str(), ft_size);
-    DrawRectangle((WeaponUITexture.texture.width / 2.0f - size / 2.0f)-margin,(WeaponUITexture.texture.height / 2.0f - ft_size/2)-margin,size+(margin*2),ft_size+(margin*2),
-        ColorLerp(ColorLerp(ColorAlpha((game->MainPlayer->isInvincible ? WHITE : BLACK), alpha), RED, max(-HealthBarAnimRot,0.01f) / limit),GREEN,
-            (ft_size - 92)/43));
-    DrawTextPro(GetFontDefault(), (std::to_string((int)round(PlrHealth))+"%").c_str(),
-        {WeaponUITexture.texture.width / 2.0f,
-        WeaponUITexture.texture.height / 2.0f},
-        {size/2, ft_size/2},
-        HealthBarAnimRot,
-        ft_size,
-        10,
-        GetHealthColor(game->MainPlayer->Health/game->MainPlayer->MaxHealth));
-    LastHealth = PlrHealth;
+    DisplayHealthMeter();
 
-    if (game->DebugDraw && game->MainPlayer->weaponsSystem.CurrentWeapon != nullptr)
-        DrawText(("Weapon info " + to_string(game->MainPlayer->weaponsSystem.CurrentWeaponIndex) + " "
-            + to_string(game->MainPlayer->weaponsSystem.AttackCooldowns[game->MainPlayer->weaponsSystem.CurrentWeaponIndex]) + " " +
-            game->MainPlayer->weaponsSystem.Weapons[game->MainPlayer->weaponsSystem.CurrentWeaponIndex] + " " +
-            to_string(game->MainPlayer->weaponsSystem.WeaponAmmo[game->MainPlayer->weaponsSystem.CurrentWeaponIndex])
+    if (game->DebugDraw && game->MainPlayer->MainWeaponsSystem.CurrentWeapon != nullptr)
+        DrawText(("Weapon info " + to_string(game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex) + " "
+            + to_string(game->MainPlayer->MainWeaponsSystem.AttackCooldowns[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex]) + " " +
+            game->MainPlayer->MainWeaponsSystem.Weapons[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex] + " " +
+            to_string(game->MainPlayer->MainWeaponsSystem.WeaponAmmo[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex])
             ).c_str(), 0, 0, 25, WHITE);
 
     EndTextureMode();
@@ -317,19 +137,206 @@ void UIManager::GameUI() {
     if (game->Paused)
         PauseMenu();
     else
+        DisplayCursor();
+    
+    StartingBlackScreenTrans -= 0.65f * GetFrameTime();
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, StartingBlackScreenTrans));
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, EndBlackScreenTrans));
+}
+
+void UIManager::DisplayKillMeter()
+{
+    DrawRectangle(GetScreenWidth()-(125+Margin), WeaponUITexture.texture.height - (100+Margin), 125, 100, ColorAlpha(BLACK, Alpha));
+    float s2 = 70;
+    float s = MeasureText(to_string(game->MainPlayer->Kills).c_str(), s2);
+    DrawText(to_string(game->MainPlayer->Kills).c_str(), (int)(GetScreenWidth()-(125+Margin) + 125/2 - s/2),
+    WeaponUITexture.texture.height - (100+Margin) + 10, s2, WHITE);
+
+    float s3 = 20;
+    float s4 = MeasureText("Kills", s3);
+    DrawText("Kills", (int)(GetScreenWidth()-(125+Margin) + 125/2 - s4/2),
+    WeaponUITexture.texture.height - (100+Margin) + 100 - s3 - 10, s3, WHITE
+        );
+}
+
+void UIManager::RefreshRenderTextures()
+{
+    if (WeaponUITexture.texture.width != GetScreenWidth()) {
+        UnloadRenderTexture(WeaponUITexture);
+        WeaponUITexture = LoadRenderTexture(GetScreenWidth(), WeaponUITexture.texture.height);
+    }
+
+    if (DeathScreen.texture.width != GetScreenWidth() || DeathScreen.texture.height != GetScreenHeight()) {
+        UnloadRenderTexture(DeathScreen);
+        DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    }
+
+    if (GameWinScreen.texture.width != GetScreenWidth() || GameWinScreen.texture.height != GetScreenHeight()) {
+        UnloadRenderTexture(GameWinScreen);
+        GameWinScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    }
+
+    if (PauseScreen.texture.width != GetScreenWidth() || PauseScreen.texture.height != GetScreenHeight()) {
+        UnloadRenderTexture(PauseScreen);
+        PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    }
+}
+
+void UIManager::DisplayPowerupMeter()
+{
+    float s3 = 0;
+    float s4 = 0;
+    if (game->MainPlayer->MainPowerupSystem.CurrentPowerup != nullptr)
     {
-        if (!game->MainPlayer->IsPreparingForDash)
+        DrawRectangle(GetScreenWidth()-(125+Margin)*2, WeaponUITexture.texture.height - (100+Margin), 125, 100, ColorAlpha(BLACK, Alpha));
+
+        s3 = 20;
+        s4 = MeasureText("Powerup", s3);
+        DrawText("Powerup", (int)(GetScreenWidth()-(125+Margin)*2 + 125/2 - s4/2),
+        WeaponUITexture.texture.height - (100+Margin) + 100 - s3 - 10, s3, WHITE
+            );
+        float Number = game->MainPlayer->MainPowerupSystem.CurrentLength;
+        Color MainColor = YELLOW;
+        if (!game->MainPlayer->MainPowerupSystem.PowerupIsActive)
         {
-            DrawTexturePro(cursor, {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 36, 36}, {18, 18}, CursorRotation, YELLOW);
-            if (game->MainPlayer->weaponsSystem.CurrentWeaponIndex != -1)
+            Number = game->MainPlayer->MainPowerupSystem.CurrentCooldown;
+            MainColor = RED;
+            if (Number <= 0)
             {
-                if (game->MainPlayer->weaponsSystem.AttackCooldowns[game->MainPlayer->weaponsSystem.CurrentWeaponIndex] >= game->MainPlayer->weaponsSystem.CurrentWeapon->Cooldown)
+                MainColor = GREEN;
+                Number = 0;
+            }
+        }
+        Number = round(Number);
+        s4 = MeasureText(game->MainPlayer->MainPowerupSystem.CurrentPowerup->Name.c_str(), s3);
+        DrawText(game->MainPlayer->MainPowerupSystem.CurrentPowerup->Name.c_str(), (int)(GetScreenWidth()-(125+Margin)*2 + 125/2 - s4/2),
+        WeaponUITexture.texture.height - (100+Margin) + 10, s3, WHITE
+            );
+        float s2 = 50;
+        float s = MeasureText((to_string((int)Number) + "s").c_str(), s2);
+        DrawText((to_string((int)Number) + "s").c_str(), (int)(GetScreenWidth()-(125+Margin)*2 + 125/2 - s/2),
+        WeaponUITexture.texture.height - (100+Margin) + 50 - s2/2, s2, MainColor);
+    }
+}
+
+void UIManager::DisplayInventory(bool Found, float Prev, float HighestWidth, float* HighestHeight)
+{
+    for (int i = 0; i < 3; i++) {
+        std::string name = game->MainPlayer->MainWeaponsSystem.Weapons[i];
+        if (name.empty())
+            name = "Empty";
+        Color MainColor = RED;
+        if (game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex == i) {
+            Found = true;
+            WeaponSlotIndex = i;
+        }
+        float offset = 0;
+        float size = 0;
+        if (WeaponSlotIndex == i) {
+            MainColor = GREEN;
+            if (Found) {
+                WeaponSlotOffset += 240 * GetFrameTime();
+                WeaponSlotSize += 100 * GetFrameTime();
+            }
+            WeaponSlotOffset = clamp(WeaponSlotOffset, 0.0f, 60.0f);
+            WeaponSlotSize = clamp(WeaponSlotSize, 0.0f, 15.0f);
+            offset=WeaponSlotOffset;
+            size=WeaponSlotSize;
+        }
+        if (MeasureText(name.c_str(), 20+size) > HighestWidth)
+        {
+            HighestWidth = MeasureText(name.c_str(), 20+size)+offset;
+        }
+        if (i == 2)
+            *HighestHeight = Prev + 20 + size;
+        DrawLineEx(Vector2(50, Prev+2.0f),
+                Vector2((50 + MeasureText(name.c_str(), 20+size)+offset), Prev+2.0f), 4,
+                       MainColor);
+        DrawText(name.c_str(), 50, Prev+4.0f, 20+size, MainColor);
+        Prev += 20 + size + 15;
+    }
+    if (!Found) {
+        WeaponSlotOffset -= 240 * GetFrameTime();
+        WeaponSlotSize -= 100 * GetFrameTime();
+        WeaponSlotOffset = clamp(WeaponSlotOffset, 0.0f, 60.0f);
+        WeaponSlotSize = clamp(WeaponSlotSize, 0.0f, 15.0f);
+        if (WeaponSlotOffset <= 0 && WeaponSlotSize <= 0)
+            WeaponSlotIndex = -1;
+    }
+}
+
+void UIManager::DisplayCooldownMeter(float LowestX, float LowestY, float HighestWidth, float HighestHeight)
+{
+    if (game->MainPlayer != nullptr && game->MainPlayer->MainWeaponsSystem.CurrentWeapon != nullptr) {
+        Rectangle r = {LowestX + HighestWidth + Margin + 50, LowestY - Margin, 65, HighestHeight + Margin*2};
+        DrawRectangle(r.x,r.y,r.width,r.height, ColorAlpha(BLACK, Alpha));
+        float percent = min(game->MainPlayer->MainWeaponsSystem.AttackCooldowns[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex]/game->MainPlayer->MainWeaponsSystem.CurrentWeapon->Cooldown, 1.0f);
+        Color g = WHITE;
+        if (percent == 1.0f)
+            g = GREEN;
+        DrawRectangle(r.x + 10, r.y + 10 + ((r.height-20) * (1-percent)), r.width-20, (r.height-20) * percent, g);
+
+        //ammo meter
+        if (game->MainPlayer->MainWeaponsSystem.CurrentWeapon->Ammo > 0)
+        {
+            DrawRectangle(r.x + r.width + Margin, WeaponUITexture.texture.height - (100+Margin), 125, 100, ColorAlpha(BLACK, Alpha));
+            float s2 = 70;
+            float s = MeasureText(to_string(game->MainPlayer->MainWeaponsSystem.WeaponAmmo[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex]).c_str(), s2);
+            DrawText(to_string(game->MainPlayer->MainWeaponsSystem.WeaponAmmo[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex]).c_str(), (int)(r.x + r.width + Margin + 125/2 - s/2),
+            WeaponUITexture.texture.height - (100+Margin) + 10, s2, WHITE);
+
+            float s3 = 20;
+            float s4 = MeasureText("Ammo", s3);
+            DrawText("Ammo", (int)(r.x + r.width + Margin + 125/2 - s4/2),
+            WeaponUITexture.texture.height - (100+Margin) + 100 - s3 - 10, s3, WHITE
+                );
+        }
+    }
+}
+
+void UIManager::DisplayHealthMeter()
+{
+    HealthBarAnimRot = Lerp(HealthBarAnimRot, 0, 3.5f * GetFrameTime());
+    float limit = 25;
+    FntSize = Lerp(FntSize, 92, 3.5f*GetFrameTime());
+    float PlrHealth = game->MainPlayer->Health;
+    if (LastHealth != PlrHealth)
+    {
+        HealthBarAnimRot = limit * ((PlrHealth-LastHealth) / abs(PlrHealth-LastHealth));
+        game->MainCameraManager.QuickZoom(PlrHealth - LastHealth > 0 ? 0.9f : 1.1f, 0.1f);
+    }
+    if (LastHealth != PlrHealth && PlrHealth > LastHealth) {
+        FntSize = 135;
+    }
+    float size = MeasureText((std::to_string((int)round(PlrHealth))+"%").c_str(), FntSize);
+    DrawRectangle((WeaponUITexture.texture.width / 2.0f - size / 2.0f)-Margin,(WeaponUITexture.texture.height / 2.0f - FntSize/2)-Margin,size+(Margin*2),FntSize+(Margin*2),
+        ColorLerp(ColorLerp(ColorAlpha((game->MainPlayer->isInvincible ? WHITE : BLACK), Alpha), RED, max(-HealthBarAnimRot,0.01f) / limit),GREEN,
+            (FntSize - 92)/43));
+    DrawTextPro(GetFontDefault(), (std::to_string((int)round(PlrHealth))+"%").c_str(),
+        {WeaponUITexture.texture.width / 2.0f,
+        WeaponUITexture.texture.height / 2.0f},
+        {size/2, FntSize/2},
+        HealthBarAnimRot,
+        FntSize,
+        10,
+        GetHealthColor(game->MainPlayer->Health/game->MainPlayer->MaxHealth));
+    LastHealth = PlrHealth;
+}
+
+void UIManager::DisplayCursor()
+{
+    if (!game->MainPlayer->IsPreparingForDash)
+        {
+            DrawTexturePro(game->GameSettings->UIAssets.CursorImg, {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 36, 36}, {18, 18}, CursorRotation, YELLOW);
+            if (game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex != -1)
+            {
+                if (game->MainPlayer->MainWeaponsSystem.AttackCooldowns[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex] >= game->MainPlayer->MainWeaponsSystem.CurrentWeapon->Cooldown)
                     CursorMiddleTrans = lerp(CursorMiddleTrans, 1.0f, 10.5f * GetFrameTime());
                 else
                     CursorMiddleTrans = lerp(CursorMiddleTrans, 0.0f, 21.5f * GetFrameTime());
-                if (game->MainPlayer->weaponsSystem.CurrentWeapon->Ammo > 0)
+                if (game->MainPlayer->MainWeaponsSystem.CurrentWeapon->Ammo > 0)
                 {
-                    float goal = 360.0f * ((float)game->MainPlayer->weaponsSystem.WeaponAmmo[game->MainPlayer->weaponsSystem.CurrentWeaponIndex] / (float)game->MainPlayer->weaponsSystem.CurrentWeapon->Ammo);
+                    float goal = 360.0f * ((float)game->MainPlayer->MainWeaponsSystem.WeaponAmmo[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex] / (float)game->MainPlayer->MainWeaponsSystem.CurrentWeapon->Ammo);
                     CursorRotation = lerp(CursorRotation, goal, 2.5f * GetFrameTime());
                 } else
                     CursorRotation = lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
@@ -349,11 +356,6 @@ void UIManager::GameUI() {
             CursorMiddleTrans = lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
             CursorRotation = lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
         }
-    }
-    
-    StartingBlackScreenTrans -= 0.65f * GetFrameTime();
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, StartingBlackScreenTrans));
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, EndBlackScreenTrans));
 }
 
 void UIManager::DisplayTopHUD()
@@ -436,8 +438,15 @@ void UIManager::PauseMenu() {
     BeginTextureMode(PauseScreen);
     ClearBackground(ColorAlpha(BLACK, 0.35f));
     DrawRectangle(PauseScreen.texture.width/2 - 225, PauseScreen.texture.height/2-175,450, 350,ColorAlpha(WHITE,0.85f));
-    game->Paused = !button({(float)PauseScreen.texture.width/2,(float)PauseScreen.texture.height/2-100}, "RESUME");
-    if (button({(float)PauseScreen.texture.width/2,(float)PauseScreen.texture.height/2+100}, "QUIT"))
+    game->Paused = !Button({(float)PauseScreen.texture.width/2 - (float)game->GameSettings->UIAssets.ButtonImg.width/2,
+        (float)PauseScreen.texture.height/2-100 - (float)game->GameSettings->UIAssets.ButtonImg.height/2,
+        (float)game->GameSettings->UIAssets.ButtonImg.width, (float)game->GameSettings->UIAssets.ButtonImg.height},
+        GetMousePosition(), game->GameSettings->UIAssets.ButtonImg, game->GameSettings->UIAssets.ButtonClick, "RESUME");
+
+    if (Button({(float)PauseScreen.texture.width/2 - (float)game->GameSettings->UIAssets.ButtonImg.width/2,
+        (float)PauseScreen.texture.height/2+100 - (float)game->GameSettings->UIAssets.ButtonImg.height/2,
+        (float)game->GameSettings->UIAssets.ButtonImg.width, (float)game->GameSettings->UIAssets.ButtonImg.height
+    }, GetMousePosition(), game->GameSettings->UIAssets.ButtonImg, game->GameSettings->UIAssets.ButtonClick, "QUIT"))
         game->isReturning = true;
     EndTextureMode();
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
@@ -476,8 +485,6 @@ void UIManager::GameWin()
 void UIManager::Quit() {
     UnloadRenderTexture(WeaponUITexture);
     UnloadRenderTexture(PauseScreen);
-    UnloadTexture(button_img);
-    UnloadTexture(cursor);
     UnloadRenderTexture(GameWinScreen);
     UnloadRenderTexture(DeathScreen);
 }

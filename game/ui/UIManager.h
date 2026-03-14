@@ -22,8 +22,6 @@ public:
     RenderTexture2D DeathScreen;
     RenderTexture2D PauseScreen;
     RenderTexture2D GameWinScreen;
-    Texture button_img;
-    Texture cursor;
 
     float CursorMiddleTrans = 0.0f;
     float CursorRotation = 0.0f;
@@ -36,15 +34,23 @@ public:
     float DeathTextAnimRot = 0.0f;
     float HealthBarAnimRot = 0.0f;
     float LastHealth = 0;
-    float ft_size = 92;
+    float FntSize = 92;
+    int Margin = 15;
+    float Alpha = 0.75f;
 
     Game *game;
     UIManager(Game &game);
     UIManager();
-    bool button(Vector2 pos, std::string text);
+    void RefreshRenderTextures();
     void PauseMenu();
     void DeathMenu();
     void DisplayTopHUD();
+    void DisplayCursor();
+    void DisplayHealthMeter();
+    void DisplayCooldownMeter(float LowestX, float LowestY, float HighestWidth, float HighestHeight);
+    void DisplayInventory(bool Found, float Prev, float HighestWidth, float* HighestHeight);
+    void DisplayKillMeter();
+    void DisplayPowerupMeter();
     void GameWin();
     void GameUI();
     void Quit();

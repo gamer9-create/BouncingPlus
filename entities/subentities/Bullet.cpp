@@ -171,9 +171,9 @@ void Bullet::Update() {
             Attack(entity);
         }
     }
-    if (Owner == nullptr && !dd) {
+    if (Owner == nullptr && !DD) {
         Damage /= 2.0f;
-        dd = true;
+        DD = true;
     }
     if (Owner != game->MainPlayer)
         Attack(game->MainPlayer);

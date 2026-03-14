@@ -86,9 +86,9 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
     }
 }
 
-void Entity::PhysicsUpdate(float dt, double time) {
+void Entity::PhysicsUpdate(float DeltaTime, double time) {
     if (abs(VelocityPower) > 0) {
-        VelocityPower += 4500.0f * dt * (VelocityPower > 0 ? -1 : 1);
+        VelocityPower += 4500.0f * DeltaTime * (VelocityPower > 0 ? -1 : 1);
         if (abs(VelocityPower) < 5)
             VelocityPower = 0;
     }
@@ -96,8 +96,8 @@ void Entity::PhysicsUpdate(float dt, double time) {
     Vector2 vel = Vector2Normalize(VelocityMovement);
     Vector2 FinalMovement = Vector2((mov.x * GetSpeed()) + (vel.x * VelocityPower), (mov.y * GetSpeed()) + (vel.y * VelocityPower));
     if (Vector2Distance({0,0}, vel) != 0 && CollisionsEnabled) {
-        BoundingBox.x += FinalMovement.x * dt;
-        BoundingBox.y += FinalMovement.y * dt;
+        BoundingBox.x += FinalMovement.x * DeltaTime;
+        BoundingBox.y += FinalMovement.y * DeltaTime;
         bool f = false;
         int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
         int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
@@ -183,14 +183,14 @@ void Entity::PhysicsUpdate(float dt, double time) {
                 }
             }
         }
-        BoundingBox.x -= FinalMovement.x * dt;
-        BoundingBox.y -= FinalMovement.y * dt;
+        BoundingBox.x -= FinalMovement.x * DeltaTime;
+        BoundingBox.y -= FinalMovement.y * DeltaTime;
         FinalMovement = Vector2((mov.x * GetSpeed()) + (vel.x * VelocityPower), (mov.y * GetSpeed()) + (vel.y * VelocityPower));
     }
     if (Vector2Distance({0,0}, FinalMovement) > 0) {
         if (CollisionsEnabled) {
 
-            BoundingBox.x += FinalMovement.x * dt;
+            BoundingBox.x += FinalMovement.x * DeltaTime;
             bool can_move_x = true;
             int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
             int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
@@ -228,10 +228,10 @@ void Entity::PhysicsUpdate(float dt, double time) {
                 }
             }
             if (!can_move_x) {
-                BoundingBox.x -= FinalMovement.x * dt;
+                BoundingBox.x -= FinalMovement.x * DeltaTime;
             }
 
-            BoundingBox.y += FinalMovement.y * dt;
+            BoundingBox.y += FinalMovement.y * DeltaTime;
             can_move_x = true;
             tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
             tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
@@ -260,11 +260,11 @@ void Entity::PhysicsUpdate(float dt, double time) {
                 }
             }
             if (!can_move_x) {
-                BoundingBox.y -= FinalMovement.y * dt;
+                BoundingBox.y -= FinalMovement.y * DeltaTime;
             }
         } else {
-            BoundingBox.x += FinalMovement.x * dt;
-            BoundingBox.y += FinalMovement.y * dt;
+            BoundingBox.x += FinalMovement.x * DeltaTime;
+            BoundingBox.y += FinalMovement.y * DeltaTime;
         }
 
 

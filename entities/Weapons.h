@@ -10,6 +10,7 @@
 #include "raylib.h"
 
 class Player;
+class Entity;
 using namespace std;
 
 struct Weapon {
@@ -47,14 +48,14 @@ struct WeaponPickup
     double AnimationSpeed = 2.5f;
     float AnimationPower = 50.0f;
     bool PickedUp = false;
+    bool LeftOwner = false;
     double CreationTime = 0;
 };
-
-
 
 class WeaponsSystem {
     void DisplayGunTexture();
     void MeleeAttack(std::shared_ptr<Entity> entity, float Angle);
+    void ResetMeleeAnim();
 
     Game* game;
     weak_ptr<Entity> OwnerPtr;

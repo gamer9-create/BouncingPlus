@@ -31,7 +31,7 @@ class Game {
     float SlowdownShakeIntensity;
 
     UIManager MainUIManager;
-    Profiler profiler;
+    Profiler MainProfiler;
     void SetGameData();
     void ProcessSlowdownAnimation();
     void DisplayPickups();
@@ -75,9 +75,9 @@ class Game {
         std::vector<std::string> BannedWeaponDrops;
 
         Game(Settings& GameSettings);
-        std::pair<bool, Vector2> RayCastPoint(Vector2 origin, Vector2 target);
-        bool RayCast(Vector2 origin, Vector2 target);
-        void PlaceWeaponPickup(WeaponPickup pickup);
+        std::pair<bool, Vector2> RayCastPoint(Vector2 Origin, Vector2 Target);
+        bool RayCast(Vector2 Origin, Vector2 Target);
+        void PlaceWeaponPickup(WeaponPickup Pickup);
         void Slowdown(float Time);
         void Slowdown(float Time, float ShakeIntensity);
         void Reload(std::string Filename);

@@ -15,24 +15,24 @@
 
 // TODO: add more powerups
 
-void Powerup::complete(std::shared_ptr<Player> Owner)
+void Powerup::Complete(std::shared_ptr<Player> Owner)
 {
 }
 
-void Powerup::undo(std::shared_ptr<Player> Owner)
+void Powerup::Undo(std::shared_ptr<Player> Owner)
 {
 }
 
-void SpeedPowerup::complete(std::shared_ptr<Player> Owner)
+void SpeedPowerup::Complete(std::shared_ptr<Player> Owner)
 {
-    Powerup::complete(Owner);
+    Powerup::Complete(Owner);
     Owner->ReduceSpeedBuff = false;
-    Owner->SpeedBuff += (250.0f - (40.0f * Owner->powerupSystem.CurrentLength)) * Owner->game->GetGameDeltaTime();
+    Owner->SpeedBuff += (250.0f - (40.0f * Owner->MainPowerupSystem.CurrentLength)) * Owner->game->GetGameDeltaTime();
 }
 
-void SpeedPowerup::undo(std::shared_ptr<Player> Owner)
+void SpeedPowerup::Undo(std::shared_ptr<Player> Owner)
 {
-    Powerup::undo(Owner);
+    Powerup::Undo(Owner);
     Owner->ReduceSpeedBuff = true;
     Owner->SpeedBuff -= 100;
 }
@@ -51,16 +51,16 @@ ShieldPowerup::ShieldPowerup()
     Name = "B-Shield";
 }
 
-void ShieldPowerup::complete(std::shared_ptr<Player> Owner)
+void ShieldPowerup::Complete(std::shared_ptr<Player> Owner)
 {
-    Powerup::complete(Owner);
+    Powerup::Complete(Owner);
 
-    transBuff = lerp(transBuff, 0.0f, Owner->game->GetGameDeltaTime() * LerpSpeed);
-    float circle_transparency = min(Length - Owner->powerupSystem.CurrentLength, DefaultTrans);
-    if (Owner->powerupSystem.CurrentLength <= DefaultTrans)
-        circle_transparency = Owner->powerupSystem.CurrentLength;
+    TransBuff = lerp(TransBuff, 0.0f, Owner->game->GetGameDeltaTime() * LerpSpeed);
+    float circle_transparency = min(Length - Owner->MainPowerupSystem.CurrentLength, DefaultTrans);
+    if (Owner->MainPowerupSystem.CurrentLength <= DefaultTrans)
+        circle_transparency = Owner->MainPowerupSystem.CurrentLength;
     else
-        circle_transparency += transBuff;
+        circle_transparency += TransBuff;
 
     std::vector<shared_ptr<Entity>>* array = &Owner->game->MainEntityManager.Entities[BulletType];
     for (int i = 0; i < array->size(); i++) {
@@ -78,7 +78,7 @@ void ShieldPowerup::complete(std::shared_ptr<Player> Owner)
 
                 entity->Movement = Vector2(X, Y);
 
-                transBuff = 1.0f - DefaultTrans;
+                TransBuff = 1.0f - DefaultTrans;
             }
         }
     }
@@ -90,11 +90,11 @@ void ShieldPowerup::complete(std::shared_ptr<Player> Owner)
     }
 }
 
-void ShieldPowerup::undo(std::shared_ptr<Player> Owner)
+void ShieldPowerup::Undo(std::shared_ptr<Player> Owner)
 {
-    Powerup::undo(Owner);
+    Powerup::Undo(Owner);
     displayFieldSize = 0;
-    transBuff = 0;
+    TransBuff = 0;
 }
 
 void PowerupSystem::Activate()
@@ -112,7 +112,7 @@ void PowerupSystem::Activate()
 void PowerupSystem::SetPowerup(Powerup* Powerup)
 {
     if (this->CurrentPowerup != nullptr)
-        this->CurrentPowerup->undo(Owner);
+        this->CurrentPowerup->Undo(Owner);
     this->CurrentPowerup = Powerup;
     PowerupIsActive = false;
     CurrentCooldown = 0;
@@ -125,11 +125,11 @@ void PowerupSystem::Update()
     {
         if (PowerupIsActive)
         {
-            CurrentPowerup->complete(Owner);
+            CurrentPowerup->Complete(Owner);
             CurrentLength -= game->GetGameDeltaTime();
             if (CurrentLength <= 0)
             {
-                CurrentPowerup->undo(Owner);
+                CurrentPowerup->Undo(Owner);
                 PowerupIsActive = false;
                 CurrentCooldown = CurrentPowerup->Cooldown;
             }

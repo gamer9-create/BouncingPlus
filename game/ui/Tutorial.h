@@ -10,9 +10,9 @@ class UIManager;
 
 class Tutorial
 {
-    int stage=-1;
+    int Stage=-1;
 public:
-    void do_stuff(UIManager* parent);
+    void ActivateTutorial(UIManager* Parent);
 };
 
 
