@@ -56,7 +56,7 @@ class Game {
 
         // Level Information
         std::string CurrentLevelName;
-        std::map<std::string, nlohmann::json> LevelData;
+        std::map<std::string, json> LevelData;
 
         // Managers
         TileManager MainTileManager;
@@ -69,6 +69,7 @@ class Game {
 
         shared_ptr<Player> MainPlayer;
         std::vector<WeaponPickup> WeaponPickups;
+        std::vector<std::pair<Rectangle, double>> FreezeZones;
 
         // Extra Assets
         unordered_map<std::string, std::string> EnemyRoleWeapons;
@@ -78,6 +79,7 @@ class Game {
         std::pair<bool, Vector2> RayCastPoint(Vector2 Origin, Vector2 Target);
         bool RayCast(Vector2 Origin, Vector2 Target);
         void PlaceWeaponPickup(WeaponPickup Pickup);
+        void ProcessFreezeZones();
         void Slowdown(float Time);
         void Slowdown(float Time, float ShakeIntensity);
         void Reload(std::string Filename);

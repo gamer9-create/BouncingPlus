@@ -162,7 +162,25 @@ void Enemy::Update() {
     float center_x = BoundingBox.x + (BoundingBox.width / 2);
 
     if (isActive && Behavior != nullptr)
-        Behavior->Update();
+    {
+        bool IsTouchingFreezeZone = false;
+
+        for (std::pair rec : game->FreezeZones)
+        {
+            if (CheckCollisionRecs(BoundingBox, rec.first))
+            {
+                IsTouchingFreezeZone = true;
+            }
+        }
+
+        if (!IsTouchingFreezeZone)
+        {
+            Behavior->Update();
+        } else
+        {
+            Movement = {0, 0};
+        }
+    }
     AnimatedHealth = Lerp(AnimatedHealth, Armor > 0 ? Armor : Health, 10 * game->GetGameDeltaTime());
 
     float size = MeasureText(std::to_string((int)round(AnimatedHealth)).c_str(), 36);

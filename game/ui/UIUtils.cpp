@@ -15,10 +15,13 @@ void UIAssets::Load()
     MenuImg = LoadTexture("assets/ui/menu_img.png");
     MikuImg = LoadTexture("assets/ui/miku.png");
     MikuMusic = LoadSound("assets/ui/lovely_cavity.mp3");
-    CreditsImg = LoadTexture("assets/ui/credits.png");
     ButtonClick = LoadSound("assets/ui/button_click.wav");
     SliderDrag = LoadSound("assets/ui/slider_dragging.wav");
     CursorImg = LoadTexture("assets/ui/cursor.png");
+    RolponPFPImg = LoadTexture("assets/ui/rolpon_pfp.png");
+    CozPFPImg = LoadTexture("assets/ui/coz_pfp.png");
+    JayPFPImg = LoadTexture("assets/ui/jay_pfp.png");
+    InkyPFPImg = LoadTexture("assets/ui/inky_pfp.png");
 }
 
 void UIAssets::UnLoad()
@@ -30,10 +33,13 @@ void UIAssets::UnLoad()
     UnloadTexture(MenuImg);
     UnloadTexture(ButtonImg);
     UnloadTexture(MikuImg);
-    UnloadTexture(CreditsImg);
     UnloadTexture(CursorImg);
     UnloadSound(SliderDrag);
     UnloadSound(ButtonClick);
+    UnloadTexture(RolponPFPImg);
+    UnloadTexture(CozPFPImg);
+    UnloadTexture(JayPFPImg);
+    UnloadTexture(InkyPFPImg);
 }
 
 Rectangle Slider(Vector2 Position, Vector2 MousePos, Sound& SliderDrag,

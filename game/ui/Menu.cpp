@@ -3,6 +3,8 @@
 //
 
 #include "Menu.h"
+
+#include <iostream>
 #include <nlohmann/json.hpp>
 #include "UIUtils.h"
 #include <raymath.h>
@@ -97,6 +99,45 @@ void Menu::LevelSelect()
     }
 }
 
+void Menu::Credits()
+{
+    Vector2 CreditsPanelSize = Vector2{(float)GetScreenWidth() - 200.0f, (float)GetScreenHeight() - 240.0f};
+    Rectangle CreditsPanelRectangle = {(float)GetScreenWidth() * 2.0f + (float)GetScreenWidth()/2.0f - CreditsPanelSize.x / 2.0f, 25 - Offset1, CreditsPanelSize.x, CreditsPanelSize.y};
+
+    DrawRectangleRec({CreditsPanelRectangle.x - CameraX, CreditsPanelRectangle.y, CreditsPanelRectangle.width, CreditsPanelRectangle.height}, ColorAlpha(BLACK, 0.5f));
+
+    float CreditsTextWidth = MeasureText("CREDITS", 55.0f);
+    DrawText("CREDITS", CreditsPanelRectangle.x + CreditsPanelRectangle.width/2.0f - CreditsTextWidth/2.0f - CameraX, CreditsPanelRectangle.y + 25.0f, 55.0f, WHITE);
+
+    DrawLineEx(Vector2{CreditsPanelRectangle.x + 25.0f - CameraX, CreditsPanelRectangle.y + 100}, Vector2{CreditsPanelRectangle.x + CreditsPanelSize.x - 5.0f - CameraX, CreditsPanelRectangle.y + 100}, 4, WHITE);
+
+    DrawTexture(GameSettings->UIAssets.RolponPFPImg, CreditsPanelRectangle.x + 25 - CameraX, CreditsPanelRectangle.y + 125.0f, WHITE);
+    DrawTexture(GameSettings->UIAssets.CozPFPImg, CreditsPanelRectangle.x + 25 - CameraX, CreditsPanelRectangle.y + 406.0f, WHITE);
+
+    DrawTexture(GameSettings->UIAssets.InkyPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 125.0f, WHITE);
+    DrawTexture(GameSettings->UIAssets.JayPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 406.0f, WHITE);
+
+    float R = 127.0f + 127.0f * sin(GetTime());
+    float G = 127.0f + 127.0f * cos(GetTime());
+    float B = 127.0f + 127.0f * sin(GetTime() + 10);
+
+    DrawText("Rolpon", CreditsPanelRectangle.x + 291 - CameraX, CreditsPanelRectangle.y + 125.0f, 45.0f, Color{(unsigned char) R, (unsigned char) G, (unsigned char) B, 255});
+
+    DrawText("Coz", CreditsPanelRectangle.x + 291 - CameraX, CreditsPanelRectangle.y + 406.0f, 45.0f, PURPLE);
+
+    DrawText("inkyrblx", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 125.0f, 45.0f, BROWN);
+
+    DrawText("jaymbermations", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 406.0f, 45.0f, ORANGE);
+
+    DrawText("Programmer & Game Director", CreditsPanelRectangle.x + 291 - CameraX, CreditsPanelRectangle.y + 170.0f, 20, WHITE);
+
+    DrawText("Playtester & Game Director", CreditsPanelRectangle.x + 291 - CameraX, CreditsPanelRectangle.y + 451.0f, 20, WHITE);
+
+    DrawText("Playtester & SFX/Music", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 170.0f, 20, WHITE);
+
+    DrawText("Playtester & Linux Port", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 406.0f + 45, 20, WHITE);
+}
+
 void Menu::Update() {
     if (!MovingToGame) {
         CameraX = Lerp(CameraX, CameraTargetX, 2 * GetFrameTime());
@@ -120,7 +161,7 @@ void Menu::Update() {
         CreditsButtonOffsetY = Lerp(CreditsButtonOffsetY, 698, 9 * GetFrameTime());
 
     MenuImgOffsetY += GetFrameTime()*15;
-    float zoom = 1.35f;
+    float zoom = 1.45f;
     DrawTexturePro(GameSettings->UIAssets.MenuImg, {0, MenuImgOffsetY, (float)GetScreenWidth(), (float)GetScreenHeight()},
         {GetScreenWidth()/2 - (GetScreenWidth() * zoom)/2 - CameraX/10, GetScreenHeight()/2 - (GetScreenHeight() * zoom)/2, (float)GetScreenWidth() * zoom, (float)GetScreenHeight() * zoom},
         {0,0},
@@ -136,9 +177,10 @@ void Menu::Update() {
     if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(), GameSettings->UIAssets.ButtonImg, GameSettings->UIAssets.ButtonClick, "PLAY")) {
         CameraTargetX=-GetScreenWidth();
     }
-    DrawTexture(GameSettings->UIAssets.CreditsImg,(GetScreenWidth()*2)-CameraX, 0, WHITE);
 
-    if (Button({GetScreenWidth()*2 + (GetScreenWidth() / 2.0f) - 75.0f - CameraX, GetScreenHeight() - 106.0f, 150, 56}, GetMousePosition(),
+    Credits();
+
+    if (Button({GetScreenWidth()*2 + (GetScreenWidth() / 2.0f) - 75.0f - CameraX, GetScreenHeight() - 106.0f + (Offset1 + Offset3)/2, 150, 56}, GetMousePosition(),
         GameSettings->UIAssets.ButtonImg, GameSettings->UIAssets.ButtonClick, "BACK") ||
         Button({GetScreenWidth() + (GetScreenWidth() / 2.0f) - 75.0f - CameraX, GetScreenHeight() - 106.0f + (Offset2 + Offset3)/2, 150, 56}, GetMousePosition(),
             GameSettings->UIAssets.ButtonImg, GameSettings->UIAssets.ButtonClick, "BACK"))

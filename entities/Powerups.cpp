@@ -97,6 +97,29 @@ void ShieldPowerup::Undo(std::shared_ptr<Player> Owner)
     TransBuff = 0;
 }
 
+FreezePowerup::FreezePowerup()
+{
+    Cooldown = 30;
+    Length = 0;
+    Name = "Ice Trap";
+}
+
+void FreezePowerup::Complete(std::shared_ptr<Player> Owner)
+{
+    auto r = Owner->game->RayCastPoint(Owner->GetCenter(), GetScreenToWorld2D(GetMousePosition(), Owner->game->MainCameraManager.RaylibCamera));
+    float w = GetRandomValue(250, 300);
+    float h = GetRandomValue(250, 300);
+    Rectangle rec = {r.second.x - w/2, r.second.y - h/2, w, h};
+    Owner->game->FreezeZones.push_back(std::pair(rec, Owner->game->GetGameTime()));
+
+    Powerup::Complete(Owner);
+}
+
+void FreezePowerup::Undo(std::shared_ptr<Player> Owner)
+{
+    Powerup::Undo(Owner);
+}
+
 void PowerupSystem::Activate()
 {
     if (CurrentPowerup != nullptr && CurrentCooldown <= 0 && CurrentLength <= 0)

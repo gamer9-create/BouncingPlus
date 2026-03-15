@@ -126,34 +126,10 @@ void WeaponsSystem::ResetMeleeAnim()
     MeleeAnimAlpha = 1;
 }
 
-void WeaponsSystem::Update() {
-
-    // Getting owner variable & updating cooldown info & updating ammo info
-    // aarush was here
-
+void WeaponsSystem::DisplayWeaponCone()
+{
     auto Owner = OwnerPtr.lock();
-
-    if (Owner != nullptr && CurrentWeapon != nullptr)
-        Owner->WeaponWeightSpeedMultiplier = CurrentWeapon->WeaponWeightSpeedMultiplier;
-
-    for (int i = 0; i < 3; i++) {
-        if (!Weapons[i].empty()) {
-            AttackCooldowns[i] += game->GetGameDeltaTime();
-        } else {
-            AttackCooldowns[i] = 0;
-            WeaponAmmo[i] = 0;
-        }
-    }
-
-    // reload weps
-    if (CurrentWeapon != nullptr && TimeStartedReloading != -1 && game->GetGameTime() - TimeStartedReloading >= CurrentWeapon->ReloadTime)
-    {
-        WeaponAmmo[CurrentWeaponIndex] = CurrentWeapon->Ammo;
-        TimeStartedReloading = -1;
-    }
-
     // Display weapon cone if using melee weapon
-
     if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && Owner->Type == PlayerType)
     {
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
@@ -181,12 +157,46 @@ void WeaponsSystem::Update() {
             DrawCircleSector({cx,cy}, Vector2Distance({cx,cy},p.second), Angle - 0.5f, Angle + 0.5f, 5, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
         }
     }
+}
 
+void WeaponsSystem::Update() {
+
+    // Getting owner variable & updating cooldown info & updating ammo info
+    // aarush was here
+
+    auto Owner = OwnerPtr.lock();
+
+    if (Owner != nullptr && CurrentWeapon != nullptr)
+        Owner->WeaponWeightSpeedMultiplier = CurrentWeapon->WeaponWeightSpeedMultiplier;
+
+    for (int i = 0; i < 3; i++) {
+        if (!Weapons[i].empty()) {
+            AttackCooldowns[i] += game->GetGameDeltaTime();
+        } else {
+            AttackCooldowns[i] = 0;
+            WeaponAmmo[i] = 0;
+        }
+    }
+
+    // reload weps
+    if (CurrentWeapon != nullptr && TimeStartedReloading != -1 && game->GetGameTime() - TimeStartedReloading >= CurrentWeapon->ReloadTime)
+    {
+        WeaponAmmo[CurrentWeaponIndex] = CurrentWeapon->Ammo;
+        TimeStartedReloading = -1;
+    }
+
+    DisplayWeaponCone();
 
     // display gun tex
     if (CurrentWeapon != nullptr && (!CurrentWeapon->texture.empty()) && (!CurrentWeapon->isMelee) && Owner->IsVisible())
         DisplayGunTexture();
 
+    DisplayMeleeAnim();
+}
+
+void WeaponsSystem::DisplayMeleeAnim()
+{
+    auto Owner = OwnerPtr.lock();
     // Melee animation (signma)
 
     if (!MeleeAnim) {
@@ -243,6 +253,41 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
         Owner->DamageOther(entity, CurrentWeapon->Damage, nullptr, CurrentWeapon->HealthGain);
 }
 
+void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
+{
+    auto Owner = OwnerPtr.lock();
+    std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->MainResourceManager.Textures.contains(CurrentWeapon->BulletTexture))
+            ? CurrentWeapon->BulletTexture : "bullet";
+
+    float BulletLifetime = 8.5f;
+    if (CurrentWeapon->BulletLifetime != -1)
+        BulletLifetime = CurrentWeapon->BulletLifetime;
+
+    // loop thru requested shots
+    for (int i = 1; i < CurrentWeapon->Bullets+1; i++) {
+
+        float Angle = TargetAngle + (float)GetRandomValue(CurrentWeapon->SpreadRange[0], CurrentWeapon->SpreadRange[1]);
+        if (CurrentWeapon->Bullets > 1)
+            Angle += ((CurrentWeapon->AngleRange / CurrentWeapon->Bullets)*i) - CurrentWeapon->AngleRange/2.0f; // get offset angle of shot
+
+        // create bullet with weapon settings
+        shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed, CurrentWeapon->Damage, BulletLifetime,
+                                                        game->MainResourceManager.Textures[BulletTexture], Owner, *game);
+        bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
+        bullet->HealthGain = CurrentWeapon->HealthGain;
+        if (Owner->Type == PlayerType)
+            bullet->EntityColor = {255, 180, 255, 255};
+        if (Owner->Type == EnemyType)
+            bullet->EntityColor = {255, 182, 217, 255};
+        game->MainEntityManager.AddEntity(BulletType, bullet);
+    }
+
+    // pushback character
+    if (CurrentWeapon->PushbackForce != 0) {
+        Owner->VelocityMovement = {cos(TargetAngle * (2 * PI / 360))*100,sin(TargetAngle * (2 * PI / 360))*100};
+        Owner->VelocityPower = CurrentWeapon->PushbackForce;
+    }
+}
 
 void WeaponsSystem::Attack(Vector2 Target) {
     auto Owner = OwnerPtr.lock();
@@ -279,38 +324,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
 
         // Gun attack
         if (Valid && !CurrentWeapon->isMelee) {
-
-            std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->MainResourceManager.Textures.contains(CurrentWeapon->BulletTexture))
-            ? CurrentWeapon->BulletTexture : "bullet";
-
-            float BulletLifetime = 8.5f;
-            if (CurrentWeapon->BulletLifetime != -1)
-                BulletLifetime = CurrentWeapon->BulletLifetime;
-
-            // loop thru requested shots
-            for (int i = 1; i < CurrentWeapon->Bullets+1; i++) {
-
-                float Angle = TargetAngle + (float)GetRandomValue(CurrentWeapon->SpreadRange[0], CurrentWeapon->SpreadRange[1]);
-                if (CurrentWeapon->Bullets > 1)
-                    Angle += ((CurrentWeapon->AngleRange / CurrentWeapon->Bullets)*i) - CurrentWeapon->AngleRange/2.0f; // get offset angle of shot
-
-                // create bullet with weapon settings
-                shared_ptr<Bullet> bullet = make_shared<Bullet>(cX, cY, Angle, CurrentWeapon->Size, CurrentWeapon->Speed, CurrentWeapon->Damage, BulletLifetime,
-                                                                game->MainResourceManager.Textures[BulletTexture], Owner, *game);
-                bullet->SlowdownOverTime = CurrentWeapon->SlowdownOverTime;
-                bullet->HealthGain = CurrentWeapon->HealthGain;
-                if (Owner->Type == PlayerType)
-                    bullet->EntityColor = {255, 180, 255, 255};
-                if (Owner->Type == EnemyType)
-                    bullet->EntityColor = {255, 182, 217, 255};
-                game->MainEntityManager.AddEntity(BulletType, bullet);
-            }
-
-            // pushback character
-            if (CurrentWeapon->PushbackForce != 0) {
-                Owner->VelocityMovement = {cos(TargetAngle * (2 * PI / 360))*100,sin(TargetAngle * (2 * PI / 360))*100};
-                Owner->VelocityPower = CurrentWeapon->PushbackForce;
-            }
+            GunAttack(TargetAngle, cX, cY);
         } else if (CurrentWeapon->isMelee) { // Melee attack
             // Get angle, set basic starting variables
             this->MeleeAnim = true;

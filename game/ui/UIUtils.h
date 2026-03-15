@@ -16,8 +16,13 @@ class UIAssets
     Texture2D ButtonSmallImg;
     Texture2D ButtonSmallRedImg;
     Texture2D MikuImg;
-    Texture2D CreditsImg;
     Texture2D CursorImg;
+
+    Texture2D RolponPFPImg;
+    Texture2D JayPFPImg;
+    Texture2D CozPFPImg;
+    Texture2D InkyPFPImg;
+
     Sound MikuMusic;
     Sound SliderDrag;
     Sound ButtonClick;

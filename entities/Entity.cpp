@@ -42,6 +42,11 @@ Entity::~Entity() {
 
 }
 
+Vector2 Entity::GetCenter()
+{
+    return Vector2{BoundingBox.x + BoundingBox.width / 2, BoundingBox.y + BoundingBox.height / 2};
+}
+
 float Entity::GetSpeed() {
     return Speed * WeaponWeightSpeedMultiplier;
 }
@@ -72,7 +77,7 @@ void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shar
         entity->Health -= Damage;
         if (entity->Type == PlayerType)
         {
-            game->MainPlayer->DamageNotification({owner->BoundingBox.x + owner->BoundingBox.width/2, owner->BoundingBox.y + owner->BoundingBox.height/2});
+            game->MainPlayer->LogicProcessor.DamageNotification({owner->BoundingBox.x + owner->BoundingBox.width/2, owner->BoundingBox.y + owner->BoundingBox.height/2});
         }
     }
 

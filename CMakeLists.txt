@@ -64,6 +64,8 @@ add_executable(BouncingPlus main.cpp
         game/saves/Settings.cpp
         game/ui/UIUtils.cpp
         game/ui/UIUtils.h
+        entities/subentities/PlayerLogicProcessor.cpp
+        entities/subentities/PlayerLogicProcessor.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)

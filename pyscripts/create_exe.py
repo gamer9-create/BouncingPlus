@@ -31,10 +31,8 @@ for file in os.listdir("../cmake-build-release"):
         shutil.copy("../cmake-build-release/"+file, dst)
 shutil.copytree("../assets", dst+"/assets")
 
-shutil.make_archive("BouncingPlusVersion"+str(version), 'zip', dst)
+epik_file_name = "Bouncing Plus - Version "+str(version)+" (Development Build)"
 
-path = "BouncingPlusVersion"+str(version)+".zip"
-#command = f"file2clip.exe \"{path}\""
-#os.system(command)
+shutil.make_archive(epik_file_name, 'zip', dst)
 
 clear(str(os.path.abspath(dst)))

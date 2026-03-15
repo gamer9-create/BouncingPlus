@@ -5,6 +5,7 @@
 #ifndef BOUNCINGPLUS_PLAYER_H
 #define BOUNCINGPLUS_PLAYER_H
 #include "Enemy.h"
+#include "PlayerLogicProcessor.h"
 #include "../Entity.h"
 #include "../Weapons.h"
 #include "../Powerups.h"
@@ -12,21 +13,12 @@
 struct Vector2;
 
 class Player : public Entity {
-    void AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked);
-    void DashLogic();
 
-    bool WeaponsSystemInit = false;
-    double PlayerFrozenTimer = 0;
-    float PlayerDashLineThickness = 10;
-    int ShaderUniformLoc;
-    float DashCooldown = 0;
-    double DashTimeStart = 0;
+    bool SystemsInitialized = false;
+
     float Alpha = 1;
-    std::vector<std::weak_ptr<Enemy>> DashedEnemies;
     float OrigSpeed;
     Vector2 LastPos = Vector2(0, 0);
-
-    std::vector<Vector3> DamageNotifs;
 
     double LastMovedTime;
     int LastKills;
@@ -34,15 +26,19 @@ class Player : public Entity {
     float IntervalHealth;
     double LastInterval;
     double LastWarningSign;
-    bool WarningSign;
-    bool HealthConcern;
+
     double LastTanked;
 
     public:
         bool isInvincible;
-    float ExtraSpeed;
-    float SpeedBuff;
-    bool ReduceSpeedBuff = false;
+        float ExtraSpeed;
+        int ShaderUniformLoc;
+        float SpeedBuff;
+        bool WarningSign;
+        bool HealthConcern;
+        double PlayerFrozenTimer = 0;
+        bool ReduceSpeedBuff = false;
+        PlayerLogicProcessor LogicProcessor;
         WeaponsSystem MainWeaponsSystem;
         PowerupSystem MainPowerupSystem;
         double InvincibilityResetTimer;
@@ -53,10 +49,9 @@ class Player : public Entity {
         Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game);
         Player();
         virtual ~Player();
-        void DamageNotification(Vector2 From);
         void PhysicsUpdate(float DeltaTime, double Time);
-        void DisplayDamageNotifs();
         void Update();
+    void OnDelete() override;
         void OnWallVelocityBump(float Power);
         void ToggleInvincibility();
 };

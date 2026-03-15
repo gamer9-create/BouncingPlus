@@ -27,6 +27,13 @@ struct SpeedPowerup : Powerup
     void Undo(std::shared_ptr<Player> Owner) override;
 };
 
+struct FreezePowerup : Powerup
+{
+    FreezePowerup();
+    void Complete(std::shared_ptr<Player> Owner) override;
+    void Undo(std::shared_ptr<Player> Owner) override;
+};
+
 struct ShieldPowerup : Powerup
 {
     float TransBuff = 0;

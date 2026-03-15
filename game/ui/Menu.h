@@ -29,6 +29,7 @@ class Menu {
     bool isStarting;
     Settings* GameSettings;
     void LevelSelect();
+    void Credits();
     public:
         Menu(Settings& GameSettings);
         void Update();

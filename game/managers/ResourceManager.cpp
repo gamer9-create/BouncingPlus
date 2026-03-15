@@ -109,7 +109,9 @@ void ResourceManager::Load()
 
     auto* p = new SpeedPowerup();
     auto* s = new ShieldPowerup();
+    auto* f = new FreezePowerup();
     Powerups.insert({"speed", p});
+    Powerups.insert({"freeze", f});
     Powerups.insert({"shield", s});
 }
 

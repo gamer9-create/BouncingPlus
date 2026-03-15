@@ -56,6 +56,9 @@ class WeaponsSystem {
     void DisplayGunTexture();
     void MeleeAttack(std::shared_ptr<Entity> entity, float Angle);
     void ResetMeleeAnim();
+    void DisplayWeaponCone();
+    void DisplayMeleeAnim();
+    void GunAttack(float TargetAngle, float cX, float cY);
 
     Game* game;
     weak_ptr<Entity> OwnerPtr;

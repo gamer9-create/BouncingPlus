@@ -51,6 +51,7 @@ Game::Game(Settings& GameSettings)
     BannedWeaponDrops = std::vector<std::string>();
     EnemyRoleWeapons = unordered_map<std::string, std::string>();
     WeaponPickups = std::vector<WeaponPickup>();
+    FreezeZones = std::vector<std::pair<Rectangle, double>>();
 
     // extra stuff
     MainPlayer = nullptr;
@@ -224,6 +225,23 @@ void Game::DisplayPickups()
     }
 }
 
+void Game::ProcessFreezeZones()
+{
+    std::erase_if(FreezeZones, [this](std::pair<Rectangle, double> rec) {
+        return GetGameTime() - rec.second >= 45;
+        });
+    for (std::pair<Rectangle, double> &rec : FreezeZones)
+    {
+        float Alpha = 1.0f;
+        if (GetGameTime() - rec.second <= 1.0f)
+            Alpha = GetGameTime() - rec.second;
+        if (GetGameTime() - rec.second >= 44.0f)
+            Alpha = 45.0f - (GetGameTime() - rec.second);
+        DrawRectangleRec(rec.first, ColorAlpha(BLUE, Alpha));
+        DrawRectangleRec({rec.first.x + 4, rec.first.y + 4, rec.first.width - 8, rec.first.height - 8}, ColorAlpha(SKYBLUE, Alpha));
+    }
+}
+
 void Game::Update() {
 
     if (IsKeyPressed(KEY_M))
@@ -261,6 +279,7 @@ void Game::Update() {
 
         MainCameraManager.Begin();
         ProcessSlowdownAnimation();
+        ProcessFreezeZones();
 
         MainProfiler.ProfilerLog("tiles");
         MainTileManager.Update();
@@ -290,6 +309,7 @@ void Game::Update() {
         }
 
         DisplayPickups();
+
         MainCameraManager.End();
 
     } else if (IsCursorHidden())
@@ -399,6 +419,7 @@ void Game::Clear() {
     CurrentLevelName.clear();
     WeaponPickups.clear();
     MainTileManager.Clear();
+    FreezeZones.clear();
     MainParticleManager.Clear();
     MainSoundManager.Clear();
     MainCameraManager.Clear();

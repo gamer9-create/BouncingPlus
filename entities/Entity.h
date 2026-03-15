@@ -38,6 +38,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
         Entity(Texture2D &Texture, Rectangle BoundingBox, float Speed, Game &game);
         virtual void PhysicsUpdate(float DeltaTime, double time);
         bool IsVisible();
+    Vector2 GetCenter();
         float GetSpeed();
         void DamageOther(std::shared_ptr<Entity> other, float Damage, std::shared_ptr<Entity> owner = nullptr, float HealthGain = -1);
         virtual void OnWallVelocityBump(float Power);
