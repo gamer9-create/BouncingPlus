@@ -1,1 +1,1 @@
-BouncingPlus+ Main repository. for devs only!
+BouncingPlus / BouncingBallz Main Code Repository. Intended for Developers & Modders.
