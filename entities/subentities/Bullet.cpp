@@ -134,7 +134,7 @@ void Bullet::PhysicsUpdate(float dt, double time) {
                                 game->MainTileManager.DistortArea(Distortion{
                                     game->RayCastPoint(GetCenter(), {bbox_x + game->MainTileManager.TileSize/2, bbox_y + game->MainTileManager.TileSize/2}).second,
                                     1.0f,
-                                    BoundingBox.width *10.5f
+                                    BoundingBox.width * 10.5f
                                 });
                             }
 
@@ -143,6 +143,12 @@ void Bullet::PhysicsUpdate(float dt, double time) {
                             can_move = false;
                         } else if (tile_id == 2) {
                             ShouldDelete = true;
+                            if (IsVisible())
+                            {
+                                Vector2 hit = game->RayCastPoint(GetCenter(), {bbox_x + game->MainTileManager.TileSize/2, bbox_y + game->MainTileManager.TileSize/2}).second;
+                                hit -= Vector2Multiply(Vector2Normalize(Vector2Subtract(GetCenter(), {bbox_x + game->MainTileManager.TileSize/2, bbox_y + game->MainTileManager.TileSize/2})), Vector2{BoundingBox.height/2, BoundingBox.height/2});
+                                game->MainTileManager.Burn(hit, GetCenter(), GetSpeed() / 2500.0f);
+                            }
                         }
                     }
                 }

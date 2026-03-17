@@ -14,6 +14,8 @@
 
 using namespace std;
 
+//TODO: implement weapon sfx
+
 // bro im finna have to rewrite like 99% of melee wep code in a bit :sob:
 WeaponsSystem::WeaponsSystem(shared_ptr<Entity> Owner, Game& game) {
 

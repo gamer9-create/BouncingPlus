@@ -22,18 +22,29 @@ struct Distortion
     double SpawnTime;
 };
 
+struct BurnMark
+{
+    Vector2 Position;
+    float Transparency;
+    float Rotation;
+    char Tex;
+    double SpawnTime;
+};
+
 class TileManager {
     Game* game;
     Vector2 UpdateDistance;
 
     std::vector<std::tuple<int, int, int>> DistortionUniformLocations;
     std::vector<Distortion> Distortions;
+    std::vector<BurnMark> BurnMarks;
 
     int DistortionCountLocation;
-    float DistortionLifetime;
+    float FXLifetime;
 
     void DrawTileMap();
     void ProcessDistortions();
+    void ProcessBurnMarks();
     void AddEnemy(float bbox_x, float bbox_y, int tile_id);
 
     public:
@@ -49,6 +60,7 @@ class TileManager {
         TileManager(Game &game);
         void Update();
         void DistortArea(Distortion d);
+        void Burn(Vector2 Position, Vector2 From, float Transparency);
         void ReadMapDataFile(std::string Filename);
         void Clear();
         void Quit();

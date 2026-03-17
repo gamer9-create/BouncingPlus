@@ -109,7 +109,7 @@ void Menu::Credits()
     float CreditsTextWidth = MeasureText("CREDITS", 55.0f);
     DrawText("CREDITS", CreditsPanelRectangle.x + CreditsPanelRectangle.width/2.0f - CreditsTextWidth/2.0f - CameraX, CreditsPanelRectangle.y + 25.0f, 55.0f, WHITE);
 
-    DrawLineEx(Vector2{CreditsPanelRectangle.x + 25.0f - CameraX, CreditsPanelRectangle.y + 100}, Vector2{CreditsPanelRectangle.x + CreditsPanelSize.x - 5.0f - CameraX, CreditsPanelRectangle.y + 100}, 4, WHITE);
+    DrawLineEx(Vector2{CreditsPanelRectangle.x + 25.0f - CameraX, CreditsPanelRectangle.y + 100}, Vector2{CreditsPanelRectangle.x + CreditsPanelSize.x - 25.0f - CameraX, CreditsPanelRectangle.y + 100}, 4, WHITE);
 
     DrawTexture(GameSettings->UIAssets.RolponPFPImg, CreditsPanelRectangle.x + 25 - CameraX, CreditsPanelRectangle.y + 125.0f, WHITE);
     DrawTexture(GameSettings->UIAssets.CozPFPImg, CreditsPanelRectangle.x + 25 - CameraX, CreditsPanelRectangle.y + 406.0f, WHITE);
@@ -169,9 +169,9 @@ void Menu::Update() {
 
     MenuImgOffsetY += GetFrameTime()*15;
     float zoom = 1.45f;
-    DrawTexturePro(GameSettings->UIAssets.MenuImg, {0, MenuImgOffsetY, (float)GetScreenWidth(), (float)GetScreenHeight()},
-        {GetScreenWidth()/2 - (GetScreenWidth() * zoom)/2 - CameraX/10, GetScreenHeight()/2 - (GetScreenHeight() * zoom)/2, (float)GetScreenWidth() * zoom, (float)GetScreenHeight() * zoom},
-        {0,0},
+    DrawTexturePro(GameSettings->UIAssets.MenuImg, {0, MenuImgOffsetY, 1184.0f, 736.0f},
+        {(float)GetScreenWidth() / 2.0f - CameraX/10, (float)GetScreenHeight() / 2.0f, (float)GetScreenWidth() * zoom, (float)GetScreenHeight() * zoom},
+        {(float)GetScreenWidth() * zoom / 2.0f, (float)GetScreenHeight() * zoom / 2.0f},
         0,
         WHITE
         );
