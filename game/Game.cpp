@@ -280,6 +280,7 @@ void Game::Update() {
         MainCameraManager.Begin();
         ProcessSlowdownAnimation();
         ProcessFreezeZones();
+        DisplayPickups();
 
         MainProfiler.ProfilerLog("tiles");
         MainTileManager.Update();
@@ -308,7 +309,7 @@ void Game::Update() {
             }
         }
 
-        DisplayPickups();
+
 
         MainCameraManager.End();
 

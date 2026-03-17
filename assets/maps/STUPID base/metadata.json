@@ -4,7 +4,7 @@
   "player": {
     "starting_health": 150,
     "starting_speed": 350,
-    "inventory": ["Sword", "Shotgun", ""],
+    "inventory": ["Sword", "Player Gun", ""],
     "powerup": "shield",
     "dash_base_power": 2500,
     "dash_power_multiplier": 1,

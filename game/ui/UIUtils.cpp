@@ -22,6 +22,7 @@ void UIAssets::Load()
     CozPFPImg = LoadTexture("assets/ui/coz_pfp.png");
     JayPFPImg = LoadTexture("assets/ui/jay_pfp.png");
     InkyPFPImg = LoadTexture("assets/ui/inky_pfp.png");
+    MainMenuMusic = LoadMusicStream("assets/ui/main_menu.mp3");
 }
 
 void UIAssets::UnLoad()
@@ -40,6 +41,7 @@ void UIAssets::UnLoad()
     UnloadTexture(CozPFPImg);
     UnloadTexture(JayPFPImg);
     UnloadTexture(InkyPFPImg);
+    UnloadMusicStream(MainMenuMusic);
 }
 
 Rectangle Slider(Vector2 Position, Vector2 MousePos, Sound& SliderDrag,

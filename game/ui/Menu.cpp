@@ -101,7 +101,7 @@ void Menu::LevelSelect()
 
 void Menu::Credits()
 {
-    Vector2 CreditsPanelSize = Vector2{(float)GetScreenWidth() - 200.0f, (float)GetScreenHeight() - 240.0f};
+    Vector2 CreditsPanelSize = Vector2{(float)GetScreenWidth() - 200.0f, (float)GetScreenHeight() - 180.0f};
     Rectangle CreditsPanelRectangle = {(float)GetScreenWidth() * 2.0f + (float)GetScreenWidth()/2.0f - CreditsPanelSize.x / 2.0f, 25 - Offset1, CreditsPanelSize.x, CreditsPanelSize.y};
 
     DrawRectangleRec({CreditsPanelRectangle.x - CameraX, CreditsPanelRectangle.y, CreditsPanelRectangle.width, CreditsPanelRectangle.height}, ColorAlpha(BLACK, 0.5f));
@@ -136,6 +136,9 @@ void Menu::Credits()
     DrawText("Playtester & SFX/Music", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 170.0f, 20, WHITE);
 
     DrawText("Playtester & Linux Port", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 406.0f + 45, 20, WHITE);
+
+    float ThankYouTextWidth = MeasureText("Finally, thank YOU, for playing!", 40);
+    DrawText("Finally, thank YOU, for playing!", CreditsPanelRectangle.x + CreditsPanelSize.x/2 - ThankYouTextWidth/2 - CameraX, CreditsPanelRectangle.y + CreditsPanelSize.y - 50, 40, WHITE);
 }
 
 void Menu::Update() {
@@ -143,6 +146,10 @@ void Menu::Update() {
         CameraX = Lerp(CameraX, CameraTargetX, 2 * GetFrameTime());
         MousePos = {(float)GetMouseX() + CameraX, (float)GetMouseY()};
     }
+
+    if (!IsMusicStreamPlaying(GameSettings->UIAssets.MainMenuMusic))
+        PlayMusicStream(GameSettings->UIAssets.MainMenuMusic);
+    UpdateMusicStream(GameSettings->UIAssets.MainMenuMusic);
 
     if (IsCursorHidden())
         ShowCursor();
@@ -205,6 +212,7 @@ void Menu::Update() {
     if (MovingToGame && BlackTransparency >= 1.0f) {
         Map = TargetMap;
         StopSound(GameSettings->UIAssets.MikuMusic);
+        StopMusicStream(GameSettings->UIAssets.MainMenuMusic);
     }
 
     DrawTexture(GameSettings->UIAssets.MikuImg, -75, GetScreenHeight() - 20 + MikuOffset, WHITE);
@@ -213,13 +221,17 @@ void Menu::Update() {
         if (!IsSoundPlaying(GameSettings->UIAssets.MikuMusic)) {
             SetSoundVolume(GameSettings->UIAssets.MikuMusic, 0.2f);
             ResumeSound(GameSettings->UIAssets.MikuMusic);
+            SetMusicVolume(GameSettings->UIAssets.MainMenuMusic, 0);
         }
     } else {
         MikuOffset = lerp(MikuOffset, 0, 10*GetFrameTime());
         PauseSound(GameSettings->UIAssets.MikuMusic);
+
+        SetMusicVolume(GameSettings->UIAssets.MainMenuMusic, 1.0f - BlackTransparency);
     }
 
     LevelSelect();
+
     DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, BlackTransparency));
 }
 

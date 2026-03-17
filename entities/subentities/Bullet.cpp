@@ -129,6 +129,15 @@ void Bullet::PhysicsUpdate(float dt, double time) {
                                 Movement = Vector2(X, Y);
                             }
 
+                            if (IsVisible())
+                            {
+                                game->MainTileManager.DistortArea(Distortion{
+                                    game->RayCastPoint(GetCenter(), {bbox_x + game->MainTileManager.TileSize/2, bbox_y + game->MainTileManager.TileSize/2}).second,
+                                    1.0f,
+                                    BoundingBox.width *10.5f
+                                });
+                            }
+
                             //OwnerPtr.reset();
 
                             can_move = false;

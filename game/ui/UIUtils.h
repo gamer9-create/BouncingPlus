@@ -26,6 +26,9 @@ class UIAssets
     Sound MikuMusic;
     Sound SliderDrag;
     Sound ButtonClick;
+
+    Music MainMenuMusic;
+
     void Load();
     void UnLoad();
 };

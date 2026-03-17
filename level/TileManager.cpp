@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <raymath.h>
 #include <string>
 #include <nlohmann/json.hpp>
 
@@ -21,7 +22,7 @@ TileManager::TileManager() {
 
 TileManager::TileManager(Game &game) {
     this->game = &game;
-    Clear();
+    TileMapTex = LoadRenderTexture(1,1);
     TileTypes[0] = NothingTileType; // air
     TileTypes[1] = WallTileType; // bouncy wall
     TileTypes[2] = WallTileType; // delete wall
@@ -33,9 +34,11 @@ TileManager::TileManager(Game &game) {
     TileTypes[8] = EnemySpawnTileType; // enemy spawn tile type
     TileTypes[9] = UpgradeStationTileType; // upgrade station tile type
     TileTypes[10] = BossTileType; // boss
+    Clear();
 }
 
-void TileManager::Update() {
+void TileManager::DrawTileMap()
+{
     Vector2 *CameraPosition = &this->game->MainCameraManager.CameraPosition;
     int tile_x = static_cast<int> ((CameraPosition->x + (GetScreenWidth()/2)) / TileSize);
     int tile_y = static_cast<int> ((CameraPosition->y + (GetScreenHeight()/2)) / TileSize);
@@ -54,6 +57,8 @@ void TileManager::Update() {
             if (tile_tex != nullptr) {
                 float bbox_x = curr_tile_x * TileSize;
                 float bbox_y = curr_tile_y * TileSize;
+                bbox_x -= game->MainCameraManager.RaylibCamera.target.x;
+                bbox_y -= game->MainCameraManager.RaylibCamera.target.y;
                 Rectangle rec = {0,0, (float) tile_tex->width, (float) tile_tex->height};
 
                 bool left = TileTypes[Map[std::to_string(curr_tile_x-1) + " " + std::to_string(curr_tile_y)]] == WallTileType;
@@ -83,42 +88,143 @@ void TileManager::Update() {
 
                 if (left) {
                     DrawTexturePro(*tile_tex, {10,0,1,36}, Rectangle(bbox_x,
-                bbox_y, 8, 72), {}, 0, WHITE);
+                bbox_y, 8, 72), {0, 0}, 0, WHITE);
                 }
                 if (right) {
                     DrawTexturePro(*tile_tex, {10,0,1,36}, Rectangle(bbox_x+TileSize-8,
-                bbox_y, 8, 72), {}, 0, WHITE);
+                bbox_y, 8, 72), {0, 0}, 0, WHITE);
                 }
                 if (up) {
                     DrawTexturePro(*tile_tex, {0,10,36,1}, Rectangle(bbox_x,
-                bbox_y, 72, 8), {}, 0, WHITE);
+                bbox_y, 72, 8), {0, 0}, 0, WHITE);
                 }
                 if (down) {
                     DrawTexturePro(*tile_tex, {0,10,36,1}, Rectangle(bbox_x,
-                bbox_y+TileSize-8, 72, 8), {}, 0, WHITE);
+                bbox_y+TileSize-8, 72, 8), {0, 0}, 0, WHITE);
                 }
 
                 DrawTexturePro(*tile_tex, rec, Rectangle(bbox_x + (rec.x*2),
-                    bbox_y +(rec.y*2), rec.width*2, rec.height*2), {}, 0, WHITE);
+                    bbox_y +(rec.y*2), rec.width*2, rec.height*2), {0, 0}, 0, WHITE);
 
                 if (left && up && diagonal_lu)
                     DrawTexturePro(*tile_tex,{10,10,1,1},
                         {bbox_x, bbox_y,8,8},
-                        {},0,WHITE);
+                        {0, 0},0,WHITE);
                 if (left && down && diagonal_ld)
                     DrawTexturePro(*tile_tex,{10,10,1,1},
                         {bbox_x, bbox_y + TileSize-8,8,8},
-                        {},0,WHITE);
+                        {0, 0},0,WHITE);
                 if (right && up && diagonal_ru)
                     DrawTexturePro(*tile_tex,{10,10,1,1},
                         {bbox_x+TileSize-8, bbox_y,8,8},
-                        {},0,WHITE);
+                        {0, 0},0,WHITE);
                 if (right && down && diagonal_rd)
                     DrawTexturePro(*tile_tex,{10,10,1,1},
                         {bbox_x+TileSize-8, bbox_y + TileSize-8,8,8},
-                        {},0,WHITE);
+                        {0, 0},0,WHITE);
             }
         }
+    }
+}
+
+void TileManager::Update() {
+
+    if (TileMapTex.texture.width != GetScreenWidth() || TileMapTex.texture.height != GetScreenHeight()) {
+        UnloadRenderTexture(TileMapTex);
+        TileMapTex = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    }
+    ProcessDistortions();
+
+    EndTextureMode();
+    EndMode2D();
+    BeginTextureMode(TileMapTex);
+    BeginBlendMode(BLEND_ALPHA);
+    ClearBackground(BLANK);
+
+    DrawTileMap();
+
+    EndTextureMode();
+    EndBlendMode();
+    BeginTextureMode(game->MainCameraManager.CameraRenderTexture);
+    BeginMode2D(game->MainCameraManager.RaylibCamera);
+
+    BeginShaderMode(game->MainResourceManager.Shaders["distortion"]);
+
+    int DistortionCount = (int)min(100.0f, (float)Distortions.size());
+
+    SetShaderValue(game->MainResourceManager.Shaders["distortion"], DistortionCountLocation, &DistortionCount, SHADER_UNIFORM_INT);
+
+    BeginBlendMode(BLEND_ALPHA);
+    DrawTexturePro(TileMapTex.texture, {0, 0, (float)TileMapTex.texture.width, (float)-TileMapTex.texture.height}, {
+        game->MainCameraManager.RaylibCamera.target.x, game->MainCameraManager.RaylibCamera.target.y, (float)TileMapTex.texture.width,(float)TileMapTex.texture.height
+    }, {0,0}, 0, WHITE);
+    EndBlendMode();
+    EndShaderMode();
+}
+
+void TileManager::DistortArea(Distortion d)
+{
+    if (Distortions.size() >= 100)
+        return;
+    for (Distortion &otherDis : Distortions)
+    {
+        if (Vector2Distance(otherDis.Position, d.Position) < 25 && game->GetGameTime() - otherDis.SpawnTime <= DistortionLifetime/2)
+            return;
+    }
+    d.SpawnTime = game->GetGameTime();
+    Distortions.push_back(d);
+}
+
+void TileManager::ProcessDistortions()
+{
+    std::erase_if(Distortions, [this](Distortion &d)
+    {
+        return game->GetGameTime() - d.SpawnTime >= DistortionLifetime;
+    });
+    if (DistortionUniformLocations.size() <= 0)
+    {
+        BeginShaderMode(game->MainResourceManager.Shaders["distortion"]);
+
+        for (int i = 0; i < 100; i++)
+        {
+
+            int loc1 = GetShaderLocation(game->MainResourceManager.Shaders["distortion"], ("distortions[" + to_string(i) + "].position").c_str());
+            int loc2 = GetShaderLocation(game->MainResourceManager.Shaders["distortion"], ("distortions[" + to_string(i) + "].strength").c_str());
+            int loc3 = GetShaderLocation(game->MainResourceManager.Shaders["distortion"], ("distortions[" + to_string(i) + "].radius").c_str());
+            std::tuple locs(loc1, loc2, loc3);
+
+            DistortionUniformLocations.push_back(locs);
+        }
+
+        DistortionCountLocation = GetShaderLocation(game->MainResourceManager.Shaders["distortion"], "distortionCount");
+
+        EndShaderMode();
+    }
+
+    for (Distortion &d : Distortions)
+    {
+        if (game->GetGameTime() - d.SpawnTime < DistortionLifetime/2)
+            d.Strength = (game->GetGameTime() - d.SpawnTime) / (DistortionLifetime/2);
+        else if (game->GetGameTime() - d.SpawnTime >= 0.125)
+            d.Strength = DistortionLifetime - (game->GetGameTime() - d.SpawnTime - (DistortionLifetime/2)) / (DistortionLifetime/2);
+
+        d.Strength = clamp((float)pow(d.Strength, 2) * 3.1f, 0.0f, 3.1f);
+    }
+
+    int DistortionCount = (int)min(100.0f, (float)Distortions.size());
+    for (int i = 0; i < DistortionCount; i++)
+    {
+        int PositionLocation = get<0>(DistortionUniformLocations[i]);
+        int StrengthLocation = get<1>(DistortionUniformLocations[i]);
+        int RadiusLocation = get<2>(DistortionUniformLocations[i]);
+
+        Vector2 SPosition = GetWorldToScreen2D(Distortions[i].Position, game->MainCameraManager.RaylibCamera);
+        if (game->DebugDraw)
+            DrawCircle(Distortions[i].Position.x, Distortions[i].Position.y, 15, RED);
+
+        SetShaderValue(game->MainResourceManager.Shaders["distortion"], PositionLocation, &SPosition, SHADER_UNIFORM_VEC2);
+        SetShaderValue(game->MainResourceManager.Shaders["distortion"], StrengthLocation, &Distortions[i].Strength, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(game->MainResourceManager.Shaders["distortion"], RadiusLocation, &Distortions[i].Radius, SHADER_UNIFORM_FLOAT);
     }
 }
 
@@ -219,15 +325,21 @@ void TileManager::ReadMapDataFile(std::string Filename) {
 void TileManager::Clear()
 {
     Map.clear();
+    Distortions.clear();
     MapWidth = 0;
     MapHeight = 0;
     PlayerSpawnPosition = {0, 0};
     BossSpawnPosition = {0,0};
     EnemySpawnLocations = std::vector<Vector2>();
+    DistortionLifetime = 0.75f;
     TileSize = 72;
-    UpdateDistance = Vector2((int) (GetScreenWidth() / 61.0f), (int)(GetScreenHeight() / 48.0f));
+    UpdateDistance = Vector2((int) (GetScreenWidth() / 61.0f), (int)(GetScreenHeight() / 48.0f));;
+    if (IsRenderTextureValid(TileMapTex))
+        UnloadRenderTexture(TileMapTex);
+    TileMapTex = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 }
 
 void TileManager::Quit() {
-
+    Clear();
+    UnloadRenderTexture(TileMapTex);
 }
