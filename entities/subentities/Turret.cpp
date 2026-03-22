@@ -24,7 +24,7 @@ Turret::Turret(Game& game, std::string Weapon, float X, float Y) : Entity(game.G
     this->GoalSwitchCooldown = 0.5f;
     this->SuspiciousRotationLockCooldown = 2.5f;
     this->Range = GetRandomValue(500, 1200);
-    this->AngleRange = 90;//GetRandomValue(65, 125);
+    this->AngleRange = GetRandomValue(35, 70);
 }
 
 void Turret::SetTarget()
@@ -75,8 +75,7 @@ void Turret::Update()
         MyWeaponsSystem.Equip(0);
         Initialized = true;
     }
-
-    if (IsVisible())
+    if (Vector2Distance(GetCenter(), game->MainPlayer->GetCenter()) < Range+GetScreenWidth()/2)
     {
         for (int i = 0; i < AngleRange; i++)
         {
@@ -87,7 +86,6 @@ void Turret::Update()
             DrawCircleSector(GetCenter(), Vector2Distance(GetCenter(),p.second), Angle - 0.5f, Angle + 0.5f, 1, ColorAlpha(RED,0.35f));
         }
     }
-
     switch (this->CurrentState)
     {
         case LOOKING:
@@ -115,7 +113,7 @@ void Turret::Update()
         case DETECTED:
             {
                 this->TurretRotation = 180 - Vector2LineAngle(GetCenter(), Target) * RAD2DEG+180;
-                Target = Vector2Lerp(Target, game->MainPlayer->GetCenter(), 3.5f * game->GetGameDeltaTime());
+                Target = Vector2Lerp(Target, game->MainPlayer->GetCenter(), 6.5f * game->GetGameDeltaTime());
                 MyWeaponsSystem.Attack(Target);
                 if (MyWeaponsSystem.WeaponAmmo[MyWeaponsSystem.CurrentWeaponIndex] <= 0)
                     MyWeaponsSystem.Reload();
@@ -125,8 +123,9 @@ void Turret::Update()
             }
     case SUSPICIOUS:
             {
+                this->TurretRotation = 180 - Vector2LineAngle(GetCenter(), Target) * RAD2DEG+180;
                 SuspiciousRotationLockCooldown -= game->GetGameDeltaTime();
-                if (game->RayCast(GetCenter(), game->MainPlayer->GetCenter()))
+                if (PlayerIsVisible())
                     ChangeState(DETECTED);
                 else if (SuspiciousRotationLockCooldown <= 0)
                     ChangeState(LOOKING);

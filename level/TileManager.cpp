@@ -45,7 +45,17 @@ void TileManager::Burn(Vector2 Position, Vector2 From, float Transparency)
 {
     if (BurnMarks.size() >= 15)
         return;
-    BurnMark burn = {Position, Transparency, Vector2LineAngle(From, Position) * RAD2DEG, (char)GetRandomValue(0, 3), game->GetGameTime()};
+    float BurnMarkRange = GetRandomValue(5, 8);
+    Vector2 s = Vector2{(float)GetRandomValue(-BurnMarkRange, BurnMarkRange), (float)GetRandomValue(-BurnMarkRange, BurnMarkRange)};
+    s = Vector2Add(s, Position);
+    BurnMark burn = {
+        Position, Transparency, game->GetGameTime(),
+        s,
+        Vector2Add(Vector2{(float)GetRandomValue(-BurnMarkRange, BurnMarkRange), (float)GetRandomValue(-BurnMarkRange, BurnMarkRange)},Position),
+        Vector2Add(Vector2{(float)GetRandomValue(-BurnMarkRange, BurnMarkRange), (float)GetRandomValue(-BurnMarkRange, BurnMarkRange)},Position),
+        Vector2Add(Vector2{(float)GetRandomValue(-BurnMarkRange, BurnMarkRange), (float)GetRandomValue(-BurnMarkRange, BurnMarkRange)},Position),
+        s
+    };
     BurnMarks.push_back(burn);
 }
 
@@ -156,17 +166,34 @@ void TileManager::Update() {
     ClearBackground(BLANK);
 
     DrawTileMap();
+    BeginShaderMode(game->GameResources.Shaders["blur"]);
+
+    int ScreenWidth = GetScreenWidth();
+    int ScreenHeight = GetScreenWidth();
+
+    SetShaderValue(game->GameResources.Shaders["blur"], game->GameCamera.uWidth2, &ScreenWidth, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources.Shaders["blur"], game->GameCamera.uHeight2, &ScreenHeight, SHADER_UNIFORM_INT);
+
     for (BurnMark &b : BurnMarks)
     {
+        Vector2 list[5];
+        for (int i = 0; i < 5; i++)
+            list[i] = Vector2Subtract(b.Points[i], game->GameCamera.RaylibCamera.target);
+
         float FinalTransparency = clamp(b.Transparency, 0.0f, 1.0f) * (1.0f- (game->GetGameTime() - b.SpawnTime) / (FXLifetime * 3.0f));
-        DrawTexturePro(game->GameResources.Textures["burn_marks"], {
+        DrawLineStrip(list, 5, ColorAlpha(BLACK, FinalTransparency));
+        DrawCircle(b.Position.x - game->GameCamera.RaylibCamera.target.x, b.Position.y - game->GameCamera.RaylibCamera.target.y, 5, ColorAlpha(BLACK, FinalTransparency / 1.6f));
+        /*
+        *DrawTexturePro(game->GameResources.Textures["burn_marks"], {
             (float)(((int)b.Tex * 18) % 36), (float)(((int)b.Tex/2 * 18) % 36),
             18, 18
         }, {b.Position.x - game->GameCamera.RaylibCamera.target.x, b.Position.y - game->GameCamera.RaylibCamera.target.y, 25 * FinalTransparency, 25 * FinalTransparency},
         {25 * FinalTransparency / 2, 25 * FinalTransparency / 2}, b.Rotation, ColorAlpha(WHITE, FinalTransparency));
+         */
         if (game->DebugDraw)
             DrawCircle(b.Position.x - game->GameCamera.RaylibCamera.target.x, b.Position.y - game->GameCamera.RaylibCamera.target.y, 5, ColorAlpha(PURPLE, 0.5f));
     }
+    EndShaderMode();
 
     EndTextureMode();
     EndBlendMode();

@@ -26,9 +26,8 @@ struct BurnMark
 {
     Vector2 Position;
     float Transparency;
-    float Rotation;
-    char Tex;
     double SpawnTime;
+    Vector2 Points[5];
 };
 
 class TileManager {

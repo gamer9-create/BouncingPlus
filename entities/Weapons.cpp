@@ -137,7 +137,7 @@ void WeaponsSystem::DisplayWeaponCone()
 {
     auto Owner = OwnerPtr.lock();
     // Display weapon cone if using melee weapon
-    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && (Owner->Type == PlayerType || Owner->Type == EnemyType) && Owner->IsVisible())
+    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && (Owner->Type == PlayerType || Owner->Type == EnemyType) && Vector2Distance(Owner->GetCenter(), game->MainPlayer->GetCenter()) < CurrentWeapon->Range + GetScreenWidth()/2)
     {
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;

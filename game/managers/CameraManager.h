@@ -33,8 +33,7 @@ class CameraManager {
     int uHeight;
     int uPixelSize;
 
-    int uWidth2;
-    int uHeight2;
+
 
     bool ShowLines;
 
@@ -42,6 +41,9 @@ class CameraManager {
 
     double ZoomResetTimer;
     public:
+    int uWidth2;
+    int uHeight2;
+
     RenderTexture CameraRenderTexture;
         Game* game;
         Vector2 CameraPosition;

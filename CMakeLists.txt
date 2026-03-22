@@ -68,8 +68,6 @@ add_executable(BouncingPlus main.cpp
         entities/subentities/PlayerLogicProcessor.h
         entities/subentities/Turret.cpp
         entities/subentities/Turret.h
-        entities/subentities/Turret.cpp
-        entities/subentities/Turret.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)
