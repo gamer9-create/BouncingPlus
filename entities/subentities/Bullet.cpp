@@ -56,18 +56,18 @@ void Bullet::PhysicsUpdate(float dt, double time) {
         bool can_move = true;
         BoundingBox.x += FinalMovement.x * dt;
         BoundingBox.y += FinalMovement.y * dt;
-        int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
-        int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
+        int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles.TileSize);
+        int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles.TileSize);
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 3; x++) {
                 int curr_tile_x = tile_x + x - 1;
                 int curr_tile_y = tile_y + y - 1;
                 std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
-                int tile_id = game->MainTileManager.Map[coord];
-                if (game->MainTileManager.TileTypes[tile_id] == WallTileType) {
-                    float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
-                    float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
-                    Rectangle bbox = Rectangle(bbox_x, bbox_y, game->MainTileManager.TileSize, game->MainTileManager.TileSize);
+                int tile_id = game->GameTiles.Map[coord];
+                if (game->GameTiles.TileTypes[tile_id] == WallTileType) {
+                    float bbox_x = curr_tile_x * game->GameTiles.TileSize;
+                    float bbox_y = curr_tile_y * game->GameTiles.TileSize;
+                    Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
                     if (CheckCollisionCircleRec({BoundingBox.x,BoundingBox.y}, BoundingBox.height, bbox)) {
                         if (tile_id == 1){// && coord != LastBouncedCoordinate) {
                             int dir_hit = -1; // -1 = none, 0 = left, 1 = up, 2 = right, 3 = down
@@ -131,8 +131,8 @@ void Bullet::PhysicsUpdate(float dt, double time) {
 
                             if (IsVisible())
                             {
-                                game->MainTileManager.DistortArea(Distortion{
-                                    game->RayCastPoint(GetCenter(), {bbox_x + game->MainTileManager.TileSize/2, bbox_y + game->MainTileManager.TileSize/2}).second,
+                                game->GameTiles.DistortArea(Distortion{
+                                    game->RayCastPoint(GetCenter(), {bbox_x + game->GameTiles.TileSize/2, bbox_y + game->GameTiles.TileSize/2}).second,
                                     1.0f,
                                     BoundingBox.width * 10.5f
                                 });
@@ -145,9 +145,9 @@ void Bullet::PhysicsUpdate(float dt, double time) {
                             ShouldDelete = true;
                             if (IsVisible())
                             {
-                                Vector2 hit = game->RayCastPoint(GetCenter(), {bbox_x + game->MainTileManager.TileSize/2, bbox_y + game->MainTileManager.TileSize/2}).second;
-                                hit -= Vector2Multiply(Vector2Normalize(Vector2Subtract(GetCenter(), {bbox_x + game->MainTileManager.TileSize/2, bbox_y + game->MainTileManager.TileSize/2})), Vector2{BoundingBox.height/2, BoundingBox.height/2});
-                                game->MainTileManager.Burn(hit, GetCenter(), GetSpeed() / 2500.0f);
+                                Vector2 hit = game->RayCastPoint(GetCenter(), {bbox_x + game->GameTiles.TileSize/2, bbox_y + game->GameTiles.TileSize/2}).second;
+                                hit -= Vector2Multiply(Vector2Normalize(Vector2Subtract(GetCenter(), {bbox_x + game->GameTiles.TileSize/2, bbox_y + game->GameTiles.TileSize/2})), Vector2{BoundingBox.height/2, BoundingBox.height/2});
+                                game->GameTiles.Burn(hit, GetCenter(), GetSpeed() / 2500.0f);
                             }
                         }
                     }
@@ -181,7 +181,7 @@ void Bullet::Update() {
         ShouldDelete = true;
     }
     auto Owner = OwnerPtr.lock();
-    for (shared_ptr entity : game->MainEntityManager.Entities[EnemyType]) {
+    for (shared_ptr entity : game->GameEntities.Entities[EnemyType]) {
         if (entity != nullptr && entity != Owner && !entity->ShouldDelete) {
             Attack(entity);
         }

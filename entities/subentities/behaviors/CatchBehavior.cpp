@@ -51,8 +51,8 @@ void CatchBehavior::Update()
         if (distance < 100)
         {
             Owner->DamageOther(game->MainPlayer, 10);
-            game->MainCameraManager.ShakeCamera(0.15f);
-            game->MainSoundManager.PlaySoundM("dash_hit", 0.1f);
+            game->GameCamera.ShakeCamera(0.15f);
+            game->GameSounds.PlaySoundM("dash_hit", 0.1f);
             AttackCooldown = game->GetGameTime();
         }
 

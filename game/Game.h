@@ -59,13 +59,13 @@ class Game {
         std::map<std::string, json> LevelData;
 
         // Managers
-        TileManager MainTileManager;
-        EntityManager MainEntityManager;
-        CameraManager MainCameraManager;
-        ParticleManager MainParticleManager;
-        SoundManager MainSoundManager;
-        GameModeManager MainGameModeManager;
-        ResourceManager MainResourceManager;
+        TileManager GameTiles;
+        EntityManager GameEntities;
+        CameraManager GameCamera;
+        ParticleManager Particles;
+        SoundManager GameSounds;
+        GameModeManager GameMode;
+        ResourceManager GameResources;
 
         shared_ptr<Player> MainPlayer;
         std::vector<WeaponPickup> WeaponPickups;

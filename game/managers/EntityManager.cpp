@@ -82,7 +82,7 @@ void EntityManager::EntityClear()
         });
         if (game->DebugDraw) {
             std::string f = "ENTITY CATEGORY: " + to_string(e) + ", OLD SIZE: " + to_string(old_size) + ", NEW SIZE: " + to_string(array->size());
-            DrawText(f.c_str(), 800+game->MainCameraManager.RaylibCamera.target.x, 50 + 10*e +game->MainCameraManager.RaylibCamera.target.y, 10, WHITE);
+            DrawText(f.c_str(), 800+game->GameCamera.RaylibCamera.target.x, 50 + 10*e +game->GameCamera.RaylibCamera.target.y, 10, WHITE);
         }
     }
 }

@@ -15,7 +15,7 @@ void Tutorial::ActivateTutorial(UIManager* Parent)
 {
     if (Stage <= 2)
     {
-        for (std::shared_ptr e : Parent->game->MainEntityManager.Entities[EnemyType])
+        for (std::shared_ptr e : Parent->game->GameEntities.Entities[EnemyType])
         {
             if (e->BoundingBox.y >= 5040)
             {

@@ -21,32 +21,49 @@ std::map<std::string,json> LevelLoader::GetLevelsData()
     std::map<std::string,json> level_data = std::map<std::string,json>();
     std::vector<std::string> level_order = std::vector<std::string>();
 
-    FilePathList list = LoadDirectoryFiles("assets\\maps");
-    for (int i = 0; i < list.count; i++)
+    try
     {
-        std::string c = string(list.paths[i]) + "\\metadata.json";
+        FilePathList list = LoadDirectoryFiles("assets\\maps");
+        for (int i = 0; i < list.count; i++)
+        {
+            std::string c = string(list.paths[i]) + "\\metadata.json";
 
-        if (!c.ends_with("LevelOrder.txt\\metadata.json"))
-        {
-            std::ifstream g(c);
-            std::string e = string(list.paths[i]).substr(12, c.size()-14);
-            json h = json::parse(g);
-            level_data[e] = h;
-        } else
-        {
-            std::ifstream g(string(list.paths[i]));
-            std::string line;
-            while(std::getline(g,line))
+            if (!c.ends_with("LevelOrder.txt\\metadata.json"))
             {
-                level_order.push_back(line);
+                std::ifstream g(c);
+                std::string e = string(list.paths[i]).substr(12, c.size()-14);
+                json h = json::parse(g);
+                level_data[e] = h;
+            } else
+            {
+                std::ifstream g(string(list.paths[i]));
+                std::string line;
+                while(std::getline(g,line))
+                {
+                    level_order.push_back(line);
+                }
             }
         }
+    } catch (std::exception &e)
+    {
+        std::cout << e.what() << std::endl;
     }
 
     for (int i = 0; i < level_order.size(); i++)
     {
         std::string s = level_order[i];
-        level_data[s]["order"] = i;
+        if (level_data.contains(s))
+            level_data[s]["order"] = i;
+    }
+
+    int i = level_order.size();
+    for (auto &[name, val] : level_data)
+    {
+        if (!val.contains("order"))
+        {
+            val["order"] = i;
+            i++;
+        }
     }
 
     return level_data;

@@ -49,62 +49,70 @@ void ResourceManager::Load()
     }
     path = "assets\\weapondata";
     for (const auto & entry : fs::directory_iterator(path)) {
-        std::string p = entry.path().filename().string();
-        p.erase(p.end() - 5, p.end());
-        std::ifstream g(entry.path().c_str());
-        nlohmann::json data = nlohmann::json::parse(g);
-        Weapon wep = {};
-        if (data.contains("EnemiesCanUse") && data["EnemiesCanUse"].get<bool>())
-            EnemyWeaponNamesList.push_back(p);
-        if (data.contains("isMelee"))
-            wep.isMelee = data["isMelee"].get<bool>();
-        if (data.contains("ShakeScreen"))
-            wep.ShakeScreen = data["ShakeScreen"].get<bool>();
-        if (data.contains("SlowdownOverTime"))
-            wep.SlowdownOverTime = data["SlowdownOverTime"].get<bool>();
-        if (data.contains("PushbackForce"))
-            wep.PushbackForce = data["PushbackForce"].get<float>();
-        if (data.contains("BulletLifetime"))
-            wep.BulletLifetime = data["BulletLifetime"].get<float>();
-        if (data.contains("Spread"))
+        try
         {
-            wep.SpreadRange[0] = data["Spread"][0].get<int>();
-            wep.SpreadRange[1] = data["Spread"][1].get<int>();
+            std::string p = entry.path().filename().string();
+            p.erase(p.end() - 5, p.end());
+            std::ifstream g(entry.path().c_str());
+            nlohmann::json data = nlohmann::json::parse(g);
+            Weapon wep = {};
+            if (data.contains("EnemiesCanUse") && data["EnemiesCanUse"].get<bool>())
+                EnemyWeaponNamesList.push_back(p);
+            if (data.contains("isMelee"))
+                wep.isMelee = data["isMelee"].get<bool>();
+            if (data.contains("ShakeScreen"))
+                wep.ShakeScreen = data["ShakeScreen"].get<bool>();
+            if (data.contains("SlowdownOverTime"))
+                wep.SlowdownOverTime = data["SlowdownOverTime"].get<bool>();
+            if (data.contains("PushbackForce"))
+                wep.PushbackForce = data["PushbackForce"].get<float>();
+            if (data.contains("BulletLifetime"))
+                wep.BulletLifetime = data["BulletLifetime"].get<float>();
+            if (data.contains("Spread"))
+            {
+                wep.SpreadRange[0] = data["Spread"][0].get<float>();
+                wep.SpreadRange[1] = data["Spread"][1].get<float>();
+            }
+            if (data.contains("WeaponWeightSpeedMultiplier"))
+                wep.WeaponWeightSpeedMultiplier = data["WeaponWeightSpeedMultiplier"].get<float>();
+            if (data.contains("Speed"))
+                wep.Speed = data["Speed"].get<float>();
+            if (data.contains("WeaponSize"))
+                wep.WeaponSize = data["WeaponSize"].get<float>();
+            if (data.contains("Ammo"))
+                wep.Ammo = data["Ammo"].get<int>();
+            if (data.contains("ReloadTime"))
+                wep.ReloadTime = data["ReloadTime"].get<double>();
+            if (data.contains("Size"))
+                wep.Size = {data["Size"][0], data["Size"][1]};
+            if (data.contains("Damage"))
+                wep.Damage = data["Damage"].get<float>();
+            if (data.contains("HealthGain"))
+                wep.HealthGain = data["HealthGain"].get<float>();
+            if (data.contains("Cooldown"))
+                wep.Cooldown = data["Cooldown"].get<float>();
+            if (data.contains("AngleRange"))
+                wep.AngleRange = data["AngleRange"].get<float>();
+            if (data.contains("Range"))
+                wep.Range = data["Range"].get<float>();
+            if (data.contains("Bullets"))
+                wep.Bullets = data["Bullets"].get<int>();
+            if (data.contains("Intensity"))
+                wep.Intensity = data["Intensity"].get<float>();
+            if (data.contains("texture"))
+                wep.texture = data["texture"].get<string>();
+            if (data.contains("bullet_tex"))
+                wep.BulletTexture = data["bullet_tex"].get<string>();
+            if (data.contains("sound"))
+            {
+                wep.sound = data["sound"].get<vector<string>>();
+            }
+            Weapons.insert({p, wep});
+            g.close();
+        } catch (...)
+        {
+
         }
-        if (data.contains("WeaponWeightSpeedMultiplier"))
-            wep.WeaponWeightSpeedMultiplier = data["WeaponWeightSpeedMultiplier"].get<float>();
-        if (data.contains("Speed"))
-            wep.Speed = data["Speed"].get<float>();
-        if (data.contains("WeaponSize"))
-            wep.WeaponSize = data["WeaponSize"].get<float>();
-        if (data.contains("Ammo"))
-            wep.Ammo = data["Ammo"].get<int>();
-        if (data.contains("ReloadTime"))
-            wep.ReloadTime = data["ReloadTime"].get<double>();
-        if (data.contains("Size"))
-            wep.Size = {data["Size"][0], data["Size"][1]};
-        if (data.contains("Damage"))
-            wep.Damage = data["Damage"].get<float>();
-        if (data.contains("HealthGain"))
-            wep.HealthGain = data["HealthGain"].get<float>();
-        if (data.contains("Cooldown"))
-            wep.Cooldown = data["Cooldown"].get<float>();
-        if (data.contains("AngleRange"))
-            wep.AngleRange = data["AngleRange"].get<float>();
-        if (data.contains("Range"))
-            wep.Range = data["Range"].get<float>();
-        if (data.contains("Bullets"))
-            wep.Bullets = data["Bullets"].get<int>();
-        if (data.contains("Intensity"))
-            wep.Intensity = data["Intensity"].get<float>();
-        if (data.contains("texture"))
-            wep.texture = data["texture"].get<string>();
-        if (data.contains("bullet_tex"))
-            wep.BulletTexture = data["bullet_tex"].get<string>();
-        if (data.contains("sound"))
-            wep.sound = data["sound"].get<string>();
-        Weapons.insert({p, wep});
-        g.close();
     }
 
     auto* p = new SpeedPowerup();

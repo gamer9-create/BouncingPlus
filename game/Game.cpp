@@ -28,13 +28,13 @@ Game::Game(Settings& GameSettings)
 
     // init game services
     MainUIManager = UIManager(*this);
-    MainTileManager = TileManager(*this);
-    MainParticleManager = ParticleManager(*this);
-    MainCameraManager = CameraManager(*this);
-    MainEntityManager = EntityManager(*this);
-    MainSoundManager = SoundManager(*this);
-    MainGameModeManager = GameModeManager(*this);
-    MainResourceManager = ResourceManager(*this);
+    GameTiles = TileManager(*this);
+    Particles = ParticleManager(*this);
+    GameCamera = CameraManager(*this);
+    GameEntities = EntityManager(*this);
+    GameSounds = SoundManager(*this);
+    GameMode = GameModeManager(*this);
+    GameResources = ResourceManager(*this);
 
     // profiler
     MainProfiler = Profiler(*this);
@@ -64,12 +64,12 @@ Game::Game(Settings& GameSettings)
 }
 
 void Game::SetGameData() {
-    MainResourceManager.Load();
+    GameResources.Load();
 
-    uOutlineSize = GetShaderLocation(MainResourceManager.Shaders["outline"], "outlineSize");
-    uOutlineColor = GetShaderLocation(MainResourceManager.Shaders["outline"], "outlineColor");
-    uTextureSize = GetShaderLocation(MainResourceManager.Shaders["outline"], "textureSize");
-    uThreshold = GetShaderLocation(MainResourceManager.Shaders["outline"], "threshold");
+    uOutlineSize = GetShaderLocation(GameResources.Shaders["outline"], "outlineSize");
+    uOutlineColor = GetShaderLocation(GameResources.Shaders["outline"], "outlineColor");
+    uTextureSize = GetShaderLocation(GameResources.Shaders["outline"], "textureSize");
+    uThreshold = GetShaderLocation(GameResources.Shaders["outline"], "threshold");
 
     WeaponPickupTex = LoadRenderTexture(150, 150);
 
@@ -110,8 +110,8 @@ void Game::ProcessSlowdownAnimation() {
                 GameSpeed = Lerp(0.1f, 1.0f, (Percent-0.5f) / 0.5f);
         }
         if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
-            MainCameraManager.ShakeCamera(SlowdownShakeIntensity);
-            MainSoundManager.PlaySoundM("dash_hit", min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
+            GameCamera.ShakeCamera(SlowdownShakeIntensity);
+            GameSounds.PlaySoundM("dash_hit", min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
             SlowdownShakeIntensity = 0;
         }
         SlowdownTime -= GetFrameTime();
@@ -136,18 +136,18 @@ void Game::PlaceWeaponPickup(WeaponPickup Pickup) {
 void Game::DisplayPickups()
 {
     std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
-            return pickup.PickedUp || GetGameTime() - pickup.CreationTime >= 45 || !MainResourceManager.Weapons.contains(pickup.Weapon);
+            return pickup.PickedUp || GetGameTime() - pickup.CreationTime >= 45 || !GameResources.Weapons.contains(pickup.Weapon);
     });
     for (WeaponPickup& pickup : WeaponPickups)
     {
         // get floating offset
         float AnimationOffset = sin((GetGameTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
-        Weapon& PickupWeapon = MainResourceManager.Weapons.at(pickup.Weapon);
+        Weapon& PickupWeapon = GameResources.Weapons.at(pickup.Weapon);
         std::string TexString = "placeholder";
-        if (MainResourceManager.Textures.contains(PickupWeapon.texture))
+        if (GameResources.Textures.contains(PickupWeapon.texture))
             TexString=PickupWeapon.texture;
 
-        Vector2 siz = {(float)MainResourceManager.Textures[TexString].width, (float)MainResourceManager.Textures[TexString].height};
+        Vector2 siz = {(float)GameResources.Textures[TexString].width, (float)GameResources.Textures[TexString].height};
         siz = Vector2Normalize(siz);
         siz = Vector2Multiply(siz, {pickup.Radius*2.5f, pickup.Radius*2.5f});
 
@@ -164,11 +164,11 @@ void Game::DisplayPickups()
 
         BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
 
-        DrawTexturePro(MainResourceManager.Textures[TexString], {
+        DrawTexturePro(GameResources.Textures[TexString], {
             0,
             0,
-            (float)MainResourceManager.Textures[TexString].width,
-            (float)MainResourceManager.Textures[TexString].height
+            (float)GameResources.Textures[TexString].width,
+            (float)GameResources.Textures[TexString].height
         }, {
             WeaponPickupTex.texture.width/2.0f,WeaponPickupTex.texture.height/2.0f,
             siz.x,
@@ -177,8 +177,8 @@ void Game::DisplayPickups()
         }, {siz.x / 2, siz.y / 2}, 0, WHITE);
         EndBlendMode();
         EndTextureMode();
-        BeginTextureMode(MainCameraManager.CameraRenderTexture);
-        BeginMode2D(MainCameraManager.RaylibCamera);
+        BeginTextureMode(GameCamera.CameraRenderTexture);
+        BeginMode2D(GameCamera.RaylibCamera);
 
         Vector2 texSize = {(float)WeaponPickupTex.
             texture.width,
@@ -191,11 +191,11 @@ void Game::DisplayPickups()
         };
 
         BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
-        BeginShaderMode(MainResourceManager.Shaders["outline"]);
-        SetShaderValue(MainResourceManager.Shaders["outline"], uTextureSize, &texSize, SHADER_UNIFORM_VEC2);
-        SetShaderValue(MainResourceManager.Shaders["outline"], uThreshold, &threshold, SHADER_UNIFORM_FLOAT);
-        SetShaderValue(MainResourceManager.Shaders["outline"], uOutlineSize, &outlineSize, SHADER_UNIFORM_FLOAT);
-        SetShaderValue(MainResourceManager.Shaders["outline"], uOutlineColor, &outlineColorRGB, SHADER_UNIFORM_VEC4);
+        BeginShaderMode(GameResources.Shaders["outline"]);
+        SetShaderValue(GameResources.Shaders["outline"], uTextureSize, &texSize, SHADER_UNIFORM_VEC2);
+        SetShaderValue(GameResources.Shaders["outline"], uThreshold, &threshold, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(GameResources.Shaders["outline"], uOutlineSize, &outlineSize, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(GameResources.Shaders["outline"], uOutlineColor, &outlineColorRGB, SHADER_UNIFORM_VEC4);
         DrawTexturePro(WeaponPickupTex.texture, {0,0,(float)WeaponPickupTex.texture.width,
             (float)-WeaponPickupTex.texture.height
         }, {pickup.Position.x,
@@ -260,42 +260,42 @@ void Game::Update() {
 
         // shader stuff
         if (!DebugDraw)
-            MainCameraManager.ShaderDraw = false;
+            GameCamera.ShaderDraw = false;
         if (IsKeyPressed(KEY_C) && DebugDraw)
-            MainCameraManager.ShaderDraw = !MainCameraManager.ShaderDraw;
-        if (IsKeyDown(KEY_B) && MainCameraManager.ShaderDraw)
-            MainCameraManager.ShaderPixelPower += 10 * GetGameDeltaTime();
-        if (IsKeyDown(KEY_N) && MainCameraManager.ShaderDraw)
-            MainCameraManager.ShaderPixelPower -= 10 * GetGameDeltaTime();
+            GameCamera.ShaderDraw = !GameCamera.ShaderDraw;
+        if (IsKeyDown(KEY_B) && GameCamera.ShaderDraw)
+            GameCamera.ShaderPixelPower += 10 * GetGameDeltaTime();
+        if (IsKeyDown(KEY_N) && GameCamera.ShaderDraw)
+            GameCamera.ShaderPixelPower -= 10 * GetGameDeltaTime();
 
 
         if (IsKeyPressed(KEY_E))
         {
-            if (MainGameModeManager.WonLevel)
+            if (GameMode.WonLevel)
                 isReturning=true;
             else if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && !CurrentLevelName.empty())
                 Reload(CurrentLevelName);
         }
 
-        MainCameraManager.Begin();
+        GameCamera.Begin();
         ProcessSlowdownAnimation();
         ProcessFreezeZones();
         DisplayPickups();
 
         MainProfiler.ProfilerLog("tiles");
-        MainTileManager.Update();
+        GameTiles.Update();
 
         MainProfiler.ProfilerLog("particles");
-        MainParticleManager.Update();
+        Particles.Update();
 
         MainProfiler.ProfilerLog("entities");
-        MainEntityManager.Update();
+        GameEntities.Update();
 
         MainProfiler.ProfilerLog("sound");
-        MainSoundManager.Update();
+        GameSounds.Update();
 
         MainProfiler.ProfilerLog("gameplay");
-        MainGameModeManager.Update();
+        GameMode.Update();
 
         std::map<std::string, double> times = MainProfiler.Finish();
 
@@ -304,21 +304,21 @@ void Game::Update() {
             int i = 0;
             for (auto [name,val] : times)
             {
-                DrawText((name + ", " + to_string((int)(val * 1000.0f)) + "ms").c_str(), 250 + MainCameraManager.RaylibCamera.target.x, 150 + (i * 25)+ MainCameraManager.RaylibCamera.target.y, 25, RED);
+                DrawText((name + ", " + to_string((int)(val * 1000.0f)) + "ms").c_str(), 250 + GameCamera.RaylibCamera.target.x, 150 + (i * 25)+ GameCamera.RaylibCamera.target.y, 25, RED);
                 i++;
             }
         }
 
 
 
-        MainCameraManager.End();
+        GameCamera.End();
 
     } else if (IsCursorHidden())
     {
         ShowCursor();
     }
 
-    MainCameraManager.Display();
+    GameCamera.Display();
     MainUIManager.GameUI();
 
     if (isReturning)
@@ -386,11 +386,11 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
             vRayLength1D.y += vRayUnitStepSize.y;
         }
 
-        if (vMapCheck.x >= 0 && vMapCheck.x < MainTileManager.MapWidth*MainTileManager.TileSize && vMapCheck.y >= 0 && vMapCheck.y < MainTileManager.MapHeight*MainTileManager.TileSize)
+        if (vMapCheck.x >= 0 && vMapCheck.x < GameTiles.MapWidth*GameTiles.TileSize && vMapCheck.y >= 0 && vMapCheck.y < GameTiles.MapHeight*GameTiles.TileSize)
         {
-            std::string s = to_string((int)(vMapCheck.x/MainTileManager.TileSize)) + " " + to_string((int)(vMapCheck.y/MainTileManager.TileSize));
-            int g = MainTileManager.Map[s];
-            if (MainTileManager.TileTypes[g]==WallTileType)
+            std::string s = to_string((int)(vMapCheck.x/GameTiles.TileSize)) + " " + to_string((int)(vMapCheck.y/GameTiles.TileSize));
+            int g = GameTiles.Map[s];
+            if (GameTiles.TileTypes[g]==WallTileType)
             {
                 bTileFound = true;
                 break;
@@ -414,17 +414,17 @@ void Game::Clear() {
     isReturning = false;
     GameTime = 0;
     GameScore = 0;
-    MainEntityManager.Clear();
+    GameEntities.Clear();
     BannedWeaponDrops.clear();
     EnemyRoleWeapons.clear();
     CurrentLevelName.clear();
     WeaponPickups.clear();
-    MainTileManager.Clear();
+    GameTiles.Clear();
     FreezeZones.clear();
-    MainParticleManager.Clear();
-    MainSoundManager.Clear();
-    MainCameraManager.Clear();
-    MainGameModeManager.Clear();
+    Particles.Clear();
+    GameSounds.Clear();
+    GameCamera.Clear();
+    GameMode.Clear();
     MainPlayer.reset();
 }
 
@@ -438,34 +438,34 @@ void Game::Reload(std::string MapName) {
         BannedWeaponDrops.emplace_back(s);
     EnemyRoleWeapons= LevelData[MapName]["enemy_weapons"].get<unordered_map<std::string, std::string>>();
 
-    MainTileManager.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv");
-    MainGameModeManager.PrepareGameMode(LevelData[MapName]);
+    GameTiles.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv");
+    GameMode.PrepareGameMode(LevelData[MapName]);
 
-    MainPlayer = make_shared<Player>(MainTileManager.PlayerSpawnPosition.x,
-                                     MainTileManager.PlayerSpawnPosition.y, LevelData[MapName]["player"]["starting_speed"],
-                                     MainResourceManager.Textures["player"], *this);
+    MainPlayer = make_shared<Player>(GameTiles.PlayerSpawnPosition.x,
+                                     GameTiles.PlayerSpawnPosition.y, LevelData[MapName]["player"]["starting_speed"],
+                                     GameResources.Textures["player"], *this);
     MainPlayer->MaxHealth = LevelData[MapName]["player"]["starting_health"];
     MainPlayer->Health = LevelData[MapName]["player"]["starting_health"];
-    MainEntityManager.AddEntity(PlayerType, MainPlayer);
+    GameEntities.AddEntity(PlayerType, MainPlayer);
 }
 
 void Game::UnloadAssets() {
     EnemyRoleWeapons.clear();
     WeaponPickups.clear();
-    MainResourceManager.Weapons.clear();
+    GameResources.Weapons.clear();
     BannedWeaponDrops.clear();
     UnloadRenderTexture(WeaponPickupTex);
 }
 
 void Game::Quit() {
     Clear();
-    MainEntityManager.Quit();
-    MainTileManager.Quit();
+    GameEntities.Quit();
+    GameTiles.Quit();
     MainUIManager.Quit();
-    MainParticleManager.Quit();
-    MainCameraManager.Quit();
-    MainSoundManager.Quit();
-    MainResourceManager.Quit();
-    MainGameModeManager.Quit();
+    Particles.Quit();
+    GameCamera.Quit();
+    GameSounds.Quit();
+    GameResources.Quit();
+    GameMode.Quit();
     UnloadAssets();
 }

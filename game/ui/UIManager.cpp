@@ -115,18 +115,18 @@ void UIManager::GameUI() {
     if (game->DebugDraw)
         DrawText(to_string(UITransparency).c_str(), 50, 250, 10, WHITE);
 
-    if (game->MainGameModeManager.WonLevel)
+    if (game->GameMode.WonLevel)
         GameWin();
     else
         DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, 1.0f - UITransparency));
 
     DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
 
-    if (game->MainPlayer->Health > 0 && !game->MainGameModeManager.WonLevel && UITransparency < 1.0f) {
+    if (game->MainPlayer->Health > 0 && !game->GameMode.WonLevel && UITransparency < 1.0f) {
         UITransparency += 1.9f * GetFrameTime();
         if (UITransparency > 1.0f)
             UITransparency = 1.0f;
-    } else if (UITransparency > 0 && (game->MainPlayer->Health <= 0 || game->MainGameModeManager.WonLevel)) {
+    } else if (UITransparency > 0 && (game->MainPlayer->Health <= 0 || game->GameMode.WonLevel)) {
         UITransparency -= 2.2f * GetFrameTime();
         if (UITransparency < 0.0f)
             UITransparency = 0.0f;
@@ -303,7 +303,7 @@ void UIManager::DisplayHealthMeter()
     if (LastHealth != PlrHealth)
     {
         HealthBarAnimRot = limit * ((PlrHealth-LastHealth) / abs(PlrHealth-LastHealth));
-        game->MainCameraManager.QuickZoom(PlrHealth - LastHealth > 0 ? 0.9f : 1.1f, 0.1f);
+        game->GameCamera.QuickZoom(PlrHealth - LastHealth > 0 ? 0.9f : 1.1f, 0.1f);
     }
     if (LastHealth != PlrHealth && PlrHealth > LastHealth) {
         FntSize = 135;
@@ -345,14 +345,14 @@ void UIManager::DisplayCursor()
                 CursorMiddleTrans = lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
                 CursorRotation = lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
             }
-            DrawTexturePro(game->MainResourceManager.Textures["enemy"], {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 10, 10},
+            DrawTexturePro(game->GameResources.Textures["enemy"], {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 10, 10},
                     {5, 5}, CursorRotation, ColorAlpha(YELLOW, CursorMiddleTrans));
         } else {
-            Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera);
+            Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera);
             float cx = game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width / 2;
             float cy = game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height / 2;
             float FinalAngle = atan2(cy - Target.y, cx - Target.x) * RAD2DEG - 90;
-            DrawTexturePro(game->MainResourceManager.Textures["arrow"], {0, 0, 80, 80}, {(float)GetMouseX(), (float)GetMouseY(), 36, 36}, {18, 18}, FinalAngle, ORANGE);
+            DrawTexturePro(game->GameResources.Textures["arrow"], {0, 0, 80, 80}, {(float)GetMouseX(), (float)GetMouseY(), 36, 36}, {18, 18}, FinalAngle, ORANGE);
             CursorMiddleTrans = lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
             CursorRotation = lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
         }
@@ -378,11 +378,11 @@ void UIManager::DisplayTopHUD()
 
     DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
 
-    if (game->MainGameModeManager.LevelTimer > 0)
+    if (game->GameMode.LevelTimer > 0)
     {
         int minutes = (int)(this
-            ->game->MainGameModeManager.LevelTimer / 60);
-        int seconds = (int)(this->game->MainGameModeManager.LevelTimer - (minutes * 60.0f));
+            ->game->GameMode.LevelTimer / 60);
+        int seconds = (int)(this->game->GameMode.LevelTimer - (minutes * 60.0f));
         std::string txt = to_string(minutes) + ":" + to_string(seconds);
         if (seconds < 10)
             txt = to_string(minutes) + ":0" + to_string(seconds);
@@ -399,12 +399,12 @@ void UIManager::DisplayTopHUD()
         DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
 
         std::string o_txt = "TIME LEFT";
-        if (game->MainGameModeManager.CurrentGameMode == "wave")
+        if (game->GameMode.CurrentGameMode == "wave")
         {
-            if (!game->MainGameModeManager.InWave)
-                o_txt = "INTERMISSION " + to_string(game->MainGameModeManager.CurrentWave + 1);
+            if (!game->GameMode.InWave)
+                o_txt = "INTERMISSION " + to_string(game->GameMode.CurrentWave + 1);
             else
-                o_txt = "WAVE " + to_string(game->MainGameModeManager.CurrentWave);
+                o_txt = "WAVE " + to_string(game->GameMode.CurrentWave);
         }
 
         DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));

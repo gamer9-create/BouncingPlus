@@ -18,8 +18,8 @@
   "AngleRange": 0.0,
   "Range": 0.0,
   "Bullets": 1,
-  "Intensity": 0,
+  "Intensity": 0.25,
   "texture": "",
   "bullet_tex": "",
-  "sound": ""
+  "sound": ["bullet_fire_1", "bullet_fire_2", "bullet_fire_3"]
 }

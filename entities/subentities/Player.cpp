@@ -31,7 +31,7 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->LastTanked = 0;
     this->LastPos = Vector2(0, 0);
     this->InvincibilityResetTimer = 0;
-    this->ShaderUniformLoc = GetShaderLocation(game.MainResourceManager.Shaders["dash_arrow"], "time");
+    this->ShaderUniformLoc = GetShaderLocation(game.GameResources.Shaders["dash_arrow"], "time");
 }
 
 Player::Player() {
@@ -102,7 +102,7 @@ void Player::OnWallVelocityBump(float Power)
     {
         float PreviousH = Health;
         Entity::OnWallVelocityBump(Power);
-        game->MainSoundManager.PlaySoundM("dash_wall_hit");
+        game->GameSounds.PlaySoundM("dash_wall_hit");
         float Damage = Power / 130.0f;
         if (Health - Damage >= 20)
         {
@@ -125,11 +125,11 @@ void Player::Update() {
         auto f = game->LevelData[game->CurrentLevelName]["player"]["inventory"];
         for (int i = 0; i < (int)min((float)f.size(),3.0f); i++) {
             this->MainWeaponsSystem.Weapons[i] = f[i];
-            this->MainWeaponsSystem.WeaponAmmo[i] = game->MainResourceManager.Weapons[f[i]].Ammo;
+            this->MainWeaponsSystem.WeaponAmmo[i] = game->GameResources.Weapons[f[i]].Ammo;
         }
-        if (game->MainResourceManager.Powerups.contains(game->LevelData[game->CurrentLevelName]["player"]["powerup"]))
+        if (game->GameResources.Powerups.contains(game->LevelData[game->CurrentLevelName]["player"]["powerup"]))
         {
-            MainPowerupSystem.SetPowerup(game->MainResourceManager.Powerups[game->LevelData[game->CurrentLevelName]["player"]["powerup"]]);
+            MainPowerupSystem.SetPowerup(game->GameResources.Powerups[game->LevelData[game->CurrentLevelName]["player"]["powerup"]]);
         }
         this->MainWeaponsSystem.Equip(0);
         this->SystemsInitialized = true;
@@ -155,7 +155,7 @@ void Player::Update() {
 
     if (Health > 0 && HealthConcern && WarningSign)
     {
-        DrawTexturePro(game->MainResourceManager.Textures["warning"], {0,0,33,34},{BoundingBox.x + BoundingBox.width/2 + 12,BoundingBox.y - 24 - 10,24,24},{0,0},0,WHITE);
+        DrawTexturePro(game->GameResources.Textures["warning"], {0,0,33,34},{BoundingBox.x + BoundingBox.width/2 + 12,BoundingBox.y - 24 - 10,24,24},{0,0},0,WHITE);
     }
 
     // player transparency processing
@@ -187,7 +187,7 @@ void Player::Update() {
         //Vector2 WorldMousePos = Vector2{0, 0};
         if (IsMouseButtonDown(0) && !IsPreparingForDash)
         {
-            MainWeaponsSystem.Attack(GetScreenToWorld2D(GetMousePosition(), game->MainCameraManager.RaylibCamera));
+            MainWeaponsSystem.Attack(GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera));
         }
 
         // reload logic
@@ -234,7 +234,7 @@ void Player::Update() {
 
     // did we get a kill? play kill sound game!
     if (Kills != LastKills) {
-        game->MainSoundManager.PlaySoundM("death");
+        game->GameSounds.PlaySoundM("death");
         game->GameScore += 100;
     }
     LastKills = Kills;

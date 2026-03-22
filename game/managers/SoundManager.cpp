@@ -40,10 +40,10 @@ void SoundManager::Clear() {
 void SoundManager::Update() {
     int i = 0;
     if (game->DebugDraw)
-        DrawText("Sound Cache (>10 is bad)", 350+game->MainCameraManager.RaylibCamera.target.x,50+game->MainCameraManager.RaylibCamera.target.y, 10, RED);
+        DrawText("Sound Cache (>10 is bad)", 350+game->GameCamera.RaylibCamera.target.x,50+game->GameCamera.RaylibCamera.target.y, 10, RED);
     for (auto& [name,value] : CachedAliases) {
         if (game->DebugDraw)
-            DrawText((to_string(i) + " " + to_string(value.size())).c_str(), 350+game->MainCameraManager.RaylibCamera.target.x,50+((i+1)*10)+game->MainCameraManager.RaylibCamera.target.y, 10, RED);
+            DrawText((to_string(i) + " " + to_string(value.size())).c_str(), 350+game->GameCamera.RaylibCamera.target.x,50+((i+1)*10)+game->GameCamera.RaylibCamera.target.y, 10, RED);
         if (game->GameSpeed != 1.0f)
         {
             for (Sound& sound : value)
@@ -67,7 +67,7 @@ void SoundManager::Update() {
 }
 
 void SoundManager::PlaySoundM(std::string SoundName, float SoundVolume, float SoundPitch) {
-    if (Sounds.contains(SoundName)) {
+    if (Sounds.contains(SoundName) && IsSoundValid(Sounds[SoundName])) {
         for (Sound& CachedSound : CachedAliases[SoundName]) {
             if (IsSoundValid(CachedSound) && !IsSoundPlaying(CachedSound)) {
                 SetSoundVolume(CachedSound, SoundVolume);

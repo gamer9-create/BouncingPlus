@@ -17,6 +17,7 @@ class UIAssets
     Texture2D ButtonSmallRedImg;
     Texture2D MikuImg;
     Texture2D CursorImg;
+    Texture2D YTImg;
 
     Texture2D RolponPFPImg;
     Texture2D JayPFPImg;

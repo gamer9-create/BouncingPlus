@@ -62,7 +62,7 @@ void ShieldPowerup::Complete(std::shared_ptr<Player> Owner)
     else
         circle_transparency += TransBuff;
 
-    std::vector<shared_ptr<Entity>>* array = &Owner->game->MainEntityManager.Entities[BulletType];
+    std::vector<shared_ptr<Entity>>* array = &Owner->game->GameEntities.Entities[BulletType];
     for (int i = 0; i < array->size(); i++) {
         if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(array->at(i)); entity != nullptr && !entity->ShouldDelete) {
             float dist = Vector2Distance({Owner->BoundingBox.x + Owner->BoundingBox.width / 2, Owner->BoundingBox.y + Owner->BoundingBox.height / 2},
@@ -106,7 +106,7 @@ FreezePowerup::FreezePowerup()
 
 void FreezePowerup::Complete(std::shared_ptr<Player> Owner)
 {
-    auto r = Owner->game->RayCastPoint(Owner->GetCenter(), GetScreenToWorld2D(GetMousePosition(), Owner->game->MainCameraManager.RaylibCamera));
+    auto r = Owner->game->RayCastPoint(Owner->GetCenter(), GetScreenToWorld2D(GetMousePosition(), Owner->game->GameCamera.RaylibCamera));
     float w = GetRandomValue(250, 300);
     float h = GetRandomValue(250, 300);
     Rectangle rec = {r.second.x - w/2, r.second.y - h/2, w, h};

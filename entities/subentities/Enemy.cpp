@@ -104,7 +104,7 @@ void Enemy::OnDelete() {
 
 void Enemy::OnDeath()
 {
-    game->MainParticleManager.ParticleEffect({
+    game->Particles.ParticleEffect({
                 {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2},
                 300,
                 WHITE,
@@ -211,10 +211,10 @@ void Enemy::Update() {
     float size2 = MeasureText("%", 18) + 1;
     float total_size = size + size2;
 
-    if ((center_x - total_size / 2 - game->MainCameraManager.CameraPosition.x) > -total_size &&
-        (center_x - total_size / 2 - game->MainCameraManager.CameraPosition.x) < GetScreenWidth() &&
-        (BoundingBox.y - 36 - game->MainCameraManager.CameraPosition.y) > -36 &&
-        (BoundingBox.y - 36 - game->MainCameraManager.CameraPosition.y) < GetScreenHeight()
+    if ((center_x - total_size / 2 - game->GameCamera.CameraPosition.x) > -total_size &&
+        (center_x - total_size / 2 - game->GameCamera.CameraPosition.x) < GetScreenWidth() &&
+        (BoundingBox.y - 36 - game->GameCamera.CameraPosition.y) > -36 &&
+        (BoundingBox.y - 36 - game->GameCamera.CameraPosition.y) < GetScreenHeight()
     )
     {
         DrawText(t.c_str(),
@@ -226,7 +226,7 @@ void Enemy::Update() {
     weaponsSystem.Update();
     Entity::Update();
     if (IsVisible() && Armor > 0)
-        DrawTexturePro(game->MainResourceManager.Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width, BoundingBox.height}, Vector2(BoundingBox.width/2,BoundingBox.height/2), Rotation, EntityColor);
+        DrawTexturePro(game->GameResources.Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width, BoundingBox.height}, Vector2(BoundingBox.width/2,BoundingBox.height/2), Rotation, EntityColor);
 }
 
 void Enemy::MoveAwayFromWalls()
@@ -238,8 +238,8 @@ void Enemy::MoveAwayFromWalls()
 
     float center_x = BoundingBox.x + (BoundingBox.width / 2);
     float center_y = BoundingBox.y + (BoundingBox.height / 2);
-    int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
-    int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
+    int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles.TileSize);
+    int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles.TileSize);
     for (int y = 0; y < 3; y++)
     {
         for (int x = 0; x < 3; x++)
@@ -247,16 +247,16 @@ void Enemy::MoveAwayFromWalls()
             int curr_tile_x = tile_x + x - 1;
             int curr_tile_y = tile_y + y - 1;
             std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
-            int tile_id = game->MainTileManager.Map[coord];
+            int tile_id = game->GameTiles.Map[coord];
 
-            float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
-            float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
+            float bbox_x = curr_tile_x * game->GameTiles.TileSize;
+            float bbox_y = curr_tile_y * game->GameTiles.TileSize;
 
-            float plr_center_x = bbox_x + (game->MainTileManager.TileSize / 2);
-            float plr_center_y = bbox_y + (game->MainTileManager.TileSize / 2);
+            float plr_center_x = bbox_x + (game->GameTiles.TileSize / 2);
+            float plr_center_y = bbox_y + (game->GameTiles.TileSize / 2);
 
             float distance = std::sqrt(std::pow(plr_center_x - center_x, 2) + std::pow(plr_center_y - center_y, 2));
-            if (game->MainTileManager.TileTypes[tile_id] == WallTileType)
+            if (game->GameTiles.TileTypes[tile_id] == WallTileType)
             {
                 nothing_found = false;
                 Vector2 d={0,0};

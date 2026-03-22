@@ -12,7 +12,7 @@
 UpgradeStation::UpgradeStation() {
 }
 
-UpgradeStation::UpgradeStation(Game &game, float bbox_x, float bbox_y) :Entity(game.MainResourceManager.Textures["upgrade_core"], {bbox_x-49.0f, bbox_y-49.0f, 98, 98}, 0, game) {
+UpgradeStation::UpgradeStation(Game &game, float bbox_x, float bbox_y) :Entity(game.GameResources.Textures["upgrade_core"], {bbox_x-49.0f, bbox_y-49.0f, 98, 98}, 0, game) {
     this->Type = UpgradeStationType;
 }
 
@@ -42,11 +42,11 @@ void UpgradeStation::Render() {
     float rand_mov_x_4 = sin(game->GetGameTime() * 1.35f+ 584.33f) * (dist/div);
     float rand_mov_y_4 = cos(game->GetGameTime() * 1.35f+584.33f) * (dist/div);
 
-    DrawTexturePro(game->MainResourceManager.Textures["upgrade_side_blade"],{0, 0, 49, 49}, {center_x - mov.x * dist + rand_mov_x_1, center_y + mov.y * dist + rand_mov_y_1,68.6f, 68.6f}, {34.3f, 34.3f}, 0, my_color1);
-    DrawTexturePro(game->MainResourceManager.Textures["upgrade_side_blade"],{0, 0, 49, 49}, {center_x + mov.x * dist + rand_mov_x_2, center_y + mov.y * dist + rand_mov_y_2,68.6f, 68.6f}, {34.3f, 34.3f}, -90, my_color2);
+    DrawTexturePro(game->GameResources.Textures["upgrade_side_blade"],{0, 0, 49, 49}, {center_x - mov.x * dist + rand_mov_x_1, center_y + mov.y * dist + rand_mov_y_1,68.6f, 68.6f}, {34.3f, 34.3f}, 0, my_color1);
+    DrawTexturePro(game->GameResources.Textures["upgrade_side_blade"],{0, 0, 49, 49}, {center_x + mov.x * dist + rand_mov_x_2, center_y + mov.y * dist + rand_mov_y_2,68.6f, 68.6f}, {34.3f, 34.3f}, -90, my_color2);
 
-    DrawTexturePro(game->MainResourceManager.Textures["upgrade_side_blade"],{0, 0, 49, 49}, {center_x - mov.x * dist + rand_mov_x_3, center_y - mov.y * dist  + rand_mov_y_3,68.6f, 68.6f}, {34.3f, 34.3f}, 90, my_color3);
-    DrawTexturePro(game->MainResourceManager.Textures["upgrade_side_blade"],{0, 0, 49, 49}, {center_x + mov.x * dist + rand_mov_x_4, center_y - mov.y * dist + rand_mov_y_4,68.6f, 68.6f}, {34.3f, 34.3f}, 180, my_color4);
+    DrawTexturePro(game->GameResources.Textures["upgrade_side_blade"],{0, 0, 49, 49}, {center_x - mov.x * dist + rand_mov_x_3, center_y - mov.y * dist  + rand_mov_y_3,68.6f, 68.6f}, {34.3f, 34.3f}, 90, my_color3);
+    DrawTexturePro(game->GameResources.Textures["upgrade_side_blade"],{0, 0, 49, 49}, {center_x + mov.x * dist + rand_mov_x_4, center_y - mov.y * dist + rand_mov_y_4,68.6f, 68.6f}, {34.3f, 34.3f}, 180, my_color4);
 }
 
 void UpgradeStation::PhysicsUpdate(float dt, double time) {

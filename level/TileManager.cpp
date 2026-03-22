@@ -14,6 +14,7 @@
 #include "../entities/subentities/Enemy.h"
 #include "../game/Game.h"
 #include "../entities/subentities/Spawner.h"
+#include "../entities/subentities/Turret.h"
 #include "../entities/subentities/UpgradeStation.h"
 
 TileManager::TileManager() {
@@ -36,6 +37,7 @@ TileManager::TileManager(Game &game) {
     TileTypes[8] = EnemySpawnTileType; // enemy spawn tile type
     TileTypes[9] = UpgradeStationTileType; // upgrade station tile type
     TileTypes[10] = BossTileType; // boss
+    TileTypes[11] = TurretTileType; // boss
     Clear();
 }
 
@@ -49,7 +51,7 @@ void TileManager::Burn(Vector2 Position, Vector2 From, float Transparency)
 
 void TileManager::DrawTileMap()
 {
-    Vector2 *CameraPosition = &this->game->MainCameraManager.CameraPosition;
+    Vector2 *CameraPosition = &this->game->GameCamera.CameraPosition;
     int tile_x = static_cast<int> ((CameraPosition->x + (GetScreenWidth()/2)) / TileSize);
     int tile_y = static_cast<int> ((CameraPosition->y + (GetScreenHeight()/2)) / TileSize);
     for (int y = 0; y < UpdateDistance.y; y++) {
@@ -60,15 +62,15 @@ void TileManager::DrawTileMap()
             int tile_id = Map[coord];
             Texture* tile_tex = nullptr;
             if (tile_id == 1)
-                tile_tex = &game->MainResourceManager.Textures["bouncy_wall"];
+                tile_tex = &game->GameResources.Textures["bouncy_wall"];
             if (tile_id == 2)
-                tile_tex = &game->MainResourceManager.Textures["delete_wall"];
+                tile_tex = &game->GameResources.Textures["delete_wall"];
 
             if (tile_tex != nullptr) {
                 float bbox_x = curr_tile_x * TileSize;
                 float bbox_y = curr_tile_y * TileSize;
-                bbox_x -= game->MainCameraManager.RaylibCamera.target.x;
-                bbox_y -= game->MainCameraManager.RaylibCamera.target.y;
+                bbox_x -= game->GameCamera.RaylibCamera.target.x;
+                bbox_y -= game->GameCamera.RaylibCamera.target.y;
                 Rectangle rec = {0,0, (float) tile_tex->width, (float) tile_tex->height};
 
                 bool left = TileTypes[Map[std::to_string(curr_tile_x-1) + " " + std::to_string(curr_tile_y)]] == WallTileType;
@@ -157,29 +159,29 @@ void TileManager::Update() {
     for (BurnMark &b : BurnMarks)
     {
         float FinalTransparency = clamp(b.Transparency, 0.0f, 1.0f) * (1.0f- (game->GetGameTime() - b.SpawnTime) / (FXLifetime * 3.0f));
-        DrawTexturePro(game->MainResourceManager.Textures["burn_marks"], {
+        DrawTexturePro(game->GameResources.Textures["burn_marks"], {
             (float)(((int)b.Tex * 18) % 36), (float)(((int)b.Tex/2 * 18) % 36),
             18, 18
-        }, {b.Position.x - game->MainCameraManager.RaylibCamera.target.x, b.Position.y - game->MainCameraManager.RaylibCamera.target.y, 25 * FinalTransparency, 25 * FinalTransparency},
+        }, {b.Position.x - game->GameCamera.RaylibCamera.target.x, b.Position.y - game->GameCamera.RaylibCamera.target.y, 25 * FinalTransparency, 25 * FinalTransparency},
         {25 * FinalTransparency / 2, 25 * FinalTransparency / 2}, b.Rotation, ColorAlpha(WHITE, FinalTransparency));
         if (game->DebugDraw)
-            DrawCircle(b.Position.x - game->MainCameraManager.RaylibCamera.target.x, b.Position.y - game->MainCameraManager.RaylibCamera.target.y, 5, ColorAlpha(PURPLE, 0.5f));
+            DrawCircle(b.Position.x - game->GameCamera.RaylibCamera.target.x, b.Position.y - game->GameCamera.RaylibCamera.target.y, 5, ColorAlpha(PURPLE, 0.5f));
     }
 
     EndTextureMode();
     EndBlendMode();
-    BeginTextureMode(game->MainCameraManager.CameraRenderTexture);
-    BeginMode2D(game->MainCameraManager.RaylibCamera);
+    BeginTextureMode(game->GameCamera.CameraRenderTexture);
+    BeginMode2D(game->GameCamera.RaylibCamera);
 
-    BeginShaderMode(game->MainResourceManager.Shaders["distortion"]);
+    BeginShaderMode(game->GameResources.Shaders["distortion"]);
 
     int DistortionCount = (int)min(100.0f, (float)Distortions.size());
 
-    SetShaderValue(game->MainResourceManager.Shaders["distortion"], DistortionCountLocation, &DistortionCount, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources.Shaders["distortion"], DistortionCountLocation, &DistortionCount, SHADER_UNIFORM_INT);
 
     BeginBlendMode(BLEND_ALPHA);
     DrawTexturePro(TileMapTex.texture, {0, 0, (float)TileMapTex.texture.width, (float)-TileMapTex.texture.height}, {
-        game->MainCameraManager.RaylibCamera.target.x, game->MainCameraManager.RaylibCamera.target.y, (float)TileMapTex.texture.width,(float)TileMapTex.texture.height
+        game->GameCamera.RaylibCamera.target.x, game->GameCamera.RaylibCamera.target.y, (float)TileMapTex.texture.width,(float)TileMapTex.texture.height
     }, {0,0}, 0, WHITE);
     EndBlendMode();
     EndShaderMode();
@@ -214,20 +216,20 @@ void TileManager::ProcessDistortions()
     });
     if (DistortionUniformLocations.size() <= 0)
     {
-        BeginShaderMode(game->MainResourceManager.Shaders["distortion"]);
+        BeginShaderMode(game->GameResources.Shaders["distortion"]);
 
         for (int i = 0; i < 100; i++)
         {
 
-            int loc1 = GetShaderLocation(game->MainResourceManager.Shaders["distortion"], ("distortions[" + to_string(i) + "].position").c_str());
-            int loc2 = GetShaderLocation(game->MainResourceManager.Shaders["distortion"], ("distortions[" + to_string(i) + "].strength").c_str());
-            int loc3 = GetShaderLocation(game->MainResourceManager.Shaders["distortion"], ("distortions[" + to_string(i) + "].radius").c_str());
+            int loc1 = GetShaderLocation(game->GameResources.Shaders["distortion"], ("distortions[" + to_string(i) + "].position").c_str());
+            int loc2 = GetShaderLocation(game->GameResources.Shaders["distortion"], ("distortions[" + to_string(i) + "].strength").c_str());
+            int loc3 = GetShaderLocation(game->GameResources.Shaders["distortion"], ("distortions[" + to_string(i) + "].radius").c_str());
             std::tuple locs(loc1, loc2, loc3);
 
             DistortionUniformLocations.push_back(locs);
         }
 
-        DistortionCountLocation = GetShaderLocation(game->MainResourceManager.Shaders["distortion"], "distortionCount");
+        DistortionCountLocation = GetShaderLocation(game->GameResources.Shaders["distortion"], "distortionCount");
 
         EndShaderMode();
     }
@@ -249,13 +251,13 @@ void TileManager::ProcessDistortions()
         int StrengthLocation = get<1>(DistortionUniformLocations[i]);
         int RadiusLocation = get<2>(DistortionUniformLocations[i]);
 
-        Vector2 SPosition = GetWorldToScreen2D(Distortions[i].Position, game->MainCameraManager.RaylibCamera);
+        Vector2 SPosition = GetWorldToScreen2D(Distortions[i].Position, game->GameCamera.RaylibCamera);
         if (game->DebugDraw)
             DrawCircle(Distortions[i].Position.x, Distortions[i].Position.y, 5, ColorAlpha(PINK, 0.5f));
 
-        SetShaderValue(game->MainResourceManager.Shaders["distortion"], PositionLocation, &SPosition, SHADER_UNIFORM_VEC2);
-        SetShaderValue(game->MainResourceManager.Shaders["distortion"], StrengthLocation, &Distortions[i].Strength, SHADER_UNIFORM_FLOAT);
-        SetShaderValue(game->MainResourceManager.Shaders["distortion"], RadiusLocation, &Distortions[i].Radius, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(game->GameResources.Shaders["distortion"], PositionLocation, &SPosition, SHADER_UNIFORM_VEC2);
+        SetShaderValue(game->GameResources.Shaders["distortion"], StrengthLocation, &Distortions[i].Strength, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(game->GameResources.Shaders["distortion"], RadiusLocation, &Distortions[i].Radius, SHADER_UNIFORM_FLOAT);
     }
 }
 
@@ -283,7 +285,7 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
     Armor *= Multiplier;
     Speed *= Multiplier;
     Health *= Multiplier;
-    game->MainEntityManager.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->MainResourceManager.Textures["enemy"], *game));
+    game->GameEntities.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->GameResources.Textures["enemy"], *game));
 }
 
 void TileManager::ReadMapDataFile(std::string Filename) {
@@ -325,7 +327,7 @@ void TileManager::ReadMapDataFile(std::string Filename) {
                     break;
                 case SpawnerTileType: {
                     std::shared_ptr<Spawner> spawner = std::make_shared<Spawner>(*game, bbox_x, bbox_y);
-                    game->MainEntityManager.AddEntity(SpawnerType, spawner);
+                    game->GameEntities.AddEntity(SpawnerType, spawner);
                     break;
                 }
                 case BossTileType: {
@@ -334,7 +336,13 @@ void TileManager::ReadMapDataFile(std::string Filename) {
                 };
                 case UpgradeStationTileType: {
                     std::shared_ptr<UpgradeStation> station = std::make_shared<UpgradeStation>(*game, bbox_x, bbox_y);
-                    game->MainEntityManager.AddEntity(UpgradeStationType, station);
+                    game->GameEntities.AddEntity(UpgradeStationType, station);
+                    break;
+                }
+                case TurretTileType: {
+                    std::shared_ptr<Turret> t = std::make_shared<Turret>(*game,
+                        game->GameResources.EnemyWeaponNamesList[GetRandomValue(0, game->GameResources.EnemyWeaponNamesList.size() - 1)], bbox_x, bbox_y);
+                    game->GameEntities.AddEntity(TurretType, t);
                     break;
                 }
             }

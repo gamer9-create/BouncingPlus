@@ -11,11 +11,27 @@
 
 using namespace std;
 
+float Menu::MusicLevel = 0.0f;
+void Menu::AudioCallback(void* buffer, unsigned int frames)
+{
+    float *samples = (float *)buffer;
+
+    float sum = 0.0f;
+    for (unsigned int i = 0; i < frames * 2; i++) {
+        sum += samples[i] * samples[i];
+    }
+
+    MusicLevel = sqrtf(sum / (frames * 2));
+}
+
 Menu::Menu(Settings& GameSettings)
 {
+    MusicLevel = 0.0f;
     this->GameSettings = &GameSettings;
     Reset();
     PlaySound(this->GameSettings->UIAssets.MikuMusic);
+
+    AttachAudioStreamProcessor(this->GameSettings->UIAssets.MainMenuMusic.stream, this->AudioCallback);
 }
 
 void Menu::Reset()
@@ -34,6 +50,7 @@ void Menu::Reset()
     Offset3 = 0;
     isStarting = true;
     BlackTransparency= 1.0f;
+    MusicLevel = 0.0f;
     MikuOffset = 0.0f;
     MenuImgOffsetY = GetRandomValue(0, GameSettings->UIAssets.MenuImg.height);
     MovingToGame = false;
@@ -139,6 +156,26 @@ void Menu::Credits()
 
     float ThankYouTextWidth = MeasureText("Finally, thank YOU, for playing!", 40);
     DrawText("Finally, thank YOU, for playing!", CreditsPanelRectangle.x + CreditsPanelSize.x/2 - ThankYouTextWidth/2 - CameraX, CreditsPanelRectangle.y + CreditsPanelSize.y - 50, 40, WHITE);
+
+    float FntSize = 24;
+    float TxSize = MeasureText("Support me on YouTube!", FntSize);
+    Rectangle r = {0, 0, TxSize + FntSize + 10, FntSize + 10};
+    r.x = GetScreenWidth() - r.width;
+    r.y = GetScreenHeight() - r.height;
+
+    float TransparencyDiv = 2.0f;
+
+    if (CheckCollisionPointRec(GetMousePosition(), r))
+    {
+        TransparencyDiv = 1.0f;
+        if (IsMouseButtonPressed(0))
+            OpenURL("https://www.youtube.com/@rolpon2871");
+    }
+
+    DrawRectangleRec(r, ColorAlpha(BLACK, 0.5f / TransparencyDiv));
+
+    DrawText("Support me on YouTube!", r.x + 5, r.y + 5, FntSize, ColorAlpha(WHITE, 1.0f / TransparencyDiv));
+    DrawTextureEx(GameSettings->UIAssets.YTImg, Vector2{r.x + 12 + TxSize, r.y + 5}, 0, FntSize / 512.0f, ColorAlpha(WHITE, 1.0f / TransparencyDiv));
 }
 
 void Menu::Update() {
@@ -154,9 +191,15 @@ void Menu::Update() {
     if (IsCursorHidden())
         ShowCursor();
 
+    MenuMusicLevel = Lerp(MenuMusicLevel, MusicLevel, 8.5f * GetFrameTime());
+
     Offset1 = -sin((GetTime()-20.0f) * 3.5f) * 15;
     Offset2 = -sin((GetTime()+20.0f) * 3.5f) * 15;
     Offset3 = -sin(GetTime() * 3.5f) * 15;
+
+    Offset1 += MenuMusicLevel * 80.5f;
+    Offset2 += MenuMusicLevel * 60.5f;
+    Offset3 += MenuMusicLevel * 40.5f;
 
     TitleImgY = Lerp(TitleImgY, -100, 5 * GetFrameTime());
     TitleImgOffsetY = Offset1;
@@ -241,4 +284,5 @@ std::string Menu::LeaveMenu() {
 
 void Menu::Quit() {
     Reset();
+    DetachAudioStreamProcessor(GameSettings->UIAssets.MainMenuMusic.stream, AudioCallback);
 }

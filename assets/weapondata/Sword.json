@@ -18,8 +18,8 @@
   "AngleRange": 100.0,
   "Range": 450.0,
   "Bullets": -1,
-  "Intensity": 1,
+  "Intensity": 0.4,
   "texture": "sword",
    "bullet_tex": "",
-  "sound": ""
+  "sound": ["sword_swing_1", "sword_swing_2", "sword_swing_3"]
 }

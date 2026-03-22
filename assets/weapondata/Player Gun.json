@@ -21,5 +21,5 @@
   "Intensity": 0,
   "texture": "",
   "bullet_tex": "",
-  "sound": ""
+  "sound": ["bullet_fire_1", "bullet_fire_2", "bullet_fire_3"]
 }

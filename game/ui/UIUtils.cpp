@@ -18,6 +18,7 @@ void UIAssets::Load()
     ButtonClick = LoadSound("assets/ui/button_click.wav");
     SliderDrag = LoadSound("assets/ui/slider_dragging.wav");
     CursorImg = LoadTexture("assets/ui/cursor.png");
+    YTImg = LoadTexture("assets/ui/youtube.png");
     RolponPFPImg = LoadTexture("assets/ui/rolpon_pfp.png");
     CozPFPImg = LoadTexture("assets/ui/coz_pfp.png");
     JayPFPImg = LoadTexture("assets/ui/jay_pfp.png");
@@ -41,6 +42,7 @@ void UIAssets::UnLoad()
     UnloadTexture(CozPFPImg);
     UnloadTexture(JayPFPImg);
     UnloadTexture(InkyPFPImg);
+    UnloadTexture(YTImg);
     UnloadMusicStream(MainMenuMusic);
 }
 

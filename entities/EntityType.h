@@ -13,6 +13,7 @@ enum EntityType {
     UpgradeStationType,
     BulletType,
     BossType,
+    TurretType,
     End
 };
 

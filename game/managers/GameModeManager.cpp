@@ -36,9 +36,9 @@ void GameModeManager::PrepareGameMode(nlohmann::json Data)
     {
         std::shared_ptr<Entity> boss;
         if (Data["game"]["boss"].get<std::string>() == "face")
-            boss = std::make_shared<FaceBoss>(*game, game->MainTileManager.BossSpawnPosition.x, game->MainTileManager.BossSpawnPosition.y);
+            boss = std::make_shared<FaceBoss>(*game, game->GameTiles.BossSpawnPosition.x, game->GameTiles.BossSpawnPosition.y);
         if (boss != nullptr)
-            game->MainEntityManager.AddEntity(BossType, boss);
+            game->GameEntities.AddEntity(BossType, boss);
     }
 }
 
@@ -49,7 +49,7 @@ void GameModeManager::Update()
 
     if (game->LevelData[game->CurrentLevelName]["game"]["win"].get<std::string>() == "kill_all_enemies")
     {
-        std::vector<shared_ptr<Entity>> array = game->MainEntityManager.Entities[EnemyType];
+        std::vector<shared_ptr<Entity>> array = game->GameEntities.Entities[EnemyType];
         if (array.size() == 0)
             WonLevel = true;
     }
@@ -66,7 +66,7 @@ void GameModeManager::Update()
             LevelTimer = min(17.5f + (CurrentWave * 4.0f), 60.0f);
             CurrentWave += 1;
         }
-        std::vector<shared_ptr<Entity>> array = game->MainEntityManager.Entities[SpawnerType];
+        std::vector<shared_ptr<Entity>> array = game->GameEntities.Entities[SpawnerType];
         for (int i = 0; i < array.size(); i++) {
             if (shared_ptr<Spawner> entity = dynamic_pointer_cast<Spawner>(array.at(i)); entity != nullptr and !entity->ShouldDelete) {
                 entity->SpawnerIsActive = LevelTimer > 0 && InWave ? 999 : 0;
@@ -75,7 +75,7 @@ void GameModeManager::Update()
             }
         }
 
-        std::vector<shared_ptr<Entity>> enemyArray = game->MainEntityManager.Entities[EnemyType];
+        std::vector<shared_ptr<Entity>> enemyArray = game->GameEntities.Entities[EnemyType];
         for (int i = 0; i < enemyArray.size(); i++) {
             if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(enemyArray.at(i)); entity != nullptr and !entity->ShouldDelete) {
                 if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{game->MainPlayer->BoundingBox.x,game->MainPlayer->BoundingBox.y}) > 4000)

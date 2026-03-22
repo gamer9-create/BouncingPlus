@@ -11,6 +11,7 @@
 
 class Player;
 class Entity;
+class Turret;
 using namespace std;
 
 struct Weapon {
@@ -35,7 +36,7 @@ struct Weapon {
     float Intensity = 0;
     std::string BulletTexture = "";
     std::string texture = "";
-    std::string sound = "";
+    std::vector<string> sound;
 };
 
 struct WeaponPickup

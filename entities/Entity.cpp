@@ -3,6 +3,9 @@
 //
 
 #include "Entity.h"
+
+#include <iostream>
+
 #include "Weapons.h"
 #include <ostream>
 #include <raylib.h>
@@ -104,8 +107,8 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
         BoundingBox.x += FinalMovement.x * DeltaTime;
         BoundingBox.y += FinalMovement.y * DeltaTime;
         bool f = false;
-        int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
-        int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
+        int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles.TileSize);
+        int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles.TileSize);
         for (int y = 0; y < 3; y++) {
             if (f)
                 break;
@@ -113,11 +116,11 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
                 int curr_tile_x = tile_x + x - 1;
                 int curr_tile_y = tile_y + y - 1;
                 std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
-                int tile_id = game->MainTileManager.Map[coord];
-                float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
-                float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
-                Rectangle bbox = Rectangle(bbox_x, bbox_y, game->MainTileManager.TileSize, game->MainTileManager.TileSize);
-                if (game->MainTileManager.TileTypes[tile_id] == WallTileType && CheckCollisionRecs(BoundingBox, bbox) && coord != LastVelBounceCoord) {
+                int tile_id = game->GameTiles.Map[coord];
+                float bbox_x = curr_tile_x * game->GameTiles.TileSize;
+                float bbox_y = curr_tile_y * game->GameTiles.TileSize;
+                Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
+                if (game->GameTiles.TileTypes[tile_id] == WallTileType && CheckCollisionRecs(BoundingBox, bbox) && coord != LastVelBounceCoord) {
 
                     int dir_hit = -1; // -1 = none, 0 = left, 1 = up, 2 = right, 3 = down
                     int i= 0;
@@ -197,27 +200,27 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
 
             BoundingBox.x += FinalMovement.x * DeltaTime;
             bool can_move_x = true;
-            int tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
-            int tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
+            int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles.TileSize);
+            int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles.TileSize);
             for (int y = 0; y < 3; y++) {
                 for (int x = 0; x < 3; x++) {
                     int curr_tile_x = tile_x + x - 1;
                     int curr_tile_y = tile_y + y - 1;
                     std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
-                    int tile_id = game->MainTileManager.Map[coord];
-                    float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
-                    float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
+                    int tile_id = game->GameTiles.Map[coord];
+                    float bbox_x = curr_tile_x * game->GameTiles.TileSize;
+                    float bbox_y = curr_tile_y * game->GameTiles.TileSize;
                     if (game->DebugDraw) {
                         DrawRectangleRec(
                             {
                                 bbox_x,
                                 bbox_y,
-                                game->MainTileManager.TileSize,
-                                game->MainTileManager.TileSize,
+                                game->GameTiles.TileSize,
+                                game->GameTiles.TileSize,
                             }, ColorAlpha(GREEN, 0.05f));
                     }
-                    if (game->MainTileManager.TileTypes[tile_id] == WallTileType) {
-                        Rectangle bbox = Rectangle(bbox_x, bbox_y, game->MainTileManager.TileSize, game->MainTileManager.TileSize);
+                    if (game->GameTiles.TileTypes[tile_id] == WallTileType) {
+                        Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
                         if (CheckCollisionRecs(BoundingBox, bbox)) {
                             //float e_cx = BoundingBox.x + (BoundingBox.width / 2.0f);
                             //float t_cx = bbox_x + (game->MainTileManager.TileSize / 2.0f);
@@ -238,18 +241,18 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
 
             BoundingBox.y += FinalMovement.y * DeltaTime;
             can_move_x = true;
-            tile_x = static_cast<int> (BoundingBox.x / game->MainTileManager.TileSize);
-            tile_y = static_cast<int> (BoundingBox.y / game->MainTileManager.TileSize);
+            tile_x = static_cast<int> (BoundingBox.x / game->GameTiles.TileSize);
+            tile_y = static_cast<int> (BoundingBox.y / game->GameTiles.TileSize);
             for (int y = 0; y < 3; y++) {
                 for (int x = 0; x < 3; x++) {
                     int curr_tile_x = tile_x + x - 1;
                     int curr_tile_y = tile_y + y - 1;
                     std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
-                    int tile_id = game->MainTileManager.Map[coord];
-                    if (game->MainTileManager.TileTypes[tile_id] == WallTileType) {
-                        float bbox_x = curr_tile_x * game->MainTileManager.TileSize;
-                        float bbox_y = curr_tile_y * game->MainTileManager.TileSize;
-                        Rectangle bbox = Rectangle(bbox_x, bbox_y, game->MainTileManager.TileSize, game->MainTileManager.TileSize);
+                    int tile_id = game->GameTiles.Map[coord];
+                    if (game->GameTiles.TileTypes[tile_id] == WallTileType) {
+                        float bbox_x = curr_tile_x * game->GameTiles.TileSize;
+                        float bbox_y = curr_tile_y * game->GameTiles.TileSize;
+                        Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
                         if (CheckCollisionRecs(BoundingBox, bbox)) {
                             //float e_cy = BoundingBox.y + (BoundingBox.height / 2.0f);
                             //float t_cy = bbox_y + (game->MainTileManager.TileSize / 2.0f);
@@ -277,7 +280,7 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
 }
 
 bool Entity::IsVisible() {
-    Vector2 *CameraPosition = &this->game->MainCameraManager.CameraPosition;
+    Vector2 *CameraPosition = &this->game->GameCamera.CameraPosition;
     return BoundingBox.x - CameraPosition->x > -BoundingBox.width &&
         BoundingBox.x - CameraPosition->x < GetScreenWidth() &&
         BoundingBox.y - CameraPosition->y > -BoundingBox.height &&

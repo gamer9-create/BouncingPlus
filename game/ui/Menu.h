@@ -11,6 +11,10 @@
 #include "../saves/Settings.h"
 
 class Menu {
+
+    static float MusicLevel;
+    static void AudioCallback(void* buffer, unsigned int frames);
+
     std::string Map;
     std::string TargetMap;
     Vector2 MousePos;
@@ -28,8 +32,12 @@ class Menu {
     bool MovingToGame;
     bool isStarting;
     Settings* GameSettings;
+
+    float MenuMusicLevel = 0.0f;
+
     void LevelSelect();
     void Credits();
+
     public:
         Menu(Settings& GameSettings);
         void Update();

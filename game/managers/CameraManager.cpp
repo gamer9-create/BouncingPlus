@@ -60,17 +60,17 @@ void CameraManager::QuickZoom(float Zoom, double Time, bool Instant) {
 
 void CameraManager::Display() {
     if (ShaderDraw)
-        BeginShaderMode(game->MainResourceManager.Shaders["pixelizer"]);
+        BeginShaderMode(game->GameResources.Shaders["pixelizer"]);
     int w = CameraRenderTexture.texture.width;
     int h = CameraRenderTexture.texture.height;
     if (uWidth == -1 || uHeight == -1 || uPixelSize == -1) {
-        uWidth = GetShaderLocation(this->game->MainResourceManager.Shaders["pixelizer"], "renderWidth");
-        uHeight = GetShaderLocation(this->game->MainResourceManager.Shaders["pixelizer"], "renderHeight");
-        uPixelSize = GetShaderLocation(this->game->MainResourceManager.Shaders["pixelizer"], "pixelSize");
+        uWidth = GetShaderLocation(this->game->GameResources.Shaders["pixelizer"], "renderWidth");
+        uHeight = GetShaderLocation(this->game->GameResources.Shaders["pixelizer"], "renderHeight");
+        uPixelSize = GetShaderLocation(this->game->GameResources.Shaders["pixelizer"], "pixelSize");
     }
-    SetShaderValue(game->MainResourceManager.Shaders["pixelizer"], uWidth, &w, SHADER_UNIFORM_INT);
-    SetShaderValue(game->MainResourceManager.Shaders["pixelizer"], uHeight, &h, SHADER_UNIFORM_INT);
-    SetShaderValue(game->MainResourceManager.Shaders["pixelizer"], uPixelSize, &ShaderPixelPower, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(game->GameResources.Shaders["pixelizer"], uWidth, &w, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources.Shaders["pixelizer"], uHeight, &h, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources.Shaders["pixelizer"], uPixelSize, &ShaderPixelPower, SHADER_UNIFORM_FLOAT);
     BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
     DrawTexturePro(CameraRenderTexture.texture, {0, 0, (float)GetScreenWidth(), (float)-GetScreenHeight()}, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, {0,0},0, WHITE);
     EndBlendMode();
@@ -122,20 +122,20 @@ void CameraManager::BackgroundLines() {
         }
     } else
     {
-        Texture& bg = game->MainResourceManager.Textures["bg"+to_string(BGTexture)];
-        BeginShaderMode(game->MainResourceManager.Shaders["blur"]);
+        Texture& bg = game->GameResources.Textures["bg"+to_string(BGTexture)];
+        BeginShaderMode(game->GameResources.Shaders["blur"]);
         int w = bg.width / (static_cast<int>(abs(sin(game->GetGameTime() / 10.0f) * 12.0f)) + 1);
         int h = bg.height / (static_cast<int>(abs(cos(game->GetGameTime() / 10.0f) * 12.0f)) + 1);
         if (uWidth2 == -1 || uHeight2 == -1) {
-            uWidth2 = GetShaderLocation(this->game->MainResourceManager.Shaders["blur"], "renderWidth");
-            uHeight2 = GetShaderLocation(this->game->MainResourceManager.Shaders["blur"], "renderHeight");
+            uWidth2 = GetShaderLocation(this->game->GameResources.Shaders["blur"], "renderWidth");
+            uHeight2 = GetShaderLocation(this->game->GameResources.Shaders["blur"], "renderHeight");
         }
-        SetShaderValue(game->MainResourceManager.Shaders["blur"], uWidth2, &w, SHADER_UNIFORM_INT);
-        SetShaderValue(game->MainResourceManager.Shaders["blur"], uHeight2, &h, SHADER_UNIFORM_INT);
+        SetShaderValue(game->GameResources.Shaders["blur"], uWidth2, &w, SHADER_UNIFORM_INT);
+        SetShaderValue(game->GameResources.Shaders["blur"], uHeight2, &h, SHADER_UNIFORM_INT);
         BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
 
-        int times_x = (int) ((game->MainTileManager.MapWidth * game->MainTileManager.TileSize) / bg.width) + 1;
-        int times_y = (int) ((game->MainTileManager.MapHeight * game->MainTileManager.TileSize) / bg.height) + 1;
+        int times_x = (int) ((game->GameTiles.MapWidth * game->GameTiles.TileSize) / bg.width) + 1;
+        int times_y = (int) ((game->GameTiles.MapHeight * game->GameTiles.TileSize) / bg.height) + 1;
 
         DrawTexturePro(bg, {0, 0, (float)bg.width*3.0f,(float)bg.height*3.0f}, {
             -ParallaxCamX + CameraPosition.x,
@@ -144,8 +144,8 @@ void CameraManager::BackgroundLines() {
 
         w /=2;
         h /=2;
-        SetShaderValue(game->MainResourceManager.Shaders["blur"], uWidth2, &w, SHADER_UNIFORM_INT);
-        SetShaderValue(game->MainResourceManager.Shaders["blur"], uHeight2, &h, SHADER_UNIFORM_INT);
+        SetShaderValue(game->GameResources.Shaders["blur"], uWidth2, &w, SHADER_UNIFORM_INT);
+        SetShaderValue(game->GameResources.Shaders["blur"], uHeight2, &h, SHADER_UNIFORM_INT);
         DrawTexturePro(bg, {0, 0, (float)bg.width*3.0f,(float)bg.height*3.0f}, {
             -(ParallaxCamX/2.0f) + CameraPosition.x,
             -(ParallaxCamY/2.0f) + CameraPosition.y,

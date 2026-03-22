@@ -13,7 +13,7 @@
 Spawner::Spawner() {
 }
 
-Spawner::Spawner(Game &game, float MyX, float MyY) :Entity(game.MainResourceManager.Textures["spawner"], {MyX, MyY, 36, 36}, 0, game) {
+Spawner::Spawner(Game &game, float MyX, float MyY) :Entity(game.GameResources.Textures["spawner"], {MyX, MyY, 36, 36}, 0, game) {
     StartPos = Vector2(MyX, MyY);
     RandPoint = {0, 0};
     DistF =0;
@@ -51,7 +51,7 @@ void Spawner::Render() {
             {game->MainPlayer->BoundingBox.x,
             game->MainPlayer->BoundingBox.y}) < 150) {
             DistF = Lerp(DistF, 35, 5*game->GetGameDeltaTime());
-            this->game->MainCameraManager.QuickZoom(1.5f, 0.1f);
+            this->game->GameCamera.QuickZoom(1.5f, 0.1f);
         }else
             DistF = Lerp(DistF, 0, 5*game->GetGameDeltaTime());
         this->EntityColor = ColorLerp(EntityColor, WHITE, 3 * game->GetGameDeltaTime());
@@ -80,7 +80,7 @@ void Spawner::Render() {
     F2 = cos(game->GetGameTime()+RandomNumbers[1]);
     F1 /= Dec;
     F2 /= Dec;
-    DrawTexturePro(game->MainResourceManager.Textures["bouncy_wall"], {0, 0, 18, 18},
+    DrawTexturePro(game->GameResources.Textures["bouncy_wall"], {0, 0, 18, 18},
         {center_pos.x + F1 * PosMultiplier - DistF,
             center_pos.y + F2 * PosMultiplier - DistF,
             Siz, Siz},
@@ -89,7 +89,7 @@ void Spawner::Render() {
     F2 = cos(game->GetGameTime()+RandomNumbers[3]);
     F1 /= Dec;
     F2 /= Dec;
-    DrawTexturePro(game->MainResourceManager.Textures["bouncy_wall"], {18, 0, 18, 18},
+    DrawTexturePro(game->GameResources.Textures["bouncy_wall"], {18, 0, 18, 18},
         {center_pos.x + F1 * PosMultiplier + DistF,
             center_pos.y + F2 * PosMultiplier-DistF,
             Siz, Siz},
@@ -98,7 +98,7 @@ void Spawner::Render() {
     F2 = cos(game->GetGameTime()+RandomNumbers[5]);
     F1 /= Dec;
     F2 /= Dec;
-    DrawTexturePro(game->MainResourceManager.Textures["bouncy_wall"], {0, 18, 18, 18},
+    DrawTexturePro(game->GameResources.Textures["bouncy_wall"], {0, 18, 18, 18},
         {center_pos.x + F1 * PosMultiplier - DistF,
             center_pos.y + F2 * PosMultiplier + DistF,
             Siz, Siz},
@@ -107,7 +107,7 @@ void Spawner::Render() {
     F2 = cos(game->GetGameTime()+RandomNumbers[7]);
     F1 /= Dec;
     F2 /= Dec;
-    DrawTexturePro(game->MainResourceManager.Textures["bouncy_wall"], {18, 18, 18, 18},
+    DrawTexturePro(game->GameResources.Textures["bouncy_wall"], {18, 18, 18, 18},
         {center_pos.x + F1 * PosMultiplier + DistF,
             center_pos.y + F2 * PosMultiplier+ DistF,
             Siz, Siz},
@@ -131,34 +131,34 @@ void Spawner::Update() {
         PlrPos) < 50 && SpawnerIsActive <= 0 && SpawnerRageCooldown <= 0) {
         game->MainPlayer->VelocityMovement = Vector2Subtract(StartPos, PlrPos);
         game->MainPlayer->VelocityPower = -1500;
-        game->MainSoundManager.PlaySoundM("spawner_activate");
-        game->MainSoundManager.PlaySoundM("spawner_boom");
-        game->MainCameraManager.ShakeCamera(0.5f);
+        game->GameSounds.PlaySoundM("spawner_activate");
+        game->GameSounds.PlaySoundM("spawner_boom");
+        game->GameCamera.ShakeCamera(0.5f);
         SpawnerIsActive = GetRandomValue(30, 90);
         SpawnerRageCooldown = GetRandomValue(5, 10);
         SpawnTimer = game->GetGameTime();
     }
 
-    if (SpawnerIsActive > 0 && game->GetGameTime() - SpawnTimer >= SpawnCooldown && game->MainTileManager.EnemySpawnLocations.size() > 0){
+    if (SpawnerIsActive > 0 && game->GetGameTime() - SpawnTimer >= SpawnCooldown && game->GameTiles.EnemySpawnLocations.size() > 0){
         for (int i = 0; i < GetRandomValue(1, 4); i++)
         {
-            Vector2 p = game->MainTileManager.EnemySpawnLocations[GetRandomValue(0,
-                game->MainTileManager.EnemySpawnLocations.size() - 1)];
+            Vector2 p = game->GameTiles.EnemySpawnLocations[GetRandomValue(0,
+                game->GameTiles.EnemySpawnLocations.size() - 1)];
             int times = 0;
             while (Vector2Distance(p, {game->MainPlayer->BoundingBox.x, game->MainPlayer->BoundingBox.y}) >= 3000 && times < 10)
             {
-                p = game->MainTileManager.EnemySpawnLocations[GetRandomValue(0,game->MainTileManager.EnemySpawnLocations.size() - 1)];
+                p = game->GameTiles.EnemySpawnLocations[GetRandomValue(0,game->GameTiles.EnemySpawnLocations.size() - 1)];
                 times++;
             }
             Vector2 g = Vector2Add(p, {(float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100)});
             times = 0;
             while (times < 10)
             {
-                int tile_x = static_cast<int> (g.x / game->MainTileManager.TileSize);
-                int tile_y = static_cast<int> (g.y / game->MainTileManager.TileSize);
+                int tile_x = static_cast<int> (g.x / game->GameTiles.TileSize);
+                int tile_y = static_cast<int> (g.y / game->GameTiles.TileSize);
                 std::string coord = std::to_string(tile_x) + " " + std::to_string(tile_y);
-                int tile_id = game->MainTileManager.Map[coord];
-                if (game->MainTileManager.TileTypes[tile_id] == WallTileType)
+                int tile_id = game->GameTiles.Map[coord];
+                if (game->GameTiles.TileTypes[tile_id] == WallTileType)
                 {
                     g = Vector2Add(p, {(float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100)});
                 } else
@@ -168,7 +168,7 @@ void Spawner::Update() {
                 times++;
             }
 
-            std::string wep = game->MainResourceManager.EnemyWeaponNamesList[GetRandomValue(0, game->MainResourceManager.EnemyWeaponNamesList.size() - 1)];
+            std::string wep = game->GameResources.EnemyWeaponNamesList[GetRandomValue(0, game->GameResources.EnemyWeaponNamesList.size() - 1)];
             std::unique_ptr<EnemyBehavior> behavior = make_unique<WeaponBehavior>();
             if (GetRandomValue(1, 3) == 2)
             {
@@ -185,14 +185,14 @@ void Spawner::Update() {
                 GetRandomValue(1, 100) / 100.0f < EnemyDifficulty ? GetRandomValue(25, 50) : 0,
                 wep,
                 std::move(behavior),
-                game->MainResourceManager.Textures["spawned_enemy"],
+                game->GameResources.Textures["spawned_enemy"],
                 *game
                 );
             if (EnemyDifficulty >= 0.6f)
                 e->HealthRegenRate = GetRandomValue(25, 70) / 10.0f;
             e->WanderingEnabled = false;
-            game->MainEntityManager.AddEntity(EnemyType, e);
-            game->MainParticleManager.ParticleEffect({
+            game->GameEntities.AddEntity(EnemyType, e);
+            game->Particles.ParticleEffect({
                 p,
                 150,
                 WHITE,
