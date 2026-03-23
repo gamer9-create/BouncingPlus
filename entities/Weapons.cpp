@@ -154,14 +154,16 @@ void WeaponsSystem::DisplayWeaponCone()
         float Dist = CurrentWeapon->Range;
 
         //DrawCircleSector({cx,cy}, Dist, LeftAngle, RightAngle, 40, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
-        for (int i = 0; i < MeleeAnimRange; i++)
+        float opti = CurrentWeapon->AngleRange / 18.0f;
+        if (Owner->Type == PlayerType)
+            opti = 1.5f;
+        for (int i = 0; i < MeleeAnimRange / opti; i++)
         {
-            float Angle = LeftAngle + i;
+            float Angle = LeftAngle + i * opti;
             float X = cos(Angle * (2 * PI / 360))*Dist;
             float Y = sin(Angle * (2 * PI / 360))*Dist;
             std::pair<bool,Vector2> p = game->RayCastPoint({cx,cy},{cx+X,cy+Y});
-            //DrawLineEx({cx,cy},p.second,12,ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
-            DrawCircleSector({cx,cy}, Vector2Distance({cx,cy},p.second), Angle - 0.5f, Angle + 0.5f, 2, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
+            DrawCircleSector({cx,cy}, Vector2Distance({cx,cy},p.second), Angle - opti/2, Angle + opti/2, 1, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
         }
     }
 }

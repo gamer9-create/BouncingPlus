@@ -133,6 +133,7 @@ strokes = []
 stroke = []
 
 last_e_state = False
+last_c_state = False
 last_drag_state = False
 last_ctrlz_state = False
 last_ctrly_state = False
@@ -167,6 +168,16 @@ while running:
     if mouse_buttons[2]:
         current_mode = 0
 
+    if keys[pygame.K_c] and not last_c_state:
+        for y in range(tilemap_height):
+            for x in range(tilemap_width):
+                if tilemap[y][x] != -1:
+                    stroke.append([tilemap[y][x], -1, [x,y]])
+                    tilemap[y][x] = -1
+        strokes.append(stroke.copy())
+        stroke.clear()
+    last_c_state = keys[pygame.K_c]
+
     if keys[pygame.K_s] and not last_s_state:
         pygame.image.save(screen, "screenshot" + str(clock.get_time()) + ".png")
     last_s_state = keys[pygame.K_s]
@@ -177,7 +188,7 @@ while running:
 
     drag_state = mouse_buttons[0] and (not hovering_over_selection_box) and current_mode > 0
     if drag_state:
-        if tilemap[world_mouse_tile_pos[1]][world_mouse_tile_pos[0]] != current_tile:
+        if tilemap[world_mouse_tile_pos[1]][world_mouse_tile_pos[0]] != (current_tile if current_mode == 1 else -1):
             stroke.append([tilemap[world_mouse_tile_pos[1]][world_mouse_tile_pos[0]], current_tile if current_mode == 1 else -1, world_mouse_tile_pos])
         tilemap[world_mouse_tile_pos[1]][world_mouse_tile_pos[0]] = current_tile if current_mode == 1 else -1
     elif last_drag_state:
@@ -403,22 +414,20 @@ def thread2():
 
     m.mainloop()
 
-thread2()
+write_path = assets_folder_path+"maps\\"+ (tilemap_path if len(write_path) < 1 else write_path)
+if not os.path.exists(write_path):
+    os.mkdir(write_path)
+f = open(write_path + "\\map_data.csv", 'w')
+for y in range(tilemap_height):
+    line = ""
+    for x in range(tilemap_width):
+        id = tilemap[y][x]
+        line += str(id)+("," if not (y == tilemap_height - 1 and x == tilemap_width - 1) else "")
+    f.write(line+("\n" if y != tilemap_height - 1 else ""))
+f.close()
 
 if len(write_path) > 0 and len(tilemap_path) < 1:
-
-    write_path = assets_folder_path+"maps\\"+write_path
-    if not os.path.exists(write_path):
-        os.mkdir(write_path)
-    f = open(write_path + "\\map_data.csv", 'w')
-    for y in range(tilemap_height):
-        line = ""
-        for x in range(tilemap_width):
-            id = tilemap[y][x]
-            line += str(id)+("," if not (y == tilemap_height - 1 and x == tilemap_width - 1) else "")
-        f.write(line+("\n" if y != tilemap_height - 1 else ""))
-    f.close()
-
+    thread2()
     json_data = {
       "description": description_lvl,
       "difficulty": 3,

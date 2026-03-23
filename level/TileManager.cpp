@@ -368,7 +368,7 @@ void TileManager::ReadMapDataFile(std::string Filename) {
                 }
                 case TurretTileType: {
                     std::shared_ptr<Turret> t = std::make_shared<Turret>(*game,
-                        game->GameResources.EnemyWeaponNamesList[GetRandomValue(0, game->GameResources.EnemyWeaponNamesList.size() - 1)], bbox_x, bbox_y);
+                        "Sniper", bbox_x, bbox_y);
                     game->GameEntities.AddEntity(TurretType, t);
                     break;
                 }

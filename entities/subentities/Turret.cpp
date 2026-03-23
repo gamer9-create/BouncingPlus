@@ -23,7 +23,7 @@ Turret::Turret(Game& game, std::string Weapon, float X, float Y) : Entity(game.G
     this->LookingRotationGoal = GetRandomValue(0, 360);
     this->GoalSwitchCooldown = 0.5f;
     this->SuspiciousRotationLockCooldown = 2.5f;
-    this->Range = GetRandomValue(500, 1200);
+    this->Range = GetRandomValue(600, 1200);
     this->AngleRange = GetRandomValue(35, 70);
 }
 
@@ -75,15 +75,20 @@ void Turret::Update()
         MyWeaponsSystem.Equip(0);
         Initialized = true;
     }
-    if (Vector2Distance(GetCenter(), game->MainPlayer->GetCenter()) < Range+GetScreenWidth()/2)
+
+    float skip = 4.5f;
+    for (int i = 0; i < AngleRange / skip; i++)
     {
-        for (int i = 0; i < AngleRange; i++)
+        float Angle = TurretRotation - AngleRange/2 + (i * skip);
+        float X = cos(Angle * (2 * PI / 360))*Range;
+        float Y = sin(Angle * (2 * PI / 360))*Range;
+        std::pair<bool,Vector2> p = game->RayCastPoint(GetCenter(),Vector2Add(GetCenter(), Vector2{X,Y}));
+        if (Vector2Distance(GetCenter(), game->MainPlayer->GetCenter()) < Range+GetScreenWidth()/2)
+            DrawCircleSector(GetCenter(), Vector2Distance(GetCenter(),p.second), Angle - skip/2, Angle + skip/2, skip, ColorAlpha(RED,0.35f));
+        if (Vector2Distance(GetCenter(), p.second) <= 200 && GoalSwitchCooldown <= 0)
         {
-            float Angle = TurretRotation - AngleRange/2 + i;
-            float X = cos(Angle * (2 * PI / 360))*Range;
-            float Y = sin(Angle * (2 * PI / 360))*Range;
-            std::pair<bool,Vector2> p = game->RayCastPoint(GetCenter(),Vector2Add(GetCenter(), Vector2{X,Y}));
-            DrawCircleSector(GetCenter(), Vector2Distance(GetCenter(),p.second), Angle - 0.5f, Angle + 0.5f, 1, ColorAlpha(RED,0.35f));
+            this->LookingRotationGoal = TurretRotation + GetRandomValue(-180,180);
+            GoalSwitchCooldown = 0.5f;
         }
     }
     switch (this->CurrentState)
