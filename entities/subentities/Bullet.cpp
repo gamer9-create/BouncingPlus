@@ -129,6 +129,9 @@ void Bullet::PhysicsUpdate(float dt, double time) {
                                 Movement = Vector2(X, Y);
                             }
 
+                            HealthGain *= 1.5f;
+                            Damage * 1.5f;
+
                             if (IsVisible())
                             {
                                 game->GameTiles.DistortArea(Distortion{
