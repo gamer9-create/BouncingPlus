@@ -4,7 +4,7 @@
   "ShakeScreen": true,
   "SlowdownOverTime": false,
   "PushbackForce": 0,
-  "WeaponSize": 1,
+  "WeaponSize": 4,
   "Ammo": 1,
   "ReloadTime": 0,
   "BulletLifetime": -1,
@@ -19,7 +19,7 @@
   "Range": 0.0,
   "Bullets": 1,
   "Intensity": 1,
-  "texture": "",
+  "texture": "sniper",
   "bullet_tex": "",
   "sound": ["bullet_fire_2"]
 }
