@@ -156,8 +156,8 @@ void Spawner::Update() {
             {
                 int tile_x = static_cast<int> (g.x / game->GameTiles.TileSize);
                 int tile_y = static_cast<int> (g.y / game->GameTiles.TileSize);
-                std::string coord = std::to_string(tile_x) + " " + std::to_string(tile_y);
-                int tile_id = game->GameTiles.Map[coord];
+                Vector2 coord = {(float)tile_x, (float)tile_y};
+                int tile_id = game->GameTiles.GetTileAt(coord);
                 if (game->GameTiles.TileTypes[tile_id] == WallTileType)
                 {
                     g = Vector2Add(p, {(float)GetRandomValue(-100, 100), (float)GetRandomValue(-100, 100)});

@@ -53,10 +53,14 @@ class TileManager {
         Vector2 BossSpawnPosition;
         TileType TileTypes[12];
         std::vector<Vector2> EnemySpawnLocations;
-        std::unordered_map<std::string, int> Map;
+        std::vector<int> Map;
         RenderTexture TileMapTex;
         TileManager();
         TileManager(Game &game);
+        int GetTileAt(int x, int y);
+        int GetTileAt(Vector2 coord);
+        void SetTileAt(int x, int y, int id);
+        void SetTileAt(Vector2 coord, int id);
         void Update();
         void DistortArea(Distortion d);
         void Burn(Vector2 Position, Vector2 From, float Transparency);

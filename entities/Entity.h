@@ -23,7 +23,7 @@ class Entity : public std::enable_shared_from_this<Entity> {
 
         Vector2 VelocityMovement;
         float VelocityPower;
-        std::string LastVelBounceCoord;
+        Vector2 LastVelBounceCoord;
 
         float WeaponWeightSpeedMultiplier;
         float Rotation;

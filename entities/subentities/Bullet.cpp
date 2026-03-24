@@ -62,8 +62,8 @@ void Bullet::PhysicsUpdate(float dt, double time) {
             for (int x = 0; x < 3; x++) {
                 int curr_tile_x = tile_x + x - 1;
                 int curr_tile_y = tile_y + y - 1;
-                std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
-                int tile_id = game->GameTiles.Map[coord];
+                Vector2 coord = {(float)curr_tile_x, (float)curr_tile_y};
+                int tile_id = game->GameTiles.GetTileAt(coord);
                 if (game->GameTiles.TileTypes[tile_id] == WallTileType) {
                     float bbox_x = curr_tile_x * game->GameTiles.TileSize;
                     float bbox_y = curr_tile_y * game->GameTiles.TileSize;

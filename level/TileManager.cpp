@@ -41,6 +41,42 @@ TileManager::TileManager(Game &game) {
     Clear();
 }
 
+int TileManager::GetTileAt(int x, int y)
+{
+    if (x < 0 || y < 0 || x >= MapWidth || y >= MapHeight)
+        return -1;
+    if (y * MapWidth + x >= Map.size())
+    {
+        cout << "map size: " << Map.size() << endl;
+        return -1;
+    }
+    try
+    {
+        return Map[y * MapWidth + x];
+    } catch (std::exception& e)
+    {
+        cout << e.what() << ", map size: " << Map.size() << endl;
+        return -1;
+    }
+}
+
+int TileManager::GetTileAt(Vector2 coord)
+{
+    return GetTileAt(coord.x,coord.y);
+}
+
+void TileManager::SetTileAt(int x, int y, int id)
+{
+    if (x < 0 || y < 0 || x >= MapWidth || y >= MapHeight)
+        return;
+    Map[y * MapWidth + x] = id;
+}
+
+void TileManager::SetTileAt(Vector2 coord, int id)
+{
+    SetTileAt(coord.x, coord.y, id);
+}
+
 void TileManager::Burn(Vector2 Position, Vector2 From, float Transparency)
 {
     if (BurnMarks.size() >= 15)
@@ -68,8 +104,7 @@ void TileManager::DrawTileMap()
         for (int x = 0; x < UpdateDistance.x; x++) {
             int curr_tile_x = tile_x + x - static_cast<int> (UpdateDistance.x / 2);
             int curr_tile_y = tile_y + y - static_cast<int> (UpdateDistance.y / 2);
-            std::string coord = std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y);
-            int tile_id = Map[coord];
+            int tile_id = GetTileAt(curr_tile_x,curr_tile_y);
             Texture* tile_tex = nullptr;
             if (tile_id == 1)
                 tile_tex = &game->GameResources.Textures["bouncy_wall"];
@@ -83,15 +118,15 @@ void TileManager::DrawTileMap()
                 bbox_y -= game->GameCamera.RaylibCamera.target.y;
                 Rectangle rec = {0,0, (float) tile_tex->width, (float) tile_tex->height};
 
-                bool left = TileTypes[Map[std::to_string(curr_tile_x-1) + " " + std::to_string(curr_tile_y)]] == WallTileType;
-                bool right = TileTypes[Map[std::to_string(curr_tile_x+1) + " " + std::to_string(curr_tile_y)]] == WallTileType;
-                bool up = TileTypes[Map[std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y-1)]] == WallTileType;
-                bool down = TileTypes[Map[std::to_string(curr_tile_x) + " " + std::to_string(curr_tile_y+1)]] == WallTileType;
+                bool left = TileTypes[GetTileAt(curr_tile_x - 1, curr_tile_y)] == WallTileType;
+                bool right = TileTypes[GetTileAt(curr_tile_x + 1, curr_tile_y)] == WallTileType;
+                bool up = TileTypes[GetTileAt(curr_tile_x, curr_tile_y - 1)] == WallTileType;
+                bool down = TileTypes[GetTileAt(curr_tile_x, curr_tile_y + 1)] == WallTileType;
 
-                bool diagonal_lu = TileTypes[Map[std::to_string(curr_tile_x-1) + " " + std::to_string(curr_tile_y-1)]] == WallTileType;
-                bool diagonal_ru = TileTypes[Map[std::to_string(curr_tile_x+1) + " " + std::to_string(curr_tile_y-1)]] == WallTileType;
-                bool diagonal_ld = TileTypes[Map[std::to_string(curr_tile_x-1) + " " + std::to_string(curr_tile_y+1)]] == WallTileType;
-                bool diagonal_rd = TileTypes[Map[std::to_string(curr_tile_x+1) + " " + std::to_string(curr_tile_y+1)]] == WallTileType;
+                bool diagonal_lu = TileTypes[GetTileAt(curr_tile_x - 1, curr_tile_y - 1)] == WallTileType;
+                bool diagonal_ru = TileTypes[GetTileAt(curr_tile_x + 1, curr_tile_y - 1)] == WallTileType;
+                bool diagonal_ld = TileTypes[GetTileAt(curr_tile_x - 1, curr_tile_y + 1)] == WallTileType;
+                bool diagonal_rd = TileTypes[GetTileAt(curr_tile_x + 1, curr_tile_y + 1)] == WallTileType;
 
                 if (left) {
                     rec.x = 4;
@@ -332,16 +367,14 @@ void TileManager::ReadMapDataFile(std::string Filename) {
         std::string        cell;
         while(std::getline(lineStream,cell,','))
         {
-            std::string coord = std::to_string(x) + " " + std::to_string(y);
-            int tile_id = std::stoi(cell)+1;
+            int tile_id = std::stoi(cell) + 1;
+
+            Map.push_back(tile_id < 3 ? tile_id : -1);
 
             float bbox_x = (static_cast<float>(x) * TileSize) + TileSize / 2.0f;
             float bbox_y = (static_cast<float>(y) * TileSize) + TileSize / 2.0f;
 
             switch (TileTypes[tile_id]) {
-                case WallTileType:
-                    Map.insert({coord, tile_id});
-                    break;
                 case EnemyTileType:
                     AddEnemy(bbox_x, bbox_y, tile_id);
                     break;

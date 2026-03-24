@@ -189,3 +189,71 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
     return std::pair(!bTileFound, Vector2{vMapCheck.x * GameTiles.TileSize, vMapCheck.y * GameTiles.TileSize});
 }
 */
+
+std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
+{
+    Vector2 vRayStart = Origin;
+    Vector2 vRayDir = Vector2Normalize(Target - Origin);
+    Vector2 vRayUnitStepSize = { sqrt(1 + (vRayDir.y / vRayDir.x) * (vRayDir.y / vRayDir.x)), sqrt(1 + (vRayDir.x / vRayDir.y) * (vRayDir.x / vRayDir.y)) };
+    Vector2 vMapCheck = Origin;
+    Vector2 vRayLength1D;
+    Vector2 vStep;
+
+    if (vRayDir.x < 0)
+    {
+        vStep.x = -1;
+        vRayLength1D.x = (vRayStart.x - float(vMapCheck.x)) * vRayUnitStepSize.x;
+    }
+    else
+    {
+        vStep.x = 1;
+        vRayLength1D.x = (float(vMapCheck.x + 1) - vRayStart.x) * vRayUnitStepSize.x;
+    }
+
+    if (vRayDir.y < 0)
+    {
+        vStep.y = -1;
+        vRayLength1D.y = (vRayStart.y - float(vMapCheck.y)) * vRayUnitStepSize.y;
+    }
+    else
+    {
+        vStep.y = 1;
+        vRayLength1D.y = (float(vMapCheck.y + 1) - vRayStart.y) * vRayUnitStepSize.y;
+    }
+
+    bool bTileFound = false;
+    float fMaxDistance = Vector2Distance(Origin,Target);
+    float fDistance = 0.0f;
+    while (!bTileFound && fDistance < fMaxDistance)
+    {
+        // Walk along shortest path
+        if (vRayLength1D.x < vRayLength1D.y)
+        {
+            vMapCheck.x += vStep.x;
+            fDistance = vRayLength1D.x;
+            vRayLength1D.x += vRayUnitStepSize.x;
+        }
+        else
+        {
+            vMapCheck.y += vStep.y;
+            fDistance = vRayLength1D.y;
+            vRayLength1D.y += vRayUnitStepSize.y;
+        }
+
+        if (vMapCheck.x >= 0 && vMapCheck.x < GameTiles.MapWidth*GameTiles.TileSize && vMapCheck.y >= 0 && vMapCheck.y < GameTiles.MapHeight*GameTiles.TileSize)
+        {
+            std::string s = to_string((int)(vMapCheck.x/GameTiles.TileSize)) + " " + to_string((int)(vMapCheck.y/GameTiles.TileSize));
+            int g = GameTiles.Map[s];
+            if (GameTiles.TileTypes[g]==WallTileType)
+            {
+                bTileFound = true;
+                break;
+            }
+        }
+    }
+
+    if (DebugDraw)
+        DrawLine(Origin.x,Origin.y,vMapCheck.x,vMapCheck.y,RED);
+
+    return std::pair(!bTileFound, vMapCheck);
+}

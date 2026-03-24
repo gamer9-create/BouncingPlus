@@ -336,14 +336,22 @@ void Game::Update() {
     }
 }
 
+struct Vector2i
+{
+    int x;
+    int y;
+};
+
 std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
 {
-    Vector2 vRayStart = Origin;
-    Vector2 vRayDir = Vector2Normalize(Target - Origin);
+    Vector2 vRayStart = Vector2{Origin.x / GameTiles.TileSize, Origin.y / GameTiles.TileSize};
+    Vector2 vRayTarget = Vector2{Target.x / GameTiles.TileSize, Target.y / GameTiles.TileSize};
+    Vector2 vRayDir = Vector2Normalize(vRayTarget - vRayStart);
+
     Vector2 vRayUnitStepSize = { sqrt(1 + (vRayDir.y / vRayDir.x) * (vRayDir.y / vRayDir.x)), sqrt(1 + (vRayDir.x / vRayDir.y) * (vRayDir.x / vRayDir.y)) };
-    Vector2 vMapCheck = Origin;
-    Vector2 vRayLength1D;
-    Vector2 vStep;
+    Vector2i vMapCheck = {(int)vRayStart.x, (int)vRayStart.y};
+    Vector2 vRayLength1D = {0, 0};
+    Vector2i vStep = {0, 0};
 
     if (vRayDir.x < 0)
     {
@@ -367,8 +375,9 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
         vRayLength1D.y = (float(vMapCheck.y + 1) - vRayStart.y) * vRayUnitStepSize.y;
     }
 
+    // Perform "Walk" until collision or range check
     bool bTileFound = false;
-    float fMaxDistance = Vector2Distance(Origin,Target);
+    float fMaxDistance = Vector2Distance(vRayStart, vRayTarget);
     float fDistance = 0.0f;
     while (!bTileFound && fDistance < fMaxDistance)
     {
@@ -386,22 +395,23 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
             vRayLength1D.y += vRayUnitStepSize.y;
         }
 
-        if (vMapCheck.x >= 0 && vMapCheck.x < GameTiles.MapWidth*GameTiles.TileSize && vMapCheck.y >= 0 && vMapCheck.y < GameTiles.MapHeight*GameTiles.TileSize)
+        // Test tile at new test point
+        if (vMapCheck.x >= 0 && vMapCheck.x < GameTiles.MapWidth && vMapCheck.y >= 0 && vMapCheck.y < GameTiles.MapHeight)
         {
-            std::string s = to_string((int)(vMapCheck.x/GameTiles.TileSize)) + " " + to_string((int)(vMapCheck.y/GameTiles.TileSize));
-            int g = GameTiles.Map[s];
-            if (GameTiles.TileTypes[g]==WallTileType)
-            {
+            if (GameTiles.TileTypes[GameTiles.GetTileAt({(float)vMapCheck.x,(float)vMapCheck.y})] == WallTileType)
                 bTileFound = true;
-                break;
-            }
         }
     }
 
-    if (DebugDraw)
-        DrawLine(Origin.x,Origin.y,vMapCheck.x,vMapCheck.y,RED);
+    fDistance = min(fDistance, fMaxDistance);
 
-    return std::pair(!bTileFound, vMapCheck);
+    // Calculate intersection location
+    Vector2 vIntersection = Origin + Vector2Normalize(Origin - Target) * fDistance * GameTiles.TileSize;
+
+    if (DebugDraw)
+        DrawLine(vRayStart.x*GameTiles.TileSize,vRayStart.y*GameTiles.TileSize, vIntersection.x, vIntersection.y,RED);
+
+    return std::make_pair(!bTileFound, vIntersection);
 }
 
 bool Game::RayCast(Vector2 Origin, Vector2 Target) {

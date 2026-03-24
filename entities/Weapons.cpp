@@ -141,8 +141,10 @@ void WeaponsSystem::DisplayWeaponCone()
     {
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-        if (AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown)
+        if (AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown && Owner->Type == PlayerType)
             MeleeDisplayRenderTarget = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera), Vector2{cx,cy});
+        else if (AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown)
+            MeleeDisplayRenderTarget = game->MainPlayer->GetCenter();
 
         Vector2 MP = Vector2Add(MeleeDisplayRenderTarget, Vector2{cx,cy});
 
