@@ -161,7 +161,7 @@ void Enemy::Update() {
 
     float center_x = BoundingBox.x + (BoundingBox.width / 2);
 
-    if (isActive && Behavior != nullptr && false)
+    if (isActive && Behavior != nullptr)
     {
         bool IsTouchingFreezeZone = false;
 

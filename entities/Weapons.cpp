@@ -249,16 +249,22 @@ void WeaponsSystem::DisplayMeleeAnim()
 void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
     auto Owner = OwnerPtr.lock();
     // Get angle and distance from victim entity
-    float AngleToEntity = atan2(Owner->BoundingBox.y - entity->BoundingBox.y, Owner->BoundingBox.x - entity->BoundingBox.x) * RAD2DEG;
+    float AngleToEntity = atan2(Owner->GetCenter().y - entity->GetCenter().y, Owner->GetCenter().x - entity->GetCenter().x) * RAD2DEG;
     float Dist = Vector2Distance(entity->GetCenter(), Owner->GetCenter());
 
+    float AngleDifference = Angle - AngleToEntity;
+    if (AngleDifference < 180)
+        AngleDifference += 360;
+    if (AngleDifference > 180)
+        AngleDifference -= 360;
+
     // if enemy is in sight & within range, attack!
-    if (AngleToEntity - MeleeAnimRange/2 <= Angle && AngleToEntity + MeleeAnimRange/2 >= Angle && Dist <= CurrentWeapon->Range && game->RayCast(Owner->GetCenter(), entity->GetCenter()))
+    if (abs(AngleDifference) <= CurrentWeapon->AngleRange/2 && Dist <= CurrentWeapon->Range && game->RayCast(Owner->GetCenter(), entity->GetCenter()))
         Owner->DamageOther(entity, CurrentWeapon->Damage, nullptr, CurrentWeapon->HealthGain);
     else if (Owner->Type == PlayerType && game->RayCast(Owner->GetCenter(), entity->GetCenter()))
     {
         cout << "DEBUG" << endl;
-        cout << (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle) << endl;
+        cout << (abs(AngleDifference) <= CurrentWeapon->AngleRange/2) << endl;
         cout << (Dist <= CurrentWeapon->Range) << endl;
         cout << AngleToEntity << " " << Angle << endl;
     }
