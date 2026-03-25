@@ -342,7 +342,7 @@ struct Vector2i
     int y;
 };
 
-std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
+std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug)
 {
     Vector2 vRayStart = Vector2{Origin.x / GameTiles.TileSize, Origin.y / GameTiles.TileSize};
     Vector2 vRayTarget = Vector2{Target.x / GameTiles.TileSize, Target.y / GameTiles.TileSize};
@@ -381,6 +381,9 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
     float fDistance = 0.0f;
     while (!bTileFound && fDistance < fMaxDistance)
     {
+        Vector2i vMapCheck_Copy = vMapCheck;
+        Vector2 vRayLength1D_Copy = vRayLength1D;
+
         // Walk along shortest path
         if (vRayLength1D.x < vRayLength1D.y)
         {
@@ -395,27 +398,42 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
             vRayLength1D.y += vRayUnitStepSize.y;
         }
 
+        if (fDistance >= fMaxDistance)
+        {
+            vMapCheck = vMapCheck_Copy;
+            fDistance = fMaxDistance;
+            vRayLength1D = vRayLength1D_Copy;
+            break;
+        }
+
         // Test tile at new test point
         if (vMapCheck.x >= 0 && vMapCheck.x < GameTiles.MapWidth && vMapCheck.y >= 0 && vMapCheck.y < GameTiles.MapHeight)
         {
             if (GameTiles.TileTypes[GameTiles.GetTileAt({(float)vMapCheck.x,(float)vMapCheck.y})] == WallTileType)
+            {
                 bTileFound = true;
+                break;
+            }
         }
     }
-
-    fDistance = min(fDistance, fMaxDistance);
 
     // Calculate intersection location
     Vector2 vIntersection = Origin + Vector2Normalize(Origin - Target) * fDistance * GameTiles.TileSize;
 
+    if (Debug)
+        cout << fDistance << " " << fMaxDistance << " " << vIntersection.x << " " << vIntersection.y << endl;
+
     if (DebugDraw)
-        DrawLine(vRayStart.x*GameTiles.TileSize,vRayStart.y*GameTiles.TileSize, vIntersection.x, vIntersection.y,RED);
+    {
+        Vector2 l = Origin + Vector2Normalize(Origin - Target) * -fDistance * GameTiles.TileSize;
+        DrawLine(l.x, l.y,vRayStart.x*GameTiles.TileSize,vRayStart.y*GameTiles.TileSize,RED);
+    }
 
     return std::make_pair(!bTileFound, vIntersection);
 }
 
-bool Game::RayCast(Vector2 Origin, Vector2 Target) {
-    return RayCastPoint(Origin,Target).first;
+bool Game::RayCast(Vector2 Origin, Vector2 Target, bool Debug) {
+    return RayCastPoint(Origin,Target,Debug).first;
 }
 
 void Game::Clear() {

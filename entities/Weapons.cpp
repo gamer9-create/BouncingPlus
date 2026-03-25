@@ -250,18 +250,15 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
     auto Owner = OwnerPtr.lock();
     // Get angle and distance from victim entity
     float AngleToEntity = atan2(Owner->BoundingBox.y - entity->BoundingBox.y, Owner->BoundingBox.x - entity->BoundingBox.x) * RAD2DEG;
-    float Dist = Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y}, {Owner->BoundingBox.x, Owner->BoundingBox.y});
-
-    // get center of bboxes
-    float owner_cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
-    float owner_cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-
-    float cx = entity->BoundingBox.x + entity->BoundingBox.width / 2;
-    float cy = entity->BoundingBox.y + entity->BoundingBox.height / 2;
+    float Dist = Vector2Distance(entity->GetCenter(), Owner->GetCenter());
 
     // if enemy is in sight & within range, attack!
-    if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range && game->RayCast({owner_cx, owner_cy}, {cx, cy}))
+    if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range && game->RayCast(Owner->GetCenter(), entity->GetCenter(),Owner->Type == PlayerType))
         Owner->DamageOther(entity, CurrentWeapon->Damage, nullptr, CurrentWeapon->HealthGain);
+    else
+    {
+
+    }
 }
 
 void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)

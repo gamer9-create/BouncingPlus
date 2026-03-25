@@ -76,8 +76,8 @@ class Game {
         std::vector<std::string> BannedWeaponDrops;
 
         Game(Settings& GameSettings);
-        std::pair<bool, Vector2> RayCastPoint(Vector2 Origin, Vector2 Target);
-        bool RayCast(Vector2 Origin, Vector2 Target);
+        std::pair<bool, Vector2> RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug = false);
+        bool RayCast(Vector2 Origin, Vector2 Target, bool Debug = false);
         void PlaceWeaponPickup(WeaponPickup Pickup);
         void ProcessFreezeZones();
         void Slowdown(float Time);
