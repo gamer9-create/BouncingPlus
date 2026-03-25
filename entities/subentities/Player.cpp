@@ -185,7 +185,7 @@ void Player::Update() {
             MainWeaponsSystem.Reload();
         }
         //Vector2 WorldMousePos = Vector2{0, 0};
-        if (IsMouseButtonDown(0) && !IsPreparingForDash)
+        if ((IsMouseButtonDown(0) || IsKeyDown(KEY_SPACE)) && !IsPreparingForDash)
         {
             MainWeaponsSystem.Attack(GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera));
         }

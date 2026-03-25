@@ -253,11 +253,14 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
     float Dist = Vector2Distance(entity->GetCenter(), Owner->GetCenter());
 
     // if enemy is in sight & within range, attack!
-    if (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle && Dist <= CurrentWeapon->Range && game->RayCast(Owner->GetCenter(), entity->GetCenter(),Owner->Type == PlayerType))
+    if (AngleToEntity - MeleeAnimRange/2 <= Angle && AngleToEntity + MeleeAnimRange/2 >= Angle && Dist <= CurrentWeapon->Range && game->RayCast(Owner->GetCenter(), entity->GetCenter()))
         Owner->DamageOther(entity, CurrentWeapon->Damage, nullptr, CurrentWeapon->HealthGain);
-    else
+    else if (Owner->Type == PlayerType && game->RayCast(Owner->GetCenter(), entity->GetCenter()))
     {
-
+        cout << "DEBUG" << endl;
+        cout << (AngleToEntity - MeleeAnimRange/2 < Angle && AngleToEntity + MeleeAnimRange/2 > Angle) << endl;
+        cout << (Dist <= CurrentWeapon->Range) << endl;
+        cout << AngleToEntity << " " << Angle << endl;
     }
 }
 
