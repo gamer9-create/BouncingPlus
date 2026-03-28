@@ -23,7 +23,6 @@ TileManager::TileManager() {
 
 TileManager::TileManager(Game &game) {
     this->game = &game;
-    BurnMarks = std::vector<BurnMark>();
     Distortions = std::vector<Distortion>();
     TileMapTex = LoadRenderTexture(1,1);
     TileTypes[0] = NothingTileType; // air
@@ -75,24 +74,6 @@ void TileManager::SetTileAt(int x, int y, int id)
 void TileManager::SetTileAt(Vector2 coord, int id)
 {
     SetTileAt(coord.x, coord.y, id);
-}
-
-void TileManager::Burn(Vector2 Position, Vector2 From, float Transparency)
-{
-    if (BurnMarks.size() >= 15)
-        return;
-    float BurnMarkRange = GetRandomValue(5, 8);
-    Vector2 s = Vector2{(float)GetRandomValue(-BurnMarkRange, BurnMarkRange), (float)GetRandomValue(-BurnMarkRange, BurnMarkRange)};
-    s = Vector2Add(s, Position);
-    BurnMark burn = {
-        Position, Transparency, game->GetGameTime(),
-        s,
-        Vector2Add(Vector2{(float)GetRandomValue(-BurnMarkRange, BurnMarkRange), (float)GetRandomValue(-BurnMarkRange, BurnMarkRange)},Position),
-        Vector2Add(Vector2{(float)GetRandomValue(-BurnMarkRange, BurnMarkRange), (float)GetRandomValue(-BurnMarkRange, BurnMarkRange)},Position),
-        Vector2Add(Vector2{(float)GetRandomValue(-BurnMarkRange, BurnMarkRange), (float)GetRandomValue(-BurnMarkRange, BurnMarkRange)},Position),
-        s
-    };
-    BurnMarks.push_back(burn);
 }
 
 void TileManager::DrawTileMap()
@@ -192,7 +173,6 @@ void TileManager::Update() {
     }
 
     ProcessDistortions();
-    ProcessBurnMarks();
 
     EndTextureMode();
     EndMode2D();
@@ -201,34 +181,6 @@ void TileManager::Update() {
     ClearBackground(BLANK);
 
     DrawTileMap();
-    BeginShaderMode(game->GameResources.Shaders["blur"]);
-
-    int ScreenWidth = GetScreenWidth();
-    int ScreenHeight = GetScreenWidth();
-
-    SetShaderValue(game->GameResources.Shaders["blur"], game->GameCamera.uWidth2, &ScreenWidth, SHADER_UNIFORM_INT);
-    SetShaderValue(game->GameResources.Shaders["blur"], game->GameCamera.uHeight2, &ScreenHeight, SHADER_UNIFORM_INT);
-
-    for (BurnMark &b : BurnMarks)
-    {
-        Vector2 list[5];
-        for (int i = 0; i < 5; i++)
-            list[i] = Vector2Subtract(b.Points[i], game->GameCamera.RaylibCamera.target);
-
-        float FinalTransparency = clamp(b.Transparency, 0.0f, 1.0f) * (1.0f- (game->GetGameTime() - b.SpawnTime) / (FXLifetime * 3.0f));
-        DrawLineStrip(list, 5, ColorAlpha(BLACK, FinalTransparency));
-        DrawCircle(b.Position.x - game->GameCamera.RaylibCamera.target.x, b.Position.y - game->GameCamera.RaylibCamera.target.y, 5, ColorAlpha(BLACK, FinalTransparency / 1.6f));
-        /*
-        *DrawTexturePro(game->GameResources.Textures["burn_marks"], {
-            (float)(((int)b.Tex * 18) % 36), (float)(((int)b.Tex/2 * 18) % 36),
-            18, 18
-        }, {b.Position.x - game->GameCamera.RaylibCamera.target.x, b.Position.y - game->GameCamera.RaylibCamera.target.y, 25 * FinalTransparency, 25 * FinalTransparency},
-        {25 * FinalTransparency / 2, 25 * FinalTransparency / 2}, b.Rotation, ColorAlpha(WHITE, FinalTransparency));
-         */
-        if (game->DebugDraw)
-            DrawCircle(b.Position.x - game->GameCamera.RaylibCamera.target.x, b.Position.y - game->GameCamera.RaylibCamera.target.y, 5, ColorAlpha(PURPLE, 0.5f));
-    }
-    EndShaderMode();
 
     EndTextureMode();
     EndBlendMode();
@@ -249,25 +201,17 @@ void TileManager::Update() {
     EndShaderMode();
 }
 
-void TileManager::DistortArea(Distortion d)
+void TileManager::DistortArea(Distortion DistortionForArea)
 {
     if (Distortions.size() >= 100)
         return;
     for (Distortion &otherDis : Distortions)
     {
-        if (Vector2Distance(otherDis.Position, d.Position) < 25 && game->GetGameTime() - otherDis.SpawnTime <= FXLifetime/2)
+        if (Vector2Distance(otherDis.Position, DistortionForArea.Position) < 25 && game->GetGameTime() - otherDis.SpawnTime <= FXLifetime/2)
             return;
     }
-    d.SpawnTime = game->GetGameTime();
-    Distortions.push_back(d);
-}
-
-void TileManager::ProcessBurnMarks()
-{
-    std::erase_if(BurnMarks, [this](BurnMark &d)
-    {
-        return game->GetGameTime() - d.SpawnTime >= FXLifetime * 3.0f;
-    });
+    DistortionForArea.SpawnTime = game->GetGameTime();
+    Distortions.push_back(DistortionForArea);
 }
 
 void TileManager::ProcessDistortions()
@@ -276,6 +220,7 @@ void TileManager::ProcessDistortions()
     {
         return game->GetGameTime() - d.SpawnTime >= FXLifetime;
     });
+
     if (DistortionUniformLocations.size() <= 0)
     {
         BeginShaderMode(game->GameResources.Shaders["distortion"]);
@@ -425,7 +370,6 @@ void TileManager::Clear()
 {
     Map.clear();
     Distortions.clear();
-    BurnMarks.clear();
     MapWidth = 0;
     MapHeight = 0;
     PlayerSpawnPosition = {0, 0};

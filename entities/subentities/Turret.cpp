@@ -76,7 +76,7 @@ void Turret::Update()
         Initialized = true;
     }
 
-    float skip = 4.5f;
+    float skip = 2.5f;
     for (int i = 0; i < AngleRange / skip; i++)
     {
         float Angle = TurretRotation - AngleRange/2 + (i * skip);
@@ -138,6 +138,8 @@ void Turret::Update()
             }
 
     }
+
+    Rotation=TurretRotation;
 
     Entity::Update();
     MyWeaponsSystem.Update();

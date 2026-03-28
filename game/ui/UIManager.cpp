@@ -436,8 +436,10 @@ void UIManager::DeathMenu()
 
 void UIManager::PauseMenu() {
     BeginTextureMode(PauseScreen);
-    ClearBackground(ColorAlpha(BLACK, 0.35f));
-    DrawRectangle(PauseScreen.texture.width/2 - 225, PauseScreen.texture.height/2-175,450, 350,ColorAlpha(WHITE,0.85f));
+    ClearBackground(IsKeyDown(KEY_C) ? BLANK : ColorAlpha(BLACK, 0.35f));
+    EndTextureMode();
+    DrawTextureRec(PauseScreen.texture, Rectangle(0, 0, PauseScreen.texture.width, -PauseScreen.texture.height), Vector2(0, GetScreenHeight() - PauseScreen.texture.height), WHITE);
+    DrawRectangle(PauseScreen.texture.width/2 - 225, PauseScreen.texture.height/2-175,450, 350,ColorAlpha(BLACK,0.5f));
     game->Paused = !Button({(float)PauseScreen.texture.width/2 - (float)game->GameSettings->UIAssets.ButtonImg.width/2,
         (float)PauseScreen.texture.height/2-100 - (float)game->GameSettings->UIAssets.ButtonImg.height/2,
         (float)game->GameSettings->UIAssets.ButtonImg.width, (float)game->GameSettings->UIAssets.ButtonImg.height},
@@ -448,11 +450,6 @@ void UIManager::PauseMenu() {
         (float)game->GameSettings->UIAssets.ButtonImg.width, (float)game->GameSettings->UIAssets.ButtonImg.height
     }, GetMousePosition(), game->GameSettings->UIAssets.ButtonImg, game->GameSettings->UIAssets.ButtonClick, "QUIT"))
         game->isReturning = true;
-    EndTextureMode();
-    BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
-    DrawTextureRec(PauseScreen.texture, Rectangle(0, 0, PauseScreen.texture.width, -PauseScreen.texture.height), Vector2(0, GetScreenHeight() - PauseScreen.texture.height), WHITE);
-    EndBlendMode();
-
 }
 
 void UIManager::GameWin()

@@ -98,12 +98,12 @@ void Player::PhysicsUpdate(float DeltaTime, double Time) {
 
 void Player::OnWallVelocityBump(float Power)
 {
-    if (Power > 400)
+    if (Power >= 400)
     {
         float PreviousH = Health;
         Entity::OnWallVelocityBump(Power);
         game->GameSounds.PlaySoundM("dash_wall_hit");
-        float Damage = Power / 130.0f;
+        float Damage = Power / 390.0f;
         if (Health - Damage >= 20)
         {
             Health -= Damage;

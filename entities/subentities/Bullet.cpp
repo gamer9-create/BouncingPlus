@@ -69,7 +69,7 @@ void Bullet::PhysicsUpdate(float dt, double time) {
                     float bbox_y = curr_tile_y * game->GameTiles.TileSize;
                     Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
                     if (CheckCollisionCircleRec({BoundingBox.x,BoundingBox.y}, BoundingBox.height, bbox)) {
-                        if (tile_id == 1){// && coord != LastBouncedCoordinate) {
+                        if (tile_id == 1 && coord != LastBouncedCoordinate) {
                             int dir_hit = -1; // -1 = none, 0 = left, 1 = up, 2 = right, 3 = down
                             int i= 0;
                             int dirs[4] = {0, 0, 0, 0};
@@ -129,8 +129,15 @@ void Bullet::PhysicsUpdate(float dt, double time) {
                                 Movement = Vector2(X, Y);
                             }
 
-                            HealthGain *= 1.5f;
-                            Damage * 1.5f;
+                            auto Owner = OwnerPtr.lock();
+                            if (Owner != nullptr)
+                            {
+                                float Bonus = Owner->Health / 6.0f;
+                                HealthGain += Bonus;
+                                Damage += Bonus;
+                                if (Owner->Type == PlayerType)
+                                    game->GameScore += Bonus;
+                            }
 
                             if (IsVisible())
                             {
@@ -141,18 +148,11 @@ void Bullet::PhysicsUpdate(float dt, double time) {
                                 });
                             }
 
-                            //OwnerPtr.reset();
+                            LastBouncedCoordinate = coord;
 
                             can_move = false;
-                        } else if (tile_id == 2) {
+                        } else if (tile_id == 2)
                             ShouldDelete = true;
-                            if (IsVisible())
-                            {
-                                Vector2 hit = game->RayCastPoint(GetCenter(), {bbox_x + game->GameTiles.TileSize/2, bbox_y + game->GameTiles.TileSize/2}).second;
-                                hit -= Vector2Multiply(Vector2Normalize(Vector2Subtract(GetCenter(), {bbox_x + game->GameTiles.TileSize/2, bbox_y + game->GameTiles.TileSize/2})), Vector2{BoundingBox.height/2, BoundingBox.height/2});
-                                game->GameTiles.Burn(hit, GetCenter(), GetSpeed() / 2500.0f);
-                            }
-                        }
                     }
                 }
             }

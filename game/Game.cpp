@@ -304,12 +304,10 @@ void Game::Update() {
             int i = 0;
             for (auto [name,val] : times)
             {
-                DrawText((name + ", " + to_string((int)(val * 1000.0f)) + "ms").c_str(), 250 + GameCamera.RaylibCamera.target.x, 150 + (i * 25)+ GameCamera.RaylibCamera.target.y, 25, RED);
+                DrawText((name + ", " + to_string(val * 1000.0f) + "ms").c_str(), 250 + GameCamera.RaylibCamera.target.x, 150 + (i * 25)+ GameCamera.RaylibCamera.target.y, 25, RED);
                 i++;
             }
         }
-
-
 
         GameCamera.End();
 
@@ -400,9 +398,7 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target, bool
 
         if (fDistance >= fMaxDistance)
         {
-            vMapCheck = vMapCheck_Copy;
             fDistance = fMaxDistance;
-            vRayLength1D = vRayLength1D_Copy;
             break;
         }
 
@@ -418,15 +414,14 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target, bool
     }
 
     // Calculate intersection location
-    Vector2 vIntersection = Origin + Vector2Normalize(Origin - Target) * fDistance * GameTiles.TileSize;
+    Vector2 vIntersection = Origin - Vector2Normalize(Origin - Target) * fDistance * GameTiles.TileSize;
 
     if (Debug)
         cout << fDistance << " " << fMaxDistance << " " << vIntersection.x << " " << vIntersection.y << endl;
 
     if (DebugDraw)
     {
-        Vector2 l = Origin + Vector2Normalize(Origin - Target) * -fDistance * GameTiles.TileSize;
-        DrawLine(l.x, l.y,vRayStart.x*GameTiles.TileSize,vRayStart.y*GameTiles.TileSize,RED);
+        DrawLine(vIntersection.x, vIntersection.y,vRayStart.x*GameTiles.TileSize,vRayStart.y*GameTiles.TileSize,RED);
     }
 
     return std::make_pair(!bTileFound, vIntersection);

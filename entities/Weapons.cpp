@@ -29,6 +29,7 @@ WeaponsSystem::WeaponsSystem(shared_ptr<Entity> Owner, Game& game) {
     MeleeAnimAngle = 0;
     MeleeAnimRange = 45;
     MeleeAnimPercent = 0;
+    MeleeDisplayRenderTarget = {Owner->GetCenter().x, Owner->GetCenter().y};
     TimeStartedReloading = -1;
     MeleeAnimAlpha = 1;
     for (int i = 0; i < 3; i++) {
@@ -141,16 +142,14 @@ void WeaponsSystem::DisplayWeaponCone()
     {
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
-        if (AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown && Owner->Type == PlayerType)
-            MeleeDisplayRenderTarget = Vector2Subtract(GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera), Vector2{cx,cy});
-        else if (AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown)
+        if (Owner->Type == PlayerType)
+            MeleeDisplayRenderTarget = GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera);
+        else
             MeleeDisplayRenderTarget = game->MainPlayer->GetCenter();
-
-        Vector2 MP = Vector2Add(MeleeDisplayRenderTarget, Vector2{cx,cy});
 
         MeleeAnimRange = CurrentWeapon->AngleRange;
         // get angle
-        float Angle = (atan2(cy - MP.y, cx - MP.x) * RAD2DEG)+180;
+        float Angle = (atan2(cy - MeleeDisplayRenderTarget.y, cx - MeleeDisplayRenderTarget.x) * RAD2DEG)+180;
 
         float LeftAngle = (Angle - MeleeAnimRange/2);
         float Dist = CurrentWeapon->Range;
@@ -158,7 +157,7 @@ void WeaponsSystem::DisplayWeaponCone()
         //DrawCircleSector({cx,cy}, Dist, LeftAngle, RightAngle, 40, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
         float opti = CurrentWeapon->AngleRange / 18.0f;
         if (Owner->Type == PlayerType)
-            opti = 1.5f;
+            opti = 1.0f;
         for (int i = 0; i < MeleeAnimRange / opti; i++)
         {
             float Angle = LeftAngle + i * opti;
@@ -261,13 +260,6 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
     // if enemy is in sight & within range, attack!
     if (abs(AngleDifference) <= CurrentWeapon->AngleRange/2 && Dist <= CurrentWeapon->Range && game->RayCast(Owner->GetCenter(), entity->GetCenter()))
         Owner->DamageOther(entity, CurrentWeapon->Damage, nullptr, CurrentWeapon->HealthGain);
-    else if (Owner->Type == PlayerType && game->RayCast(Owner->GetCenter(), entity->GetCenter()))
-    {
-        cout << "DEBUG" << endl;
-        cout << (abs(AngleDifference) <= CurrentWeapon->AngleRange/2) << endl;
-        cout << (Dist <= CurrentWeapon->Range) << endl;
-        cout << AngleToEntity << " " << Angle << endl;
-    }
 }
 
 void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
@@ -280,7 +272,7 @@ void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
     if (CurrentWeapon->BulletLifetime != -1)
         BulletLifetime = CurrentWeapon->BulletLifetime;
 
-    // loop thru requested shots
+    // loop through requested shots
     for (int i = 1; i < CurrentWeapon->Bullets+1; i++) {
 
         float Angle = TargetAngle + (float)GetRandomValue(CurrentWeapon->SpreadRange[0], CurrentWeapon->SpreadRange[1]);

@@ -30,7 +30,9 @@ void Profiler::StopLog()
 {
     if (!LastReason.empty())
     {
-        Times[LastReason] = GetTime() - LastTime;
+        if (!AvgTimes.contains(LastReason))
+            AvgTimes[LastReason] = std::vector<double>();
+        AvgTimes[LastReason].push_back(GetTime() - LastTime);
         LastReason = "";
         LastTime = -1;
     }
@@ -39,7 +41,21 @@ void Profiler::StopLog()
 std::map<std::string, double> Profiler::Finish()
 {
     StopLog();
-    std::map<std::string, double> copy = Times;
-    Times.clear();
-    return copy;
+    if (GetTime() - LastCleared >= 1)
+    {
+        for (auto &[name, val] : AvgTimes)
+        {
+            double f = 0;
+            for (double g : val)
+                f += g;
+            if (f != 0)
+                f /= val.size();
+
+            DisplayTimes[name] = f;
+        }
+
+        AvgTimes.clear();
+        LastCleared = GetTime();
+    }
+    return DisplayTimes;
 }

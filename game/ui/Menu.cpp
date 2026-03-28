@@ -59,23 +59,30 @@ void Menu::Reset()
 
 void Menu::LevelSelect()
 {
+    Vector2 LevelSelectPanelSize = Vector2{(float)GetScreenWidth() - 200.0f, (float)GetScreenHeight() - 180.0f};
+    Rectangle LevelSelectPanelRectangle = {(float)-GetScreenWidth()+ (float)GetScreenWidth()/2.0f - LevelSelectPanelSize.x / 2.0f, 25+(Offset2/1.5f), LevelSelectPanelSize.x, LevelSelectPanelSize.y};
+
+    DrawRectangleRec({LevelSelectPanelRectangle.x - CameraX, LevelSelectPanelRectangle.y, LevelSelectPanelRectangle.width, LevelSelectPanelRectangle.height}, ColorAlpha(BLACK, 0.5f));
+
     Rectangle play_bbox = {(GetScreenWidth()/2.0f) - GetScreenWidth() - (int)(GameSettings->UIAssets.ButtonImg.width/2.0f), GetScreenHeight() - 106 + Offset1,150,56};
     if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(), GameSettings->UIAssets.ButtonImg, GameSettings->UIAssets.ButtonClick, "BACK")) {
         CameraTargetX=0;
     }
-    DrawText("LEVEL SELECT", (int)(GetScreenWidth()/2.0f) - (int)(MeasureText("LEVEL SELECT", 50)/2.0f)-CameraX-GetScreenWidth(), 100+(Offset2/1.5f), 50, WHITE);
+    DrawText("LEVEL SELECT", (int)(GetScreenWidth()/2.0f) - (int)(MeasureText("LEVEL SELECT", 55)/2.0f)-CameraX-GetScreenWidth(), LevelSelectPanelRectangle.y+25, 55, WHITE);
+
+    DrawLineEx(Vector2{LevelSelectPanelRectangle.x + 25.0f - CameraX, LevelSelectPanelRectangle.y + 100}, Vector2{LevelSelectPanelRectangle.x + LevelSelectPanelSize.x - 25.0f - CameraX, LevelSelectPanelRectangle.y + 100}, 4, WHITE);
+
     int i = 0;
     for (auto& [name, data] : GameSettings->LevelData)
     {
         i = data["order"];
-        Rectangle r = {-710.0f, (float)165 + (140 * i)-Offset3, (float)MeasureText(name.c_str(), 90)+20.0f, 110.0f};
+        Rectangle r = {-710.0f, (float)165 + (140 * i) + LevelSelectPanelRectangle.y, (float)MeasureText(name.c_str(), 90)+20.0f, 110.0f};
         DrawRectangleRec({r.x-CameraX,r.y,r.width,r.height}, ColorAlpha(BLACK, 0.5f));
         Color c = RED;
         if (TargetMap==name) {
             c = GREEN;
-            float comb = (Offset1 + Offset2 + Offset3)/3;
-            DrawRectangle(-(GetScreenWidth()-125)-CameraX, 200-comb, GetScreenWidth()-900, GetScreenHeight()-450, ColorAlpha(BLACK, 0.5f));
-            DrawText(name.c_str(), -(GetScreenWidth()-145)-CameraX, 220-comb, 50, WHITE);
+            DrawRectangle(-(GetScreenWidth()-125)-CameraX, 200 + LevelSelectPanelRectangle.y, GetScreenWidth()-900, GetScreenHeight()-450, ColorAlpha(BLACK, 0.5f));
+            DrawText(name.c_str(), -(GetScreenWidth()-145)-CameraX, 220 + LevelSelectPanelRectangle.y, 50, WHITE);
 
             std::string description = data["description"];
 
@@ -98,17 +105,17 @@ void Menu::LevelSelect()
                         txt.erase(txt.begin());
                     //description.substr(max((float)(i * (description.size() / lines)), 0.0f), min((i+1) * (description.size() / lines), description.size())).c_str()
 
-                    DrawText(txt.c_str(), -(GetScreenWidth()-145)-CameraX, 270-comb + (35 * i), 25, WHITE);
+                    DrawText(txt.c_str(), -(GetScreenWidth()-145)-CameraX, 270 + (35 * i) + LevelSelectPanelRectangle.y, 25, WHITE);
                 }
             }
 
-            DrawText(("Difficulty level: "+to_string(data["difficulty"])).c_str(), -(GetScreenWidth()-145)-CameraX, 200-comb + GetScreenHeight()-450 - 70 - 64, 25, ColorBrightness(RED, -1 + ((float)data["difficulty"] * 0.25f) ));
-            Rectangle play_bbox = {(float)-(GetScreenWidth()-145), 200-comb + GetScreenHeight()-450 - 70,150,56};
+            DrawText(("Difficulty level: "+to_string(data["difficulty"])).c_str(), -(GetScreenWidth()-145)-CameraX, 200 + GetScreenHeight()-450 - 70 - 64 + LevelSelectPanelRectangle.y, 25, ColorBrightness(RED, -1 + ((float)data["difficulty"] * 0.25f) ));
+            Rectangle play_bbox = {(float)-(GetScreenWidth()-145), 200 + GetScreenHeight()-450 - 70 + LevelSelectPanelRectangle.y,150,56};
             if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(), GameSettings->UIAssets.ButtonImg, GameSettings->UIAssets.ButtonClick, "PLAY")) {
                 MovingToGame = true;
             }
         }
-        DrawText(name.c_str(), -700 - CameraX, 175 + (140 * i)-Offset3, 90, c);
+        DrawText(name.c_str(), -700 - CameraX, 175 + (140 * i) + LevelSelectPanelRectangle.y, 90, c);
         if (CheckCollisionPointRec(MousePos, r)) {
             DrawRectangleLinesEx({r.x-CameraX,r.y,r.width,r.height}, 4, WHITE);
             TargetMap = IsMouseButtonPressed(0) ? (TargetMap != name ? name : "") : TargetMap;

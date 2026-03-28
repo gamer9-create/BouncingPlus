@@ -1,4 +1,7 @@
 import shutil,os
+import ctypes
+
+#ctypes.windll.user32.MessageBoxW(0, "Your text", "Your title", 1)
 
 for i in os.listdir(os.getcwd()):
     if ".zip" in i:
@@ -24,6 +27,13 @@ f.write(str(version+1))
 f.close()
 
 os.mkdir(dst)
+
+f1 = os.path.getmtime('../cmake-build-release/BouncingPlus.exe')
+f2 = os.path.getmtime('../cmake-build-debug/BouncingPlus.exe')
+p = '../cmake-build-release/BouncingPlus.exe'
+
+if f2 > f1:
+    p = '../cmake-build-debug/BouncingPlus.exe'
 
 shutil.copy("../cmake-build-release/BouncingPlus.exe", dst)
 for file in os.listdir("../cmake-build-release"):

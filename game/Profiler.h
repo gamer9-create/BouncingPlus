@@ -6,6 +6,7 @@
 #define BOUNCINGPLUS_PROFILER_H
 #include <map>
 #include <string>
+#include <vector>
 
 class Game;
 
@@ -15,7 +16,9 @@ public:
     Game *game;
     std::string LastReason;
     double LastTime = -1;
-    std::map<std::string,double> Times;
+    double LastCleared = -1;
+    std::map<std::string, double> DisplayTimes;
+    std::map<std::string,std::vector<double>> AvgTimes;
     Profiler();
     Profiler(Game &game);
     ~Profiler();

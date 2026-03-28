@@ -59,13 +59,13 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
 {
     auto MyPlayer = Owner.lock();
     // check if we're colliding with them. if so, attack!
-    float extra_size = 32;
+    float extra_size = 64;
     Rectangle myRect = Rectangle{MyPlayer->BoundingBox.x - extra_size / 2, MyPlayer->BoundingBox.y - extra_size / 2, MyPlayer->BoundingBox.width + extra_size, MyPlayer->BoundingBox.height + extra_size};
     if (MyPlayer->game->DebugDraw)
         DrawRectangleRec(myRect, ColorAlpha(RED, 0.5f));
     if (CheckCollisionRecs(myRect, entity->BoundingBox) && !already_attacked) {
         // calculate damage & attack
-        float Damage = MyPlayer->VelocityPower / 22.5f;
+        float Damage = MyPlayer->VelocityPower / 18.5f;
 
         float EnemyConcentration = 1.0;
 
@@ -75,7 +75,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
                 if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 550)
                 {
                     EnemyConcentration += 0.06f;
-                    if (EnemyConcentration >= 1.25f)
+                    if (EnemyConcentration >= 1.5f)
                         break;
                 }
             }
@@ -87,17 +87,17 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
                 if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 400)
                 {
                     EnemyConcentration += 0.01f;
-                    if (EnemyConcentration >= 1.25f)
+                    if (EnemyConcentration >= 1.5f)
                         break;
                 }
             }
         }
 
-        EnemyConcentration = min(EnemyConcentration, 1.25f);
+        EnemyConcentration = min(EnemyConcentration, 1.5f);
         EnemyConcentration *= MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_concentration_boost"].get<float>();
 
         Damage *= EnemyConcentration;
-        Damage *= min(max((MyPlayer->Health / MyPlayer->MaxHealth)-2.0f, 1.0f), 5.5f);
+        Damage *= min(max((MyPlayer->Health / MyPlayer->MaxHealth) - 2.0f, 1.0f), 5.5f);
         if (entity->Armor <= 0)
             entity->Health -= Damage;
         else
@@ -132,6 +132,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
 
         // increase velocity and mark enemy as attacked
         MyPlayer->VelocityPower += MyPlayer->VelocityPower / (amount/200);
+        MyPlayer->VelocityMovement = Vector2Normalize(entity->GetCenter() - MyPlayer->GetCenter());
         DashedEnemies.push_back(std::weak_ptr(entity));
     }
 }
