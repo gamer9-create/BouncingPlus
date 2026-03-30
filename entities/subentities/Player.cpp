@@ -49,16 +49,16 @@ void Player::PhysicsUpdate(float DeltaTime, double Time) {
     float MovementX = 0;
     float MovementY = 0;
     if (PlayerFrozenTimer <= 0) {
-        if (IsKeyDown(KEY_W)) {
+        if (game->GameControls->IsControlDown("up")) {
             MovementY -= Speed;
         }
-        if (IsKeyDown(KEY_S)) {
+        if (game->GameControls->IsControlDown("down")) {
             MovementY += Speed;
         }
-        if (IsKeyDown(KEY_A)) {
+        if (game->GameControls->IsControlDown("left")) {
             MovementX -= Speed;
         }
-        if (IsKeyDown(KEY_D)) {
+        if (game->GameControls->IsControlDown("right")) {
             MovementX += Speed;
         }
     }
@@ -172,7 +172,7 @@ void Player::Update() {
 
     if (PlayerFrozenTimer <= 0) {
         // powerup logic
-        if (IsKeyDown(KEY_F))
+        if (game->GameControls->IsControlDown("powerup"))
         {
             MainPowerupSystem.Activate();
         }
@@ -185,35 +185,35 @@ void Player::Update() {
             MainWeaponsSystem.Reload();
         }
         //Vector2 WorldMousePos = Vector2{0, 0};
-        if ((IsMouseButtonDown(0) || IsKeyDown(KEY_SPACE)) && !IsPreparingForDash)
+        if ((IsMouseButtonDown(0) || game->GameControls->IsControlDown("attack_other")) && !IsPreparingForDash)
         {
             MainWeaponsSystem.Attack(GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera));
         }
 
         // reload logic
-        if (IsKeyPressed(KEY_R) && MainWeaponsSystem.TimeStartedReloading == -1)
+        if (game->GameControls->IsControlPressed("reload") && MainWeaponsSystem.TimeStartedReloading == -1)
             MainWeaponsSystem.Reload();
 
         //dropping stuff
-        if (IsKeyPressed(KEY_Q) && MainWeaponsSystem.CurrentWeaponIndex != -1)
+        if (game->GameControls->IsControlPressed("drop") && MainWeaponsSystem.CurrentWeaponIndex != -1)
             MainWeaponsSystem.DropWeapon(MainWeaponsSystem.Weapons[MainWeaponsSystem.CurrentWeaponIndex]);
 
         // inventory input logic
-        if (IsKeyPressed(KEY_ONE)) {
+        if (game->GameControls->IsControlPressed("item1")) {
             if (MainWeaponsSystem.CurrentWeaponIndex != 0) {
                 MainWeaponsSystem.Equip(0);
             } else if (MainWeaponsSystem.CurrentWeaponIndex == 0) {
                 MainWeaponsSystem.Unequip();
             }
         }
-        if (IsKeyPressed(KEY_TWO)) {
+        if (game->GameControls->IsControlPressed("item2")) {
             if (MainWeaponsSystem.CurrentWeaponIndex != 1) {
                 MainWeaponsSystem.Equip(1);
             } else if (MainWeaponsSystem.CurrentWeaponIndex == 1) {
                 MainWeaponsSystem.Unequip();
             }
         }
-        if (IsKeyPressed(KEY_THREE)) {
+        if (game->GameControls->IsControlPressed("item3")) {
             if (MainWeaponsSystem.CurrentWeaponIndex != 2) {
                 MainWeaponsSystem.Equip(2);
             } else if (MainWeaponsSystem.CurrentWeaponIndex == 2) {

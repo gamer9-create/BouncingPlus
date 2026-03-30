@@ -46,6 +46,45 @@ void UIAssets::UnLoad()
     UnloadMusicStream(MainMenuMusic);
 }
 
+void Checkmark(Vector2 Position, Vector2 MousePos, Sound& CheckmarkClick,
+                 Texture2D& ButtonSmallImg, Texture2D& ButtonSmallImgRed, std::string Text, bool* Value)
+{
+
+    float checkmarks_size = 100;
+
+    float fnt_size = 35;
+    float tx_size = MeasureText(Text.c_str(), fnt_size);
+    float w = tx_size + checkmarks_size + 48;
+    float h = fnt_size + 16;
+    Position.x -= w/2;
+    Rectangle rec = {Position.x, Position.y,w, h};
+
+    DrawRectangleRec({rec.x,rec.y,rec.width,rec.height}, ColorAlpha(BLACK, 0.5f));
+    DrawText(Text.c_str(), Position.x + 16, Position.y + (rec.height / 2.0f) - (fnt_size / 2.0f), fnt_size, WHITE);
+
+    DrawTexturePro(ButtonSmallImg, {0,0,56,56}, {Position.x + tx_size + 32, rec.y + rec.height/2 - 20, 40,40}, {0, 0}, 0, WHITE);
+    DrawTexturePro(ButtonSmallImgRed, {0,0,56,56}, {rec.x + rec.width - 56, rec.y + rec.height/2 - 20, 40,40}, {0, 0}, 0, WHITE);
+
+    Vector2 HighlightPos = {Position.x + tx_size + 32, rec.y + rec.height/2 - 20};
+    Vector2 OtherHighlightPos = {rec.x + rec.width - 56, rec.y + rec.height/2 - 20};
+    if (!*Value)
+    {
+        HighlightPos = {rec.x + rec.width - 56, rec.y + rec.height/2 - 20};
+        OtherHighlightPos = {Position.x + tx_size + 32, rec.y + rec.height/2 - 20};
+    }
+
+    Rectangle CheckmarkRect = {HighlightPos.x, HighlightPos.y, 40, 40};
+    Rectangle OtherCheckmarkRect = {OtherHighlightPos.x, OtherHighlightPos.y, 40, 40};
+    DrawRectangleLinesEx(CheckmarkRect, 5, WHITE);
+
+    if (CheckCollisionPointRec(MousePos, OtherCheckmarkRect) && IsMouseButtonPressed(0))
+    {
+        *Value = !*Value;
+        if (!IsSoundPlaying(CheckmarkClick))
+            PlaySound(CheckmarkClick);
+    }
+}
+
 Rectangle Slider(Vector2 Position, Vector2 MousePos, Sound& SliderDrag,
                  Texture2D& ButtonSmallImg, std::string Text, float* Value,
                  float* LastPlayedProgress, bool* PrevState, float Min, float Max)
@@ -96,7 +135,7 @@ Rectangle Slider(Vector2 Position, Vector2 MousePos, Sound& SliderDrag,
     DrawRectangleRec({rec.x,rec.y,rec.width,rec.height}, ColorAlpha(BLACK, 0.5f));
     DrawRectangleRec({green_slider_rec.x,green_slider_rec.y,green_slider_rec.width,green_slider_rec.height}, GREEN);
     DrawRectangleRec({red_slider_rec.x,red_slider_rec.y,red_slider_rec.width,red_slider_rec.height}, RED);
-    DrawTextPro(GetFontDefault(), Text.c_str(), {Position.x + 16, Position.y + (rec.height / 2.0f) - (fnt_size / 2.0f)}, {0, 0}, 0, fnt_size, 1, WHITE);
+    DrawText(Text.c_str(), Position.x + 16, Position.y + (rec.height / 2.0f) - (fnt_size / 2.0f),fnt_size, WHITE);
 
     float siz = fnt_size + 5;
     if (colliding)
@@ -137,4 +176,19 @@ bool Button(Rectangle ButtonRectangle, Vector2 MousePos, Texture2D& ButtonImg, S
         return IsMouseButtonPressed(0);
     }
     return false;
+}
+
+Rectangle Panel(Rectangle rectangle, std::string text, float Offset1)
+{
+    Vector2 PanelSize = Vector2{rectangle.width, rectangle.height};
+    Rectangle PanelRectangle = {rectangle.x, rectangle.y - Offset1, PanelSize.x, PanelSize.y};
+
+    DrawRectangleRec({PanelRectangle.x, PanelRectangle.y, PanelRectangle.width, PanelRectangle.height}, ColorAlpha(BLACK, 0.5f));
+
+    float TextWidth = MeasureText(text.c_str(), 55.0f);
+    DrawText(text.c_str(), PanelRectangle.x + PanelRectangle.width/2.0f - TextWidth/2.0f, PanelRectangle.y + 25.0f, 55.0f, WHITE);
+
+    DrawLineEx(Vector2{PanelRectangle.x + 25.0f, PanelRectangle.y + 100}, Vector2{PanelRectangle.x + PanelSize.x - 25.0f, PanelRectangle.y + 100}, 4, WHITE);
+
+    return PanelRectangle;
 }

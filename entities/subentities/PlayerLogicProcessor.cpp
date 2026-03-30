@@ -170,14 +170,14 @@ void PlayerLogicProcessor::DashLogic()
     if (DashCooldown > 0)
         DashCooldown -= MyPlayer->game->GetGameDeltaTime();
 
-    if (DashCooldown <= 0 && IsKeyDown(KEY_LEFT_SHIFT)) {
+    if (DashCooldown <= 0 && MyPlayer->game->GameControls->IsControlDown("dash")) {
         if (!MyPlayer->IsPreparingForDash) {
             DashTimeStart = MyPlayer->game->GetGameTime();
             PlayerDashLineThickness = 10;
         }
         MyPlayer->IsPreparingForDash = true;
     }
-    if (MyPlayer->IsPreparingForDash && !IsKeyDown(KEY_LEFT_SHIFT)) {
+    if (MyPlayer->IsPreparingForDash && !MyPlayer->game->GameControls->IsControlDown("dash")) {
         MyPlayer->IsPreparingForDash = false;
     }
     if (MyPlayer->game->MainPlayer->IsPreparingForDash || MyPlayer->game->MainPlayer->MainWeaponsSystem.TimeStartedReloading != -1) {

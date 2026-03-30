@@ -10,16 +10,16 @@
   "ReloadTime": 0,
   "BulletLifetime": -1,
   "Speed": 0.4,
-  "WeaponWeightSpeedMultiplier": 1.0,
+  "WeaponWeightSpeedMultiplier": 0.6,
   "Size": [1, 1],
-  "Damage": 35,
-  "HealthGain": 20,
-  "Cooldown": 0.55,
-  "AngleRange": 90,
+  "Damage": 10,
+  "HealthGain": 0,
+  "Cooldown": 0.65,
+  "AngleRange": 45,
   "Range": 204,
   "Bullets": -1,
   "Intensity": 0.2,
   "texture": "sword",
   "bullet_tex": "",
-  "sound": ["sword_swing_1", "sword_swing_2", "sword_swing_3"]
+  "sound": ["sword_swing_1", "sword_swing_3"]
 }

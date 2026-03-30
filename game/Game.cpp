@@ -21,10 +21,11 @@ namespace fs = std::filesystem;
 
 using namespace std;
 
-Game::Game(Settings& GameSettings)
+Game::Game(SharedManager& Shared)
 {
-    this->GameSettings = &GameSettings;
-    LevelData = this->GameSettings->LevelData;
+    this->GameShared = &Shared;
+    GameControls = &GameShared->Controls;
+    LevelData = this->GameShared->LevelData;
 
     // init game services
     MainUIManager = UIManager(*this);
@@ -244,7 +245,7 @@ void Game::ProcessFreezeZones()
 
 void Game::Update() {
 
-    if (IsKeyPressed(KEY_M))
+    if (this->GameControls->IsControlPressed("pause"))
         Paused = !Paused;
     if (!IsWindowFocused())
         Paused=true;
@@ -253,7 +254,7 @@ void Game::Update() {
         if (!IsCursorHidden())
             HideCursor();
 
-        if (IsKeyPressed(KEY_X))
+        if (this->GameControls->IsControlPressed("debug"))
             DebugDraw = !DebugDraw;
 
         GameTime += GetGameDeltaTime();
@@ -261,15 +262,14 @@ void Game::Update() {
         // shader stuff
         if (!DebugDraw)
             GameCamera.ShaderDraw = false;
-        if (IsKeyPressed(KEY_C) && DebugDraw)
+        if (this->GameControls->IsControlPressed("debug2") && DebugDraw)
             GameCamera.ShaderDraw = !GameCamera.ShaderDraw;
-        if (IsKeyDown(KEY_B) && GameCamera.ShaderDraw)
+        if (this->GameControls->IsControlDown("debug3") && GameCamera.ShaderDraw)
             GameCamera.ShaderPixelPower += 10 * GetGameDeltaTime();
-        if (IsKeyDown(KEY_N) && GameCamera.ShaderDraw)
+        if (this->GameControls->IsControlDown("debug4") && GameCamera.ShaderDraw)
             GameCamera.ShaderPixelPower -= 10 * GetGameDeltaTime();
 
-
-        if (IsKeyPressed(KEY_E))
+        if (this->GameControls->IsControlPressed("level_restart_or_finish"))
         {
             if (GameMode.WonLevel)
                 isReturning=true;
@@ -299,7 +299,7 @@ void Game::Update() {
 
         std::map<std::string, double> times = MainProfiler.Finish();
 
-        if (IsKeyDown(KEY_C))
+        if (this->GameControls->IsControlDown("debug2"))
         {
             int i = 0;
             for (auto [name,val] : times)

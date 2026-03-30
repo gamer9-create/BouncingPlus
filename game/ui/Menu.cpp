@@ -24,7 +24,7 @@ void Menu::AudioCallback(void* buffer, unsigned int frames)
     MusicLevel = sqrtf(sum / (frames * 2));
 }
 
-Menu::Menu(Settings& GameSettings)
+Menu::Menu(SharedManager& GameSettings)
 {
     MusicLevel = 0.0f;
     this->GameSettings = &GameSettings;
@@ -125,44 +125,42 @@ void Menu::LevelSelect()
 
 void Menu::Credits()
 {
-    Vector2 CreditsPanelSize = Vector2{(float)GetScreenWidth() - 200.0f, (float)GetScreenHeight() - 180.0f};
-    Rectangle CreditsPanelRectangle = {(float)GetScreenWidth() * 2.0f + (float)GetScreenWidth()/2.0f - CreditsPanelSize.x / 2.0f, 25 - Offset1, CreditsPanelSize.x, CreditsPanelSize.y};
+    Rectangle CreditsPanelRectangle = Panel({GetScreenWidth()*2 + GetScreenWidth()/2.0f - ((float)GetScreenWidth() - 200.0f)/2 - CameraX, 25, (float)GetScreenWidth() - 200.0f, (float)GetScreenHeight() - 180.0f}, "CREDITS", Offset1);
+    
+    Vector2 CreditsPanelSize = {CreditsPanelRectangle.width, CreditsPanelRectangle.height};
 
-    DrawRectangleRec({CreditsPanelRectangle.x - CameraX, CreditsPanelRectangle.y, CreditsPanelRectangle.width, CreditsPanelRectangle.height}, ColorAlpha(BLACK, 0.5f));
+    DrawTexture(GameSettings->UIAssets.RolponPFPImg, CreditsPanelRectangle.x + 25 , CreditsPanelRectangle.y + 125.0f, WHITE);
+    DrawTexture(GameSettings->UIAssets.CozPFPImg, CreditsPanelRectangle.x + 25 , CreditsPanelRectangle.y + 406.0f, WHITE);
 
-    float CreditsTextWidth = MeasureText("CREDITS", 55.0f);
-    DrawText("CREDITS", CreditsPanelRectangle.x + CreditsPanelRectangle.width/2.0f - CreditsTextWidth/2.0f - CameraX, CreditsPanelRectangle.y + 25.0f, 55.0f, WHITE);
-
-    DrawLineEx(Vector2{CreditsPanelRectangle.x + 25.0f - CameraX, CreditsPanelRectangle.y + 100}, Vector2{CreditsPanelRectangle.x + CreditsPanelSize.x - 25.0f - CameraX, CreditsPanelRectangle.y + 100}, 4, WHITE);
-
-    DrawTexture(GameSettings->UIAssets.RolponPFPImg, CreditsPanelRectangle.x + 25 - CameraX, CreditsPanelRectangle.y + 125.0f, WHITE);
-    DrawTexture(GameSettings->UIAssets.CozPFPImg, CreditsPanelRectangle.x + 25 - CameraX, CreditsPanelRectangle.y + 406.0f, WHITE);
-
-    DrawTexture(GameSettings->UIAssets.InkyPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 125.0f, WHITE);
-    DrawTexture(GameSettings->UIAssets.JayPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 406.0f, WHITE);
+    DrawTexture(GameSettings->UIAssets.InkyPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 125.0f, WHITE);
+    DrawTexture(GameSettings->UIAssets.JayPFPImg, CreditsPanelRectangle.x + 25 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 406.0f, WHITE);
 
     float R = 127.0f + 127.0f * sin(GetTime());
     float G = 127.0f + 127.0f * cos(GetTime());
     float B = 127.0f + 127.0f * sin(GetTime() + 10);
 
-    DrawText("Rolpon", CreditsPanelRectangle.x + 291 - CameraX, CreditsPanelRectangle.y + 125.0f, 45.0f, Color{(unsigned char) R, (unsigned char) G, (unsigned char) B, 255});
+    DrawText("Rolpon", CreditsPanelRectangle.x + 291 , CreditsPanelRectangle.y + 125.0f, 45.0f, Color{(unsigned char) R, (unsigned char) G, (unsigned char) B, 255});
 
-    DrawText("Coz", CreditsPanelRectangle.x + 291 - CameraX, CreditsPanelRectangle.y + 406.0f, 45.0f, PURPLE);
+    DrawText("Coz", CreditsPanelRectangle.x + 291 , CreditsPanelRectangle.y + 406.0f, 45.0f, PURPLE);
 
-    DrawText("inkyrblx", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 125.0f, 45.0f, BROWN);
+    DrawText("inkyrblx", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 125.0f, 45.0f, BROWN);
 
-    DrawText("jaymbermations", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 406.0f, 45.0f, ORANGE);
+    DrawText("jaymbermations", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 406.0f, 45.0f, ORANGE);
 
-    DrawText("Programmer & Game Director", CreditsPanelRectangle.x + 291 - CameraX, CreditsPanelRectangle.y + 170.0f, 20, WHITE);
+    // rolpon
+    DrawText("Owner & Programmer", CreditsPanelRectangle.x + 291 , CreditsPanelRectangle.y + 170.0f, 20, WHITE);
 
-    DrawText("Playtester & Game Director", CreditsPanelRectangle.x + 291 - CameraX, CreditsPanelRectangle.y + 451.0f, 20, WHITE);
+    // coz
+    DrawText("Game Director", CreditsPanelRectangle.x + 291 , CreditsPanelRectangle.y + 451.0f, 20, WHITE);
 
-    DrawText("Playtester & SFX/Music", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 170.0f, 20, WHITE);
+    // inky
+    DrawText("Music & SFX Composer", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 170.0f, 20, WHITE);
 
-    DrawText("Playtester & Linux Port", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 - CameraX, CreditsPanelRectangle.y + 406.0f + 45, 20, WHITE);
+    // jay
+    DrawText("Linux Port", CreditsPanelRectangle.x + 291 + (CreditsPanelSize.x-50)/2 , CreditsPanelRectangle.y + 406.0f + 45, 20, WHITE);
 
     float ThankYouTextWidth = MeasureText("Finally, thank YOU, for playing!", 40);
-    DrawText("Finally, thank YOU, for playing!", CreditsPanelRectangle.x + CreditsPanelSize.x/2 - ThankYouTextWidth/2 - CameraX, CreditsPanelRectangle.y + CreditsPanelSize.y - 50, 40, WHITE);
+    DrawText("Finally, thank YOU, for playing!", CreditsPanelRectangle.x + CreditsPanelSize.x/2 - ThankYouTextWidth/2 , CreditsPanelRectangle.y + CreditsPanelSize.y - 50, 40, WHITE);
 
     float FntSize = 24;
     float TxSize = MeasureText("Support me on YouTube!", FntSize);
@@ -228,7 +226,7 @@ void Menu::Update() {
 
     DrawTexture(GameSettings->UIAssets.TitleImg, (int)(GetScreenWidth()/2.0f) - (int)(GameSettings->UIAssets.TitleImg.width/2.0f)-CameraX, (int)TitleImgY - (int)TitleImgOffsetY, WHITE);
 
-    GameSettings->DisplaySettings(Vector2{-CameraX, 0}, Offset1, Offset2);
+    GameSettings->DisplaySettings(Vector2{-CameraX + GetScreenWidth(), 0}, Offset1, Offset2);
 
     Rectangle play_bbox = {(GetScreenWidth()/2.0f) - (int)(GameSettings->UIAssets.ButtonImg.width/2.0f), (float)PlayButtonOffsetY +Offset3,150,56};
     if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(), GameSettings->UIAssets.ButtonImg, GameSettings->UIAssets.ButtonClick, "PLAY")) {

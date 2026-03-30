@@ -60,7 +60,9 @@ void Entity::OnWallVelocityBump(float Power)
 
 void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shared_ptr<Entity> owner, float HealthGain)
 {
-    if (HealthGain <= 0)
+    if (entity->Health <= 0)
+        return;
+    if (HealthGain < 0)
         HealthGain = Damage;
     if (entity->Type == PlayerType && game->MainPlayer->isInvincible)
         return;

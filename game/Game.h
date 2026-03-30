@@ -8,7 +8,7 @@
 #include <raylib.h>
 #include <nlohmann/json_fwd.hpp>
 
-#include "Profiler.h"
+#include "core/Profiler.h"
 #include "managers/GameModeManager.h"
 #include "managers/CameraManager.h"
 #include "../entities/Entity.h"
@@ -20,7 +20,7 @@
 #include "ui/UIManager.h"
 #include "../entities/Weapons.h"
 #include "managers/ResourceManager.h"
-#include "saves/Settings.h"
+#include "core/SharedManager.h"
 
 using namespace std;
 
@@ -43,7 +43,8 @@ class Game {
     int uThreshold;
 
     public:
-        Settings* GameSettings;
+        SharedManager* GameShared;
+        Controls* GameControls;
 
         // Timing, Speed, and Menu Management
         double GameTime;
@@ -75,7 +76,7 @@ class Game {
         unordered_map<std::string, std::string> EnemyRoleWeapons;
         std::vector<std::string> BannedWeaponDrops;
 
-        Game(Settings& GameSettings);
+        Game(SharedManager& Shared);
         std::pair<bool, Vector2> RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug = false);
         bool RayCast(Vector2 Origin, Vector2 Target, bool Debug = false);
         void PlaceWeaponPickup(WeaponPickup Pickup);

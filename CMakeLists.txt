@@ -44,10 +44,10 @@ add_executable(BouncingPlus main.cpp
         entities/Powerups.h
         game/managers/GameModeManager.cpp
         game/managers/GameModeManager.h
-        game/saves/Achievements.cpp
-        game/saves/Achievements.h
-        game/saves/Saves.cpp
-        game/saves/Saves.h
+        game/core/Achievements.cpp
+        game/core/Achievements.h
+        game/core/Saves.cpp
+        game/core/Saves.h
         entities/subentities/behaviors/EnemyBehavior.cpp
         entities/subentities/behaviors/EnemyBehavior.h
         entities/subentities/behaviors/WeaponBehavior.cpp
@@ -56,18 +56,20 @@ add_executable(BouncingPlus main.cpp
         entities/subentities/behaviors/CatchBehavior.h
         game/ui/Tutorial.cpp
         game/ui/Tutorial.h
-        game/Profiler.cpp
-        game/Profiler.h
+        game/core/Profiler.cpp
+        game/core/Profiler.h
         game/managers/ResourceManager.cpp
         game/managers/ResourceManager.h
-        game/saves/Settings.h
-        game/saves/Settings.cpp
+        game/core/SharedManager.h
+        game/core/SharedManager.cpp
         game/ui/UIUtils.cpp
         game/ui/UIUtils.h
         entities/subentities/PlayerLogicProcessor.cpp
         entities/subentities/PlayerLogicProcessor.h
         entities/subentities/Turret.cpp
         entities/subentities/Turret.h
+        game/core/Controls.cpp
+        game/core/Controls.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)

@@ -302,8 +302,11 @@ void UIManager::DisplayHealthMeter()
     float PlrHealth = game->MainPlayer->Health;
     if (LastHealth != PlrHealth)
     {
-        HealthBarAnimRot = limit * ((PlrHealth-LastHealth) / abs(PlrHealth-LastHealth));
-        game->GameCamera.QuickZoom(PlrHealth - LastHealth > 0 ? 0.9f : 1.1f, 0.1f);
+
+        float mov = 0.1f * (abs(PlrHealth-LastHealth)/10.0f);
+
+        HealthBarAnimRot = max(min(limit * ((PlrHealth-LastHealth) / abs(PlrHealth-LastHealth)) * (mov / 0.1f), 35.0f), -35.0f);
+        game->GameCamera.QuickZoom(PlrHealth - LastHealth > 0 ? 1.0f - min(0.15f, mov) : 1.0f + min(0.15f, mov), 0.1f);
     }
     if (LastHealth != PlrHealth && PlrHealth > LastHealth) {
         FntSize = 135;
@@ -327,7 +330,7 @@ void UIManager::DisplayCursor()
 {
     if (!game->MainPlayer->IsPreparingForDash)
         {
-            DrawTexturePro(game->GameSettings->UIAssets.CursorImg, {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 36, 36}, {18, 18}, CursorRotation, YELLOW);
+            DrawTexturePro(game->GameShared->UIAssets.CursorImg, {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 36, 36}, {18, 18}, CursorRotation, YELLOW);
             if (game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex != -1)
             {
                 if (game->MainPlayer->MainWeaponsSystem.AttackCooldowns[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex] >= game->MainPlayer->MainWeaponsSystem.CurrentWeapon->Cooldown)
@@ -436,19 +439,19 @@ void UIManager::DeathMenu()
 
 void UIManager::PauseMenu() {
     BeginTextureMode(PauseScreen);
-    ClearBackground(IsKeyDown(KEY_C) ? BLANK : ColorAlpha(BLACK, 0.35f));
+    ClearBackground(game->GameControls->IsControlDown("debug2") ? BLANK : ColorAlpha(BLACK, 0.35f));
     EndTextureMode();
     DrawTextureRec(PauseScreen.texture, Rectangle(0, 0, PauseScreen.texture.width, -PauseScreen.texture.height), Vector2(0, GetScreenHeight() - PauseScreen.texture.height), WHITE);
     DrawRectangle(PauseScreen.texture.width/2 - 225, PauseScreen.texture.height/2-175,450, 350,ColorAlpha(BLACK,0.5f));
-    game->Paused = !Button({(float)PauseScreen.texture.width/2 - (float)game->GameSettings->UIAssets.ButtonImg.width/2,
-        (float)PauseScreen.texture.height/2-100 - (float)game->GameSettings->UIAssets.ButtonImg.height/2,
-        (float)game->GameSettings->UIAssets.ButtonImg.width, (float)game->GameSettings->UIAssets.ButtonImg.height},
-        GetMousePosition(), game->GameSettings->UIAssets.ButtonImg, game->GameSettings->UIAssets.ButtonClick, "RESUME");
+    game->Paused = !Button({(float)PauseScreen.texture.width/2 - (float)game->GameShared->UIAssets.ButtonImg.width/2,
+        (float)PauseScreen.texture.height/2-100 - (float)game->GameShared->UIAssets.ButtonImg.height/2,
+        (float)game->GameShared->UIAssets.ButtonImg.width, (float)game->GameShared->UIAssets.ButtonImg.height},
+        GetMousePosition(), game->GameShared->UIAssets.ButtonImg, game->GameShared->UIAssets.ButtonClick, "RESUME");
 
-    if (Button({(float)PauseScreen.texture.width/2 - (float)game->GameSettings->UIAssets.ButtonImg.width/2,
-        (float)PauseScreen.texture.height/2+100 - (float)game->GameSettings->UIAssets.ButtonImg.height/2,
-        (float)game->GameSettings->UIAssets.ButtonImg.width, (float)game->GameSettings->UIAssets.ButtonImg.height
-    }, GetMousePosition(), game->GameSettings->UIAssets.ButtonImg, game->GameSettings->UIAssets.ButtonClick, "QUIT"))
+    if (Button({(float)PauseScreen.texture.width/2 - (float)game->GameShared->UIAssets.ButtonImg.width/2,
+        (float)PauseScreen.texture.height/2+100 - (float)game->GameShared->UIAssets.ButtonImg.height/2,
+        (float)game->GameShared->UIAssets.ButtonImg.width, (float)game->GameShared->UIAssets.ButtonImg.height
+    }, GetMousePosition(), game->GameShared->UIAssets.ButtonImg, game->GameShared->UIAssets.ButtonClick, "QUIT"))
         game->isReturning = true;
 }
 

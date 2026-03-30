@@ -130,13 +130,16 @@ void Bullet::PhysicsUpdate(float dt, double time) {
                             }
 
                             auto Owner = OwnerPtr.lock();
-                            if (Owner != nullptr)
+                            if (Owner != nullptr && Owner->Type == PlayerType)
                             {
-                                float Bonus = Owner->Health / 6.0f;
-                                HealthGain += Bonus;
+                                float Bonus = Owner->Health / 5.0f;
+                                HealthGain += Bonus / 100.0f;
                                 Damage += Bonus;
-                                if (Owner->Type == PlayerType)
-                                    game->GameScore += Bonus;
+                                if (!RewardedScore)
+                                {
+                                    game->GameScore += Bonus / 1000.0f;
+                                    RewardedScore = true;
+                                }
                             }
 
                             if (IsVisible())

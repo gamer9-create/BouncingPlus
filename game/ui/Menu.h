@@ -8,7 +8,7 @@
 #include <string>
 
 #include "../../level/LevelLoader.h"
-#include "../saves/Settings.h"
+#include "../core/SharedManager.h"
 
 class Menu {
 
@@ -31,7 +31,7 @@ class Menu {
     float BlackTransparency;
     bool MovingToGame;
     bool isStarting;
-    Settings* GameSettings;
+    SharedManager* GameSettings;
 
     float MenuMusicLevel = 0.0f;
 
@@ -39,7 +39,7 @@ class Menu {
     void Credits();
 
     public:
-        Menu(Settings& GameSettings);
+        Menu(SharedManager& GameSettings);
         void Update();
         void Reset();
         std::string LeaveMenu();
