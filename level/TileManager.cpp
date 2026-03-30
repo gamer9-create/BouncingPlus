@@ -167,9 +167,9 @@ void TileManager::DrawTileMap()
 
 void TileManager::Update() {
 
-    if (TileMapTex.texture.width != GetScreenWidth() || TileMapTex.texture.height != GetScreenHeight()) {
+    if (TileMapTex.texture.width != game->GameCamera.IntendedScreenWidth || TileMapTex.texture.height != game->GameCamera.IntendedScreenHeight) {
         UnloadRenderTexture(TileMapTex);
-        TileMapTex = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+        TileMapTex = LoadRenderTexture(game->GameCamera.IntendedScreenWidth, game->GameCamera.IntendedScreenHeight);
     }
 
     ProcessDistortions();

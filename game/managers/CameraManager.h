@@ -41,10 +41,13 @@ class CameraManager {
 
     double ZoomResetTimer;
     public:
-    int uWidth2;
-    int uHeight2;
+        int IntendedScreenWidth;
+        int IntendedScreenHeight;
 
-    RenderTexture CameraRenderTexture;
+        int uWidth2;
+        int uHeight2;
+
+        RenderTexture CameraRenderTexture;
         Game* game;
         Vector2 CameraPosition;
         Vector2 CameraPositionUnaffected;

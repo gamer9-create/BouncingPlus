@@ -302,7 +302,6 @@ void UIManager::DisplayHealthMeter()
     float PlrHealth = game->MainPlayer->Health;
     if (LastHealth != PlrHealth)
     {
-
         float mov = 0.1f * (abs(PlrHealth-LastHealth)/10.0f);
 
         HealthBarAnimRot = max(min(limit * ((PlrHealth-LastHealth) / abs(PlrHealth-LastHealth)) * (mov / 0.1f), 35.0f), -35.0f);

@@ -36,12 +36,15 @@ void CameraManager::Clear() {
     uWidth2 = -1;
     uHeight2 = -1;
     uPixelSize = -1;
+
     RaylibCamera = {{0,0}, {0, 0}, 0, 1.0f};
 }
 
 CameraManager::CameraManager(Game &game) {
     this->game = &game;
     CamTextureInitialized = false;
+    IntendedScreenWidth = 1480;
+    IntendedScreenHeight = 920;
     Clear();
 }
 
@@ -164,7 +167,7 @@ void CameraManager::ShakeCamera(float Intensity) {
 
 float CameraManager::GetNaturalZoom()
 {
-    return GetScreenWidth() / 1480.0f;
+    return GetScreenWidth() / IntendedScreenWidth;
 }
 
 void CameraManager::UpdateCamera()
