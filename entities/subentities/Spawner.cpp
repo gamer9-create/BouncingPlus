@@ -10,6 +10,8 @@
 #include "behaviors/CatchBehavior.h"
 #include "behaviors/WeaponBehavior.h"
 #include <raymath.h>
+#include <nlohmann/json.hpp>
+
 Spawner::Spawner() {
 }
 
@@ -168,7 +170,37 @@ void Spawner::Update() {
                 times++;
             }
 
-            std::string wep = game->GameResources.EnemyWeaponNamesList[GetRandomValue(0, game->GameResources.EnemyWeaponNamesList.size() - 1)];
+            std::string wep = "";
+            if (game->GameResources.EnemyWeaponNamesList.size() > 0)
+            {
+                int times = 0;
+                bool found = false;
+                std::vector<std::string> f = game->GameResources.EnemyWeaponNamesList;
+                std::vector<std::string> g = game->LevelData[game->CurrentLevelName]["game"]["banned_spawn_weapons"].get<vector<string>>();
+                while (times < 10 && !found && f.size() > 0)
+                {
+                    int i = GetRandomValue(0, f.size() - 1);
+                    wep = f[i];
+                    bool search=false;
+                    for (std::string h : g)
+                    {
+                        if (h == wep)
+                        {
+                            search = true;
+                            break;
+                        }
+                    }
+
+                    if (search)
+                    {
+                        f.erase(f.begin() + i);
+                    }else
+                        found = true;
+                    times++;
+                }
+                if (!found)
+                    wep = "";
+            }
             std::unique_ptr<EnemyBehavior> behavior = make_unique<WeaponBehavior>();
             if (GetRandomValue(1, 3) == 2)
             {

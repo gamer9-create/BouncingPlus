@@ -79,8 +79,8 @@ void TileManager::SetTileAt(Vector2 coord, int id)
 void TileManager::DrawTileMap()
 {
     Vector2 *CameraPosition = &this->game->GameCamera.CameraPosition;
-    int tile_x = static_cast<int> ((CameraPosition->x + (GetScreenWidth()/2)) / TileSize);
-    int tile_y = static_cast<int> ((CameraPosition->y + (GetScreenHeight()/2)) / TileSize);
+    int tile_x = static_cast<int> ((CameraPosition->x + (game->GameCamera.IntendedScreenWidth/2)) / TileSize);
+    int tile_y = static_cast<int> ((CameraPosition->y + (game->GameCamera.IntendedScreenHeight/2)) / TileSize);
     for (int y = 0; y < UpdateDistance.y; y++) {
         for (int x = 0; x < UpdateDistance.x; x++) {
             int curr_tile_x = tile_x + x - static_cast<int> (UpdateDistance.x / 2);
@@ -167,9 +167,9 @@ void TileManager::DrawTileMap()
 
 void TileManager::Update() {
 
-    if (TileMapTex.texture.width != game->GameCamera.IntendedScreenWidth || TileMapTex.texture.height != game->GameCamera.IntendedScreenHeight) {
+    if (TileMapTex.texture.width != GetScreenWidth() || TileMapTex.texture.height != GetScreenHeight()) {
         UnloadRenderTexture(TileMapTex);
-        TileMapTex = LoadRenderTexture(game->GameCamera.IntendedScreenWidth, game->GameCamera.IntendedScreenHeight);
+        TileMapTex = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     }
 
     ProcessDistortions();

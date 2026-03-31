@@ -5,6 +5,7 @@
 #include "ResourceManager.h"
 
 #include <fstream>
+#include <iostream>
 
 #include "../Game.h"
 #include "../../entities/Weapons.h"
@@ -111,7 +112,7 @@ void ResourceManager::Load()
             g.close();
         } catch (...)
         {
-
+            cout << "WARNING: WEAPON: Failed to read " << entry << "\n";
         }
     }
 

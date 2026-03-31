@@ -60,16 +60,20 @@ void Entity::OnWallVelocityBump(float Power)
 
 void Entity::DamageOther(std::shared_ptr<Entity> entity, float Damage, std::shared_ptr<Entity> owner, float HealthGain)
 {
+    if (owner == nullptr)
+        owner = shared_from_this();
+    if (entity->ShouldDelete)
+        return;
     if (entity->Health <= 0)
+        return;
+    if (entity->Type == PlayerType && game->MainPlayer->isInvincible)
+        return;
+    if (owner->ShouldDelete)
+        return;
+    if (owner->Health <= 0)
         return;
     if (HealthGain < 0)
         HealthGain = Damage;
-    if (entity->Type == PlayerType && game->MainPlayer->isInvincible)
-        return;
-    if (owner == nullptr)
-    {
-        owner = shared_from_this();
-    }
     if (entity->Type == EnemyType) { // if victim is enemy, check for armor damage
         shared_ptr<Enemy> enemy = dynamic_pointer_cast<Enemy>(entity);
         if (owner->Type == PlayerType)

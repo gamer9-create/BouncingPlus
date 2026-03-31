@@ -154,8 +154,11 @@ void Enemy::Update() {
 
     if (!this->weaponsSystemInit) {
         this->weaponsSystem = WeaponsSystem(shared_from_this(), *game);
-        this->weaponsSystem.Weapons[0] = MyWeapon;
-        this->weaponsSystem.Equip(0);
+        if (!MyWeapon.empty())
+        {
+            this->weaponsSystem.GiveWeapon(MyWeapon);
+            this->weaponsSystem.Equip(0);
+        }
         this->weaponsSystemInit = true;
     }
 

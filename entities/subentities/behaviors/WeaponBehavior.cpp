@@ -98,14 +98,14 @@ void WeaponBehavior::Update()
     if ((distance <= 800 && (distance <= 36 || game->RayCast({center_x, center_y}, {plr_center_x, plr_center_y}))) || Owner->AngeredRangeBypassTimer > 0.0f) {
         if (distance >= 100 && !CoverSearching) {
             Vector2 othermov = {0,0};
-            othermov.x += -(plr_center_x - center_x) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
-            othermov.y += -(plr_center_y - center_y) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1 : 1);
+            othermov.x += -(plr_center_x - center_x) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon != nullptr ? (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1.0f : 1.0f) : 1.0f);
+            othermov.y += -(plr_center_y - center_y) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon != nullptr ? (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1.0f : 1.0f) : 1.0f);
             Owner->MoveAwayFromWalls();
             Owner->Movement=Vector2Lerp(othermov, Owner->Movement,0.5f);
         }
 
         Vector2 attackPos = Vector2(plr_center_x, plr_center_y);
-        if (game->MainPlayer->Speed >= 200 && !Owner->weaponsSystem.CurrentWeapon->isMelee)
+        if (game->MainPlayer->Speed >= 200 && (Owner->weaponsSystem.CurrentWeapon != nullptr ? !Owner->weaponsSystem.CurrentWeapon->isMelee : true))
         {
             attackPos = Vector2Add(attackPos, Vector2Multiply(Vector2Normalize(game->MainPlayer->Movement), {game->MainPlayer->Speed * 0.2f,game->MainPlayer->Speed * 0.2f}));
         }

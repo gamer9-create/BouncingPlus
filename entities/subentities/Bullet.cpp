@@ -44,6 +44,47 @@ Bullet::~Bullet() {
 
 }
 
+std::pair<bool,vector<Vector2>> Bullet::BulletCollision()
+{
+
+    std::vector<Vector2> BouncedTiles;
+    bool can_move = true;
+
+    int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles.TileSize);
+    int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles.TileSize);
+
+    for (int y = 0; y < 3; y++) {
+        for (int x = 0; x < 3; x++) {
+            int curr_tile_x = tile_x + x - 1;
+            int curr_tile_y = tile_y + y - 1;
+            int tile_id = game->GameTiles.GetTileAt(curr_tile_x, curr_tile_y);
+            if (game->GameTiles.TileTypes[tile_id] == WallTileType) {
+                float bbox_x = curr_tile_x * game->GameTiles.TileSize;
+                float bbox_y = curr_tile_y * game->GameTiles.TileSize;
+                Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
+                if (CheckCollisionCircleRec(GetCenter(), BoundingBox.height, bbox)) {
+                    can_move = false;
+                    if (tile_id == 2)
+                        ShouldDelete = true;
+                    if (tile_id == 1)
+                    {
+                        bool found_tile = false;
+
+                        for (Vector2 d : LastBouncedCoordinates)
+                            if (d == Vector2{(float)curr_tile_x,(float)curr_tile_y})
+                                found_tile = true;
+
+                        if (!found_tile)
+                            BouncedTiles.push_back(Vector2{(float)curr_tile_x,(float)curr_tile_y});
+                    }
+                }
+            }
+        }
+    }
+
+    return make_pair(can_move,BouncedTiles);
+}
+
 void Bullet::PhysicsUpdate(float dt, double time) {
 
     if (SlowdownOverTime)
@@ -51,121 +92,131 @@ void Bullet::PhysicsUpdate(float dt, double time) {
 
     double dist = std::sqrt((Movement.x * Movement.x) + (Movement.y * Movement.y));
     if (dist != 0) {
-        Vector2 FinalMovement = Vector2((Movement.x / dist) * Speed, (Movement.y / dist) * Speed);
+        Vector2 FinalMovement = Vector2Normalize(Movement) * Speed;
 
-        bool can_move = true;
         BoundingBox.x += FinalMovement.x * dt;
         BoundingBox.y += FinalMovement.y * dt;
-        int tile_x = static_cast<int> (BoundingBox.x / game->GameTiles.TileSize);
-        int tile_y = static_cast<int> (BoundingBox.y / game->GameTiles.TileSize);
-        for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 3; x++) {
-                int curr_tile_x = tile_x + x - 1;
-                int curr_tile_y = tile_y + y - 1;
-                Vector2 coord = {(float)curr_tile_x, (float)curr_tile_y};
-                int tile_id = game->GameTiles.GetTileAt(coord);
-                if (game->GameTiles.TileTypes[tile_id] == WallTileType) {
-                    float bbox_x = curr_tile_x * game->GameTiles.TileSize;
-                    float bbox_y = curr_tile_y * game->GameTiles.TileSize;
-                    Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
-                    if (CheckCollisionCircleRec({BoundingBox.x,BoundingBox.y}, BoundingBox.height, bbox)) {
-                        if (tile_id == 1 && coord != LastBouncedCoordinate) {
-                            int dir_hit = -1; // -1 = none, 0 = left, 1 = up, 2 = right, 3 = down
-                            int i= 0;
-                            int dirs[4] = {0, 0, 0, 0};
 
-                            Rectangle left_rect = bbox;
-                            left_rect.x -= bbox.width;
+        auto p = BulletCollision();
+        vector<Vector2> BouncedTiles=p.second;
 
-                            Rectangle right_rect = bbox;
-                            right_rect.x += bbox.width;
+        if (BouncedTiles.size() > 0)
+        {
+            Vector2 Normal = {0, 0};
+            
+            Rectangle bbox = {0};
+            
+            float LowestX = -1;
+            bool LowestXFound = false;
+            float LowestY = -1;
+            bool LowestYFound = false;
+            float HigherX = -1;
+            bool HigherXFound = false;
+            float HigherY = -1;
+            bool HigherYFound = false;
+            
+            for (Vector2 p : BouncedTiles)
+            {
+                Rectangle b = {p.x * game->GameTiles.TileSize, p.y * game->GameTiles.TileSize, game->GameTiles.TileSize, game->GameTiles.TileSize};
+                if (LowestXFound)
+                {
+                    if (b.x < LowestX)
+                        LowestX = b.x;
+                } else
+                    LowestX = b.x;
+                
+                if (LowestYFound)
+                {
+                    if (b.y < LowestY)
+                        LowestY = b.y;
+                } else
+                    LowestY = b.y;
+                
+                if (HigherXFound)
+                {
+                    if (b.x + b.width > HigherX)
+                        HigherX = b.x + b.width;
+                } else
+                    HigherX = b.x + b.width;
+                
+                if (HigherYFound)
+                {
+                    if (b.y + b.height > HigherY)
+                        HigherY = b.y + b.height;
+                } else
+                    HigherY = b.y + b.height;
+                
+                LowestXFound = true;
+                LowestYFound = true;
+                HigherXFound = true;
+                HigherYFound = true;
+            }
+            bbox = {LowestX,LowestY,HigherX - LowestX,HigherY - LowestY};
 
-                            Rectangle up_rect = bbox;
-                            up_rect.y -= bbox.height;
+            if (!(bbox.width == game->GameTiles.TileSize*2 && bbox.height == game->GameTiles.TileSize*2))
+            {
 
-                            Rectangle down_rect = bbox;
-                            down_rect.y += bbox.height;
+                float DeltaX = GetCenter().x - (bbox.x + bbox.width / 2);
+                float DeltaY = GetCenter().y - (bbox.y + bbox.width / 2);
 
-                            if (CheckCollisionRecs(BoundingBox, left_rect)) {
-                                dir_hit = 0;
-                                dirs[i] = dir_hit;
-                                i += 1;
-                            }
+                float OverlapX = ((bbox.width / 2) + (BoundingBox.width / 2)) - abs(DeltaX);
+                float OverlapY = ((bbox.height / 2) + (BoundingBox.height / 2)) - abs(DeltaY);
 
-                            if (CheckCollisionRecs(BoundingBox, right_rect)) {
-                                dir_hit = 2;
-                                dirs[i] = dir_hit;
-                                i += 1;
-                            }
-                            if (CheckCollisionRecs(BoundingBox, up_rect)) {
-                                dir_hit = 1;
-                                dirs[i] = dir_hit;
-                                i += 1;
-                            }
-                            if (CheckCollisionRecs(BoundingBox, down_rect)) {
-                                dir_hit = 3;
-                                dirs[i] = dir_hit;
-                                i += 1;
-                            }
+                if (OverlapX < OverlapY)
+                    Normal += {DeltaX > 0.0f ? 1.0f : -1.0f, 0};
+                else if (OverlapY < OverlapX)
+                    Normal += {0, DeltaY > 0.0f ? 1.0f : -1.0f};
+                else if (OverlapY == OverlapX)
+                    Normal = Vector2Negate(Vector2Normalize(Movement));
+            } else
+            {
+                Normal = Vector2Negate(Vector2Normalize(Movement));
+            }
 
-                            bool negate = true;
+            Normal = Vector2Normalize(Normal);
 
-                            if (i < 2 || dirs[0] == dirs[1]) {
-                                if (dir_hit == 1 || dir_hit == 3) {
-                                    Rotation = -Rotation;
-                                } else {
-                                    Rotation = 180 - Rotation;
-                                }
-                            } else {
-                                negate = false;
-                            }
-
-                            float X = cos(Rotation * (2 * PI / 360))*100;
-                            float Y = sin(Rotation * (2 * PI / 360))*100;
-
-                            if (negate) {
-                                Movement = Vector2(-X, -Y);
-                            } else {
-                                Movement = Vector2(X, Y);
-                            }
-
-                            auto Owner = OwnerPtr.lock();
-                            if (Owner != nullptr && Owner->Type == PlayerType)
-                            {
-                                float Bonus = Owner->Health / 5.0f;
-                                HealthGain += min(Bonus / 100.0f, 8.0f);
-                                Damage += Bonus;
-                                if (!RewardedScore)
-                                {
-                                    game->GameScore += Bonus / 1000.0f;
-                                    RewardedScore = true;
-                                }
-                            }
-
-                            if (IsVisible())
-                            {
-                                game->GameTiles.DistortArea(Distortion{
-                                    game->RayCastPoint(GetCenter(), {bbox_x + game->GameTiles.TileSize/2, bbox_y + game->GameTiles.TileSize/2}).second,
-                                    1.0f,
-                                    BoundingBox.width * 10.5f
-                                });
-                            }
-
-                            LastBouncedCoordinate = coord;
-
-                            can_move = false;
-                        } else if (tile_id == 2)
-                            ShouldDelete = true;
-                    }
+            auto Owner = OwnerPtr.lock();
+            if (Owner != nullptr && Owner->Type == PlayerType)
+            {
+                float Bonus = Owner->Health / 5.0f;
+                HealthGain += min(Bonus / 20.0f, 8.0f);
+                Damage += Bonus;
+                if (!RewardedScore)
+                {
+                    game->GameScore += Bonus / 3000.0f;
+                    RewardedScore = true;
                 }
             }
+
+            if (IsVisible())
+            {
+                Vector2 Pos = game->RayCastPoint(GetCenter(), Vector2Add(GetCenter(), Vector2Multiply(Vector2Normalize(Movement), {100, 100}))).second;
+                game->GameTiles.DistortArea(Distortion{
+                Pos,
+                1.0f,
+                BoundingBox.width * 10.5f
+                });
+            }
+
+            Bounce(Normal);
+            LastBouncedCoordinates = BouncedTiles;
         }
 
-        if (!can_move) {
+        if (!p.first)
+        {
             BoundingBox.x -= FinalMovement.x * dt;
             BoundingBox.y -= FinalMovement.y * dt;
         }
     }
+}
+
+void Bullet::Bounce(Vector2 Normal)
+{
+    Movement = Vector2Normalize(Movement);
+    float Dot = Vector2DotProduct(Movement, Normal);
+    Movement -= Vector2Multiply(Normal, {2 * Dot, 2 * Dot});
+    Movement = Vector2Normalize(Movement);
+    Rotation = std::atan2(Movement.y, Movement.x) * (180.0f / PI);
 }
 
 void Bullet::Attack(shared_ptr<Entity> entity) {

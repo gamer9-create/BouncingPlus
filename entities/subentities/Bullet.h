@@ -5,6 +5,7 @@
 #ifndef BOUNCINGPLUS_BULLET_H
 #define BOUNCINGPLUS_BULLET_H
 #include <string>
+#include <vector>
 
 #include "../Entity.h"
 
@@ -15,14 +16,15 @@ class Bullet : public Entity {
     float Damage;
     bool DD=false;
     bool RewardedScore=false;
-
+    std::pair<bool,vector<Vector2>> BulletCollision();
 public:
+    void Bounce(Vector2 Normal);
     std::weak_ptr<Entity> OwnerPtr;
     float Lifetime;
     bool SlowdownOverTime;
     float HealthGain;
     Vector2 FirePoint;
-    Vector2 LastBouncedCoordinate = {-1, -1};
+    vector<Vector2> LastBouncedCoordinates;
     Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float Damage, float Lifetime, Texture2D& BulletTexture, std::shared_ptr<Entity> Owner, Game &game);
     Bullet();
     void Attack(std::shared_ptr<Entity> entity);

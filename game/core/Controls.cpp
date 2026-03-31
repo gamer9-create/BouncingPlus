@@ -20,6 +20,7 @@ void Controls::SetDefaultBindings()
     Bindings["level_restart_or_finish"] = KEY_E;
     Bindings["attack_other"] = KEY_SPACE;
     Bindings["reload"] = KEY_R;
+    Bindings["powerup"] = KEY_F;
     Bindings["drop"] = KEY_Q;
     Bindings["item1"] = KEY_ONE;
     Bindings["item2"] = KEY_TWO;

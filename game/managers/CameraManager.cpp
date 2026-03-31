@@ -167,7 +167,7 @@ void CameraManager::ShakeCamera(float Intensity) {
 
 float CameraManager::GetNaturalZoom()
 {
-    return GetScreenWidth() / IntendedScreenWidth;
+    return game->GameControls->IsControlDown("debug2") ? 1.0f : ((float)GetScreenWidth() / (float)IntendedScreenWidth);
 }
 
 void CameraManager::UpdateCamera()

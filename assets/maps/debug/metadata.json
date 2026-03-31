@@ -1,0 +1,43 @@
+{
+  "description": "Evil machines inside!",
+  "difficulty": 1,
+  "player": {
+    "starting_health": 1000,
+    "starting_speed": 500,
+    "inventory": [
+      "Sword",
+      "Shotgun",
+      "Player Gun"
+    ],
+    "powerup": "shield",
+    "dash_base_power": 2500,
+    "dash_power_multiplier": 1,
+    "dash_base_cooldown": 1.1,
+    "dash_concentration_boost": 1.6,
+    "dodge_cooldown": 2.65,
+    "dodge_iframe_time": 1.0,
+    "dash_iframe_time": 0.1,
+    "dash_frozen_multiplier": 0.5
+  },
+  "game": {
+    "timer": -1,
+    "win": "kill_all_enemies",
+    "boss": "",
+    "mode": "default",
+    "banned_spawn_weapons": [
+      "Default Gun",
+      "Player Gun",
+      "Enemy Shotgun",
+      "Enemy Sword",
+      "Sword",
+      "Virtue Sword",
+      "Shotgun",
+      "Charger",
+      "Sniper"
+    ]
+  },
+  "enemy_weapons": {
+    "shotgun": "",
+    "sword": ""
+  }
+}
