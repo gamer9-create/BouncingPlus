@@ -6,12 +6,13 @@
 #include "level/LevelLoader.h"
 
 int main(int argc, char *argv[]) {
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT);
+
     InitWindow(1480, 920, "BouncingPlus");
+    InitAudioDevice();
 
     Image t =LoadImage("assets/img/player.png");
     SetWindowIcon(t);
-    InitAudioDevice();
-
     UnloadImage(t);
 
     LevelLoader level_loader = LevelLoader();
@@ -29,34 +30,27 @@ int main(int argc, char *argv[]) {
 
     bool InGame = false;
 
-    // tip of advice: dont look into any other code file that isnt a manager... youre gonna find some... uhhh... extremely readable code!
-
     SetWindowSize(GetMonitorWidth(GetCurrentMonitor()) / 1.4f, GetMonitorHeight(GetCurrentMonitor()) / 1.4f);
     SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetScreenWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetScreenHeight()/2);
+    SetExitKey(KEY_NULL);
+
+    // tip of advice: dont look into any other code file that isnt a manager... youre gonna find some... uhhh... extremely readable code!
 
     while (!WindowShouldClose()) {
         BeginDrawing();
 
         SharedManager.Update();
 
-        if (IsKeyPressed(KEY_F11))
-            ToggleFullscreen();
-
         ClearBackground(BLANK);
         if (InGame) {
-
-            if (MainGame.ShouldReturn)
-            {
+            if (MainGame.ShouldReturn) {
                 InGame = false;
                 MainMenu.Reset();
                 MainGame.ShouldReturn = false;
                 MainGame.Clear();
                 ShowCursor();
             } else
-            {
                 MainGame.Update();
-            }
-
             // i am scared!!! i scare you!!!
         } else {
             MainMenu.Update();
@@ -75,7 +69,7 @@ int main(int argc, char *argv[]) {
 
     MainMenu.Quit();
     MainGame.Quit();
-    SharedManager.UIAssets.UnLoad();
+    SharedManager.Quit();
     CloseAudioDevice();
     CloseWindow();
 

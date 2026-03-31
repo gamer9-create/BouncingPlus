@@ -12,11 +12,12 @@ void Controls::SetDefaultBindings()
     Bindings["down"] = KEY_S;
     Bindings["left"] = KEY_A;
     Bindings["right"] = KEY_D;
-    Bindings["pause"] = KEY_M;
+    Bindings["pause"] = KEY_ESCAPE;
     Bindings["debug"] = KEY_X;
     Bindings["debug2"] = KEY_C;
     Bindings["debug3"] = KEY_B;
     Bindings["debug4"] = KEY_N;
+    Bindings["fullscreen"] = KEY_F11;
     Bindings["level_restart_or_finish"] = KEY_E;
     Bindings["attack_other"] = KEY_SPACE;
     Bindings["reload"] = KEY_R;
@@ -60,4 +61,9 @@ bool Controls::IsControlReleased(std::string ControlName)
 
 void Controls::Update()
 {
+}
+
+void Controls::Quit()
+{
+    Bindings.clear();
 }

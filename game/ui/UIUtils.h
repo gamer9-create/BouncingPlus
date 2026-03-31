@@ -31,7 +31,7 @@ class UIAssets
     Music MainMenuMusic;
 
     void Load();
-    void UnLoad();
+    void Quit();
 };
 
 Rectangle Slider(Vector2 Position, Vector2 MousePos, Sound& SliderDrag,

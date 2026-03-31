@@ -16,20 +16,30 @@ using namespace nlohmann;
 
 struct SharedManager
 {
+    // Separate Objects
     map<string, json> LevelData;
     UIAssets UIAssets;
     Controls Controls;
+
+    // Settings
     float FrameRate = -1;
-    float LastFrameRate = -1;
     float Volume = 100;
+    bool Fullscreen = false;
     bool CursorWindowLock = false;
     bool ShakeCamera = true;
+
+    // UI / Function Variables
+    bool ControlBindingsMenu = false;
     bool VolumeBarInteraction = false;
     bool FrameRateBarInteraction = false;
     float LastVolumeBar = 100.0f;
     float LastFrameRateBar = 60.0f;
+    float LastFrameRate = -1;
+
+    void ControlBindings(Vector2 Position, float Offset1, float Offset2);
     void DisplaySettings(Vector2 Position, float Offset1, float Offset2);
     void Update();
+    void Quit();
 };
 
 #endif //BOUNCINGPLUS_SETTINGS_H

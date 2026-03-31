@@ -20,6 +20,7 @@ class Controls
     bool IsControlPressed(std::string ControlName);
     bool IsControlReleased(std::string ControlName);
     void Update();
+    void Quit();
 };
 
 

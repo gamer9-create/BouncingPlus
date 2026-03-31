@@ -26,7 +26,7 @@ void UIAssets::Load()
     MainMenuMusic = LoadMusicStream("assets/ui/main_menu.mp3");
 }
 
-void UIAssets::UnLoad()
+void UIAssets::Quit()
 {
     UnloadTexture(TitleImg);
     UnloadSound(MikuMusic);

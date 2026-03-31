@@ -372,7 +372,7 @@ void UIManager::DisplayTopHUD()
     float y = 50 + font_size;
 
     Rectangle rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
-    DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, UITransparency * 0.75f+0.25f));
+    DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, UITransparency * 0.85f));
     DrawText(txt.c_str(), x, y, font_size, ColorAlpha(WHITE, UITransparency));
     DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
 
@@ -426,12 +426,16 @@ void UIManager::DeathMenu()
         txt = "YOU KILLED 1 ENEMY";
     if (game->MainPlayer->Kills == 0)
         txt = "YOU DID NOT KILL ANY ENEMIES";
+
     std::string txt_2 = "PRESS E TO RESPAWN";
     float size = MeasureText(txt.c_str(), es);
     float size2 = MeasureText(txt_2.c_str(), es);
 
-    DrawText(txt.c_str(), GetScreenWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
-    DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(RED, -0.1f));
+    std::string txt_3 = "FINAL SCORE: " + to_string(game->GameScore);
+
+    DrawText(txt.c_str(), GetScreenWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(RED, 0.4f));
+    DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es*2-DeathTextAnimRot, es, ColorBrightness(RED, 0.4f));
+    DrawText(txt_3.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(RED, 0.4f));
 
     EndTextureMode();
 }
@@ -470,12 +474,16 @@ void UIManager::GameWin()
         txt = "YOU KILLED 1 ENEMY";
     if (game->MainPlayer->Kills == 0)
         txt = "YOU DID NOT KILL ANY ENEMIES";
-    std::string txt_2 = "PRESS E TO RETURN TO TITLE SCREEN";
+
+    std::string txt_2 = "PRESS E TO RESPAWN";
     float size = MeasureText(txt.c_str(), es);
     float size2 = MeasureText(txt_2.c_str(), es);
 
+    std::string txt_3 = "FINAL SCORE: " + to_string(game->GameScore);
+
     DrawText(txt.c_str(), GetScreenWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
-    DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
+    DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es*2-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
+    DrawText(txt_3.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
 
     EndTextureMode();
     DrawTextureRec(GameWinScreen.texture, Rectangle(0, 0, GameWinScreen.texture.width, -GameWinScreen.texture.height), Vector2(0, GetScreenHeight() - GameWinScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));

@@ -185,7 +185,7 @@ void Menu::Credits()
 
 void Menu::Update() {
     if (!MovingToGame) {
-        CameraX = Lerp(CameraX, CameraTargetX, 2 * GetFrameTime());
+        CameraX = Lerp(CameraX, CameraTargetX * GetScreenWidth(), 2.0f * GetFrameTime());
         MousePos = {(float)GetMouseX() + CameraX, (float)GetMouseY()};
     }
 
@@ -230,7 +230,7 @@ void Menu::Update() {
 
     Rectangle play_bbox = {(GetScreenWidth()/2.0f) - (int)(GameSettings->UIAssets.ButtonImg.width/2.0f), (float)PlayButtonOffsetY +Offset3,150,56};
     if (Button({play_bbox.x - CameraX, play_bbox.y, play_bbox.width, play_bbox.height}, GetMousePosition(), GameSettings->UIAssets.ButtonImg, GameSettings->UIAssets.ButtonClick, "PLAY")) {
-        CameraTargetX=-GetScreenWidth();
+        CameraTargetX = -1;
     }
 
     Credits();
@@ -243,11 +243,11 @@ void Menu::Update() {
 
     if (Button({(GetScreenWidth()/2.0f) - (int)(GameSettings->UIAssets.ButtonImg.width/2.0f) - CameraX, (float)SettingsButtonOffsetY + (Offset2 + Offset3)/2,150,56}
         ,GetMousePosition(), GameSettings->UIAssets.ButtonImg, GameSettings->UIAssets.ButtonClick, "SETTINGS"))
-        CameraTargetX=GetScreenWidth();
+        CameraTargetX=1;
 
     if (Button({(GetScreenWidth()/2.0f) - (int)(GameSettings->UIAssets.ButtonImg.width/2.0f) - CameraX, (float)CreditsButtonOffsetY +Offset2,150,56},
         GetMousePosition(), GameSettings->UIAssets.ButtonImg, GameSettings->UIAssets.ButtonClick, "CREDITS"))
-        CameraTargetX=GetScreenWidth()*2;
+        CameraTargetX=2;
 
     if (isStarting && BlackTransparency > 0)
         BlackTransparency -= 0.65f * GetFrameTime();
