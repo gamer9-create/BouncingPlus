@@ -61,6 +61,8 @@ void ResourceManager::Load()
                 EnemyWeaponNamesList.push_back(p);
             if (data.contains("isMelee"))
                 wep.isMelee = data["isMelee"].get<bool>();
+            if (data.contains("Throw"))
+                wep.Throwable = data["Throw"].get<bool>();
             if (data.contains("ShakeScreen"))
                 wep.ShakeScreen = data["ShakeScreen"].get<bool>();
             if (data.contains("SlowdownOverTime"))
@@ -69,6 +71,8 @@ void ResourceManager::Load()
                 wep.PushbackForce = data["PushbackForce"].get<float>();
             if (data.contains("BulletLifetime"))
                 wep.BulletLifetime = data["BulletLifetime"].get<float>();
+            if (data.contains("ChargeSpeed"))
+                wep.ChargeSpeed = data["ChargeSpeed"].get<float>();
             if (data.contains("Spread"))
             {
                 wep.SpreadRange[0] = data["Spread"][0].get<float>();

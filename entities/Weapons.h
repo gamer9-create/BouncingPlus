@@ -16,8 +16,10 @@ using namespace std;
 
 struct Weapon {
     bool isMelee = false;
+    bool Throwable = false;
     bool ShakeScreen = false;
     bool SlowdownOverTime = false;
+    float ChargeSpeed = 0;
     float PushbackForce = 0;
     float WeaponSize = 1;
     int SpreadRange[2] = {0, 0};
@@ -72,12 +74,15 @@ class WeaponsSystem {
     Vector2 MeleeDisplayRenderTarget;
 
     public:
-    std::string Weapons[3];
-    Weapon* CurrentWeapon = nullptr;
-    double TimeStartedReloading;
-    int CurrentWeaponIndex = 0;
-    float AttackCooldowns[3];
-    int WeaponAmmo[3];
+        std::string Weapons[3];
+        Weapon* CurrentWeapon = nullptr;
+        double TimeStartedReloading;
+        int CurrentWeaponIndex = 0;
+        float AttackCooldowns[3];
+        int WeaponAmmo[3];
+        float ChargingProgress = 0.0f;
+        bool TriedChargingThisFrame = false;
+        Vector2 ChargeTarget = {0,0};
 
         WeaponsSystem(shared_ptr<Entity> Owner, Game &game);
         WeaponsSystem();
@@ -89,6 +94,8 @@ class WeaponsSystem {
         virtual void Unequip();
         virtual void Update();
         virtual void Attack(Vector2 Target);
+        virtual void Charge(Vector2 Target);
+        void ShootWeaponOut();
 };
 
 #endif //BOUNCINGPLUS_WEAPON_H

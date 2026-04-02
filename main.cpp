@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     bool InGame = false;
 
     SetWindowSize(GetMonitorWidth(GetCurrentMonitor()) / 1.4f, GetMonitorHeight(GetCurrentMonitor()) / 1.4f);
-    SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetScreenWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetScreenHeight()/2);
+    SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetRenderWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetRenderHeight()/2);
     SetExitKey(KEY_NULL);
 
     // tip of advice: dont look into any other code file that isnt a manager... youre gonna find some... uhhh... extremely readable code!

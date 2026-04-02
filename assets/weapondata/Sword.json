@@ -3,6 +3,8 @@
   "isMelee": true,
   "ShakeScreen": false,
   "SlowdownOverTime": false,
+   "Throw": false,
+   "ChargeSpeed": 0.0,
   "PushbackForce": 0,
    "Spread": [0,0],
    "WeaponSize": 1,

@@ -167,9 +167,9 @@ void TileManager::DrawTileMap()
 
 void TileManager::Update() {
 
-    if (TileMapTex.texture.width != GetScreenWidth() || TileMapTex.texture.height != GetScreenHeight()) {
+    if (TileMapTex.texture.width != GetRenderWidth() || TileMapTex.texture.height != GetRenderHeight()) {
         UnloadRenderTexture(TileMapTex);
-        TileMapTex = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+        TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
 
     ProcessDistortions();
@@ -377,10 +377,10 @@ void TileManager::Clear()
     EnemySpawnLocations = std::vector<Vector2>();
     FXLifetime = 0.75f;
     TileSize = 72;
-    UpdateDistance = Vector2((int) (GetScreenWidth() / 61.0f), (int)(GetScreenHeight() / 48.0f));;
+    UpdateDistance = Vector2((int) (GetRenderWidth() / 61.0f), (int)(GetRenderHeight() / 48.0f));;
     if (IsRenderTextureValid(TileMapTex))
         UnloadRenderTexture(TileMapTex);
-    TileMapTex = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
 }
 
 void TileManager::Quit() {

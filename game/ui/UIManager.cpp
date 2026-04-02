@@ -23,10 +23,10 @@ Color GetHealthColor(float Percent, float Armor) {
 
 UIManager::UIManager(Game &game) {
     this->game = &game;
-    this->WeaponUITexture = LoadRenderTexture(GetScreenWidth(), 250);
-    this->DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-    this->PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-    this->GameWinScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+    this->WeaponUITexture = LoadRenderTexture(GetRenderWidth(), 250);
+    this->DeathScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
+    this->PauseScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
+    this->GameWinScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     this->LastHealth = 0;
 }
 
@@ -118,9 +118,9 @@ void UIManager::GameUI() {
     if (game->GameMode.WonLevel)
         GameWin();
     else
-        DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetScreenHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, 1.0f - UITransparency));
+        DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetRenderHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, 1.0f - UITransparency));
 
-    DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetScreenHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
+    DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetRenderHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
 
     if (game->MainPlayer->Health > 0 && !game->GameMode.WonLevel && UITransparency < 1.0f) {
         UITransparency += 1.9f * GetFrameTime();
@@ -140,45 +140,45 @@ void UIManager::GameUI() {
         DisplayCursor();
     
     StartingBlackScreenTrans -= 0.65f * GetFrameTime();
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, StartingBlackScreenTrans));
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), ColorAlpha(BLACK, EndBlackScreenTrans));
+    DrawRectangle(0, 0, GetRenderWidth(), GetRenderHeight(), ColorAlpha(BLACK, StartingBlackScreenTrans));
+    DrawRectangle(0, 0, GetRenderWidth(), GetRenderHeight(), ColorAlpha(BLACK, EndBlackScreenTrans));
 }
 
 void UIManager::DisplayKillMeter()
 {
-    DrawRectangle(GetScreenWidth()-(125+Margin), WeaponUITexture.texture.height - (100+Margin), 125, 100, ColorAlpha(BLACK, Alpha));
+    DrawRectangle(GetRenderWidth()-(125+Margin), WeaponUITexture.texture.height - (100+Margin), 125, 100, ColorAlpha(BLACK, Alpha));
     float s2 = 70;
     float s = MeasureText(to_string(game->MainPlayer->Kills).c_str(), s2);
-    DrawText(to_string(game->MainPlayer->Kills).c_str(), (int)(GetScreenWidth()-(125+Margin) + 125/2 - s/2),
+    DrawText(to_string(game->MainPlayer->Kills).c_str(), (int)(GetRenderWidth()-(125+Margin) + 125/2 - s/2),
     WeaponUITexture.texture.height - (100+Margin) + 10, s2, WHITE);
 
     float s3 = 20;
     float s4 = MeasureText("Kills", s3);
-    DrawText("Kills", (int)(GetScreenWidth()-(125+Margin) + 125/2 - s4/2),
+    DrawText("Kills", (int)(GetRenderWidth()-(125+Margin) + 125/2 - s4/2),
     WeaponUITexture.texture.height - (100+Margin) + 100 - s3 - 10, s3, WHITE
         );
 }
 
 void UIManager::RefreshRenderTextures()
 {
-    if (WeaponUITexture.texture.width != GetScreenWidth()) {
+    if (WeaponUITexture.texture.width != GetRenderWidth()) {
         UnloadRenderTexture(WeaponUITexture);
-        WeaponUITexture = LoadRenderTexture(GetScreenWidth(), WeaponUITexture.texture.height);
+        WeaponUITexture = LoadRenderTexture(GetRenderWidth(), WeaponUITexture.texture.height);
     }
 
-    if (DeathScreen.texture.width != GetScreenWidth() || DeathScreen.texture.height != GetScreenHeight()) {
+    if (DeathScreen.texture.width != GetRenderWidth() || DeathScreen.texture.height != GetRenderHeight()) {
         UnloadRenderTexture(DeathScreen);
-        DeathScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+        DeathScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
 
-    if (GameWinScreen.texture.width != GetScreenWidth() || GameWinScreen.texture.height != GetScreenHeight()) {
+    if (GameWinScreen.texture.width != GetRenderWidth() || GameWinScreen.texture.height != GetRenderHeight()) {
         UnloadRenderTexture(GameWinScreen);
-        GameWinScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+        GameWinScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
 
-    if (PauseScreen.texture.width != GetScreenWidth() || PauseScreen.texture.height != GetScreenHeight()) {
+    if (PauseScreen.texture.width != GetRenderWidth() || PauseScreen.texture.height != GetRenderHeight()) {
         UnloadRenderTexture(PauseScreen);
-        PauseScreen = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+        PauseScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
 }
 
@@ -188,11 +188,11 @@ void UIManager::DisplayPowerupMeter()
     float s4 = 0;
     if (game->MainPlayer->MainPowerupSystem.CurrentPowerup != nullptr)
     {
-        DrawRectangle(GetScreenWidth()-(125+Margin)*2, WeaponUITexture.texture.height - (100+Margin), 125, 100, ColorAlpha(BLACK, Alpha));
+        DrawRectangle(GetRenderWidth()-(125+Margin)*2, WeaponUITexture.texture.height - (100+Margin), 125, 100, ColorAlpha(BLACK, Alpha));
 
         s3 = 20;
         s4 = MeasureText("Powerup", s3);
-        DrawText("Powerup", (int)(GetScreenWidth()-(125+Margin)*2 + 125/2 - s4/2),
+        DrawText("Powerup", (int)(GetRenderWidth()-(125+Margin)*2 + 125/2 - s4/2),
         WeaponUITexture.texture.height - (100+Margin) + 100 - s3 - 10, s3, WHITE
             );
         float Number = game->MainPlayer->MainPowerupSystem.CurrentLength;
@@ -209,12 +209,12 @@ void UIManager::DisplayPowerupMeter()
         }
         Number = round(Number);
         s4 = MeasureText(game->MainPlayer->MainPowerupSystem.CurrentPowerup->Name.c_str(), s3);
-        DrawText(game->MainPlayer->MainPowerupSystem.CurrentPowerup->Name.c_str(), (int)(GetScreenWidth()-(125+Margin)*2 + 125/2 - s4/2),
+        DrawText(game->MainPlayer->MainPowerupSystem.CurrentPowerup->Name.c_str(), (int)(GetRenderWidth()-(125+Margin)*2 + 125/2 - s4/2),
         WeaponUITexture.texture.height - (100+Margin) + 10, s3, WHITE
             );
         float s2 = 50;
         float s = MeasureText((to_string((int)Number) + "s").c_str(), s2);
-        DrawText((to_string((int)Number) + "s").c_str(), (int)(GetScreenWidth()-(125+Margin)*2 + 125/2 - s/2),
+        DrawText((to_string((int)Number) + "s").c_str(), (int)(GetRenderWidth()-(125+Margin)*2 + 125/2 - s/2),
         WeaponUITexture.texture.height - (100+Margin) + 50 - s2/2, s2, MainColor);
     }
 }
@@ -392,7 +392,7 @@ void UIManager::DisplayTopHUD()
         int font_size = 50;
         int width = MeasureText(txt.c_str(), font_size);
 
-        float x = GetScreenWidth() / 2 - width / 2;
+        float x = GetRenderWidth() / 2 - width / 2;
         float y = 50 + font_size;
 
         Rectangle rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
@@ -417,9 +417,9 @@ void UIManager::DeathMenu()
 {
     BeginTextureMode(DeathScreen);
 
-    DrawTextPro(GetFontDefault(), "You died!", {GetScreenWidth()/2.0f, 250.0f}, {MeasureTextEx(GetFontDefault(), "You died!", 100, 10.0f).x/2.0f, 50.0f}, DeathTextAnimRot, 100, 10, ColorBrightness(RED, -0.3f));
+    DrawTextPro(GetFontDefault(), "You died!", {GetRenderWidth()/2.0f, 250.0f}, {MeasureTextEx(GetFontDefault(), "You died!", 100, 10.0f).x/2.0f, 50.0f}, DeathTextAnimRot, 100, 10, ColorBrightness(RED, -0.3f));
 
-    int ey = GetScreenHeight()-400;
+    int ey = GetRenderHeight()-400;
     int es = 50;
     std::string txt = "YOU KILLED " + to_string(game->MainPlayer->Kills) + " ENEMIES";
     if (game->MainPlayer->Kills == 1)
@@ -433,9 +433,9 @@ void UIManager::DeathMenu()
 
     std::string txt_3 = "FINAL SCORE: " + to_string(game->GameScore);
 
-    DrawText(txt.c_str(), GetScreenWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(RED, 0.4f));
-    DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es*2-DeathTextAnimRot, es, ColorBrightness(RED, 0.4f));
-    DrawText(txt_3.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(RED, 0.4f));
+    DrawText(txt.c_str(), GetRenderWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(RED, 0.4f));
+    DrawText(txt_2.c_str(), GetRenderWidth()/2 - size2/2, ey+es*2-DeathTextAnimRot, es, ColorBrightness(RED, 0.4f));
+    DrawText(txt_3.c_str(), GetRenderWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(RED, 0.4f));
 
     EndTextureMode();
 }
@@ -444,7 +444,7 @@ void UIManager::PauseMenu() {
     BeginTextureMode(PauseScreen);
     ClearBackground(game->GameControls->IsControlDown("debug2") ? BLANK : ColorAlpha(BLACK, 0.35f));
     EndTextureMode();
-    DrawTextureRec(PauseScreen.texture, Rectangle(0, 0, PauseScreen.texture.width, -PauseScreen.texture.height), Vector2(0, GetScreenHeight() - PauseScreen.texture.height), WHITE);
+    DrawTextureRec(PauseScreen.texture, Rectangle(0, 0, PauseScreen.texture.width, -PauseScreen.texture.height), Vector2(0, GetRenderHeight() - PauseScreen.texture.height), WHITE);
     DrawRectangle(PauseScreen.texture.width/2 - 225, PauseScreen.texture.height/2-175,450, 350,ColorAlpha(BLACK,0.5f));
     game->Paused = !Button({(float)PauseScreen.texture.width/2 - (float)game->GameShared->UIAssets.ButtonImg.width/2,
         (float)PauseScreen.texture.height/2-100 - (float)game->GameShared->UIAssets.ButtonImg.height/2,
@@ -463,11 +463,11 @@ void UIManager::GameWin()
     BeginTextureMode(GameWinScreen);
     ClearBackground(ColorAlpha(GREEN, 0.2f));
 
-    DrawTextPro(GetFontDefault(), "You won!", {GetScreenWidth()/2.0f, 250.0f},
+    DrawTextPro(GetFontDefault(), "You won!", {GetRenderWidth()/2.0f, 250.0f},
         {MeasureTextEx(GetFontDefault(), "You won!", 150, 10.0f).x/2.0f, 50.0f}, DeathTextAnimRot, 150, 10,
         ColorBrightness(WHITE, -0.3f));
 
-    int ey = GetScreenHeight()-400;
+    int ey = GetRenderHeight()-400;
     int es = 50;
     std::string txt = "YOU KILLED " + to_string(game->MainPlayer->Kills) + " ENEMIES";
     if (game->MainPlayer->Kills == 1)
@@ -481,12 +481,12 @@ void UIManager::GameWin()
 
     std::string txt_3 = "FINAL SCORE: " + to_string(game->GameScore);
 
-    DrawText(txt.c_str(), GetScreenWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
-    DrawText(txt_2.c_str(), GetScreenWidth()/2 - size2/2, ey+es*2-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
-    DrawText(txt_3.c_str(), GetScreenWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
+    DrawText(txt.c_str(), GetRenderWidth()/2 - size/2, ey-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
+    DrawText(txt_2.c_str(), GetRenderWidth()/2 - size2/2, ey+es*2-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
+    DrawText(txt_3.c_str(), GetRenderWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
 
     EndTextureMode();
-    DrawTextureRec(GameWinScreen.texture, Rectangle(0, 0, GameWinScreen.texture.width, -GameWinScreen.texture.height), Vector2(0, GetScreenHeight() - GameWinScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
+    DrawTextureRec(GameWinScreen.texture, Rectangle(0, 0, GameWinScreen.texture.width, -GameWinScreen.texture.height), Vector2(0, GetRenderHeight() - GameWinScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
 }
 
 void UIManager::Quit() {

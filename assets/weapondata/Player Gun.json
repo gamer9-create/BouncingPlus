@@ -2,6 +2,8 @@
   "EnemiesCanUse": false,
   "isMelee": false,
   "ShakeScreen": false,
+  "Throw": false,
+  "ChargeSpeed": 0.0,
   "SlowdownOverTime": false,
   "PushbackForce": 0,
   "WeaponSize": 1,

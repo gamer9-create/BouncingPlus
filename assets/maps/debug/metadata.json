@@ -1,11 +1,11 @@
 {
-  "description": "Evil machines inside!",
+  "description": "Debugging level!",
   "difficulty": 1,
   "player": {
     "starting_health": 1000,
     "starting_speed": 500,
     "inventory": [
-      "Sword",
+      "Spear",
       "Shotgun",
       "Player Gun"
     ],

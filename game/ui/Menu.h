@@ -31,7 +31,7 @@ class Menu {
     float BlackTransparency;
     bool MovingToGame;
     bool isStarting;
-    SharedManager* GameSettings;
+    SharedManager* Shared;
 
     float MenuMusicLevel = 0.0f;
 

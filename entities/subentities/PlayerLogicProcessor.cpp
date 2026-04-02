@@ -177,7 +177,9 @@ void PlayerLogicProcessor::DashLogic()
         }
         MyPlayer->IsPreparingForDash = true;
     }
-    if (MyPlayer->IsPreparingForDash && !MyPlayer->game->GameControls->IsControlDown("dash")) {
+    if (
+        (MyPlayer->IsPreparingForDash && !MyPlayer->game->GameControls->IsControlDown("dash")) || MyPlayer->MainWeaponsSystem.ChargingProgress <= 0.0f
+        ) {
         MyPlayer->IsPreparingForDash = false;
     }
     if (MyPlayer->game->MainPlayer->IsPreparingForDash || MyPlayer->game->MainPlayer->MainWeaponsSystem.TimeStartedReloading != -1) {

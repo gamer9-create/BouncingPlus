@@ -288,9 +288,9 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
 bool Entity::IsVisible() {
     Vector2 *CameraPosition = &this->game->GameCamera.CameraPosition;
     return BoundingBox.x - CameraPosition->x > -BoundingBox.width &&
-        BoundingBox.x - CameraPosition->x < GetScreenWidth() &&
+        BoundingBox.x - CameraPosition->x < GetRenderWidth() &&
         BoundingBox.y - CameraPosition->y > -BoundingBox.height &&
-        BoundingBox.y - CameraPosition->y < GetScreenHeight();
+        BoundingBox.y - CameraPosition->y < GetRenderHeight();
 }
 
 void Entity::Update() {

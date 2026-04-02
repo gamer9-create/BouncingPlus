@@ -23,11 +23,14 @@ WeaponsSystem::WeaponsSystem(shared_ptr<Entity> Owner, Game& game) {
     CurrentWeapon = nullptr;
     this->game = &game;
     this->OwnerPtr = Owner;
+    TriedChargingThisFrame = false;
     CurrentWeaponIndex = -1;
     MeleeAnim = false;
+    ChargeTarget = {0,0};
     MeleeAnimTexture = nullptr;
     MeleeAnimAngle = 0;
     MeleeAnimRange = 45;
+    ChargingProgress = 0.0f;
     MeleeAnimPercent = 0;
     MeleeDisplayRenderTarget = {Owner->GetCenter().x, Owner->GetCenter().y};
     TimeStartedReloading = -1;
@@ -138,7 +141,7 @@ void WeaponsSystem::DisplayWeaponCone()
 {
     auto Owner = OwnerPtr.lock();
     // Display weapon cone if using melee weapon
-    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && (Owner->Type == PlayerType || Owner->Type == EnemyType) && Vector2Distance(Owner->GetCenter(), game->MainPlayer->GetCenter()) < CurrentWeapon->Range + GetScreenWidth()/2)
+    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee && (Owner->Type == PlayerType || Owner->Type == EnemyType) && Vector2Distance(Owner->GetCenter(), game->MainPlayer->GetCenter()) < CurrentWeapon->Range + GetRenderWidth()/2)
     {
         float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
@@ -179,6 +182,9 @@ void WeaponsSystem::Update() {
     if (Owner != nullptr && CurrentWeapon != nullptr)
         Owner->WeaponWeightSpeedMultiplier = CurrentWeapon->WeaponWeightSpeedMultiplier;
 
+    if (ChargingProgress >= 1.0f && TriedChargingThisFrame && CurrentWeapon != nullptr)
+        ShootWeaponOut();
+
     for (int i = 0; i < 3; i++) {
         if (!Weapons[i].empty()) {
             AttackCooldowns[i] += game->GetGameDeltaTime();
@@ -202,6 +208,8 @@ void WeaponsSystem::Update() {
         DisplayGunTexture();
 
     DisplayMeleeAnim();
+
+    TriedChargingThisFrame = false;
 }
 
 void WeaponsSystem::DisplayMeleeAnim()
@@ -262,6 +270,10 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
         Owner->DamageOther(entity, CurrentWeapon->Damage, nullptr, CurrentWeapon->HealthGain);
 }
 
+void WeaponsSystem::ShootWeaponOut()
+{
+}
+
 void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
 {
     auto Owner = OwnerPtr.lock();
@@ -298,7 +310,27 @@ void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
     }
 }
 
+void WeaponsSystem::Charge(Vector2 Target)
+{
+    if (CurrentWeapon == nullptr)
+        return;
+    if (!CurrentWeapon->Throwable)
+        return;
+    if (AttackCooldowns[CurrentWeaponIndex] < CurrentWeapon->Cooldown)
+        return;
+
+    TriedChargingThisFrame = true;
+
+    ChargingProgress += CurrentWeapon->ChargeSpeed * game->GetGameDeltaTime();
+    ChargeTarget = Target;
+}
+
 void WeaponsSystem::Attack(Vector2 Target) {
+    if (CurrentWeapon != nullptr && CurrentWeapon->Throwable)
+    {
+        Charge(Target);
+        return;
+    }
     auto Owner = OwnerPtr.lock();
     if (CurrentWeapon != nullptr && AttackCooldowns[CurrentWeaponIndex] >= CurrentWeapon->Cooldown &&
         ( (CurrentWeapon->Ammo > 0 && WeaponAmmo[CurrentWeaponIndex] > 0) || CurrentWeapon->Ammo <= 0 ) &&
@@ -320,7 +352,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
 
         // Play weapon sound
         if (game->GameSounds.Sounds.contains(s) && (CurrentWeapon->isMelee || Valid)) {
-            float Distance = Vector2Distance({Owner_cX, Owner_cY}, Vector2Add(game->GameCamera.CameraPosition, {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f}));
+            float Distance = Vector2Distance({Owner_cX, Owner_cY}, Vector2Add(game->GameCamera.CameraPosition, {GetRenderWidth() / 2.0f, GetRenderHeight() / 2.0f}));
 
             float DistanceMultiplier = (1000.0f - Distance) / 1000.0f;
             DistanceMultiplier += GetRandomValue(-20, 20) / 100.0f;
@@ -356,6 +388,9 @@ void WeaponsSystem::Attack(Vector2 Target) {
             }
         }
 
+        TriedChargingThisFrame = false;
+        ChargingProgress = 0.0f;
+
         // Reset cooldown
         if ((Valid && !CurrentWeapon->isMelee) || CurrentWeapon->isMelee)
             AttackCooldowns[CurrentWeaponIndex] = 0;
@@ -368,6 +403,8 @@ void WeaponsSystem::Equip(int Index) {
     // if weapon exists and we have space, equip it
     if (CurrentWeaponIndex != Index && !Weapons[Index].empty()) {
         CurrentWeaponIndex = Index;
+        ChargingProgress = 0.0f;
+        TriedChargingThisFrame = false;
         CurrentWeapon = &game->GameResources.Weapons[Weapons[CurrentWeaponIndex]];
         TimeStartedReloading = -1;
     }
@@ -376,6 +413,8 @@ void WeaponsSystem::Equip(int Index) {
 void WeaponsSystem::Unequip() {
     // simply set the current weapon to nothing
     CurrentWeaponIndex = -1;
+    ChargingProgress = 0.0f;
+    TriedChargingThisFrame = false;
     CurrentWeapon = nullptr;
     ResetMeleeAnim();
     TimeStartedReloading = -1;

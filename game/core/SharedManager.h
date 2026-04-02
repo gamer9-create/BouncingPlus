@@ -28,16 +28,22 @@ struct SharedManager
     bool CursorWindowLock = false;
     bool ShakeCamera = true;
 
-    // UI / Function Variables
+    // UI Variables
     bool ControlBindingsMenu = false;
     bool VolumeBarInteraction = false;
     bool FrameRateBarInteraction = false;
+    float ControlSettingsScroll = 0.0f;
+    RenderTexture ControlsRenderTexture = { 0 };
+
+    // Processing
     float LastVolumeBar = 100.0f;
     float LastFrameRateBar = 60.0f;
     float LastFrameRate = -1;
 
+    // Functions
     void ControlBindings(Vector2 Position, float Offset1, float Offset2);
     void DisplaySettings(Vector2 Position, float Offset1, float Offset2);
+    void ResetSettings();
     void Update();
     void Quit();
 };
