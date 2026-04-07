@@ -193,8 +193,8 @@ void Bullet::PhysicsUpdate(float dt, double time) {
                 Vector2 Pos = game->RayCastPoint(GetCenter(), Vector2Add(GetCenter(), Vector2Multiply(Vector2Normalize(Movement), {100, 100}))).second;
                 game->GameTiles.DistortArea(Distortion{
                 Pos,
-                1.0f,
-                BoundingBox.width * 10.5f
+                3.0f,
+                BoundingBox.width * 12.5f
                 });
             }
 

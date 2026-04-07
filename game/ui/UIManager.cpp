@@ -403,29 +403,32 @@ void UIManager::DisplayTopHUD()
 
     DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
 
-    x += width + 120;
-
-    txt = to_string((int)(game->MainPlayer->StressLevel * 100.0f)) + "%";
-
-    width = MeasureText(txt.c_str(), font_size);
-
-    if (game->GetGameTime() - LastChangedStressShakePos >= 0.1f - (game->MainPlayer->StressLevel * 0.09f))
+    if (game->GameShared->DevMode)
     {
-        StressShakePos = {
-            GetRandomValue(-30, 30) / 10.0f,
-            GetRandomValue(-30, 30) / 10.0f
-        };
-        LastChangedStressShakePos = game->GetGameTime();
+        x += width + 120;
+
+        txt = to_string((int)(game->MainPlayer->StressLevel * 100.0f)) + "%";
+
+        width = MeasureText(txt.c_str(), font_size);
+
+        if (game->GetGameTime() - LastChangedStressShakePos >= 0.1f - (game->MainPlayer->StressLevel * 0.09f))
+        {
+            StressShakePos = {
+                GetRandomValue(-30, 30) / 10.0f,
+                GetRandomValue(-30, 30) / 10.0f
+            };
+            LastChangedStressShakePos = game->GetGameTime();
+        }
+
+        rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
+        DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, UITransparency * 0.85f));
+        DrawText(txt.c_str(), x + StressShakePos.x, y + StressShakePos.y, font_size, ColorAlpha(GetHealthColor(1.0f - game->MainPlayer->StressLevel), UITransparency));
+        DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
+
+        o_txt = "STRESS";
+
+        DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
     }
-
-    rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
-    DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, UITransparency * 0.85f));
-    DrawText(txt.c_str(), x + StressShakePos.x, y + StressShakePos.y, font_size, ColorAlpha(GetHealthColor(1.0f - game->MainPlayer->StressLevel), UITransparency));
-    DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
-
-    o_txt = "STRESS";
-
-    DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
 
     if (game->GameMode.LevelTimer > 0)
     {

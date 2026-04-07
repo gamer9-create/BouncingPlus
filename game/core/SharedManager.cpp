@@ -14,9 +14,10 @@ void SharedManager::DisplaySettings(Vector2 Position, float Offset1, float Offse
         Slider({Position.x + (float)GetRenderWidth() /2,Position.y + 300 + (Offset1 + Offset2)/4}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, "VOLUME", &this->Volume, &LastVolumeBar, &VolumeBarInteraction, 0, 100.0f);
         Slider({Position.x + (float)GetRenderWidth() /2,Position.y + 300 + (Offset1 + Offset2)/4 + 60}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, "FRAMERATE", &this->FrameRate, &LastFrameRateBar, &FrameRateBarInteraction, 30, 240);
         Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 300 + (Offset1 + Offset2)/4 + 120}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, this->UIAssets.ButtonSmallRedImg, "CURSOR WINDOW LOCK", &CursorWindowLock);
-        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 300 + (Offset1 + Offset2)/4 + 180}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, this->UIAssets.ButtonSmallRedImg, "SHAKE CAMERA", &ShakeCamera);
-        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 300 + (Offset1 + Offset2)/4 + 240}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, this->UIAssets.ButtonSmallRedImg, "FULLSCREEN", &Fullscreen);
-        if (Button({Position.x + (float)GetRenderWidth() /2 - UIAssets.ButtonImg.width/2, Position.y + 300 + (Offset1 + Offset2)/4 + 300, (float)UIAssets.ButtonImg.width, (float)UIAssets.ButtonImg.height},
+        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 300 + (Offset1 + Offset2)/4 + 180}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, this->UIAssets.ButtonSmallRedImg, "DEVELOPER MODE", &DevMode);
+        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 300 + (Offset1 + Offset2)/4 + 240}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, this->UIAssets.ButtonSmallRedImg, "SHAKE CAMERA", &ShakeCamera);
+        Checkmark({Position.x + (float)GetRenderWidth() /2,Position.y + 300 + (Offset1 + Offset2)/4 + 300}, GetMousePosition(), this->UIAssets.SliderDrag, this->UIAssets.ButtonSmallImg, this->UIAssets.ButtonSmallRedImg, "FULLSCREEN", &Fullscreen);
+        if (Button({Position.x + (float)GetRenderWidth() /2 - UIAssets.ButtonImg.width/2, Position.y + 300 + (Offset1 + Offset2)/4 + 360, (float)UIAssets.ButtonImg.width, (float)UIAssets.ButtonImg.height},
             GetMousePosition(), UIAssets.ButtonImg, UIAssets.ButtonClick, "CONTROLS"
             ))
             ControlBindingsMenu = true;

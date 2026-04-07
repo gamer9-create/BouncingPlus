@@ -252,8 +252,10 @@ void Game::Update() {
         if (!IsCursorHidden())
             HideCursor();
 
-        if (this->GameControls->IsControlPressed("debug"))
+        if (this->GameControls->IsControlPressed("debug") && GameShared->DevMode)
             DebugDraw = !DebugDraw;
+        if (!GameShared->DevMode)
+            DebugDraw = false;
 
         GameTime += GetGameDeltaTime();
 

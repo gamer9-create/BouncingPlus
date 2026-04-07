@@ -102,21 +102,19 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
         // calculate damage & attack
         float Damage = MyPlayer->VelocityPower / 18.5f;
 
-        float EnemyConcentration = 0.8f + MyPlayer->FrameStressLevel;
+        float EnemyConcentration = 0.8f + (MyPlayer->FrameStressLevel*1.2f);
 
-        EnemyConcentration = max(min(EnemyConcentration, 1.5f), 1.0f);
+        EnemyConcentration = max(min(EnemyConcentration, 2.0f), 1.0f);
         EnemyConcentration *= MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_concentration_boost"].get<float>();
 
         Damage *= EnemyConcentration;
         Damage *= min(max((MyPlayer->Health / MyPlayer->MaxHealth) - 2.0f, 1.0f), 5.5f);
-        if (entity->Armor <= 0)
+        if (entity->Armor < 0)
             entity->Health -= Damage;
         else
-        {
             entity->Armor -= Damage;
-        }
 
-        float reward = Damage / 12.5f;
+        float reward = Damage / 14.5f;
         MyPlayer->Health += reward;
 
         float amount = 1500.0f;
@@ -124,10 +122,9 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
         // did we kill them? if so, give health & kills
         if (entity->Health <= 0) {
             MyPlayer->Health += Damage * 0.1f;
-            //game->Slowdown(0.35f, VelocityPower / 1450.0f);
             amount = 950;
             MyPlayer->Kills+=1;
-            MyPlayer->game->GameScore += 25;
+            MyPlayer->game->GameScore += 15;
         }
 
         MyPlayer->game->Particles.ParticleEffect({{
@@ -140,11 +137,10 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
                 PINK
         }, 180-Vector2LineAngle({0,0}, MyPlayer->VelocityMovement)*RAD2DEG, 30, 35);
 
-        MyPlayer->game->GameScore += 10;
+        MyPlayer->game->GameScore += 5;
         MyPlayer->game->GameCamera.CameraPosition += Vector2Normalize({(float)GetRandomValue(-25, 25), (float)GetRandomValue(-25, 25)}) * (MyPlayer->VelocityPower / 150);
         MyPlayer->game->GameCamera.ShakeCamera(MyPlayer->VelocityPower / (amount - 50) / 1.5f);
         MyPlayer->game->GameCamera.QuickZoom(0.95f, 0.05f, false);
-        //game->Slowdown(0.5f);
         MyPlayer->game->GameSounds.PlaySoundM("dash_hit",min(max(MyPlayer->VelocityPower/amount, 0.0f), 0.8f));
 
         // give them pushback force

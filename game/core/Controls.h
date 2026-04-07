@@ -15,6 +15,7 @@ class Controls
     void SetDefaultBindings();
     Controls();
     ~Controls();
+    bool ControlsPrecheck(std::string ControlName);
     bool IsControlDown(std::string ControlName);
     bool IsControlUp(std::string ControlName);
     bool IsControlPressed(std::string ControlName);

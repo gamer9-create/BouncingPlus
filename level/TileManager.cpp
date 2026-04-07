@@ -398,6 +398,7 @@ void TileManager::ReadMapDataFile(std::string FileName) {
 
     if (PrevFileName != FileName)
     {
+        Lines.clear();
         std::ifstream  data(FileName);
 
         std::string da;

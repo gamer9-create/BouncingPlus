@@ -3,7 +3,6 @@
 //
 
 #include "Controls.h"
-
 #include <raylib.h>
 
 void Controls::SetDefaultBindings()
@@ -37,25 +36,38 @@ Controls::~Controls()
 {
 }
 
-bool Controls::IsControlDown(std::string ControlName)
+bool Controls::ControlsPrecheck(std::string ControlName)
 {
     if (!Bindings.contains(ControlName))
+        return true;
+    return false;
+}
+
+bool Controls::IsControlDown(std::string ControlName)
+{
+    if (ControlsPrecheck(ControlName))
         return false;
     return IsKeyDown(Bindings[ControlName]);
 }
 
 bool Controls::IsControlUp(std::string ControlName)
 {
+    if (ControlsPrecheck(ControlName))
+        return false;
     return IsKeyUp(Bindings[ControlName]);
 }
 
 bool Controls::IsControlPressed(std::string ControlName)
 {
+    if (ControlsPrecheck(ControlName))
+        return false;
     return IsKeyPressed(Bindings[ControlName]);
 }
 
 bool Controls::IsControlReleased(std::string ControlName)
 {
+    if (ControlsPrecheck(ControlName))
+        return false;
     return IsKeyReleased(Bindings[ControlName]);
 }
 
