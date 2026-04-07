@@ -31,6 +31,9 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->LastTanked = 0;
     this->LastPos = Vector2(0, 0);
     this->InvincibilityResetTimer = 0;
+    this->StressLevel = 0;
+    this->FrameStressLevel = 0;
+    this->EnemiesDetected = 0;
     this->ShaderUniformLoc = GetShaderLocation(game.GameResources.Shaders["dash_arrow"], "time");
 }
 
@@ -226,6 +229,9 @@ void Player::Update() {
 
     game->GameScore += Health * 0.005f * game->GetGameDeltaTime();
 
+    Vector2 c = GetCenter();
+    DrawCircleGradient(c.x,c.y, BoundingBox.width / 1.25f, ColorAlpha(PURPLE, 0.5), BLANK);
+
     // update entity
     Entity::Update();
     MainWeaponsSystem.Update();
@@ -236,8 +242,10 @@ void Player::Update() {
     if (Kills != LastKills) {
         game->GameSounds.PlaySoundM("death");
         game->GameScore += 100;
+        ExtraSpeed += 14;
     }
     LastKills = Kills;
+    EnemiesDetected = 0;
 }
 
 void Player::OnDelete()

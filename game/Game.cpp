@@ -28,7 +28,7 @@ Game::Game(SharedManager& Shared)
     LevelData = this->GameShared->LevelData;
 
     // init game services
-    MainUIManager = UIManager(*this);
+    GameUI = UIManager(*this);
     GameTiles = TileManager(*this);
     Particles = ParticleManager(*this);
     GameCamera = CameraManager(*this);
@@ -38,7 +38,7 @@ Game::Game(SharedManager& Shared)
     GameResources = ResourceManager(*this);
 
     // profiler
-    MainProfiler = Profiler(*this);
+    GameProfiler = Profiler(*this);
 
     // game speed & timing
     GameSpeed = 1.0f;
@@ -141,6 +141,8 @@ void Game::DisplayPickups()
     });
     for (WeaponPickup& pickup : WeaponPickups)
     {
+        if (Vector2Distance(pickup.Position, MainPlayer->GetCenter()) >= GetRenderWidth())
+            continue;
         // get floating offset
         float AnimationOffset = sin((GetGameTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
         Weapon& PickupWeapon = GameResources.Weapons.at(pickup.Weapon);
@@ -158,9 +160,7 @@ void Game::DisplayPickups()
 
         DrawCircle(pickup.Position.x, pickup.Position.y, pickup.Radius / 1.125f, ColorAlpha(BLACK, 0.2f));
 
-        EndTextureMode();
-        EndMode2D();
-        BeginTextureMode(WeaponPickupTex);
+        GameCamera.BeginRenderTexture(WeaponPickupTex);
         ClearBackground(BLANK);
 
         BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
@@ -177,9 +177,7 @@ void Game::DisplayPickups()
 
         }, {siz.x / 2, siz.y / 2}, 0, WHITE);
         EndBlendMode();
-        EndTextureMode();
-        BeginTextureMode(GameCamera.CameraRenderTexture);
-        BeginMode2D(GameCamera.RaylibCamera);
+        GameCamera.EndRenderTexture();
 
         Vector2 texSize = {(float)WeaponPickupTex.
             texture.width,
@@ -274,7 +272,11 @@ void Game::Update() {
             if (GameMode.WonLevel)
                 isReturning=true;
             else if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && !CurrentLevelName.empty())
+            {
                 Reload(CurrentLevelName);
+                GameUI.StartingBlackScreenTrans = 0.0f;
+                GameUI.EndBlackScreenTrans = 0.0f;
+            }
         }
 
         GameCamera.Begin();
@@ -282,22 +284,22 @@ void Game::Update() {
         ProcessFreezeZones();
         DisplayPickups();
 
-        MainProfiler.ProfilerLog("tiles");
+        GameProfiler.ProfilerLog("tiles");
         GameTiles.Update();
 
-        MainProfiler.ProfilerLog("particles");
+        GameProfiler.ProfilerLog("particles");
         Particles.Update();
 
-        MainProfiler.ProfilerLog("entities");
+        GameProfiler.ProfilerLog("entities");
         GameEntities.Update();
 
-        MainProfiler.ProfilerLog("sound");
+        GameProfiler.ProfilerLog("sound");
         GameSounds.Update();
 
-        MainProfiler.ProfilerLog("gameplay");
+        GameProfiler.ProfilerLog("gameplay");
         GameMode.Update();
 
-        std::map<std::string, double> times = MainProfiler.Finish();
+        std::map<std::string, double> times = GameProfiler.Finish();
 
         if (this->GameControls->IsControlDown("debug2"))
         {
@@ -317,20 +319,21 @@ void Game::Update() {
     }
 
     GameCamera.Display();
-    MainUIManager.GameUI();
+    GameUI.GameUI();
 
     if (isReturning)
     {
-        MainUIManager.StartingBlackScreenTrans = 0;
-        MainUIManager.EndBlackScreenTrans += 0.65f * GetFrameTime();
-        if (MainUIManager.EndBlackScreenTrans >= 0.9f)
+        GameUI.StartingBlackScreenTrans = 0;
+        GameUI.EndBlackScreenTrans += 0.65f * GetFrameTime();
+        if (GameUI.EndBlackScreenTrans >= 0.9f)
             ShouldReturn = true;
     } else
-        MainUIManager.EndBlackScreenTrans = 0;
+        GameUI.EndBlackScreenTrans = 0;
     if (ShouldReturn)
     {
-        MainUIManager.StartingBlackScreenTrans = 1.0f;
-        MainUIManager.EndBlackScreenTrans = 0.0f;
+        GameUI.StartingBlackScreenTrans = 1.0f;
+        GameUI.EndBlackScreenTrans = 0.0f;
+
     }
 }
 
@@ -405,7 +408,8 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target, bool
         // Test tile at new test point
         if (vMapCheck.x >= 0 && vMapCheck.x < GameTiles.MapWidth && vMapCheck.y >= 0 && vMapCheck.y < GameTiles.MapHeight)
         {
-            if (GameTiles.TileTypes[GameTiles.GetTileAt({(float)vMapCheck.x,(float)vMapCheck.y})] == WallTileType)
+            int id = GameTiles.TileTypes[GameTiles.GetTileAt({(float)vMapCheck.x,(float)vMapCheck.y})];
+            if (id == WallTileType || id == EnemyWallTileType)
             {
                 bTileFound = true;
                 break;
@@ -448,6 +452,7 @@ void Game::Clear() {
     GameSounds.Clear();
     GameCamera.Clear();
     GameMode.Clear();
+    GameUI.Clear();
     MainPlayer.reset();
 }
 
@@ -469,6 +474,10 @@ void Game::Reload(std::string MapName) {
                                      GameResources.Textures["player"], *this);
     MainPlayer->MaxHealth = LevelData[MapName]["player"]["starting_health"];
     MainPlayer->Health = LevelData[MapName]["player"]["starting_health"];
+    GameCamera.CameraPosition = Vector2Add(MainPlayer->GetCenter(), {
+        (float)GetRandomValue(-100, 100),
+        (float)GetRandomValue(-100, 100),
+    });
     GameEntities.AddEntity(PlayerType, MainPlayer);
 }
 
@@ -484,7 +493,7 @@ void Game::Quit() {
     Clear();
     GameEntities.Quit();
     GameTiles.Quit();
-    MainUIManager.Quit();
+    GameUI.Quit();
     Particles.Quit();
     GameCamera.Quit();
     GameSounds.Quit();

@@ -110,6 +110,8 @@ void WeaponBehavior::Update()
             attackPos = Vector2Add(attackPos, Vector2Multiply(Vector2Normalize(game->MainPlayer->Movement), {game->MainPlayer->Speed * 0.2f,game->MainPlayer->Speed * 0.2f}));
         }
 
+        game->MainPlayer->EnemiesDetected += 1;
+
         Owner->weaponsSystem.Attack(attackPos);
     } else if (Owner->WanderingEnabled && !CoverSearching) {
         Owner->Wander(); // enemy wandering

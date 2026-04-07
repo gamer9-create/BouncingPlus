@@ -38,6 +38,9 @@ public:
     int Margin = 15;
     float Alpha = 0.75f;
 
+    Vector2 StressShakePos = {0,0};
+    double LastChangedStressShakePos = 0;
+
     Game *game;
     UIManager(Game &game);
     UIManager();
@@ -53,6 +56,7 @@ public:
     void DisplayPowerupMeter();
     void GameWin();
     void GameUI();
+    void Clear();
     void Quit();
 };
 

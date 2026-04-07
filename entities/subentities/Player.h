@@ -30,6 +30,11 @@ class Player : public Entity {
     double LastTanked;
 
     public:
+
+        float StressLevel = 0;
+        float FrameStressLevel = 0;
+        int EnemiesDetected = 0;
+
         bool isInvincible;
         float ExtraSpeed;
         int ShaderUniformLoc;
@@ -51,9 +56,10 @@ class Player : public Entity {
         virtual ~Player();
         void PhysicsUpdate(float DeltaTime, double Time);
         void Update();
-    void OnDelete() override;
+        void OnDelete() override;
         void OnWallVelocityBump(float Power);
         void ToggleInvincibility();
+
 };
 
 

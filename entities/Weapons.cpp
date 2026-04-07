@@ -182,7 +182,7 @@ void WeaponsSystem::Update() {
     if (Owner != nullptr && CurrentWeapon != nullptr)
         Owner->WeaponWeightSpeedMultiplier = CurrentWeapon->WeaponWeightSpeedMultiplier;
 
-    if (ChargingProgress >= 1.0f && TriedChargingThisFrame && CurrentWeapon != nullptr)
+    if (ChargingProgress >= 1.0f && TriedChargingThisFrame && CurrentWeapon != nullptr && CurrentWeapon->Throwable)
         ShootWeaponOut();
 
     for (int i = 0; i < 3; i++) {
@@ -270,10 +270,6 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
         Owner->DamageOther(entity, CurrentWeapon->Damage, nullptr, CurrentWeapon->HealthGain);
 }
 
-void WeaponsSystem::ShootWeaponOut()
-{
-}
-
 void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
 {
     auto Owner = OwnerPtr.lock();
@@ -308,6 +304,17 @@ void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
         Owner->VelocityMovement = {cos(TargetAngle * (2 * PI / 360))*100,sin(TargetAngle * (2 * PI / 360))*100};
         Owner->VelocityPower = CurrentWeapon->PushbackForce;
     }
+}
+
+void WeaponsSystem::ShootWeaponOut()
+{
+
+    // TODO: implement the code for actually shooting the weapon out
+
+    TriedChargingThisFrame = false;
+    ChargingProgress = 0.0f;
+    ChargeTarget = {0, 0};
+    AttackCooldowns[CurrentWeaponIndex] = 0;
 }
 
 void WeaponsSystem::Charge(Vector2 Target)

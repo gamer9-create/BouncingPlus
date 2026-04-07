@@ -13,7 +13,6 @@
 #include <raylib.h>
 #include <raymath.h>
 
-// TODO: add more powerups
 
 void Powerup::Complete(std::shared_ptr<Player> Owner)
 {

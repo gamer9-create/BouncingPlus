@@ -70,6 +70,8 @@ add_executable(BouncingPlus main.cpp
         entities/subentities/Turret.h
         game/core/Controls.cpp
         game/core/Controls.h
+        entities/subentities/Throwable.cpp
+        entities/subentities/Throwable.h
 )
 target_link_libraries(BouncingPlus PRIVATE raylib)
 target_link_libraries(BouncingPlus PRIVATE nlohmann_json)

@@ -158,6 +158,20 @@ void CameraManager::BackgroundLines() {
     }
 }
 
+void CameraManager::BeginRenderTexture(RenderTexture& Tex)
+{
+    EndTextureMode();
+    EndMode2D();
+    BeginTextureMode(Tex);
+}
+
+void CameraManager::EndRenderTexture()
+{
+    EndTextureMode();
+    BeginTextureMode(CameraRenderTexture);
+    BeginMode2D(RaylibCamera);
+}
+
 void CameraManager::ShakeCamera(float Intensity) {
     this->CameraShakeIntensity = Intensity;
     this->CameraShakeTimer = GetTime();
@@ -172,9 +186,7 @@ float CameraManager::GetNaturalZoom()
 
 void CameraManager::UpdateCamera()
 {
-    CameraTarget = {game->MainPlayer->BoundingBox.x +
-                game->MainPlayer->BoundingBox.width / 2, game->MainPlayer->BoundingBox.y +
-                game->MainPlayer->BoundingBox.height / 2};
+    CameraTarget = game->MainPlayer->GetCenter();
 
     Vector2 MouseOffset = Vector2Subtract(GetMousePosition(), {static_cast<float>(GetRenderWidth()) / 2.0f, static_cast<float>(GetRenderHeight()) / 2.0f});
     MouseOffset = Vector2Divide(MouseOffset, {100,100});

@@ -10,6 +10,7 @@
 #include "../../game/Game.h"
 #include "Player.h"
 #include "Bullet.h"
+#include "Turret.h"
 
 PlayerLogicProcessor::PlayerLogicProcessor(std::weak_ptr<Player> Owner)
 {
@@ -29,10 +30,44 @@ PlayerLogicProcessor::~PlayerLogicProcessor()
 {
 }
 
+void PlayerLogicProcessor::ProcessStress()
+{
+    auto MyPlayer = Owner.lock();
+    MyPlayer->FrameStressLevel = 0.0f;
+    if (MyPlayer->HealthConcern)
+        MyPlayer->FrameStressLevel += 0.25f;
+
+    std::vector<shared_ptr<Entity>> enemyArray = MyPlayer->game->GameEntities.Entities[EnemyType];
+    for (int i = 0; i < enemyArray.size(); i++)
+        if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(enemyArray.at(i)); entity != nullptr and !entity->ShouldDelete)
+            if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 550)
+                MyPlayer->FrameStressLevel += 0.045f;
+
+    std::vector<shared_ptr<Entity>> bulletArray = MyPlayer->game->GameEntities.Entities[BulletType];
+    for (int i = 0; i < bulletArray.size(); i++)
+        if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(bulletArray.at(i)); entity != nullptr and !entity->ShouldDelete)
+            if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 400)
+                MyPlayer->FrameStressLevel += 0.01f;
+
+    std::vector<shared_ptr<Entity>> turretArray = MyPlayer->game->GameEntities.Entities[TurretType];
+    for (int i = 0; i < turretArray.size(); i++)
+        if (shared_ptr<Turret> entity = dynamic_pointer_cast<Turret>(turretArray.at(i)); entity != nullptr and !entity->ShouldDelete)
+            if (entity->CurrentState == DETECTED)
+                MyPlayer->FrameStressLevel += 0.1f;
+
+    MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.045f;
+
+    if (MyPlayer->FrameStressLevel > MyPlayer->StressLevel)
+        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 2.5f * MyPlayer->game->GetGameDeltaTime());
+    else
+        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 0.32f * MyPlayer->game->GetGameDeltaTime());
+}
+
 void PlayerLogicProcessor::Update()
 {
     DashLogic();
     DisplayDamageNotifs();
+    ProcessStress();
 }
 
 void PlayerLogicProcessor::PhysicsUpdate()
@@ -67,33 +102,9 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
         // calculate damage & attack
         float Damage = MyPlayer->VelocityPower / 18.5f;
 
-        float EnemyConcentration = 1.0;
+        float EnemyConcentration = 0.8f + MyPlayer->FrameStressLevel;
 
-        std::vector<shared_ptr<Entity>> enemyArray = MyPlayer->game->GameEntities.Entities[EnemyType];
-        for (int i = 0; i < enemyArray.size(); i++) {
-            if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(enemyArray.at(i)); entity != nullptr and !entity->ShouldDelete) {
-                if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 550)
-                {
-                    EnemyConcentration += 0.06f;
-                    if (EnemyConcentration >= 1.5f)
-                        break;
-                }
-            }
-        }
-
-        std::vector<shared_ptr<Entity>> bulletArray = MyPlayer->game->GameEntities.Entities[BulletType];
-        for (int i = 0; i < bulletArray.size(); i++) {
-            if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(bulletArray.at(i)); entity != nullptr and !entity->ShouldDelete) {
-                if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 400)
-                {
-                    EnemyConcentration += 0.01f;
-                    if (EnemyConcentration >= 1.5f)
-                        break;
-                }
-            }
-        }
-
-        EnemyConcentration = min(EnemyConcentration, 1.5f);
+        EnemyConcentration = max(min(EnemyConcentration, 1.5f), 1.0f);
         EnemyConcentration *= MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_concentration_boost"].get<float>();
 
         Damage *= EnemyConcentration;
@@ -118,6 +129,16 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
             MyPlayer->Kills+=1;
             MyPlayer->game->GameScore += 25;
         }
+
+        MyPlayer->game->Particles.ParticleEffect({{
+            MyPlayer->BoundingBox.x + MyPlayer->BoundingBox.width/2, MyPlayer->BoundingBox.y + MyPlayer->BoundingBox.height/2},
+                700,
+                PURPLE,
+                600,
+                MyPlayer->VelocityPower / 500.0f,
+                1.3f,
+                PINK
+        }, 180-Vector2LineAngle({0,0}, MyPlayer->VelocityMovement)*RAD2DEG, 30, 35);
 
         MyPlayer->game->GameScore += 10;
         MyPlayer->game->GameCamera.CameraPosition += Vector2Normalize({(float)GetRandomValue(-25, 25), (float)GetRandomValue(-25, 25)}) * (MyPlayer->VelocityPower / 150);
@@ -178,7 +199,7 @@ void PlayerLogicProcessor::DashLogic()
         MyPlayer->IsPreparingForDash = true;
     }
     if (
-        (MyPlayer->IsPreparingForDash && !MyPlayer->game->GameControls->IsControlDown("dash")) || MyPlayer->MainWeaponsSystem.ChargingProgress <= 0.0f
+        (MyPlayer->IsPreparingForDash && !MyPlayer->game->GameControls->IsControlDown("dash")) || MyPlayer->MainWeaponsSystem.ChargingProgress > 0.0f
         ) {
         MyPlayer->IsPreparingForDash = false;
     }

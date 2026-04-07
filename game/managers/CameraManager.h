@@ -33,8 +33,6 @@ class CameraManager {
     int uHeight;
     int uPixelSize;
 
-
-
     bool ShowLines;
 
     int BGTexture;
@@ -59,6 +57,8 @@ class CameraManager {
         CameraManager(Game &game);
         CameraManager();
         ~CameraManager();
+        void BeginRenderTexture(RenderTexture &Tex);
+        void EndRenderTexture();
         void ShakeCamera(float Intensity);
         void QuickZoom(float Zoom, double Time, bool Instant=false);
         void Display();

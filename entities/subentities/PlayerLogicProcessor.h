@@ -29,6 +29,7 @@ public:
     void PhysicsUpdate();
     void DashAttacking();
     void DashLogic();
+    void ProcessStress();
     void DisplayDamageNotifs();
     void Destroy();
 };

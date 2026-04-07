@@ -14,6 +14,7 @@ enum EntityType {
     BulletType,
     BossType,
     TurretType,
+    ThrowableType,
     End
 };
 

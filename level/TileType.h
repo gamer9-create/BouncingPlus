@@ -15,6 +15,7 @@ enum TileType {
     EnemyTileType,
     BossTileType,
     TurretTileType,
+    EnemyWallTileType,
     TileTypeEnd
 };
 

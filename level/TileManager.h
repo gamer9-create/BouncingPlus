@@ -29,19 +29,28 @@ class TileManager {
     std::vector<std::tuple<int, int, int>> DistortionUniformLocations;
     std::vector<Distortion> Distortions;
 
+    int uWidth, uHeight, uTime, uX, uY;
+
     int DistortionCountLocation;
     float FXLifetime;
 
     void DrawTileMap();
+    void RenderForceFields(std::vector<Vector2> ForceFieldPos);
+    void ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnFound);
     void ProcessDistortions();
+    void DrawWallTile(int curr_tile_x, int curr_tile_y, Texture* tile_tex);
     void AddEnemy(float bbox_x, float bbox_y, int tile_id);
+    void ProcessUniformLocations();
+
+    std::vector<std::string> Lines;
+    std::string PrevFileName;
 
     public:
         float TileSize;
         int MapWidth, MapHeight;
         Vector2 PlayerSpawnPosition;
         Vector2 BossSpawnPosition;
-        TileType TileTypes[12];
+        TileType TileTypes[13];
         std::vector<Vector2> EnemySpawnLocations;
         std::vector<int> Map;
         RenderTexture TileMapTex;
@@ -53,8 +62,7 @@ class TileManager {
         void SetTileAt(Vector2 coord, int id);
         void Update();
         void DistortArea(Distortion DistortionForArea);
-        void ReadMapDataFile(std::string Filename);
-        void GetUniformLocations();
+        void ReadMapDataFile(std::string FileName);
         void Clear();
         void Quit();
 };

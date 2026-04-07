@@ -30,8 +30,8 @@ class Game {
     float MaxSlowdownTime;
     float SlowdownShakeIntensity;
 
-    UIManager MainUIManager;
-    Profiler MainProfiler;
+    UIManager GameUI;
+    Profiler GameProfiler;
     void SetGameData();
     void ProcessSlowdownAnimation();
     void DisplayPickups();

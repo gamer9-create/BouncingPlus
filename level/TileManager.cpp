@@ -23,6 +23,13 @@ TileManager::TileManager() {
 
 TileManager::TileManager(Game &game) {
     this->game = &game;
+    uWidth = -1;
+    uHeight = -1;
+    uTime = -1;
+    uX = -1;
+    uY = -1;
+    PrevFileName = "";
+    Lines = std::vector<std::string>();
     Distortions = std::vector<Distortion>();
     TileMapTex = LoadRenderTexture(1,1);
     TileTypes[0] = NothingTileType; // air
@@ -36,7 +43,8 @@ TileManager::TileManager(Game &game) {
     TileTypes[8] = EnemySpawnTileType; // enemy spawn tile type
     TileTypes[9] = UpgradeStationTileType; // upgrade station tile type
     TileTypes[10] = BossTileType; // boss
-    TileTypes[11] = TurretTileType; // boss
+    TileTypes[11] = TurretTileType; // turrets
+    TileTypes[12] = EnemyWallTileType; // enemy walls
     Clear();
 }
 
@@ -44,19 +52,7 @@ int TileManager::GetTileAt(int x, int y)
 {
     if (x < 0 || y < 0 || x >= MapWidth || y >= MapHeight)
         return -1;
-    if (y * MapWidth + x >= Map.size())
-    {
-        cout << "map size: " << Map.size() << endl;
-        return -1;
-    }
-    try
-    {
-        return Map[y * MapWidth + x];
-    } catch (std::exception& e)
-    {
-        cout << e.what() << ", map size: " << Map.size() << endl;
-        return -1;
-    }
+    return Map[y * MapWidth + x];
 }
 
 int TileManager::GetTileAt(Vector2 coord)
@@ -76,11 +72,93 @@ void TileManager::SetTileAt(Vector2 coord, int id)
     SetTileAt(coord.x, coord.y, id);
 }
 
+void TileManager::DrawWallTile(int curr_tile_x, int curr_tile_y, Texture* tile_tex)
+{
+    float bbox_x = curr_tile_x * TileSize;
+    float bbox_y = curr_tile_y * TileSize;
+    bbox_x -= game->GameCamera.RaylibCamera.target.x;
+    bbox_y -= game->GameCamera.RaylibCamera.target.y;
+    Rectangle rec = {0, 0, (float)tile_tex->width, (float)tile_tex->height};
+
+    bool left = TileTypes[GetTileAt(curr_tile_x - 1, curr_tile_y)] == WallTileType;
+    bool right = TileTypes[GetTileAt(curr_tile_x + 1, curr_tile_y)] == WallTileType;
+    bool up = TileTypes[GetTileAt(curr_tile_x, curr_tile_y - 1)] == WallTileType;
+    bool down = TileTypes[GetTileAt(curr_tile_x, curr_tile_y + 1)] == WallTileType;
+
+    bool diagonal_lu = TileTypes[GetTileAt(curr_tile_x - 1, curr_tile_y - 1)] == WallTileType;
+    bool diagonal_ru = TileTypes[GetTileAt(curr_tile_x + 1, curr_tile_y - 1)] == WallTileType;
+    bool diagonal_ld = TileTypes[GetTileAt(curr_tile_x - 1, curr_tile_y + 1)] == WallTileType;
+    bool diagonal_rd = TileTypes[GetTileAt(curr_tile_x + 1, curr_tile_y + 1)] == WallTileType;
+
+    if (left)
+    {
+        rec.x = 4;
+        rec.width -= 4;
+    }
+    if (right)
+    {
+        rec.width -= 4;
+    }
+    if (up)
+    {
+        rec.y = 4;
+        rec.height -= 4;
+    }
+    if (down)
+    {
+        rec.height -= 4;
+    }
+
+    if (left)
+    {
+        DrawTexturePro(*tile_tex, {10, 0, 1, 36}, Rectangle(bbox_x,
+                                                            bbox_y, 8, 72), {0, 0}, 0, WHITE);
+    }
+    if (right)
+    {
+        DrawTexturePro(*tile_tex, {10, 0, 1, 36}, Rectangle(bbox_x + TileSize - 8,
+                                                            bbox_y, 8, 72), {0, 0}, 0, WHITE);
+    }
+    if (up)
+    {
+        DrawTexturePro(*tile_tex, {0, 10, 36, 1}, Rectangle(bbox_x,
+                                                            bbox_y, 72, 8), {0, 0}, 0, WHITE);
+    }
+    if (down)
+    {
+        DrawTexturePro(*tile_tex, {0, 10, 36, 1}, Rectangle(bbox_x,
+                                                            bbox_y + TileSize - 8, 72, 8), {0, 0}, 0, WHITE);
+    }
+
+    DrawTexturePro(*tile_tex, rec, Rectangle(bbox_x + (rec.x * 2),
+                                             bbox_y + (rec.y * 2), rec.width * 2, rec.height * 2), {0, 0}, 0, WHITE);
+
+    if (left && up && diagonal_lu)
+        DrawTexturePro(*tile_tex, {10, 10, 1, 1},
+                       {bbox_x, bbox_y, 8, 8},
+                       {0, 0}, 0,WHITE);
+    if (left && down && diagonal_ld)
+        DrawTexturePro(*tile_tex, {10, 10, 1, 1},
+                       {bbox_x, bbox_y + TileSize - 8, 8, 8},
+                       {0, 0}, 0,WHITE);
+    if (right && up && diagonal_ru)
+        DrawTexturePro(*tile_tex, {10, 10, 1, 1},
+                       {bbox_x + TileSize - 8, bbox_y, 8, 8},
+                       {0, 0}, 0,WHITE);
+    if (right && down && diagonal_rd)
+        DrawTexturePro(*tile_tex, {10, 10, 1, 1},
+                       {bbox_x + TileSize - 8, bbox_y + TileSize - 8, 8, 8},
+                       {0, 0}, 0,WHITE);
+}
+
 void TileManager::DrawTileMap()
 {
+
+    vector<Vector2> ForceFieldPos;
+
     Vector2 *CameraPosition = &this->game->GameCamera.CameraPosition;
-    int tile_x = static_cast<int> ((CameraPosition->x + (game->GameCamera.IntendedScreenWidth/2)) / TileSize);
-    int tile_y = static_cast<int> ((CameraPosition->y + (game->GameCamera.IntendedScreenHeight/2)) / TileSize);
+    int tile_x = static_cast<int> ((CameraPosition->x + GetRenderWidth()/2) / TileSize);
+    int tile_y = static_cast<int> ((CameraPosition->y + GetRenderHeight()/2) / TileSize);
     for (int y = 0; y < UpdateDistance.y; y++) {
         for (int x = 0; x < UpdateDistance.x; x++) {
             int curr_tile_x = tile_x + x - static_cast<int> (UpdateDistance.x / 2);
@@ -91,78 +169,73 @@ void TileManager::DrawTileMap()
                 tile_tex = &game->GameResources.Textures["bouncy_wall"];
             if (tile_id == 2)
                 tile_tex = &game->GameResources.Textures["delete_wall"];
+            if (tile_id == 12)
+                ForceFieldPos.push_back(Vector2(curr_tile_x, curr_tile_y));
 
-            if (tile_tex != nullptr) {
-                float bbox_x = curr_tile_x * TileSize;
-                float bbox_y = curr_tile_y * TileSize;
-                bbox_x -= game->GameCamera.RaylibCamera.target.x;
-                bbox_y -= game->GameCamera.RaylibCamera.target.y;
-                Rectangle rec = {0,0, (float) tile_tex->width, (float) tile_tex->height};
+            if (tile_tex == nullptr)
+                continue;
 
-                bool left = TileTypes[GetTileAt(curr_tile_x - 1, curr_tile_y)] == WallTileType;
-                bool right = TileTypes[GetTileAt(curr_tile_x + 1, curr_tile_y)] == WallTileType;
-                bool up = TileTypes[GetTileAt(curr_tile_x, curr_tile_y - 1)] == WallTileType;
-                bool down = TileTypes[GetTileAt(curr_tile_x, curr_tile_y + 1)] == WallTileType;
-
-                bool diagonal_lu = TileTypes[GetTileAt(curr_tile_x - 1, curr_tile_y - 1)] == WallTileType;
-                bool diagonal_ru = TileTypes[GetTileAt(curr_tile_x + 1, curr_tile_y - 1)] == WallTileType;
-                bool diagonal_ld = TileTypes[GetTileAt(curr_tile_x - 1, curr_tile_y + 1)] == WallTileType;
-                bool diagonal_rd = TileTypes[GetTileAt(curr_tile_x + 1, curr_tile_y + 1)] == WallTileType;
-
-                if (left) {
-                    rec.x = 4;
-                    rec.width -= 4;
-                }
-                if (right) {
-                    rec.width -= 4;
-                }
-                if (up) {
-                    rec.y = 4;
-                    rec.height -= 4;
-                }
-                if (down) {
-                    rec.height -= 4;
-                }
-
-                if (left) {
-                    DrawTexturePro(*tile_tex, {10,0,1,36}, Rectangle(bbox_x,
-                bbox_y, 8, 72), {0, 0}, 0, WHITE);
-                }
-                if (right) {
-                    DrawTexturePro(*tile_tex, {10,0,1,36}, Rectangle(bbox_x+TileSize-8,
-                bbox_y, 8, 72), {0, 0}, 0, WHITE);
-                }
-                if (up) {
-                    DrawTexturePro(*tile_tex, {0,10,36,1}, Rectangle(bbox_x,
-                bbox_y, 72, 8), {0, 0}, 0, WHITE);
-                }
-                if (down) {
-                    DrawTexturePro(*tile_tex, {0,10,36,1}, Rectangle(bbox_x,
-                bbox_y+TileSize-8, 72, 8), {0, 0}, 0, WHITE);
-                }
-
-                DrawTexturePro(*tile_tex, rec, Rectangle(bbox_x + (rec.x*2),
-                    bbox_y +(rec.y*2), rec.width*2, rec.height*2), {0, 0}, 0, WHITE);
-
-                if (left && up && diagonal_lu)
-                    DrawTexturePro(*tile_tex,{10,10,1,1},
-                        {bbox_x, bbox_y,8,8},
-                        {0, 0},0,WHITE);
-                if (left && down && diagonal_ld)
-                    DrawTexturePro(*tile_tex,{10,10,1,1},
-                        {bbox_x, bbox_y + TileSize-8,8,8},
-                        {0, 0},0,WHITE);
-                if (right && up && diagonal_ru)
-                    DrawTexturePro(*tile_tex,{10,10,1,1},
-                        {bbox_x+TileSize-8, bbox_y,8,8},
-                        {0, 0},0,WHITE);
-                if (right && down && diagonal_rd)
-                    DrawTexturePro(*tile_tex,{10,10,1,1},
-                        {bbox_x+TileSize-8, bbox_y + TileSize-8,8,8},
-                        {0, 0},0,WHITE);
-            }
+            if (tile_id < 3)
+                DrawWallTile(curr_tile_x,curr_tile_y,tile_tex);
         }
     }
+
+    RenderForceFields(ForceFieldPos);
+}
+
+void TileManager::RenderForceFields(std::vector<Vector2> ForceFieldPos)
+{
+    BeginShaderMode(game->GameResources.Shaders["forcefield"]);
+
+    int Width = GetRenderWidth();
+    int Height = GetRenderHeight();
+    float Time = game->GetGameTime();
+
+    SetShaderValue(game->GameResources.Shaders["forcefield"], uWidth, &Width, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources.Shaders["forcefield"], uHeight, &Height, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources.Shaders["forcefield"], uTime, &Time, SHADER_UNIFORM_FLOAT);
+
+    for (Vector2 p : ForceFieldPos)
+    {
+        SetShaderValue(game->GameResources.Shaders["forcefield"], uX, &p.x, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(game->GameResources.Shaders["forcefield"], uY, &p.y, SHADER_UNIFORM_FLOAT);
+        DrawRectangle(p.x*TileSize - game->GameCamera.RaylibCamera.target.x, p.y*TileSize - game->GameCamera.RaylibCamera.target.y, TileSize, TileSize, WHITE);
+    }
+
+    EndShaderMode();
+}
+
+void TileManager::ProcessUniformLocations()
+{
+    if (DistortionUniformLocations.size() <= 0)
+    {
+        BeginShaderMode(game->GameResources.Shaders["distortion"]);
+
+        for (int i = 0; i < 100; i++)
+        {
+
+            int loc1 = GetShaderLocation(game->GameResources.Shaders["distortion"], ("distortions[" + to_string(i) + "].position").c_str());
+            int loc2 = GetShaderLocation(game->GameResources.Shaders["distortion"], ("distortions[" + to_string(i) + "].strength").c_str());
+            int loc3 = GetShaderLocation(game->GameResources.Shaders["distortion"], ("distortions[" + to_string(i) + "].radius").c_str());
+            std::tuple locs(loc1, loc2, loc3);
+
+            DistortionUniformLocations.push_back(locs);
+        }
+
+        DistortionCountLocation = GetShaderLocation(game->GameResources.Shaders["distortion"], "distortionCount");
+
+        EndShaderMode();
+    }
+    if (uWidth == -1)
+        uWidth = GetShaderLocation(game->GameResources.Shaders["forcefield"], "renderWidth");
+    if (uHeight == -1)
+        uHeight = GetShaderLocation(game->GameResources.Shaders["forcefield"], "renderHeight");
+    if (uTime == -1)
+        uTime = GetShaderLocation(game->GameResources.Shaders["forcefield"], "time");
+    if (uX == -1)
+        uX = GetShaderLocation(game->GameResources.Shaders["forcefield"], "tileX");
+    if (uY == -1)
+        uY = GetShaderLocation(game->GameResources.Shaders["forcefield"], "tileY");
 }
 
 void TileManager::Update() {
@@ -172,20 +245,17 @@ void TileManager::Update() {
         TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
 
+    ProcessUniformLocations();
     ProcessDistortions();
 
-    EndTextureMode();
-    EndMode2D();
-    BeginTextureMode(TileMapTex);
+    game->GameCamera.BeginRenderTexture(TileMapTex);
     BeginBlendMode(BLEND_ALPHA);
     ClearBackground(BLANK);
 
     DrawTileMap();
 
-    EndTextureMode();
     EndBlendMode();
-    BeginTextureMode(game->GameCamera.CameraRenderTexture);
-    BeginMode2D(game->GameCamera.RaylibCamera);
+    game->GameCamera.EndRenderTexture();
 
     BeginShaderMode(game->GameResources.Shaders["distortion"]);
 
@@ -220,26 +290,6 @@ void TileManager::ProcessDistortions()
     {
         return game->GetGameTime() - d.SpawnTime >= FXLifetime;
     });
-
-    if (DistortionUniformLocations.size() <= 0)
-    {
-        BeginShaderMode(game->GameResources.Shaders["distortion"]);
-
-        for (int i = 0; i < 100; i++)
-        {
-
-            int loc1 = GetShaderLocation(game->GameResources.Shaders["distortion"], ("distortions[" + to_string(i) + "].position").c_str());
-            int loc2 = GetShaderLocation(game->GameResources.Shaders["distortion"], ("distortions[" + to_string(i) + "].strength").c_str());
-            int loc3 = GetShaderLocation(game->GameResources.Shaders["distortion"], ("distortions[" + to_string(i) + "].radius").c_str());
-            std::tuple locs(loc1, loc2, loc3);
-
-            DistortionUniformLocations.push_back(locs);
-        }
-
-        DistortionCountLocation = GetShaderLocation(game->GameResources.Shaders["distortion"], "distortionCount");
-
-        EndShaderMode();
-    }
 
     for (Distortion &d : Distortions)
     {
@@ -295,7 +345,50 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
     game->GameEntities.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->GameResources.Textures["enemy"], *game));
 }
 
-void TileManager::ReadMapDataFile(std::string Filename) {
+void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnFound)
+{
+    int tile_id = std::stoi(cell) + 1;
+
+    Map.push_back(tile_id < 3 || tile_id == 12 ? tile_id : -1);
+
+    float bbox_x = (static_cast<float>(x) * TileSize) + TileSize / 2.0f;
+    float bbox_y = (static_cast<float>(y) * TileSize) + TileSize / 2.0f;
+
+    switch (TileTypes[tile_id]) {
+    case EnemyTileType:
+        AddEnemy(bbox_x, bbox_y, tile_id);
+        break;
+    case EnemySpawnTileType:
+        EnemySpawnLocations.push_back({bbox_x,bbox_y});
+        break;
+    case PlayerSpawnTileType:
+        *PlayerSpawnFound = true;
+        PlayerSpawnPosition = Vector2(bbox_x, bbox_y);
+        break;
+    case SpawnerTileType: {
+            std::shared_ptr<Spawner> spawner = std::make_shared<Spawner>(*game, bbox_x, bbox_y);
+            game->GameEntities.AddEntity(SpawnerType, spawner);
+            break;
+    }
+    case BossTileType: {
+            BossSpawnPosition = Vector2(bbox_x, bbox_y);
+            break;
+    };
+    case UpgradeStationTileType: {
+            std::shared_ptr<UpgradeStation> station = std::make_shared<UpgradeStation>(*game, bbox_x, bbox_y);
+            game->GameEntities.AddEntity(UpgradeStationType, station);
+            break;
+    }
+    case TurretTileType: {
+            std::shared_ptr<Turret> t = std::make_shared<Turret>(*game,
+                "Sniper", bbox_x, bbox_y);
+            game->GameEntities.AddEntity(TurretType, t);
+            break;
+    }
+    }
+}
+
+void TileManager::ReadMapDataFile(std::string FileName) {
     int y = 0;
     int x = 0;
 
@@ -303,55 +396,24 @@ void TileManager::ReadMapDataFile(std::string Filename) {
 
     bool PlayerSpawnFound = false;
 
-    std::ifstream  data(Filename);
+    if (PrevFileName != FileName)
+    {
+        std::ifstream  data(FileName);
 
-    std::string line;
-    while(std::getline(data,line))
+        std::string da;
+        while(std::getline(data,da))
+            Lines.push_back(da);
+
+        data.close();
+    }
+
+    for (std::string line : Lines)
     {
         std::stringstream  lineStream(line);
         std::string        cell;
         while(std::getline(lineStream,cell,','))
         {
-            int tile_id = std::stoi(cell) + 1;
-
-            Map.push_back(tile_id < 3 ? tile_id : -1);
-
-            float bbox_x = (static_cast<float>(x) * TileSize) + TileSize / 2.0f;
-            float bbox_y = (static_cast<float>(y) * TileSize) + TileSize / 2.0f;
-
-            switch (TileTypes[tile_id]) {
-                case EnemyTileType:
-                    AddEnemy(bbox_x, bbox_y, tile_id);
-                    break;
-                case EnemySpawnTileType:
-                    EnemySpawnLocations.push_back({bbox_x,bbox_y});
-                    break;
-                case PlayerSpawnTileType:
-                    PlayerSpawnFound = true;
-                    PlayerSpawnPosition = Vector2(bbox_x, bbox_y);
-                    break;
-                case SpawnerTileType: {
-                    std::shared_ptr<Spawner> spawner = std::make_shared<Spawner>(*game, bbox_x, bbox_y);
-                    game->GameEntities.AddEntity(SpawnerType, spawner);
-                    break;
-                }
-                case BossTileType: {
-                    BossSpawnPosition = Vector2(bbox_x, bbox_y);
-                    break;
-                };
-                case UpgradeStationTileType: {
-                    std::shared_ptr<UpgradeStation> station = std::make_shared<UpgradeStation>(*game, bbox_x, bbox_y);
-                    game->GameEntities.AddEntity(UpgradeStationType, station);
-                    break;
-                }
-                case TurretTileType: {
-                    std::shared_ptr<Turret> t = std::make_shared<Turret>(*game,
-                        "Sniper", bbox_x, bbox_y);
-                    game->GameEntities.AddEntity(TurretType, t);
-                    break;
-                }
-            }
-
+            ProcessTile(cell,x,y,&PlayerSpawnFound);
             x += 1;
         }
         if (x > MapWidth) {
@@ -360,10 +422,13 @@ void TileManager::ReadMapDataFile(std::string Filename) {
         x = 0;
         y += 1;
     }
+
     MapHeight = y;
 
     if (!PlayerSpawnFound)
         PlayerSpawnPosition = {MapWidth * TileSize / 2.0f, MapHeight * TileSize / 2.0f};
+
+    PrevFileName = FileName;
 }
 
 void TileManager::Clear()
@@ -377,7 +442,7 @@ void TileManager::Clear()
     EnemySpawnLocations = std::vector<Vector2>();
     FXLifetime = 0.75f;
     TileSize = 72;
-    UpdateDistance = Vector2((int) (GetRenderWidth() / 61.0f), (int)(GetRenderHeight() / 48.0f));;
+    UpdateDistance = Vector2((int) (game->GameCamera.IntendedScreenWidth / 61.0f), (int)(game->GameCamera.IntendedScreenHeight / 48.0f));;
     if (IsRenderTextureValid(TileMapTex))
         UnloadRenderTexture(TileMapTex);
     TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
@@ -385,5 +450,6 @@ void TileManager::Clear()
 
 void TileManager::Quit() {
     Clear();
-    UnloadRenderTexture(TileMapTex);
+    if (IsRenderTextureValid(TileMapTex))
+        UnloadRenderTexture(TileMapTex);
 }

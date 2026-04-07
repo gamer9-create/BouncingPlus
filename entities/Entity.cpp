@@ -126,7 +126,9 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
                 float bbox_x = curr_tile_x * game->GameTiles.TileSize;
                 float bbox_y = curr_tile_y * game->GameTiles.TileSize;
                 Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
-                if (game->GameTiles.TileTypes[tile_id] == WallTileType && CheckCollisionRecs(BoundingBox, bbox) && coord != LastVelBounceCoord) {
+                if (
+                    (game->GameTiles.TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles.TileTypes[tile_id] == EnemyWallTileType : false))
+                    && CheckCollisionRecs(BoundingBox, bbox) && coord != LastVelBounceCoord) {
 
                     int dir_hit = -1; // -1 = none, 0 = left, 1 = up, 2 = right, 3 = down
                     int i= 0;
@@ -225,7 +227,7 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
                                 game->GameTiles.TileSize,
                             }, ColorAlpha(GREEN, 0.05f));
                     }
-                    if (game->GameTiles.TileTypes[tile_id] == WallTileType) {
+                    if ((game->GameTiles.TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles.TileTypes[tile_id] == EnemyWallTileType : false))) {
                         Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
                         if (CheckCollisionRecs(BoundingBox, bbox)) {
                             //float e_cx = BoundingBox.x + (BoundingBox.width / 2.0f);
@@ -255,7 +257,7 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
                     int curr_tile_y = tile_y + y - 1;
                     Vector2 coord = {(float)curr_tile_x, (float)curr_tile_y};
                     int tile_id = game->GameTiles.GetTileAt(coord);
-                    if (game->GameTiles.TileTypes[tile_id] == WallTileType) {
+                    if ((game->GameTiles.TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles.TileTypes[tile_id] == EnemyWallTileType : false))) {
                         float bbox_x = curr_tile_x * game->GameTiles.TileSize;
                         float bbox_y = curr_tile_y * game->GameTiles.TileSize;
                         Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);

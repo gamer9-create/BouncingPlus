@@ -180,7 +180,7 @@ void Bullet::PhysicsUpdate(float dt, double time) {
             {
                 float Bonus = Owner->Health / 5.0f;
                 HealthGain += min(Bonus / 20.0f, 8.0f);
-                Damage += Bonus;
+                Damage += min(Bonus, 20.0f);
                 if (!RewardedScore)
                 {
                     game->GameScore += Bonus / 3000.0f;

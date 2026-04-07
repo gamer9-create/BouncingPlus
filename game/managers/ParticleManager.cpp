@@ -15,6 +15,7 @@ ParticleManager::ParticleManager() {
 ParticleManager::ParticleManager(Game &game) {
     this->game = &game;
     Particles = std::vector<Particle>();
+    ParticlesTexture = LoadRenderTexture(1,1);
 }
 
 void ParticleManager::ParticleEffect(ParticleData Data, float Angle, int AngleRange, int Amount) {
@@ -28,8 +29,9 @@ void ParticleManager::ParticleEffect(ParticleData Data, float Angle, int AngleRa
             Data.StartColor
         };
         newParticle.Position += {(float) GetRandomValue(-15, 15), (float) GetRandomValue(-15, 15)};
-        newParticle.Data.TargetColor = ColorBrightness(Data.TargetColor, GetRandomValue(-14, 14) / 100.0f);
+        newParticle.Data.TargetColor = ColorBrightness(Data.TargetColor, GetRandomValue(-30, 30) / 100.0f);
         newParticle.Data.Lifetime += GetRandomValue(-3.5f, 3.5f) / 10.0f;
+        newParticle.Data.Size -= (float) GetRandomValue(-2, 2);
         float RandomAngle = Angle - (AngleRange / 2) + GetRandomValue(0, AngleRange);
         float X = cos(RandomAngle * (2 * PI / 360))*100;
         float Y = sin(RandomAngle * (2 * PI / 360))*100;
@@ -39,10 +41,25 @@ void ParticleManager::ParticleEffect(ParticleData Data, float Angle, int AngleRa
 }
 
 void ParticleManager::Clear() {
+    if (IsRenderTextureValid(ParticlesTexture))
+        UnloadRenderTexture(ParticlesTexture);
+    ParticlesTexture = LoadRenderTexture(1,1);
     Particles.clear();
 }
 
 void ParticleManager::Update() {
+
+    if (ParticlesTexture.texture.width != GetRenderWidth() || ParticlesTexture.texture.height != GetRenderHeight()) {
+        if (IsRenderTextureValid(ParticlesTexture))
+            UnloadRenderTexture(ParticlesTexture);
+        ParticlesTexture = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
+    }
+
+    game->GameCamera.BeginRenderTexture(ParticlesTexture);
+
+    ClearBackground(BLANK);
+
+    BeginBlendMode(BLEND_ADDITIVE);
     for (int i = Particles.size() - 1; i >= 0; i--) {
         Particle &p = Particles[i];
 
@@ -54,17 +71,36 @@ void ParticleManager::Update() {
         p.Position += p.Target * p.Velocity * game->GetGameDeltaTime();
         p.ParticleColor = ColorLerp(p.ParticleColor, p.Data.TargetColor, Percent);
 
-        DrawRectanglePro({p.Position.x,
-            p.Position.y,
+        DrawRectanglePro({p.Position.x - game->GameCamera.RaylibCamera.target.x,
+            p.Position.y - game->GameCamera.RaylibCamera.target.y,
             p.Data.Size,p.Data.Size},
             {p.Data.Size/2, p.Data.Size/2},
             (game->GetGameTime() - p.SpawnTime) * 100 * (1-Percent),
-            p.ParticleColor);
+            ColorAlpha(p.ParticleColor, Percent >= 0.8f ? 1.0f - (Percent - .8f) / .2f : 1.0f)
+            );
+        DrawCircleGradient(
+            p.Position.x - game->GameCamera.RaylibCamera.target.x,
+            p.Position.y - game->GameCamera.RaylibCamera.target.y,
+            p.Data.Size/1.1f,
+            ColorAlpha(p.Data.TargetColor, 0.4f * (Percent >= 0.8f ? 1.0f - (Percent - .8f) / .2f : 1.0f)),
+            ColorAlpha(p.ParticleColor, 0.4f * (Percent >= 0.8f ? 1.0f - (Percent - .8f) / .2f : 1.0f)));
 
         if (Percent >= 1.0)
             Particles.erase(Particles.begin() + i);
     }
+    EndBlendMode();
+
+    game->GameCamera.EndRenderTexture();
+
+    BeginBlendMode(BLEND_ADDITIVE);
+    DrawTexturePro(ParticlesTexture.texture,{0,0,(float)ParticlesTexture.texture.width, (float)-ParticlesTexture.texture.height}, {
+        game->GameCamera.RaylibCamera.target.x, game->GameCamera.RaylibCamera.target.y, (float)ParticlesTexture.texture.width, (float)ParticlesTexture.texture.height
+    }, {0, 0}, 0, WHITE);
+    EndBlendMode();
+
 }
 
 void ParticleManager::Quit() {
+    if (IsRenderTextureValid(ParticlesTexture))
+        UnloadRenderTexture(ParticlesTexture);
 }

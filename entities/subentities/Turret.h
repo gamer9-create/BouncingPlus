@@ -27,8 +27,6 @@ class Turret : public Entity
     float TurretRotation;
     float RotationSpeed;
 
-    TurretState CurrentState;
-
     float LookingRotationGoal;
     double GoalSwitchCooldown;
 
@@ -42,6 +40,7 @@ class Turret : public Entity
     bool PlayerIsVisible();
 
     public:
+    TurretState CurrentState;
     Vector2 Target;
     WeaponsSystem MyWeaponsSystem;
     std::string Weapon;

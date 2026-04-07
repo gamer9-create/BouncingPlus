@@ -117,12 +117,13 @@ images_to_id = {
     7: "warning.png",
     8: "upgrade_core.png",
     9: "boss1_img.png",
-    10: "turret.png"
+    10: "turret.png",
+    11: "enemy_wall_tile.png"
 }
 
 for key in images_to_id.keys():
     try:
-        images_to_id[key] = pygame.image.load(assets_folder_path + "img\\" + images_to_id[key]).convert_alpha()
+        images_to_id[key] = pygame.image.load("map_builder_assets\\" + images_to_id[key]).convert_alpha()
     except Exception as e:
         print(e)
 
@@ -417,6 +418,7 @@ def thread2():
 write_path = assets_folder_path+"maps\\"+ (tilemap_path if len(write_path) < 1 else write_path)
 if not os.path.exists(write_path):
     os.mkdir(write_path)
+print(write_path)
 f = open(write_path + "\\map_data.csv", 'w')
 for y in range(tilemap_height):
     line = ""

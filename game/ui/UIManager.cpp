@@ -27,10 +27,34 @@ UIManager::UIManager(Game &game) {
     this->DeathScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     this->PauseScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     this->GameWinScreen = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
-    this->LastHealth = 0;
+    Clear();
 }
 
 UIManager::UIManager() {
+}
+
+void UIManager::Clear()
+{
+    this->StartingBlackScreenTrans = 1.0f;
+    this->EndBlackScreenTrans = 0.0f;
+
+    this->CursorMiddleTrans = 0.0f;
+    this->CursorRotation = 0.0f;
+
+    this->WeaponSlotIndex = -1;
+    this->WeaponSlotOffset = 0;
+    this->WeaponSlotSize = 0;
+    this->HealthBarSize = 250;
+    this->UITransparency = 1.0f;
+    this->DeathTextAnimRot = 0.0f;
+    this->HealthBarAnimRot = 0.0f;
+    this->LastHealth = 0;
+    this->FntSize = 92;
+    this->Margin = 15;
+    this->Alpha = 0.75f;
+
+    this->StressShakePos = {0,0};
+    this->LastChangedStressShakePos = 0;
 }
 
 void UIManager::GameUI() {
@@ -329,7 +353,7 @@ void UIManager::DisplayCursor()
 {
     if (!game->MainPlayer->IsPreparingForDash)
         {
-            DrawTexturePro(game->GameShared->UIAssets.CursorImg, {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 36, 36}, {18, 18}, CursorRotation, YELLOW);
+            DrawTexturePro(game->GameShared->UIAssets.CursorImg, {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 27, 27}, {13.5f, 13.5f}, CursorRotation, YELLOW);
             if (game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex != -1)
             {
                 if (game->MainPlayer->MainWeaponsSystem.AttackCooldowns[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex] >= game->MainPlayer->MainWeaponsSystem.CurrentWeapon->Cooldown)
@@ -347,14 +371,14 @@ void UIManager::DisplayCursor()
                 CursorMiddleTrans = lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
                 CursorRotation = lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
             }
-            DrawTexturePro(game->GameResources.Textures["enemy"], {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 10, 10},
-                    {5, 5}, CursorRotation, ColorAlpha(YELLOW, CursorMiddleTrans));
+            DrawTexturePro(game->GameResources.Textures["enemy"], {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 7.5f, 7.5f},
+                    {3.75f, 3.75f}, CursorRotation, ColorAlpha(YELLOW, CursorMiddleTrans));
         } else {
             Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera);
             float cx = game->MainPlayer->BoundingBox.x + game->MainPlayer->BoundingBox.width / 2;
             float cy = game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height / 2;
             float FinalAngle = atan2(cy - Target.y, cx - Target.x) * RAD2DEG - 90;
-            DrawTexturePro(game->GameResources.Textures["arrow"], {0, 0, 80, 80}, {(float)GetMouseX(), (float)GetMouseY(), 36, 36}, {18, 18}, FinalAngle, ORANGE);
+            DrawTexturePro(game->GameResources.Textures["arrow"], {0, 0, 80, 80}, {(float)GetMouseX(), (float)GetMouseY(), 27, 27}, {13.5f, 13.5f}, FinalAngle, ORANGE);
             CursorMiddleTrans = lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
             CursorRotation = lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
         }
@@ -362,7 +386,6 @@ void UIManager::DisplayCursor()
 
 void UIManager::DisplayTopHUD()
 {
-
     std::string txt = to_string((int)game->GameScore);
 
     int font_size = 50;
@@ -377,6 +400,30 @@ void UIManager::DisplayTopHUD()
     DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
 
     std::string o_txt = "SCORE";
+
+    DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
+
+    x += width + 120;
+
+    txt = to_string((int)(game->MainPlayer->StressLevel * 100.0f)) + "%";
+
+    width = MeasureText(txt.c_str(), font_size);
+
+    if (game->GetGameTime() - LastChangedStressShakePos >= 0.1f - (game->MainPlayer->StressLevel * 0.09f))
+    {
+        StressShakePos = {
+            GetRandomValue(-30, 30) / 10.0f,
+            GetRandomValue(-30, 30) / 10.0f
+        };
+        LastChangedStressShakePos = game->GetGameTime();
+    }
+
+    rec = {x - 10, y - 10, width + 20.0f, font_size + 20.0f};
+    DrawRectangleRec({rec.x - 10, rec.y - 10, rec.width + 20, rec.height + 20}, ColorAlpha(BLACK, UITransparency * 0.85f));
+    DrawText(txt.c_str(), x + StressShakePos.x, y + StressShakePos.y, font_size, ColorAlpha(GetHealthColor(1.0f - game->MainPlayer->StressLevel), UITransparency));
+    DrawRectangleLinesEx(rec, 5, ColorAlpha(WHITE, UITransparency));
+
+    o_txt = "STRESS";
 
     DrawText(o_txt.c_str(), rec.x + rec.width/2 - MeasureText(o_txt.c_str(), font_size / 1.5f)/2, rec.y - (font_size/1.5f) - 15, font_size / 1.5f, ColorAlpha(WHITE, UITransparency));
 

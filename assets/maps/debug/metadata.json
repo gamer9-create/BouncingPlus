@@ -1,20 +1,16 @@
 {
-  "description": "Debugging level!",
-  "difficulty": 1,
+  "description": "Tread carefully!",
+  "difficulty": 2,
   "player": {
-    "starting_health": 1000,
-    "starting_speed": 500,
-    "inventory": [
-      "Spear",
-      "Shotgun",
-      "Player Gun"
-    ],
+    "starting_health": 300,
+    "starting_speed": 425,
+    "inventory": ["Player Gun", "Shotgun", "Sword"],
     "powerup": "shield",
     "dash_base_power": 2500,
     "dash_power_multiplier": 1,
     "dash_base_cooldown": 1.1,
-    "dash_concentration_boost": 1.6,
-    "dodge_cooldown": 2.65,
+    "dash_concentration_boost": 1.0,
+    "dodge_cooldown": 3.0,
     "dodge_iframe_time": 1.0,
     "dash_iframe_time": 0.1,
     "dash_frozen_multiplier": 0.5
@@ -24,20 +20,10 @@
     "win": "kill_all_enemies",
     "boss": "",
     "mode": "default",
-    "banned_spawn_weapons": [
-      "Default Gun",
-      "Player Gun",
-      "Enemy Shotgun",
-      "Enemy Sword",
-      "Sword",
-      "Virtue Sword",
-      "Shotgun",
-      "Charger",
-      "Sniper"
-    ]
+    "banned_spawn_weapons": ["Default Gun","Player Gun","Sword","Enemy Sword"]
   },
   "enemy_weapons": {
-    "shotgun": "",
-    "sword": ""
+    "shotgun": "Enemy Shotgun",
+    "sword": "Enemy Sword"
   }
 }
