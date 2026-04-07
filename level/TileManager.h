@@ -29,7 +29,7 @@ class TileManager {
     std::vector<std::tuple<int, int, int>> DistortionUniformLocations;
     std::vector<Distortion> Distortions;
 
-    int uWidth, uHeight, uTime, uX, uY;
+    int uWidth, uHeight, uTime;
 
     int DistortionCountLocation;
     float FXLifetime;
@@ -54,6 +54,7 @@ class TileManager {
         std::vector<Vector2> EnemySpawnLocations;
         std::vector<int> Map;
         RenderTexture TileMapTex;
+        RenderTexture ForceFieldTex;
         TileManager();
         TileManager(Game &game);
         int GetTileAt(int x, int y);

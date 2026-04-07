@@ -114,7 +114,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
         else
             entity->Armor -= Damage;
 
-        float reward = Damage / 14.5f;
+        float reward = Damage / 12.5f;
         MyPlayer->Health += reward;
 
         float amount = 1500.0f;

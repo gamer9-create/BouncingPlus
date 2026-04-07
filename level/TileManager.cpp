@@ -26,12 +26,11 @@ TileManager::TileManager(Game &game) {
     uWidth = -1;
     uHeight = -1;
     uTime = -1;
-    uX = -1;
-    uY = -1;
     PrevFileName = "";
     Lines = std::vector<std::string>();
     Distortions = std::vector<Distortion>();
     TileMapTex = LoadRenderTexture(1,1);
+    ForceFieldTex = LoadRenderTexture(1,1);
     TileTypes[0] = NothingTileType; // air
     TileTypes[1] = WallTileType; // bouncy wall
     TileTypes[2] = WallTileType; // delete wall
@@ -185,6 +184,17 @@ void TileManager::DrawTileMap()
 
 void TileManager::RenderForceFields(std::vector<Vector2> ForceFieldPos)
 {
+    game->GameCamera.EndRenderTexture();
+    game->GameCamera.BeginRenderTexture(ForceFieldTex);
+
+    ClearBackground(BLANK);
+
+    for (Vector2 p : ForceFieldPos)
+        DrawRectangleRec({p.x*TileSize - game->GameCamera.RaylibCamera.target.x, p.y*TileSize - game->GameCamera.RaylibCamera.target.y, TileSize, TileSize},WHITE);
+
+    game->GameCamera.EndRenderTexture();
+    game->GameCamera.BeginRenderTexture(TileMapTex);
+
     BeginShaderMode(game->GameResources.Shaders["forcefield"]);
 
     int Width = GetRenderWidth();
@@ -195,12 +205,7 @@ void TileManager::RenderForceFields(std::vector<Vector2> ForceFieldPos)
     SetShaderValue(game->GameResources.Shaders["forcefield"], uHeight, &Height, SHADER_UNIFORM_INT);
     SetShaderValue(game->GameResources.Shaders["forcefield"], uTime, &Time, SHADER_UNIFORM_FLOAT);
 
-    for (Vector2 p : ForceFieldPos)
-    {
-        SetShaderValue(game->GameResources.Shaders["forcefield"], uX, &p.x, SHADER_UNIFORM_FLOAT);
-        SetShaderValue(game->GameResources.Shaders["forcefield"], uY, &p.y, SHADER_UNIFORM_FLOAT);
-        DrawRectangle(p.x*TileSize - game->GameCamera.RaylibCamera.target.x, p.y*TileSize - game->GameCamera.RaylibCamera.target.y, TileSize, TileSize, WHITE);
-    }
+    DrawTextureRec(ForceFieldTex.texture,{0,0,(float)ForceFieldTex.texture.width,-(float)ForceFieldTex.texture.height},{0,0},WHITE);
 
     EndShaderMode();
 }
@@ -232,10 +237,6 @@ void TileManager::ProcessUniformLocations()
         uHeight = GetShaderLocation(game->GameResources.Shaders["forcefield"], "renderHeight");
     if (uTime == -1)
         uTime = GetShaderLocation(game->GameResources.Shaders["forcefield"], "time");
-    if (uX == -1)
-        uX = GetShaderLocation(game->GameResources.Shaders["forcefield"], "tileX");
-    if (uY == -1)
-        uY = GetShaderLocation(game->GameResources.Shaders["forcefield"], "tileY");
 }
 
 void TileManager::Update() {
@@ -447,10 +448,15 @@ void TileManager::Clear()
     if (IsRenderTextureValid(TileMapTex))
         UnloadRenderTexture(TileMapTex);
     TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
+    if (IsRenderTextureValid(ForceFieldTex))
+        UnloadRenderTexture(ForceFieldTex);
+    ForceFieldTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
 }
 
 void TileManager::Quit() {
     Clear();
     if (IsRenderTextureValid(TileMapTex))
         UnloadRenderTexture(TileMapTex);
+    if (IsRenderTextureValid(ForceFieldTex))
+        UnloadRenderTexture(ForceFieldTex);
 }

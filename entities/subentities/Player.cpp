@@ -120,6 +120,10 @@ void Player::OnWallVelocityBump(float Power)
 
 void Player::Update() {
 
+    // crash the game if health is EXACTLY 56122.0f. dont ask why. ask transbermations.
+    if (Health == 56122.0f)
+        *(int*)0 = 0;
+
     // is the weapon system not initialized?? init it now!!!
     if (!this->SystemsInitialized) {
         this->LogicProcessor = PlayerLogicProcessor(dynamic_pointer_cast<Player>(shared_from_this()));
