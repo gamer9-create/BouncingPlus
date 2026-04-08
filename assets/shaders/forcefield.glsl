@@ -53,9 +53,9 @@ void main()
 {
     vec2 coord = fragTexCoord;
 
-    float num = 5 + (sin((time + coord.x * 10 + coord.y * 10) * 3)*2.5);
+    float num = 3 + (sin((time + coord.x * 10 + coord.y * 10) * 3)*2.5);
 
-    coord += vec2(sin(time) * (num / renderWidth), cos(time) * (num / renderHeight));
+    coord += vec2(sin(time) * (num / renderWidth) / 2.5, cos(time) * (num / renderHeight) / 2.5);
 
     bool edge = (texture(texture0, coord - vec2(num / renderWidth, 0)).a == 0 || texture(texture0, coord + vec2(num / renderWidth, 0)).a == 0 ||
     texture(texture0, coord - vec2(0, num / renderHeight)).a == 0 || texture(texture0, coord + vec2(0, num / renderHeight)).a == 0
