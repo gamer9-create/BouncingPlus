@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 
     SharedManager SharedManager{};
     SharedManager.LevelData = level_data;
-    SharedManager.FrameRate = GetMonitorRefreshRate(GetCurrentMonitor()) + 60;
+    SharedManager.FrameRate = max(min(GetMonitorRefreshRate(GetCurrentMonitor()) + 60,240),0);
     SharedManager.UIAssets = UIAssets();
     SharedManager.UIAssets.Load();
     SharedManager.Controls.SetDefaultBindings();
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 
     bool InGame = false;
 
-    SetWindowSize(GetMonitorWidth(GetCurrentMonitor()) / 1.4f, GetMonitorHeight(GetCurrentMonitor()) / 1.4f);
+    SetWindowSize(GetMonitorWidth(GetCurrentMonitor()) / 1.2f, GetMonitorHeight(GetCurrentMonitor()) / 1.2f);
     SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetRenderWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetRenderHeight()/2);
     SetExitKey(KEY_NULL);
 

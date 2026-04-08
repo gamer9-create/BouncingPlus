@@ -120,7 +120,7 @@ void Player::OnWallVelocityBump(float Power)
 
 void Player::Update() {
 
-    // crash the game if health is EXACTLY 56122.0f. dont ask why. ask transbermations.
+    // crash the game if health is EXACTLY 56122.0f. dont ask why. ask transmbermations.
     if (Health == 56122.0f)
         *(int*)0 = 0;
 

@@ -184,6 +184,46 @@ void TileManager::DrawTileMap()
 
 void TileManager::RenderForceFields(std::vector<Vector2> ForceFieldPos)
 {
+    if (ForceFieldPos.size() == 0)
+        return;
+
+    bool found = false;
+
+    for (Vector2 vec : ForceFieldPos)
+    {
+        Vector2 p1 = vec;
+        Vector2 p2 = {vec.x + TileSize, vec.y};
+        Vector2 p3 = {vec.x + TileSize, vec.y + TileSize};
+        Vector2 p4 = {vec.x, vec.y + TileSize};
+
+        if (p1.x >= 0 && p1.x < GetRenderWidth() && p1.y >= 0 && p1.y < GetRenderHeight())
+        {
+            found = true;
+            break;
+        }
+
+        if (p2.x >= 0 && p2.x < GetRenderWidth() && p2.y >= 0 && p2.y < GetRenderHeight())
+        {
+            found = true;
+            break;
+        }
+
+        if (p3.x >= 0 && p3.x < GetRenderWidth() && p3.y >= 0 && p3.y < GetRenderHeight())
+        {
+            found = true;
+            break;
+        }
+
+        if (p4.x >= 0 && p4.x < GetRenderWidth() && p4.y >= 0 && p4.y < GetRenderHeight())
+        {
+            found = true;
+            break;
+        }
+    }
+
+    if (!found)
+        return;
+
     game->GameCamera.EndRenderTexture();
     game->GameCamera.BeginRenderTexture(ForceFieldTex);
 
@@ -197,12 +237,10 @@ void TileManager::RenderForceFields(std::vector<Vector2> ForceFieldPos)
 
     BeginShaderMode(game->GameResources.Shaders["forcefield"]);
 
-    int Width = GetRenderWidth();
-    int Height = GetRenderHeight();
     float Time = game->GetGameTime();
 
-    SetShaderValue(game->GameResources.Shaders["forcefield"], uWidth, &Width, SHADER_UNIFORM_INT);
-    SetShaderValue(game->GameResources.Shaders["forcefield"], uHeight, &Height, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources.Shaders["forcefield"], uWidth, &game->GameCamera.IntendedScreenWidth, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources.Shaders["forcefield"], uHeight, &game->GameCamera.IntendedScreenHeight, SHADER_UNIFORM_INT);
     SetShaderValue(game->GameResources.Shaders["forcefield"], uTime, &Time, SHADER_UNIFORM_FLOAT);
 
     DrawTextureRec(ForceFieldTex.texture,{0,0,(float)ForceFieldTex.texture.width,-(float)ForceFieldTex.texture.height},{0,0},WHITE);

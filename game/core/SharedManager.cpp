@@ -87,6 +87,13 @@ void SharedManager::Update()
     {
         SetWindowSize(GetMonitorWidth(GetCurrentMonitor()), GetMonitorHeight(GetCurrentMonitor()));
     }
+
+    if (!Fullscreen && IsWindowFullscreen())
+    {
+        SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetRenderWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetRenderHeight()/2);
+        SetWindowSize(GetMonitorWidth(GetCurrentMonitor()) / 1.2f, GetMonitorHeight(GetCurrentMonitor()) / 1.2f);
+    }
+
     if (IsWindowFullscreen() != Fullscreen)
         ToggleFullscreen();
 

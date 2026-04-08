@@ -181,7 +181,7 @@ void CameraManager::ShakeCamera(float Intensity) {
 
 float CameraManager::GetNaturalZoom()
 {
-    return ((float)GetRenderWidth() / (float)IntendedScreenWidth + (float)GetRenderHeight() / (float)IntendedScreenHeight) / 2.0f;
+    return (((float)GetRenderWidth() / (float)IntendedScreenWidth) + ((float)GetRenderHeight() / (float)IntendedScreenHeight)) / 2.0f;
 }
 
 void CameraManager::UpdateCamera()
