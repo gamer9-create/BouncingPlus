@@ -409,6 +409,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
 void WeaponsSystem::Equip(int Index) {
     // if weapon exists and we have space, equip it
     if (CurrentWeaponIndex != Index && !Weapons[Index].empty()) {
+        ResetMeleeAnim();
         CurrentWeaponIndex = Index;
         ChargingProgress = 0.0f;
         TriedChargingThisFrame = false;
@@ -419,11 +420,11 @@ void WeaponsSystem::Equip(int Index) {
 
 void WeaponsSystem::Unequip() {
     // simply set the current weapon to nothing
+    ResetMeleeAnim();
     CurrentWeaponIndex = -1;
     ChargingProgress = 0.0f;
     TriedChargingThisFrame = false;
     CurrentWeapon = nullptr;
-    ResetMeleeAnim();
     TimeStartedReloading = -1;
     auto Owner = OwnerPtr.lock();
     if (Owner != nullptr)

@@ -158,11 +158,24 @@ void CameraManager::BackgroundLines() {
     }
 }
 
-void CameraManager::BeginRenderTexture(RenderTexture& Tex)
+void CameraManager::StopCamera()
+{
+    EndMode2D();
+}
+
+void CameraManager::BeginCamera()
+{
+    BeginMode2D(RaylibCamera);
+}
+
+void CameraManager::BeginRenderTexture(RenderTexture& Tex, bool UseMainCamera)
 {
     EndTextureMode();
-    EndMode2D();
+    if (!UseMainCamera)
+        EndMode2D();
     BeginTextureMode(Tex);
+    if (UseMainCamera)
+        BeginMode2D(RaylibCamera);
 }
 
 void CameraManager::EndRenderTexture()
@@ -181,7 +194,7 @@ void CameraManager::ShakeCamera(float Intensity) {
 
 float CameraManager::GetNaturalZoom()
 {
-    return (((float)GetRenderWidth() / (float)IntendedScreenWidth) + ((float)GetRenderHeight() / (float)IntendedScreenHeight)) / 2.0f;
+    return (float)GetRenderHeight() / (float)IntendedScreenHeight;
 }
 
 void CameraManager::UpdateCamera()

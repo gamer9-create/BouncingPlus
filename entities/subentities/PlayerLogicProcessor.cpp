@@ -41,7 +41,7 @@ void PlayerLogicProcessor::ProcessStress()
     auto MyPlayer = Owner.lock();
     MyPlayer->FrameStressLevel = 0.0f;
     if (MyPlayer->HealthConcern)
-        MyPlayer->FrameStressLevel += 0.25f;
+        MyPlayer->FrameStressLevel += 0.5f;
 
     std::vector<shared_ptr<Entity>> enemyArray = MyPlayer->game->GameEntities.Entities[EnemyType];
     for (int i = 0; i < enemyArray.size(); i++)
@@ -68,12 +68,16 @@ void PlayerLogicProcessor::ProcessStress()
     if (MyPlayer->FrameStressLevel > MyPlayer->StressLevel)
         MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 2.5f * MyPlayer->game->GetGameDeltaTime());
     else
-        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 0.15f * MyPlayer->game->GetGameDeltaTime());
+        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 0.1f * MyPlayer->game->GetGameDeltaTime());
+
 }
 
 void PlayerLogicProcessor::HandleFightMusic()
 {
     auto MyPlayer = Owner.lock();
+
+    if (MyPlayer->Health <= 0)
+        return;
 
     if (LayerSwitchCooldown <= 0)
     {
@@ -90,7 +94,7 @@ void PlayerLogicProcessor::HandleFightMusic()
         } else if (MyPlayer->StressLevel <= 1.0f)
         {
             FightMusicLayerGoal = 4.0f;
-            LayerSwitchCooldown = 5.0f;
+            LayerSwitchCooldown = 10.0f;
         }
     } else
     {
@@ -110,6 +114,7 @@ void PlayerLogicProcessor::HandleFightMusic()
 
     if (!MyPlayer->game->GameSounds.IsGameMusicPlaying(FightTrack))
         MyPlayer->game->GameSounds.PlayGameMusic(FightTrack, true);
+
 }
 
 void PlayerLogicProcessor::Update()

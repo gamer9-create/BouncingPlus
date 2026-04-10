@@ -75,8 +75,6 @@ void TileManager::DrawWallTile(int curr_tile_x, int curr_tile_y, Texture* tile_t
 {
     float bbox_x = curr_tile_x * TileSize;
     float bbox_y = curr_tile_y * TileSize;
-    bbox_x -= game->GameCamera.RaylibCamera.target.x;
-    bbox_y -= game->GameCamera.RaylibCamera.target.y;
     Rectangle rec = {0, 0, (float)tile_tex->width, (float)tile_tex->height};
 
     bool left = TileTypes[GetTileAt(curr_tile_x - 1, curr_tile_y)] == WallTileType;
@@ -284,10 +282,12 @@ void TileManager::Update() {
         TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
 
+    UpdateDistance = Vector2((int) (GetRenderWidth() / game->GameCamera.RaylibCamera.zoom / TileSize) + 3, (int)(GetRenderHeight() / game->GameCamera.RaylibCamera.zoom / TileSize) + 3);
+
     ProcessUniformLocations();
     ProcessDistortions();
 
-    game->GameCamera.BeginRenderTexture(TileMapTex);
+    game->GameCamera.BeginRenderTexture(TileMapTex, true);
     BeginBlendMode(BLEND_ALPHA);
     ClearBackground(BLANK);
 
@@ -295,6 +295,8 @@ void TileManager::Update() {
 
     EndBlendMode();
     game->GameCamera.EndRenderTexture();
+
+    game->GameCamera.StopCamera();
 
     BeginShaderMode(game->GameResources.Shaders["distortion"]);
 
@@ -304,10 +306,12 @@ void TileManager::Update() {
 
     BeginBlendMode(BLEND_ALPHA);
     DrawTexturePro(TileMapTex.texture, {0, 0, (float)TileMapTex.texture.width, (float)-TileMapTex.texture.height}, {
-        game->GameCamera.RaylibCamera.target.x, game->GameCamera.RaylibCamera.target.y, (float)TileMapTex.texture.width,(float)TileMapTex.texture.height
+        0,0, (float)TileMapTex.texture.width,(float)TileMapTex.texture.height
     }, {0,0}, 0, WHITE);
     EndBlendMode();
     EndShaderMode();
+
+    game->GameCamera.BeginCamera();
 }
 
 void TileManager::DistortArea(Distortion DistortionForArea)
@@ -482,7 +486,7 @@ void TileManager::Clear()
     EnemySpawnLocations = std::vector<Vector2>();
     FXLifetime = 0.75f;
     TileSize = 72;
-    UpdateDistance = Vector2((int) (game->GameCamera.IntendedScreenWidth / TileSize) + 1, (int)(game->GameCamera.IntendedScreenHeight / TileSize) + 1);;
+    UpdateDistance = Vector2((int) (game->GameCamera.IntendedScreenWidth / TileSize) + 1, (int)(game->GameCamera.IntendedScreenHeight / TileSize) + 1);
     if (IsRenderTextureValid(TileMapTex))
         UnloadRenderTexture(TileMapTex);
     TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());

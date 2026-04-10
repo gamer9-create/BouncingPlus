@@ -214,10 +214,7 @@ void Enemy::Update() {
     float size2 = MeasureText("%", 18) + 1;
     float total_size = size + size2;
 
-    if ((center_x - total_size / 2 - game->GameCamera.CameraPosition.x) > -total_size &&
-        (center_x - total_size / 2 - game->GameCamera.CameraPosition.x) < GetRenderWidth() &&
-        (BoundingBox.y - 36 - game->GameCamera.CameraPosition.y) > -36 &&
-        (BoundingBox.y - 36 - game->GameCamera.CameraPosition.y) < GetRenderHeight()
+    if (IsVisible({center_x - total_size / 2, BoundingBox.y - 36, total_size, 36})
     )
     {
         DrawText(t.c_str(),

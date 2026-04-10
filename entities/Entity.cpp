@@ -287,12 +287,17 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
     }
 }
 
-bool Entity::IsVisible() {
-    Vector2 *CameraPosition = &this->game->GameCamera.CameraPosition;
-    return BoundingBox.x - CameraPosition->x > -BoundingBox.width &&
-        BoundingBox.x - CameraPosition->x < GetRenderWidth() &&
-        BoundingBox.y - CameraPosition->y > -BoundingBox.height &&
-        BoundingBox.y - CameraPosition->y < GetRenderHeight();
+bool Entity::IsVisible()
+{
+    return IsVisible(BoundingBox);
+}
+
+bool Entity::IsVisible(Rectangle bbox) {
+    Vector2 MyPosOnScreen = GetWorldToScreen2D(Vector2{bbox.x + bbox.width/2, bbox.y + bbox.height/2}, game->GameCamera.RaylibCamera);
+    return MyPosOnScreen.x > -BoundingBox.width &&
+        MyPosOnScreen.x < GetRenderWidth() &&
+        MyPosOnScreen.y > -BoundingBox.height &&
+        MyPosOnScreen.y < GetRenderHeight();
 }
 
 void Entity::Update() {
