@@ -26,7 +26,8 @@ Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float D
     this->Speed=Speed;
     this->game = &game;
     this->FirePoint = {X, Y};
-    this->Rotation = Angle;//std::atan2(Direction.y, Direction.x) * (180.0f/3.141592653589793238463f);
+    this->Rotation = Angle;
+    this->RotGoal = Rotation;
     this->Damage = Damage;
     this->OwnerPtr = Owner;
 
@@ -179,8 +180,8 @@ void Bullet::PhysicsUpdate(float dt, double time) {
             if (Owner != nullptr && Owner->Type == PlayerType)
             {
                 float Bonus = Owner->Health / 5.0f;
-                HealthGain += min(Bonus / 20.0f, 8.0f);
-                Damage += min(Bonus, 20.0f);
+                HealthGain += min(Bonus / 20.0f, 5.0f);
+                Damage += min(Bonus, 5.0f);
                 if (!RewardedScore)
                 {
                     game->GameScore += Bonus / 3000.0f;
@@ -216,7 +217,7 @@ void Bullet::Bounce(Vector2 Normal)
     float Dot = Vector2DotProduct(Movement, Normal);
     Movement -= Vector2Multiply(Normal, {2 * Dot, 2 * Dot});
     Movement = Vector2Normalize(Movement);
-    Rotation = std::atan2(Movement.y, Movement.x) * (180.0f / PI);
+    RotGoal = std::atan2(Movement.y, Movement.x) * (180.0f / PI);
 }
 
 void Bullet::Attack(shared_ptr<Entity> entity) {
@@ -229,6 +230,7 @@ void Bullet::Attack(shared_ptr<Entity> entity) {
 
 void Bullet::Update() {
     ExistenceTimer += game->GetGameDeltaTime();
+    Rotation = lerp(Rotation, RotGoal, 65.0f*game->GetGameDeltaTime());
     if (!SlowdownOverTime) {
 
         if (ExistenceTimer >= Lifetime) {

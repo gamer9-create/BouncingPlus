@@ -112,7 +112,7 @@ void Game::ProcessSlowdownAnimation() {
         }
         if (SlowdownShakeIntensity > 0 && Percent < 0.5f) {
             GameCamera.ShakeCamera(SlowdownShakeIntensity);
-            GameSounds.PlaySoundM("dash_hit", min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
+            GameSounds.PlayGameSound("dash_hit", min(max(SlowdownShakeIntensity, 0.0f), 1.0f));
             SlowdownShakeIntensity = 0;
         }
         SlowdownTime -= GetFrameTime();

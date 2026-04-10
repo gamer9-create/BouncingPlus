@@ -105,7 +105,7 @@ void Player::OnWallVelocityBump(float Power)
     {
         float PreviousH = Health;
         Entity::OnWallVelocityBump(Power);
-        game->GameSounds.PlaySoundM("dash_wall_hit");
+        game->GameSounds.PlayGameSound("dash_wall_hit");
         float Damage = Power / 390.0f;
         if (Health - Damage >= 20)
         {
@@ -244,7 +244,7 @@ void Player::Update() {
 
     // did we get a kill? play kill sound game!
     if (Kills != LastKills) {
-        game->GameSounds.PlaySoundM("death");
+        game->GameSounds.PlayGameSound("death");
         game->GameScore += 100;
         ExtraSpeed += 14;
     }

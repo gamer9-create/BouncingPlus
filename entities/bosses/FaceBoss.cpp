@@ -65,7 +65,7 @@ void FaceBoss::Update() {
         this->game->MainPlayer->BoundingBox.y + this->game->MainPlayer->BoundingBox.width/2}, StartPos);
     if (Distance <= 450 && Health > 0) {
         if (!BossFightStarted) {
-            game->GameSounds.PlaySoundM("badtime");
+            game->GameSounds.PlayGameSound("badtime");
             this->game->GameMode.LevelTimer = 300;
         }
         BossFightStarted = true;

@@ -20,6 +20,8 @@ PlayerLogicProcessor::PlayerLogicProcessor(std::weak_ptr<Player> Owner)
     DashTimeStart = 0;
     DamageNotifs = std::vector<Vector3>();
     DashedEnemies = std::vector<std::weak_ptr<Enemy>>();
+    CurrentLayer = "";
+    PrevLayer = "";
 }
 
 PlayerLogicProcessor::PlayerLogicProcessor()
@@ -46,21 +48,58 @@ void PlayerLogicProcessor::ProcessStress()
     std::vector<shared_ptr<Entity>> bulletArray = MyPlayer->game->GameEntities.Entities[BulletType];
     for (int i = 0; i < bulletArray.size(); i++)
         if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(bulletArray.at(i)); entity != nullptr and !entity->ShouldDelete)
-            if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 400)
-                MyPlayer->FrameStressLevel += 0.01f;
+            if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 600)
+                MyPlayer->FrameStressLevel += 0.05f;
 
     std::vector<shared_ptr<Entity>> turretArray = MyPlayer->game->GameEntities.Entities[TurretType];
     for (int i = 0; i < turretArray.size(); i++)
         if (shared_ptr<Turret> entity = dynamic_pointer_cast<Turret>(turretArray.at(i)); entity != nullptr and !entity->ShouldDelete)
-            if (entity->CurrentState == DETECTED)
+            if (!entity->CurrentState == LOOKING)
                 MyPlayer->FrameStressLevel += 0.1f;
 
-    MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.045f;
+    MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.075f;
+
+    MyPlayer->FrameStressLevel = min(max(MyPlayer->FrameStressLevel, 0.0f), 1.0f);
 
     if (MyPlayer->FrameStressLevel > MyPlayer->StressLevel)
-        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 2.5f * MyPlayer->game->GetGameDeltaTime());
+        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 2.0f * MyPlayer->game->GetGameDeltaTime());
     else
-        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 0.32f * MyPlayer->game->GetGameDeltaTime());
+        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 0.25f * MyPlayer->game->GetGameDeltaTime());
+
+    if (MyPlayer->game->GetGameTime() - ChaseMusicLock >= 10.0f)
+    {
+        if (MyPlayer->StressLevel <= 0.25f)
+        {
+            PrevLayer = CurrentLayer;
+            CurrentLayer = "gumble_layer1";
+            ChaseMusicLock = MyPlayer->game->GetGameTime() - 9.0f; // this is to make a 1 sec cooldown for changing tracks
+        } else if (MyPlayer->StressLevel <= 0.5f)
+        {
+            PrevLayer = CurrentLayer;
+            CurrentLayer = "gumble_layer2";
+            ChaseMusicLock = MyPlayer->game->GetGameTime() - 9.0f;
+        } else if (MyPlayer->StressLevel <= 0.75f)
+        {
+            PrevLayer = CurrentLayer;
+            CurrentLayer = "gumble_layer3";
+            ChaseMusicLock = MyPlayer->game->GetGameTime() - 9.0f;
+        } else if (MyPlayer->StressLevel <= 1.0f)
+        {
+            PrevLayer = CurrentLayer;
+            CurrentLayer = "gumble_layer4";
+            ChaseMusicLock = MyPlayer->game->GetGameTime(); // full on 10 second cooldown
+        }
+    }
+
+    if (!PrevLayer.empty() && PrevLayer != CurrentLayer)
+    {
+        if (MyPlayer->game->GameSounds.IsGameMusicPlaying(PrevLayer))
+            MyPlayer->game->GameSounds.StopGameMusic(PrevLayer, true);
+    }
+    if (!MyPlayer->game->GameSounds.IsGameMusicPlaying(CurrentLayer))
+    {
+        MyPlayer->game->GameSounds.PlayGameMusic(CurrentLayer, true);
+    }
 }
 
 void PlayerLogicProcessor::Update()
@@ -109,7 +148,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
 
         Damage *= EnemyConcentration;
         Damage *= min(max((MyPlayer->Health / MyPlayer->MaxHealth) - 2.0f, 1.0f), 5.5f);
-        if (entity->Armor < 0)
+        if (entity->Armor <= 0)
             entity->Health -= Damage;
         else
             entity->Armor -= Damage;
@@ -141,7 +180,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
         MyPlayer->game->GameCamera.CameraPosition += Vector2Normalize({(float)GetRandomValue(-25, 25), (float)GetRandomValue(-25, 25)}) * (MyPlayer->VelocityPower / 150);
         MyPlayer->game->GameCamera.ShakeCamera(MyPlayer->VelocityPower / (amount - 50) / 1.5f);
         MyPlayer->game->GameCamera.QuickZoom(0.95f, 0.05f, false);
-        MyPlayer->game->GameSounds.PlaySoundM("dash_hit",min(max(MyPlayer->VelocityPower/amount, 0.0f), 0.8f));
+        MyPlayer->game->GameSounds.PlayGameSound("dash_hit",min(max(MyPlayer->VelocityPower/amount, 0.0f), 0.8f));
 
         // give them pushback force
         entity->VelocityMovement = MyPlayer->VelocityMovement;
@@ -234,7 +273,7 @@ void PlayerLogicProcessor::DashLogic()
         MyPlayer->VelocityPower = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_power"].get<float>() * max(min(static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart), 1.1f), 0.45f);
         MyPlayer->VelocityPower /= min(max((MyPlayer->Health / MyPlayer->MaxHealth)-2.0f, 1.0f), 1.25f);
         MyPlayer->VelocityPower *= MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_power_multiplier"].get<float>();
-        MyPlayer->game->GameSounds.PlaySoundM("dash");
+        MyPlayer->game->GameSounds.PlayGameSound("dash");
         MyPlayer->PlayerFrozenTimer = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_frozen_multiplier"].get<float>() *
             min(max((MyPlayer->VelocityPower / MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_base_power"].get<float>()), 0.35f), 1.1f);
         if (!MyPlayer->isInvincible)

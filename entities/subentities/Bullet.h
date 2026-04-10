@@ -16,9 +16,10 @@ class Bullet : public Entity {
     float Damage;
     bool DD=false;
     bool RewardedScore=false;
+
     std::pair<bool,vector<Vector2>> BulletCollision();
 public:
-    void Bounce(Vector2 Normal);
+    float RotGoal;
     std::weak_ptr<Entity> OwnerPtr;
     float Lifetime;
     bool SlowdownOverTime;
@@ -29,6 +30,7 @@ public:
     Bullet();
     void Attack(std::shared_ptr<Entity> entity);
     void PhysicsUpdate(float dt, double time);
+    void Bounce(Vector2 Normal);
     virtual ~Bullet();
     void Update();
 };

@@ -15,11 +15,16 @@ class SoundManager {
     public:
     Game *game;
     std::unordered_map<std::string, Sound> Sounds;
+    std::unordered_map<std::string, Music> Musics;
     std::unordered_map<std::string, std::vector<Sound>> CachedAliases;
+    std::vector<std::tuple<std::string,float,float>> MusicTransitions;
     SoundManager(Game &game);
     SoundManager();
     ~SoundManager();
-    void PlaySoundM(std::string SoundName, float SoundVolume = 1.0f, float SoundPitch = 1.0f);
+    void PlayGameSound(std::string SoundName, float SoundVolume = 1.0f, float SoundPitch = 1.0f);
+    void PlayGameMusic(std::string MusicName, bool Transition = false);
+    void StopGameMusic(std::string MusicName, bool Transition = false);
+    bool IsGameMusicPlaying(std::string MusicName);
     void Clear();
     void Update();
     void Quit();

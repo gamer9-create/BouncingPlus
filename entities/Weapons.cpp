@@ -364,7 +364,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
             float DistanceMultiplier = (1000.0f - Distance) / 1000.0f;
             DistanceMultiplier += GetRandomValue(-20, 20) / 100.0f;
 
-            game->GameSounds.PlaySoundM(s, CurrentWeapon->Intensity * DistanceMultiplier,
+            game->GameSounds.PlayGameSound(s, CurrentWeapon->Intensity * DistanceMultiplier,
                 1.0f + GetRandomValue(-20, 20) / 100.0f);
         }
 

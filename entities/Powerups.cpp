@@ -69,11 +69,11 @@ void ShieldPowerup::Complete(std::shared_ptr<Player> Owner)
             auto p = entity->OwnerPtr.lock();
             if (dist <= FieldSize && p != Owner)
             {
-                entity->Rotation = -(180 - (Vector2LineAngle({Owner->BoundingBox.x + Owner->BoundingBox.width / 2, Owner->BoundingBox.y + Owner->BoundingBox.height / 2},
+                entity->RotGoal = -(180 - (Vector2LineAngle({Owner->BoundingBox.x + Owner->BoundingBox.width / 2, Owner->BoundingBox.y + Owner->BoundingBox.height / 2},
                     {entity->BoundingBox.x + entity->BoundingBox.width / 2, entity->BoundingBox.y + entity->BoundingBox.height / 2}) * RAD2DEG));
 
-                float X = cos(entity->Rotation * (2 * PI / 360))*100;
-                float Y = sin(entity->Rotation * (2 * PI / 360))*100;
+                float X = cos(entity->RotGoal * (2 * PI / 360))*100;
+                float Y = sin(entity->RotGoal * (2 * PI / 360))*100;
 
                 entity->Movement = Vector2(X, Y);
 

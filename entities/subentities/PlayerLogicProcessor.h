@@ -20,6 +20,9 @@ public:
     double DashTimeStart = 0;
     std::vector<std::weak_ptr<Enemy>> DashedEnemies;
     float PlayerDashLineThickness = 10;
+    double ChaseMusicLock = -10;
+    std::string CurrentLayer;
+    std::string PrevLayer;
     PlayerLogicProcessor();
     PlayerLogicProcessor(std::weak_ptr<Player> Owner);
     ~PlayerLogicProcessor();

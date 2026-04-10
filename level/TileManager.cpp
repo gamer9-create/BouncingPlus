@@ -482,7 +482,7 @@ void TileManager::Clear()
     EnemySpawnLocations = std::vector<Vector2>();
     FXLifetime = 0.75f;
     TileSize = 72;
-    UpdateDistance = Vector2((int) (game->GameCamera.IntendedScreenWidth / 61.0f), (int)(game->GameCamera.IntendedScreenHeight / 48.0f));;
+    UpdateDistance = Vector2((int) (game->GameCamera.IntendedScreenWidth / TileSize) + 1, (int)(game->GameCamera.IntendedScreenHeight / TileSize) + 1);;
     if (IsRenderTextureValid(TileMapTex))
         UnloadRenderTexture(TileMapTex);
     TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
