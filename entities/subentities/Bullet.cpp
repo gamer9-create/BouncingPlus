@@ -230,7 +230,7 @@ void Bullet::Attack(shared_ptr<Entity> entity) {
 
 void Bullet::Update() {
     ExistenceTimer += game->GetGameDeltaTime();
-    Rotation = lerp(Rotation, RotGoal, 65.0f*game->GetGameDeltaTime());
+    Rotation = lerp(Rotation, RotGoal, 50.0f*game->GetGameDeltaTime());
     if (!SlowdownOverTime) {
 
         if (ExistenceTimer >= Lifetime) {

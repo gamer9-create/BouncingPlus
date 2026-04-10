@@ -4,6 +4,7 @@
 
 #include "PlayerLogicProcessor.h"
 
+#include <iostream>
 #include <raymath.h>
 #include <nlohmann/json.hpp>
 
@@ -20,8 +21,11 @@ PlayerLogicProcessor::PlayerLogicProcessor(std::weak_ptr<Player> Owner)
     DashTimeStart = 0;
     DamageNotifs = std::vector<Vector3>();
     DashedEnemies = std::vector<std::weak_ptr<Enemy>>();
-    CurrentLayer = "";
-    PrevLayer = "";
+    FightMusicLayer = 0;
+    FightMusicLayerGoal = 0;
+    LayerSwitchCooldown = 0;
+    PreviousFightTrack = "";
+    FightMusic = "gumble";
 }
 
 PlayerLogicProcessor::PlayerLogicProcessor()
@@ -43,13 +47,13 @@ void PlayerLogicProcessor::ProcessStress()
     for (int i = 0; i < enemyArray.size(); i++)
         if (shared_ptr<Enemy> entity = dynamic_pointer_cast<Enemy>(enemyArray.at(i)); entity != nullptr and !entity->ShouldDelete)
             if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 550)
-                MyPlayer->FrameStressLevel += 0.045f;
+                MyPlayer->FrameStressLevel += 0.05f;
 
     std::vector<shared_ptr<Entity>> bulletArray = MyPlayer->game->GameEntities.Entities[BulletType];
     for (int i = 0; i < bulletArray.size(); i++)
         if (shared_ptr<Bullet> entity = dynamic_pointer_cast<Bullet>(bulletArray.at(i)); entity != nullptr and !entity->ShouldDelete)
             if (Vector2Distance({entity->BoundingBox.x, entity->BoundingBox.y},{MyPlayer->game->MainPlayer->BoundingBox.x,MyPlayer->game->MainPlayer->BoundingBox.y}) < 600)
-                MyPlayer->FrameStressLevel += 0.05f;
+                MyPlayer->FrameStressLevel += 0.01f;
 
     std::vector<shared_ptr<Entity>> turretArray = MyPlayer->game->GameEntities.Entities[TurretType];
     for (int i = 0; i < turretArray.size(); i++)
@@ -57,49 +61,55 @@ void PlayerLogicProcessor::ProcessStress()
             if (!entity->CurrentState == LOOKING)
                 MyPlayer->FrameStressLevel += 0.1f;
 
-    MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.075f;
+    MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.05f;
 
     MyPlayer->FrameStressLevel = min(max(MyPlayer->FrameStressLevel, 0.0f), 1.0f);
 
     if (MyPlayer->FrameStressLevel > MyPlayer->StressLevel)
-        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 2.0f * MyPlayer->game->GetGameDeltaTime());
+        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 2.5f * MyPlayer->game->GetGameDeltaTime());
     else
-        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 0.25f * MyPlayer->game->GetGameDeltaTime());
+        MyPlayer->StressLevel = Lerp(MyPlayer->StressLevel, MyPlayer->FrameStressLevel, 0.15f * MyPlayer->game->GetGameDeltaTime());
+}
 
-    if (MyPlayer->game->GetGameTime() - ChaseMusicLock >= 10.0f)
+void PlayerLogicProcessor::HandleFightMusic()
+{
+    auto MyPlayer = Owner.lock();
+
+    if (LayerSwitchCooldown <= 0)
     {
-        if (MyPlayer->StressLevel <= 0.25f)
+        if (MyPlayer->StressLevel <= 0.3f)
         {
-            PrevLayer = CurrentLayer;
-            CurrentLayer = "gumble_layer1";
-            ChaseMusicLock = MyPlayer->game->GetGameTime() - 9.0f; // this is to make a 1 sec cooldown for changing tracks
+            FightMusicLayerGoal = 1.0f;
         } else if (MyPlayer->StressLevel <= 0.5f)
         {
-            PrevLayer = CurrentLayer;
-            CurrentLayer = "gumble_layer2";
-            ChaseMusicLock = MyPlayer->game->GetGameTime() - 9.0f;
-        } else if (MyPlayer->StressLevel <= 0.75f)
+            FightMusicLayerGoal = 2.0f;
+        } else if (MyPlayer->StressLevel <= 0.7)
         {
-            PrevLayer = CurrentLayer;
-            CurrentLayer = "gumble_layer3";
-            ChaseMusicLock = MyPlayer->game->GetGameTime() - 9.0f;
+            FightMusicLayerGoal = 3.0f;
+            LayerSwitchCooldown = 2.0f;
         } else if (MyPlayer->StressLevel <= 1.0f)
         {
-            PrevLayer = CurrentLayer;
-            CurrentLayer = "gumble_layer4";
-            ChaseMusicLock = MyPlayer->game->GetGameTime(); // full on 10 second cooldown
+            FightMusicLayerGoal = 4.0f;
+            LayerSwitchCooldown = 5.0f;
         }
+    } else
+    {
+        LayerSwitchCooldown -= MyPlayer->game->GetGameDeltaTime();
     }
 
-    if (!PrevLayer.empty() && PrevLayer != CurrentLayer)
+    FightMusicLayer = lerp(FightMusicLayer, FightMusicLayerGoal, 2.5f * MyPlayer->game->GetGameDeltaTime());
+
+    std::string FightTrack = FightMusic+"_layer"+to_string((int)round(FightMusicLayer));
+
+    if (PreviousFightTrack != FightTrack)
     {
-        if (MyPlayer->game->GameSounds.IsGameMusicPlaying(PrevLayer))
-            MyPlayer->game->GameSounds.StopGameMusic(PrevLayer, true);
+        if (!PreviousFightTrack.empty() && MyPlayer->game->GameSounds.IsGameMusicPlaying(PreviousFightTrack))
+            MyPlayer->game->GameSounds.StopGameMusic(PreviousFightTrack, true);
+        PreviousFightTrack = FightTrack;
     }
-    if (!MyPlayer->game->GameSounds.IsGameMusicPlaying(CurrentLayer))
-    {
-        MyPlayer->game->GameSounds.PlayGameMusic(CurrentLayer, true);
-    }
+
+    if (!MyPlayer->game->GameSounds.IsGameMusicPlaying(FightTrack))
+        MyPlayer->game->GameSounds.PlayGameMusic(FightTrack, true);
 }
 
 void PlayerLogicProcessor::Update()
@@ -107,6 +117,7 @@ void PlayerLogicProcessor::Update()
     DashLogic();
     DisplayDamageNotifs();
     ProcessStress();
+    HandleFightMusic();
 }
 
 void PlayerLogicProcessor::PhysicsUpdate()

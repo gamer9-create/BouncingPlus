@@ -14,15 +14,19 @@ class Player;
 class PlayerLogicProcessor
 {
 public:
+
+    double LayerSwitchCooldown = 0;
+    float FightMusicLayerGoal = 0;
+    float FightMusicLayer = 0;
+    std::string FightMusic;
+    std::string PreviousFightTrack;
+
     std::weak_ptr<Player> Owner;
     std::vector<Vector3> DamageNotifs;
     float DashCooldown = 0;
     double DashTimeStart = 0;
     std::vector<std::weak_ptr<Enemy>> DashedEnemies;
     float PlayerDashLineThickness = 10;
-    double ChaseMusicLock = -10;
-    std::string CurrentLayer;
-    std::string PrevLayer;
     PlayerLogicProcessor();
     PlayerLogicProcessor(std::weak_ptr<Player> Owner);
     ~PlayerLogicProcessor();
@@ -31,6 +35,7 @@ public:
     void AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool already_attacked);
     void PhysicsUpdate();
     void DashAttacking();
+    void HandleFightMusic();
     void DashLogic();
     void ProcessStress();
     void DisplayDamageNotifs();
