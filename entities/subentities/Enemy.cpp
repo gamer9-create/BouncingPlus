@@ -71,15 +71,15 @@ void Enemy::Wander() {
             Angle += GetRandomValue(-30, 30);
             float X = cos(Angle * (2 * PI / 360))*900;
             float Y = sin(Angle * (2 * PI / 360))*900;
-            std::pair<bool, Vector2> d = game->RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
+            RayCastData d = game->RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
             if (!S)
             {
-                BestPos = d.second;
+                BestPos = d.HitPosition;
                 S = true;
             }
-            if (Vector2Distance(d.second, {center_x,center_y}) >= Vector2Distance(BestPos, {center_x,center_y}))
+            if (Vector2Distance(d.HitPosition, {center_x,center_y}) >= Vector2Distance(BestPos, {center_x,center_y}))
             {
-                BestPos = d.second;
+                BestPos = d.HitPosition;
                 FoundBest = true;
             }
         }

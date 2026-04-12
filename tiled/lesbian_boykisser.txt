@@ -121,7 +121,7 @@ void main()
 }
 
 /*
-std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
+RayCastData Game::RayCastPoint(Vector2 Origin, Vector2 Target)
 {
     Vector2 vRayStart = Origin;
     Vector2 vRayDir = Vector2Normalize(Target - Origin);
@@ -190,7 +190,7 @@ std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
 }
 */
 
-std::pair<bool, Vector2> Game::RayCastPoint(Vector2 Origin, Vector2 Target)
+RayCastData Game::RayCastPoint(Vector2 Origin, Vector2 Target)
 {
     Vector2 vRayStart = Origin;
     Vector2 vRayDir = Vector2Normalize(Target - Origin);

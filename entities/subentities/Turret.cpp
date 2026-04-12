@@ -82,10 +82,10 @@ void Turret::Update()
         float Angle = TurretRotation - AngleRange/2 + (i * skip);
         float X = cos(Angle * (2 * PI / 360))*Range;
         float Y = sin(Angle * (2 * PI / 360))*Range;
-        std::pair<bool,Vector2> p = game->RayCastPoint(GetCenter(),Vector2Add(GetCenter(), Vector2{X,Y}));
+        auto p = game->RayCastPoint(GetCenter(),Vector2Add(GetCenter(), Vector2{X,Y}));
         if (Vector2Distance(GetCenter(), game->MainPlayer->GetCenter()) < Range+GetRenderWidth()/2)
-            DrawCircleSector(GetCenter(), Vector2Distance(GetCenter(),p.second), Angle - skip/2, Angle + skip/2, skip, ColorAlpha(RED,0.35f));
-        if (Vector2Distance(GetCenter(), p.second) <= 200 && GoalSwitchCooldown <= 0)
+            DrawCircleSector(GetCenter(), Vector2Distance(GetCenter(),p.HitPosition), Angle - skip/2, Angle + skip/2, skip, ColorAlpha(RED,0.35f));
+        if (Vector2Distance(GetCenter(), p.HitPosition) <= 200 && GoalSwitchCooldown <= 0)
         {
             this->LookingRotationGoal = TurretRotation + GetRandomValue(-180,180);
             GoalSwitchCooldown = 0.5f;

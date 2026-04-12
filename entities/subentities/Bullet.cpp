@@ -71,9 +71,13 @@ std::pair<bool,vector<Vector2>> Bullet::BulletCollision()
                     {
                         bool found_tile = false;
 
-                        for (Vector2 d : LastBouncedCoordinates)
+                        for (Vector2 d : LastBouncedCoordinates){
                             if (d == Vector2{(float)curr_tile_x,(float)curr_tile_y})
+                            {
                                 found_tile = true;
+                                break;
+                            }
+                        }
 
                         if (!found_tile)
                             BouncedTiles.push_back(Vector2{(float)curr_tile_x,(float)curr_tile_y});
@@ -105,19 +109,22 @@ void Bullet::PhysicsUpdate(float dt, double time) {
         {
             Vector2 Normal = {0, 0};
 
-            float LowestX = -FLT_MAX;
-            float LowestY = -FLT_MAX;
-            float HigherX = FLT_MAX;
-            float HigherY = FLT_MAX;
+            float LowestX = FLT_MAX;
+            float LowestY = FLT_MAX;
+            float HigherX = -FLT_MAX;
+            float HigherY = -FLT_MAX;
             
             for (Vector2 TilePos : BouncedTiles)
             {
                 Rectangle TileBBox = {TilePos.x * game->GameTiles.TileSize, TilePos.y * game->GameTiles.TileSize, game->GameTiles.TileSize, game->GameTiles.TileSize};
                 LowestX = min(TileBBox.x, LowestX);
                 LowestY = min(TileBBox.y, LowestY);
-                HigherX = max(TileBBox.x, LowestX);
-                HigherY = max(TileBBox.y, LowestY);
+                HigherX = max(TileBBox.x, HigherX);
+                HigherY = max(TileBBox.y, HigherY);
             }
+
+            HigherX += game->GameTiles.TileSize;
+            HigherY += game->GameTiles.TileSize;
 
             Rectangle bbox = {LowestX, LowestY, HigherX - LowestX, HigherY - LowestY};
 
@@ -127,7 +134,7 @@ void Bullet::PhysicsUpdate(float dt, double time) {
                 float DeltaY = GetCenter().y - (bbox.y + bbox.width / 2);
 
                 float OverlapX = ((bbox.width / 2) + (BoundingBox.width / 2)) - abs(DeltaX);
-                float OverlapY = ((bbox.height / 2) + (BoundingBox.height / 2)) - abs(DeltaY);
+                float OverlapY = ((bbox.height / 2) + (BoundingBox.width / 2)) - abs(DeltaY);
 
                 if (OverlapX < OverlapY)
                     Normal += {DeltaX > 0.0f ? 1.0f : -1.0f, 0};
@@ -157,7 +164,7 @@ void Bullet::PhysicsUpdate(float dt, double time) {
 
             if (IsVisible())
                 game->GameTiles.DistortArea(Distortion{
-                game->RayCastPoint(GetCenter(), Vector2Add(GetCenter(), Vector2Multiply(Vector2Normalize(Movement), {100, 100}))).second,
+                game->RayCastPoint(GetCenter(), Vector2Add(GetCenter(), Vector2Multiply(Vector2Normalize(Movement), {100, 100}))).HitPosition,
                 3.0f,
                 BoundingBox.width * 12.5f
                 });

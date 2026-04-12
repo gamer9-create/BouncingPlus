@@ -174,8 +174,8 @@ void WeaponsSystem::DisplayWeaponCone()
             float Angle = LeftAngle + i * opti;
             float X = cos(Angle * (2 * PI / 360))*Dist;
             float Y = sin(Angle * (2 * PI / 360))*Dist;
-            std::pair<bool,Vector2> p = game->RayCastPoint({cx,cy},{cx+X,cy+Y});
-            DrawCircleSector({cx,cy}, Vector2Distance({cx,cy},p.second), Angle - opti/2, Angle + opti/2, 1, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
+            auto p = game->RayCastPoint({cx,cy},{cx+X,cy+Y});
+            DrawCircleSector({cx,cy}, Vector2Distance({cx,cy},p.HitPosition), Angle - opti/2, Angle + opti/2, 1, ColorAlpha(WHITE, MeleeAnimAlpha/2.0f));
         }
     }
 }
@@ -232,10 +232,52 @@ void WeaponsSystem::DisplayWeaponReflectance()
 {
     auto Owner = OwnerPtr.lock();
     Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera);
-    Vector2 Direction = Vector2Normalize(Owner->GetCenter() - Target);
-    auto RaycastData = game->RayCastPoint(Owner->GetCenter(), Direction * 740.0f);
 
+    Vector2 Origin = Owner->GetCenter();
+    Vector2 Direction = Vector2Normalize(Vector2Subtract(Target,Origin));
 
+    for (int i = 0; i < 3; i++)
+    {
+        auto RayCastData = game->RayCastPoint(Origin, Origin + (Direction * 740.0f));
+
+        Vector2 Hit = RayCastData.HitPosition;
+
+        DrawLine(Origin.x, Origin.y, Hit.x, Hit.y, ColorAlpha(WHITE, 0.5f));
+
+        int tile_x = (int) (Hit.x / game->GameTiles.TileSize);
+        int tile_y = (int) (Hit.y / game->GameTiles.TileSize);
+
+        if (RayCastData.HitTile == 1)
+        {
+            Vector2 Normal = {0, 0};
+
+            Rectangle bbox = {tile_x * game->GameTiles.TileSize,tile_y * game->GameTiles.TileSize, game->GameTiles.TileSize, game->GameTiles.TileSize};
+
+            float DeltaX = Hit.x - (bbox.x + bbox.width / 2);
+            float DeltaY = Hit.y - (bbox.y + bbox.width / 2);
+
+            float OverlapX = (bbox.width / 2) - abs(DeltaX);
+            float OverlapY = (bbox.height / 2) - abs(DeltaY);
+
+            if (OverlapX < OverlapY)
+                Normal += {DeltaX > 0.0f ? 1.0f : -1.0f, 0};
+            else if (OverlapY < OverlapX)
+                Normal += {0, DeltaY > 0.0f ? 1.0f : -1.0f};
+            else if (OverlapY == OverlapX)
+                Normal = Vector2Negate(Vector2Normalize(Direction));
+
+            Normal = Vector2Normalize(Normal);
+
+            Direction = Vector2Normalize(Direction);
+            float Dot = Vector2DotProduct(Direction, Normal);
+            Direction -= Vector2Multiply(Normal, {2 * Dot, 2 * Dot});
+            Direction = Vector2Normalize(Direction);
+            Origin = Hit;
+        } else
+        {
+            break;
+        }
+    }
 }
 
 void WeaponsSystem::DisplayMeleeAnim()
@@ -370,22 +412,19 @@ void WeaponsSystem::Attack(Vector2 Target) {
         TimeStartedReloading == -1) {
 
         // Get angle + fire point
-        float TargetAngle = atan2(Owner->BoundingBox.y - Target.y, Owner->BoundingBox.x - Target.x) * RAD2DEG;
+        float TargetAngle = atan2(Owner->GetCenter().y - Target.y, Owner->GetCenter().x - Target.x) * RAD2DEG;
         float cX = -cos(TargetAngle * (2 * PI / 360))*CurrentWeapon->Range;
         float cY = -sin(TargetAngle * (2 * PI / 360))*CurrentWeapon->Range;
-        cX += Owner->BoundingBox.x + (Owner->BoundingBox.width / 2);
-        cY += Owner->BoundingBox.y + (Owner->BoundingBox.height / 2);
+        cX += Owner->GetCenter().x;
+        cY += Owner->GetCenter().y;
 
-        float Owner_cX = Owner->BoundingBox.x + (Owner->BoundingBox.width / 2);
-        float Owner_cY = Owner->BoundingBox.y + (Owner->BoundingBox.height / 2);
-
-        bool Valid = game->RayCast({Owner_cX, Owner_cY}, {cX, cY});
+        bool Valid = game->RayCast(Owner->GetCenter(), {cX, cY});
 
         std::string s = CurrentWeapon->sound[GetRandomValue(0, CurrentWeapon->sound.size()-1)];
 
         // Play weapon sound
         if (game->GameSounds.Sounds.contains(s) && (CurrentWeapon->isMelee || Valid)) {
-            float Distance = Vector2Distance({Owner_cX, Owner_cY}, Vector2Add(game->GameCamera.CameraPosition, {GetRenderWidth() / 2.0f, GetRenderHeight() / 2.0f}));
+            float Distance = Vector2Distance(Owner->GetCenter(), Vector2Add(game->GameCamera.CameraPosition, {GetRenderWidth() / 2.0f, GetRenderHeight() / 2.0f}));
 
             float DistanceMultiplier = (1000.0f - Distance) / 1000.0f;
             DistanceMultiplier += GetRandomValue(-20, 20) / 100.0f;

@@ -108,7 +108,7 @@ void FreezePowerup::Complete(std::shared_ptr<Player> Owner)
     auto r = Owner->game->RayCastPoint(Owner->GetCenter(), GetScreenToWorld2D(GetMousePosition(), Owner->game->GameCamera.RaylibCamera));
     float w = GetRandomValue(250, 300);
     float h = GetRandomValue(250, 300);
-    Rectangle rec = {r.second.x - w/2, r.second.y - h/2, w, h};
+    Rectangle rec = {r.HitPosition.x - w/2, r.HitPosition.y - h/2, w, h};
     Owner->game->FreezeZones.push_back(std::pair(rec, Owner->game->GetGameTime()));
 
     Powerup::Complete(Owner);

@@ -46,13 +46,13 @@ void WeaponBehavior::MoveForCover()
                 continue;
             float X = cos(Angle * (2 * PI / 360))*2000;
             float Y = sin(Angle * (2 * PI / 360))*2000;
-            std::pair<bool, Vector2> d = game->RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
-            if ((!d.first) || Vector2Distance({plr_center_x,plr_center_y}, d.second) >= 500) // if we hit wall?
+            RayCastData d = game->RayCastPoint({center_x,center_y}, {center_x + X,center_y + Y});
+            if ((!d.HitAir) || Vector2Distance({plr_center_x,plr_center_y}, d.HitPosition) >= 500) // if we hit wall?
             {
-                std::pair<bool, Vector2> p = game->RayCastPoint({plr_center_x,plr_center_y}, d.second);
-                if (Vector2Distance(p.second, d.second) >= 150 && !p.first && Vector2Distance({plr_center_x,plr_center_y}, d.second) >= 150)
+                RayCastData p = game->RayCastPoint({plr_center_x,plr_center_y}, d.HitPosition);
+                if (Vector2Distance(p.HitPosition, d.HitPosition) >= 150 && !p.HitAir && Vector2Distance({plr_center_x,plr_center_y}, d.HitPosition) >= 150)
                 {
-                    CoverPosition = d.second;
+                    CoverPosition = d.HitPosition;
                     FoundCover = true;
                     break;
                 }

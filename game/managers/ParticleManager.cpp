@@ -68,7 +68,13 @@ void ParticleManager::Update() {
         p.Velocity -= p.Data.VelocitySlowdown * game->GetGameDeltaTime();
         if (p.Velocity <= 0)
             p.Velocity = 0;
-        p.Position += p.Target * p.Velocity * game->GetGameDeltaTime();
+
+        int tile_x = (int)(p.Position.x / game->GameTiles.TileSize);
+        int tile_y = (int)(p.Position.y / game->GameTiles.TileSize);
+
+        if (game->GameTiles.TileTypes[game->GameTiles.GetTileAt(tile_x, tile_y)] != WallTileType)
+            p.Position += p.Target * p.Velocity * game->GetGameDeltaTime();
+
         p.ParticleColor = ColorLerp(p.ParticleColor, p.Data.TargetColor, Percent);
 
         DrawRectanglePro({p.Position.x - game->GameCamera.RaylibCamera.target.x,
@@ -87,14 +93,6 @@ void ParticleManager::Update() {
 
         if (Percent >= 1.0f)
             Particles.erase(Particles.begin() + i);
-        else
-        {
-            int tile_x = round(p.Position.x / game->GameTiles.TileSize);
-            int tile_y = round(p.Position.y / game->GameTiles.TileSize);
-
-            if (game->GameTiles.GetTileAt(tile_x, tile_y) == WallTileType)
-                Particles.erase(Particles.begin() + i);
-        }
     }
     EndBlendMode();
 

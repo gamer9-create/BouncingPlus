@@ -24,6 +24,19 @@
 
 using namespace std;
 
+struct Vector2i
+{
+    int x;
+    int y;
+};
+
+struct RayCastData
+{
+    bool HitAir;
+    Vector2 HitPosition;
+    int HitTile;
+};
+
 class Game {
 
     float SlowdownTime;
@@ -77,7 +90,7 @@ class Game {
         std::vector<std::string> BannedWeaponDrops;
 
         Game(SharedManager& Shared);
-        std::pair<bool, Vector2> RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug = false);
+        RayCastData RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug = false);
         bool RayCast(Vector2 Origin, Vector2 Target, bool Debug = false);
         void PlaceWeaponPickup(WeaponPickup Pickup);
         void ProcessFreezeZones();

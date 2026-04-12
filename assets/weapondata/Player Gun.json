@@ -10,7 +10,7 @@
   "Ammo": 100,
   "ReloadTime": 1,
   "BulletLifetime": -1,
-  "Spread": [-0,0],
+  "Spread": [0,0],
   "Speed": 2000,
   "WeaponWeightSpeedMultiplier": 1,
   "Size": [1, 1],
