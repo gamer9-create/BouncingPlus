@@ -1,6 +1,7 @@
 {
-  "description": "Tread carefully!",
+  "description": "this is a debugging / test level, and is not intended for actual real gameplay. do whatever u want since im gonna explode if u are da souppy impistor",
   "difficulty": 2,
+  "music": "gumble",
   "player": {
     "starting_health": 300,
     "starting_speed": 425,

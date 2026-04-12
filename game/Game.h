@@ -63,7 +63,7 @@ class Game {
         TileManager GameTiles;
         EntityManager GameEntities;
         CameraManager GameCamera;
-        ParticleManager Particles;
+        ParticleManager GameParticles;
         SoundManager GameSounds;
         GameModeManager GameMode;
         ResourceManager GameResources;

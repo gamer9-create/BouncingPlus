@@ -1,6 +1,7 @@
 {
   "description": "Evil machines inside!",
   "difficulty": 1,
+  "music": "",
   "player": {
     "starting_health": 199,
     "starting_speed": 390,

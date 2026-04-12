@@ -1,6 +1,7 @@
 {
   "description": "Tread carefully!",
   "difficulty": 2,
+  "music": "",
   "player": {
     "starting_health": 300,
     "starting_speed": 425,

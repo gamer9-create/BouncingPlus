@@ -67,7 +67,7 @@ void SharedManager::ControlBindings(Vector2 Position, float Offset1, float Offse
 void SharedManager::Update()
 {
 
-    Vector2 RenderTexSize = {GetRenderWidth() - 800.0f, GetRenderHeight() - 600.0f};
+    Vector2 RenderTexSize = {max(GetRenderWidth() - 800.0f, 100.0f), max(GetRenderHeight() - 600.0f, 100.0f)};
 
     if (!IsRenderTextureValid(ControlsRenderTexture) || ControlsRenderTexture.texture.width != RenderTexSize.x || ControlsRenderTexture.texture.height != RenderTexSize.y)
     {

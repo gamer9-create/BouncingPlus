@@ -192,7 +192,7 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
                     }
 
                     OnWallVelocityBump(VelocityPower);
-                    VelocityPower /= 1.5f;
+                    VelocityPower /= 2.15f;
                     LastVelBounceCoord = coord;
                     f =true;
                     break;
@@ -225,7 +225,7 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
                                 bbox_y,
                                 game->GameTiles.TileSize,
                                 game->GameTiles.TileSize,
-                            }, ColorAlpha(GREEN, 0.05f));
+                            }, ColorAlpha(GREEN, 0.15f));
                     }
                     if ((game->GameTiles.TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles.TileTypes[tile_id] == EnemyWallTileType : false))) {
                         Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);

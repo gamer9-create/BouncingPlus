@@ -25,7 +25,6 @@ PlayerLogicProcessor::PlayerLogicProcessor(std::weak_ptr<Player> Owner)
     FightMusicLayerGoal = 0;
     LayerSwitchCooldown = 0;
     PreviousFightTrack = "";
-    FightMusic = "gumble";
 }
 
 PlayerLogicProcessor::PlayerLogicProcessor()
@@ -78,6 +77,14 @@ void PlayerLogicProcessor::HandleFightMusic()
 
     if (MyPlayer->Health <= 0)
         return;
+    if (MyPlayer->game->isReturning || MyPlayer->game->ShouldReturn)
+        return;
+    if (MyPlayer->game->CurrentLevelName.empty())
+        return;
+    if (!MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName].contains("music"))
+        return;
+    if (MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["music"].empty())
+        return;
 
     if (LayerSwitchCooldown <= 0)
     {
@@ -103,7 +110,7 @@ void PlayerLogicProcessor::HandleFightMusic()
 
     FightMusicLayer = lerp(FightMusicLayer, FightMusicLayerGoal, 2.5f * MyPlayer->game->GetGameDeltaTime());
 
-    std::string FightTrack = FightMusic+"_layer"+to_string((int)round(FightMusicLayer));
+    std::string FightTrack = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["music"].get<std::string>()+"_layer"+to_string((int)round(FightMusicLayer));
 
     if (PreviousFightTrack != FightTrack)
     {
@@ -155,7 +162,7 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
         DrawRectangleRec(myRect, ColorAlpha(RED, 0.5f));
     if (CheckCollisionRecs(myRect, entity->BoundingBox) && !already_attacked) {
         // calculate damage & attack
-        float Damage = MyPlayer->VelocityPower / 18.5f;
+        float Damage = min(MyPlayer->VelocityPower / 18.5f / max(1.0f, DashedEnemies.size() * 0.85f), 100.0f);
 
         float EnemyConcentration = 0.8f + (MyPlayer->FrameStressLevel*1.2f);
 
@@ -179,10 +186,10 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
             MyPlayer->Health += Damage * 0.1f;
             amount = 950;
             MyPlayer->Kills+=1;
-            MyPlayer->game->GameScore += 15;
+            MyPlayer->game->GameScore += 25 * ((DashedEnemies.size() + 1.0f) * 1.25f);
         }
 
-        MyPlayer->game->Particles.ParticleEffect({{
+        MyPlayer->game->GameParticles.ParticleEffect({{
             MyPlayer->BoundingBox.x + MyPlayer->BoundingBox.width/2, MyPlayer->BoundingBox.y + MyPlayer->BoundingBox.height/2},
                 700,
                 PURPLE,
@@ -204,7 +211,6 @@ void PlayerLogicProcessor::AttackDashedEnemy(std::shared_ptr<Enemy> entity, bool
 
         // increase velocity and mark enemy as attacked
         MyPlayer->VelocityPower += MyPlayer->VelocityPower / (amount/200);
-        MyPlayer->VelocityMovement = Vector2Normalize(entity->GetCenter() - MyPlayer->GetCenter());
         DashedEnemies.push_back(std::weak_ptr(entity));
     }
 }

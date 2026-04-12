@@ -224,7 +224,7 @@ void Spawner::Update() {
                 e->HealthRegenRate = GetRandomValue(25, 70) / 10.0f;
             e->WanderingEnabled = false;
             game->GameEntities.AddEntity(EnemyType, e);
-            game->Particles.ParticleEffect({
+            game->GameParticles.ParticleEffect({
                 p,
                 150,
                 WHITE,

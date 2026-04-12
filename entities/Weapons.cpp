@@ -12,6 +12,7 @@
 #include "subentities/Enemy.h"
 #include "iostream"
 #include "subentities/Turret.h"
+#include "subentities/behaviors/WeaponBehavior.h"
 
 using namespace std;
 
@@ -147,8 +148,15 @@ void WeaponsSystem::DisplayWeaponCone()
         float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
         if (Owner->Type == PlayerType)
             MeleeDisplayRenderTarget = GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera);
-        else
-            MeleeDisplayRenderTarget = game->MainPlayer->GetCenter();
+        else if (Owner->Type == EnemyType)
+        {
+            std::shared_ptr<Enemy> ptr = dynamic_pointer_cast<Enemy>(Owner);
+            if (ptr->Behavior != nullptr && ptr->Behavior->BehaviorType == WeaponBehaviorType)
+            {
+                WeaponBehavior* f = (WeaponBehavior*)ptr->Behavior.get();
+                MeleeDisplayRenderTarget = f->Target;
+            }
+        }
 
         MeleeAnimRange = CurrentWeapon->AngleRange;
         // get angle
@@ -201,15 +209,28 @@ void WeaponsSystem::Update() {
         TimeStartedReloading = -1;
     }
 
-    DisplayWeaponCone();
+    // display weapon cone
+    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee)
+        DisplayWeaponCone();
 
     // display gun tex
     if (CurrentWeapon != nullptr && (!CurrentWeapon->texture.empty()) && (!CurrentWeapon->isMelee) && Owner->IsVisible())
         DisplayGunTexture();
 
-    DisplayMeleeAnim();
+    // display melee animations
+    if (CurrentWeapon != nullptr && CurrentWeapon->isMelee)
+        DisplayMeleeAnim();
+
+    // display reflect
+    if (CurrentWeapon != nullptr && CurrentWeapon->SpreadRange[0] == 0 && CurrentWeapon->SpreadRange[1] == 0 && CurrentWeapon->Bullets == 1)
+        DisplayWeaponReflectance();
 
     TriedChargingThisFrame = false;
+}
+
+void WeaponsSystem::DisplayWeaponReflectance()
+{
+
 }
 
 void WeaponsSystem::DisplayMeleeAnim()

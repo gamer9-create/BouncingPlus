@@ -104,59 +104,25 @@ void Bullet::PhysicsUpdate(float dt, double time) {
         if (BouncedTiles.size() > 0)
         {
             Vector2 Normal = {0, 0};
+
+            float LowestX = -FLT_MAX;
+            float LowestY = -FLT_MAX;
+            float HigherX = FLT_MAX;
+            float HigherY = FLT_MAX;
             
-            Rectangle bbox = {0};
-            
-            float LowestX = -1;
-            bool LowestXFound = false;
-            float LowestY = -1;
-            bool LowestYFound = false;
-            float HigherX = -1;
-            bool HigherXFound = false;
-            float HigherY = -1;
-            bool HigherYFound = false;
-            
-            for (Vector2 p : BouncedTiles)
+            for (Vector2 TilePos : BouncedTiles)
             {
-                Rectangle b = {p.x * game->GameTiles.TileSize, p.y * game->GameTiles.TileSize, game->GameTiles.TileSize, game->GameTiles.TileSize};
-                if (LowestXFound)
-                {
-                    if (b.x < LowestX)
-                        LowestX = b.x;
-                } else
-                    LowestX = b.x;
-                
-                if (LowestYFound)
-                {
-                    if (b.y < LowestY)
-                        LowestY = b.y;
-                } else
-                    LowestY = b.y;
-                
-                if (HigherXFound)
-                {
-                    if (b.x + b.width > HigherX)
-                        HigherX = b.x + b.width;
-                } else
-                    HigherX = b.x + b.width;
-                
-                if (HigherYFound)
-                {
-                    if (b.y + b.height > HigherY)
-                        HigherY = b.y + b.height;
-                } else
-                    HigherY = b.y + b.height;
-                
-                LowestXFound = true;
-                LowestYFound = true;
-                HigherXFound = true;
-                HigherYFound = true;
+                Rectangle TileBBox = {TilePos.x * game->GameTiles.TileSize, TilePos.y * game->GameTiles.TileSize, game->GameTiles.TileSize, game->GameTiles.TileSize};
+                LowestX = min(TileBBox.x, LowestX);
+                LowestY = min(TileBBox.y, LowestY);
+                HigherX = max(TileBBox.x, LowestX);
+                HigherY = max(TileBBox.y, LowestY);
             }
-            bbox = {LowestX,LowestY,HigherX - LowestX,HigherY - LowestY};
+
+            Rectangle bbox = {LowestX, LowestY, HigherX - LowestX, HigherY - LowestY};
 
             if (!(bbox.width == game->GameTiles.TileSize*2 && bbox.height == game->GameTiles.TileSize*2))
             {
-
                 float DeltaX = GetCenter().x - (bbox.x + bbox.width / 2);
                 float DeltaY = GetCenter().y - (bbox.y + bbox.width / 2);
 
@@ -190,14 +156,12 @@ void Bullet::PhysicsUpdate(float dt, double time) {
             }
 
             if (IsVisible())
-            {
-                Vector2 Pos = game->RayCastPoint(GetCenter(), Vector2Add(GetCenter(), Vector2Multiply(Vector2Normalize(Movement), {100, 100}))).second;
                 game->GameTiles.DistortArea(Distortion{
-                Pos,
+                game->RayCastPoint(GetCenter(), Vector2Add(GetCenter(), Vector2Multiply(Vector2Normalize(Movement), {100, 100}))).second,
                 3.0f,
                 BoundingBox.width * 12.5f
                 });
-            }
+
 
             Bounce(Normal);
             LastBouncedCoordinates = BouncedTiles;
@@ -230,7 +194,7 @@ void Bullet::Attack(shared_ptr<Entity> entity) {
 
 void Bullet::Update() {
     ExistenceTimer += game->GetGameDeltaTime();
-    Rotation = lerp(Rotation, RotGoal, 50.0f*game->GetGameDeltaTime());
+    Rotation = lerp(Rotation, RotGoal, 25.0f * (Speed / 400.0f) * game->GetGameDeltaTime());
     if (!SlowdownOverTime) {
 
         if (ExistenceTimer >= Lifetime) {

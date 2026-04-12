@@ -1,6 +1,7 @@
 {
   "description": "A true test!",
   "difficulty": 3,
+  "music": "gumble",
   "player": {
     "starting_health": 150,
     "starting_speed": 350,

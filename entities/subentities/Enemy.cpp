@@ -104,7 +104,7 @@ void Enemy::OnDelete() {
 
 void Enemy::OnDeath()
 {
-    game->Particles.ParticleEffect({
+    game->GameParticles.ParticleEffect({
                 {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2},
                 300,
                 WHITE,

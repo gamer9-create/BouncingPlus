@@ -85,8 +85,16 @@ void ParticleManager::Update() {
             ColorAlpha(p.Data.TargetColor, 0.4f * (Percent >= 0.8f ? 1.0f - (Percent - .8f) / .2f : 1.0f)),
             ColorAlpha(p.ParticleColor, 0.4f * (Percent >= 0.8f ? 1.0f - (Percent - .8f) / .2f : 1.0f)));
 
-        if (Percent >= 1.0)
+        if (Percent >= 1.0f)
             Particles.erase(Particles.begin() + i);
+        else
+        {
+            int tile_x = round(p.Position.x / game->GameTiles.TileSize);
+            int tile_y = round(p.Position.y / game->GameTiles.TileSize);
+
+            if (game->GameTiles.GetTileAt(tile_x, tile_y) == WallTileType)
+                Particles.erase(Particles.begin() + i);
+        }
     }
     EndBlendMode();
 

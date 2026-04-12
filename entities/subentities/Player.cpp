@@ -4,9 +4,7 @@
 
 #include "Player.h"
 #include <nlohmann/json.hpp>
-#include "Enemy.h"
 #include "../../game/Game.h"
-#include "Bullet.h"
 #include "raylib.h"
 #include <raymath.h>
 
@@ -106,6 +104,18 @@ void Player::OnWallVelocityBump(float Power)
         float PreviousH = Health;
         Entity::OnWallVelocityBump(Power);
         game->GameSounds.PlayGameSound("dash_wall_hit");
+        int ParticleAmount = round(Power / 500.0f);
+        bool PURPLE_OR_BLUE = GetRandomValue(1,2)==1;
+        if (ParticleAmount > 0)
+            game->GameParticles.ParticleEffect({
+                GetCenter(),
+                Power / 1.5f,
+                PURPLE_OR_BLUE ? PURPLE : BLUE,
+                100,
+                Power / 400.0f,
+                1.0f,
+                PURPLE_OR_BLUE ? BLUE : PURPLE
+            }, (180 - Vector2LineAngle(VelocityMovement, {0,0})*RAD2DEG), 15, ParticleAmount);
         float Damage = Power / 390.0f;
         if (Health - Damage >= 20)
         {
@@ -227,8 +237,6 @@ void Player::Update() {
         PlayerFrozenTimer -= game->GetGameDeltaTime();
     }
 
-    game->GameScore += Health * 0.005f * game->GetGameDeltaTime();
-
     Vector2 c = GetCenter();
     DrawCircleGradient(c.x,c.y, BoundingBox.width / 1.25f, ColorAlpha(PURPLE, 0.5), BLANK);
 
@@ -246,6 +254,19 @@ void Player::Update() {
     }
     LastKills = Kills;
     EnemiesDetected = 0;
+}
+
+void Player::OnDeath()
+{
+    if (!game->CurrentLevelName.empty() && !game->LevelData[game->CurrentLevelName]["music"].get<string>().empty())
+    {
+        for (int i = 1; i < 5; i++)
+        {
+            std::string FightTrack = game->LevelData[game->CurrentLevelName]["music"].get<string>()+"_layer"+to_string(i);
+            game->GameSounds.StopGameMusic(FightTrack, true);
+        }
+    }
+    Entity::OnDeath();
 }
 
 void Player::OnDelete()

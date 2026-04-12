@@ -4,7 +4,6 @@
 
 #ifndef BOUNCINGPLUS_PLAYER_H
 #define BOUNCINGPLUS_PLAYER_H
-#include "Enemy.h"
 #include "PlayerLogicProcessor.h"
 #include "../Entity.h"
 #include "../Weapons.h"
@@ -56,6 +55,7 @@ class Player : public Entity {
         virtual ~Player();
         void PhysicsUpdate(float DeltaTime, double Time);
         void Update();
+        void OnDeath() override;
         void OnDelete() override;
         void OnWallVelocityBump(float Power);
         void ToggleInvincibility();

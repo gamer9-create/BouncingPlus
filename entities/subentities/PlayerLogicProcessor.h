@@ -18,7 +18,6 @@ public:
     double LayerSwitchCooldown = 0;
     float FightMusicLayerGoal = 0;
     float FightMusicLayer = 0;
-    std::string FightMusic;
     std::string PreviousFightTrack;
 
     std::weak_ptr<Player> Owner;

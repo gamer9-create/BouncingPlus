@@ -60,6 +60,7 @@ class WeaponsSystem {
     void MeleeAttack(std::shared_ptr<Entity> entity, float Angle);
     void ResetMeleeAnim();
     void DisplayWeaponCone();
+    void DisplayWeaponReflectance();
     void DisplayMeleeAnim();
     void GunAttack(float TargetAngle, float cX, float cY);
 

@@ -19,10 +19,12 @@ WeaponBehavior::~WeaponBehavior()
 
 WeaponBehavior::WeaponBehavior(Enemy& Owner, Game& game) : EnemyBehavior(Owner,game)
 {
+    BehaviorType = WeaponBehaviorType;
     CoverRefreshTimer = 0;
     CoverPosition = {0,0};
     FoundCover = false;
     CoverSearching = false;
+    Target = Owner.GetCenter();
 }
 
 void WeaponBehavior::MoveForCover()
@@ -94,6 +96,8 @@ void WeaponBehavior::Update()
 
     float distance = std::sqrt(std::pow(plr_center_x - center_x, 2) + std::pow(plr_center_y - center_y, 2));
 
+    bool Attacking = false;
+
     CoverSearching = Owner->RemainingHealthOfOriginalHealth <= 0.6f;
     if ((distance <= 800 && (distance <= 36 || game->RayCast({center_x, center_y}, {plr_center_x, plr_center_y}))) || Owner->AngeredRangeBypassTimer > 0.0f) {
         if (distance >= 100 && !CoverSearching) {
@@ -104,21 +108,26 @@ void WeaponBehavior::Update()
             Owner->Movement=Vector2Lerp(othermov, Owner->Movement,0.5f);
         }
 
-        Vector2 attackPos = Vector2(plr_center_x, plr_center_y);
+        Target = Vector2(plr_center_x, plr_center_y);
         if (game->MainPlayer->Speed >= 200 && (Owner->weaponsSystem.CurrentWeapon != nullptr ? !Owner->weaponsSystem.CurrentWeapon->isMelee : true))
         {
-            attackPos = Vector2Add(attackPos, Vector2Multiply(Vector2Normalize(game->MainPlayer->Movement), {game->MainPlayer->Speed * 0.2f,game->MainPlayer->Speed * 0.2f}));
+            Target = Vector2Add(Target, Vector2Multiply(Vector2Normalize(game->MainPlayer->Movement), {game->MainPlayer->Speed * 0.2f,game->MainPlayer->Speed * 0.2f}));
         }
 
         game->MainPlayer->EnemiesDetected += 1;
 
-        Owner->weaponsSystem.Attack(attackPos);
+        Attacking = true;
+        Owner->weaponsSystem.Attack(Target);
     } else if (Owner->WanderingEnabled && !CoverSearching) {
         Owner->Wander(); // enemy wandering
+        Target = Owner->GetCenter() + Owner->Movement;
     }
 
-    if (CoverSearching)
+    if (CoverSearching) {
         MoveForCover();
+        if (!Attacking)
+            Target = Owner->GetCenter() + Owner->Movement;
+    }
 
     EnemyBehavior::Update();
 }

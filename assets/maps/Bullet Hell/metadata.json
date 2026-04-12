@@ -1,6 +1,7 @@
 {
   "description": "No special dudes, just pure bullets.",
   "difficulty": 4,
+  "music": "gumble",
   "player": {
     "inventory": ["Player Gun"],
     "powerup": "shield",

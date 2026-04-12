@@ -30,7 +30,7 @@ Game::Game(SharedManager& Shared)
     // init game services
     GameUI = UIManager(*this);
     GameTiles = TileManager(*this);
-    Particles = ParticleManager(*this);
+    GameParticles = ParticleManager(*this);
     GameCamera = CameraManager(*this);
     GameEntities = EntityManager(*this);
     GameSounds = SoundManager(*this);
@@ -272,7 +272,17 @@ void Game::Update() {
         if (this->GameControls->IsControlPressed("level_restart_or_finish"))
         {
             if (GameMode.WonLevel)
+            {
                 isReturning=true;
+                if (!CurrentLevelName.empty() && !LevelData[CurrentLevelName]["music"].get<string>().empty())
+                {
+                    for (int i = 1; i < 5; i++)
+                    {
+                        std::string FightTrack = LevelData[CurrentLevelName]["music"].get<string>()+"_layer"+to_string(i);
+                        GameSounds.StopGameMusic(FightTrack, true);
+                    }
+                }
+            }
             else if ((MainPlayer->Health <= 0 || MainPlayer->ShouldDelete) && !CurrentLevelName.empty())
             {
                 Reload(CurrentLevelName);
@@ -290,7 +300,7 @@ void Game::Update() {
         GameTiles.Update();
 
         GameProfiler.ProfilerLog("particles");
-        Particles.Update();
+        GameParticles.Update();
 
         GameProfiler.ProfilerLog("entities");
         GameEntities.Update();
@@ -335,7 +345,6 @@ void Game::Update() {
     {
         GameUI.StartingBlackScreenTrans = 1.0f;
         GameUI.EndBlackScreenTrans = 0.0f;
-
     }
 }
 
@@ -450,7 +459,7 @@ void Game::Clear() {
     WeaponPickups.clear();
     GameTiles.Clear();
     FreezeZones.clear();
-    Particles.Clear();
+    GameParticles.Clear();
     GameSounds.Clear();
     GameCamera.Clear();
     GameMode.Clear();
@@ -496,7 +505,7 @@ void Game::Quit() {
     GameEntities.Quit();
     GameTiles.Quit();
     GameUI.Quit();
-    Particles.Quit();
+    GameParticles.Quit();
     GameCamera.Quit();
     GameSounds.Quit();
     GameResources.Quit();

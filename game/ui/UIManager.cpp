@@ -292,7 +292,7 @@ void UIManager::DisplayInventory(bool Found, float Prev, float HighestWidth, flo
 void UIManager::DisplayCooldownMeter(float LowestX, float LowestY, float HighestWidth, float HighestHeight)
 {
     if (game->MainPlayer != nullptr && game->MainPlayer->MainWeaponsSystem.CurrentWeapon != nullptr) {
-        Rectangle r = {LowestX + HighestWidth + Margin + 50, LowestY - Margin, 65, HighestHeight + Margin*2};
+        Rectangle r = {LowestX + HighestWidth + Margin*2, LowestY - Margin, 65, HighestHeight + Margin*2};
         DrawRectangle(r.x,r.y,r.width,r.height, ColorAlpha(BLACK, Alpha));
         float percent = min(game->MainPlayer->MainWeaponsSystem.AttackCooldowns[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex]/game->MainPlayer->MainWeaponsSystem.CurrentWeapon->Cooldown, 1.0f);
         Color g = WHITE;
@@ -326,7 +326,7 @@ void UIManager::DisplayHealthMeter()
     float PlrHealth = game->MainPlayer->Health;
     if (LastHealth != PlrHealth)
     {
-        float mov = 0.1f * (abs(PlrHealth-LastHealth)/10.0f);
+        float mov = 0.15f * (abs(PlrHealth-LastHealth)/8.0f);
 
         HealthBarAnimRot = max(min(limit * ((PlrHealth-LastHealth) / abs(PlrHealth-LastHealth)) * (mov / 0.1f), 35.0f), -35.0f);
         game->GameCamera.QuickZoom(PlrHealth - LastHealth > 0 ? 1.0f - min(0.15f, mov) : 1.0f + min(0.15f, mov), 0.1f);
@@ -525,7 +525,7 @@ void UIManager::GameWin()
     if (game->MainPlayer->Kills == 0)
         txt = "YOU DID NOT KILL ANY ENEMIES";
 
-    std::string txt_2 = "PRESS E TO RESPAWN";
+    std::string txt_2 = "PRESS E TO GO TO MAIN MENU";
     float size = MeasureText(txt.c_str(), es);
     float size2 = MeasureText(txt_2.c_str(), es);
 

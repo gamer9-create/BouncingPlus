@@ -223,12 +223,12 @@ void TileManager::RenderForceFields(std::vector<Vector2> ForceFieldPos)
         return;
 
     game->GameCamera.EndRenderTexture();
-    game->GameCamera.BeginRenderTexture(ForceFieldTex);
+    game->GameCamera.BeginRenderTexture(ForceFieldTex,true);
 
     ClearBackground(BLANK);
 
     for (Vector2 p : ForceFieldPos)
-        DrawRectangleRec({p.x*TileSize - game->GameCamera.RaylibCamera.target.x, p.y*TileSize - game->GameCamera.RaylibCamera.target.y, TileSize, TileSize},WHITE);
+        DrawRectangleRec({p.x*TileSize, p.y*TileSize, TileSize, TileSize},WHITE);
 
     game->GameCamera.EndRenderTexture();
     game->GameCamera.BeginRenderTexture(TileMapTex);
