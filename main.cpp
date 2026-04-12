@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 
     bool InGame = false;
 
-    SetWindowMinSize(860, 480);
+    SetWindowMinSize(1000, 800);
     SetWindowSize(GetMonitorWidth(GetCurrentMonitor()) / 1.2f, GetMonitorHeight(GetCurrentMonitor()) / 1.2f);
     SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetRenderWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetRenderHeight()/2);
     SetExitKey(KEY_NULL);

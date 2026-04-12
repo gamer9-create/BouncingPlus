@@ -250,20 +250,20 @@ void TileManager::ProcessUniformLocations()
 {
     if (DistortionUniformLocations.size() <= 0)
     {
-        BeginShaderMode(game->GameResources.Shaders["distortion"]);
+        BeginShaderMode(game->GameResources.Shaders["bounce_distort"]);
 
         for (int i = 0; i < 100; i++)
         {
 
-            int loc1 = GetShaderLocation(game->GameResources.Shaders["distortion"], ("distortions[" + to_string(i) + "].position").c_str());
-            int loc2 = GetShaderLocation(game->GameResources.Shaders["distortion"], ("distortions[" + to_string(i) + "].strength").c_str());
-            int loc3 = GetShaderLocation(game->GameResources.Shaders["distortion"], ("distortions[" + to_string(i) + "].radius").c_str());
+            int loc1 = GetShaderLocation(game->GameResources.Shaders["bounce_distort"], ("distortions[" + to_string(i) + "].position").c_str());
+            int loc2 = GetShaderLocation(game->GameResources.Shaders["bounce_distort"], ("distortions[" + to_string(i) + "].strength").c_str());
+            int loc3 = GetShaderLocation(game->GameResources.Shaders["bounce_distort"], ("distortions[" + to_string(i) + "].radius").c_str());
             std::tuple locs(loc1, loc2, loc3);
 
             DistortionUniformLocations.push_back(locs);
         }
 
-        DistortionCountLocation = GetShaderLocation(game->GameResources.Shaders["distortion"], "distortionCount");
+        DistortionCountLocation = GetShaderLocation(game->GameResources.Shaders["bounce_distort"], "distortionCount");
 
         EndShaderMode();
     }
@@ -298,11 +298,11 @@ void TileManager::Update() {
 
     game->GameCamera.StopCamera();
 
-    BeginShaderMode(game->GameResources.Shaders["distortion"]);
+    BeginShaderMode(game->GameResources.Shaders["bounce_distort"]);
 
     int DistortionCount = (int)min(100.0f, (float)Distortions.size());
 
-    SetShaderValue(game->GameResources.Shaders["distortion"], DistortionCountLocation, &DistortionCount, SHADER_UNIFORM_INT);
+    SetShaderValue(game->GameResources.Shaders["bounce_distort"], DistortionCountLocation, &DistortionCount, SHADER_UNIFORM_INT);
 
     BeginBlendMode(BLEND_ALPHA);
     DrawTexturePro(TileMapTex.texture, {0, 0, (float)TileMapTex.texture.width, (float)-TileMapTex.texture.height}, {
@@ -355,9 +355,9 @@ void TileManager::ProcessDistortions()
         if (game->DebugDraw)
             DrawCircle(Distortions[i].Position.x, Distortions[i].Position.y, 5, ColorAlpha(PINK, 0.5f));
 
-        SetShaderValue(game->GameResources.Shaders["distortion"], PositionLocation, &SPosition, SHADER_UNIFORM_VEC2);
-        SetShaderValue(game->GameResources.Shaders["distortion"], StrengthLocation, &Distortions[i].Strength, SHADER_UNIFORM_FLOAT);
-        SetShaderValue(game->GameResources.Shaders["distortion"], RadiusLocation, &Distortions[i].Radius, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(game->GameResources.Shaders["bounce_distort"], PositionLocation, &SPosition, SHADER_UNIFORM_VEC2);
+        SetShaderValue(game->GameResources.Shaders["bounce_distort"], StrengthLocation, &Distortions[i].Strength, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(game->GameResources.Shaders["bounce_distort"], RadiusLocation, &Distortions[i].Radius, SHADER_UNIFORM_FLOAT);
     }
 }
 

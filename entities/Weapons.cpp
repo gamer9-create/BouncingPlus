@@ -222,7 +222,7 @@ void WeaponsSystem::Update() {
         DisplayMeleeAnim();
 
     // display reflect
-    if (CurrentWeapon != nullptr && CurrentWeapon->SpreadRange[0] == 0 && CurrentWeapon->SpreadRange[1] == 0 && CurrentWeapon->Bullets == 1)
+    if (CurrentWeapon != nullptr && Owner->Type == PlayerType && CurrentWeapon->SpreadRange[0] == 0 && CurrentWeapon->SpreadRange[1] == 0 && CurrentWeapon->Bullets == 1)
         DisplayWeaponReflectance();
 
     TriedChargingThisFrame = false;
@@ -230,6 +230,11 @@ void WeaponsSystem::Update() {
 
 void WeaponsSystem::DisplayWeaponReflectance()
 {
+    auto Owner = OwnerPtr.lock();
+    Vector2 Target = GetScreenToWorld2D(GetMousePosition(), game->GameCamera.RaylibCamera);
+    Vector2 Direction = Vector2Normalize(Owner->GetCenter() - Target);
+    auto RaycastData = game->RayCastPoint(Owner->GetCenter(), Direction * 740.0f);
+
 
 }
 

@@ -1,7 +1,4 @@
 import shutil,os
-import ctypes
-
-#ctypes.windll.user32.MessageBoxW(0, "Your text", "Your title", 1)
 
 for i in os.listdir(os.getcwd()):
     if ".zip" in i:

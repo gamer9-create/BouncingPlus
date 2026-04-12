@@ -7,8 +7,7 @@
     "starting_speed": 390,
     "inventory": [
       "Sword",
-      "Shotgun",
-      ""
+      "Shotgun"
     ],
     "powerup": "shield",
     "dash_base_power": 2500,

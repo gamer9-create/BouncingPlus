@@ -33,8 +33,6 @@ void CameraManager::Clear() {
     ShaderPixelPower = 2;
     uWidth = -1;
     uHeight = -1;
-    uWidth2 = -1;
-    uHeight2 = -1;
     uPixelSize = -1;
 
     RaylibCamera = {{0,0}, {0, 0}, 0, 1.0f};
@@ -126,35 +124,20 @@ void CameraManager::BackgroundLines() {
     } else
     {
         Texture& bg = game->GameResources.Textures["bg"+to_string(BGTexture)];
-        BeginShaderMode(game->GameResources.Shaders["blur"]);
-        int w = bg.width / (static_cast<int>(abs(sin(game->GetGameTime() / 10.0f) * 12.0f)) + 1);
-        int h = bg.height / (static_cast<int>(abs(cos(game->GetGameTime() / 10.0f) * 12.0f)) + 1);
-        if (uWidth2 == -1 || uHeight2 == -1) {
-            uWidth2 = GetShaderLocation(this->game->GameResources.Shaders["blur"], "renderWidth");
-            uHeight2 = GetShaderLocation(this->game->GameResources.Shaders["blur"], "renderHeight");
-        }
-        SetShaderValue(game->GameResources.Shaders["blur"], uWidth2, &w, SHADER_UNIFORM_INT);
-        SetShaderValue(game->GameResources.Shaders["blur"], uHeight2, &h, SHADER_UNIFORM_INT);
-        BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
 
         int times_x = (int) ((game->GameTiles.MapWidth * game->GameTiles.TileSize) / bg.width) + 1;
         int times_y = (int) ((game->GameTiles.MapHeight * game->GameTiles.TileSize) / bg.height) + 1;
+
+        DrawTexturePro(bg, {0, 0, (float)bg.width*3.0f,(float)bg.height*3.0f}, {
+            -(ParallaxCamX/2.0f) + CameraPosition.x,
+            -(ParallaxCamY/2.0f) + CameraPosition.y,
+            (float)bg.width*times_x,(float)bg.height*times_y}, {bg.width*(float)(times_x/2.0f),bg.height*(float)(times_y/2.0f)},0, WHITE);
 
         DrawTexturePro(bg, {0, 0, (float)bg.width*3.0f,(float)bg.height*3.0f}, {
             -ParallaxCamX + CameraPosition.x,
             -ParallaxCamY + CameraPosition.y,
             (float)bg.width*times_x,(float)bg.height*times_y}, {bg.width*(float)(times_x/2.0f),bg.height*(float)(times_y/2.0f)},0, WHITE);
 
-        w /=2;
-        h /=2;
-        SetShaderValue(game->GameResources.Shaders["blur"], uWidth2, &w, SHADER_UNIFORM_INT);
-        SetShaderValue(game->GameResources.Shaders["blur"], uHeight2, &h, SHADER_UNIFORM_INT);
-        DrawTexturePro(bg, {0, 0, (float)bg.width*3.0f,(float)bg.height*3.0f}, {
-            -(ParallaxCamX/2.0f) + CameraPosition.x,
-            -(ParallaxCamY/2.0f) + CameraPosition.y,
-            (float)bg.width*times_x,(float)bg.height*times_y}, {bg.width*(float)(times_x/2.0f),bg.height*(float)(times_y/2.0f)},0, WHITE);
-        EndBlendMode();
-        EndShaderMode();
     }
 }
 

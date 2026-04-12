@@ -67,10 +67,10 @@ Game::Game(SharedManager& Shared)
 void Game::SetGameData() {
     GameResources.Load();
 
-    uOutlineSize = GetShaderLocation(GameResources.Shaders["outline"], "outlineSize");
-    uOutlineColor = GetShaderLocation(GameResources.Shaders["outline"], "outlineColor");
-    uTextureSize = GetShaderLocation(GameResources.Shaders["outline"], "textureSize");
-    uThreshold = GetShaderLocation(GameResources.Shaders["outline"], "threshold");
+    uOutlineSize = GetShaderLocation(GameResources.Shaders["weps_outline"], "outlineSize");
+    uOutlineColor = GetShaderLocation(GameResources.Shaders["weps_outline"], "outlineColor");
+    uTextureSize = GetShaderLocation(GameResources.Shaders["weps_outline"], "textureSize");
+    uThreshold = GetShaderLocation(GameResources.Shaders["weps_outline"], "threshold");
 
     WeaponPickupTex = LoadRenderTexture(150, 150);
 
@@ -190,11 +190,11 @@ void Game::DisplayPickups()
         };
 
         BeginBlendMode(BLEND_ALPHA_PREMULTIPLY);
-        BeginShaderMode(GameResources.Shaders["outline"]);
-        SetShaderValue(GameResources.Shaders["outline"], uTextureSize, &texSize, SHADER_UNIFORM_VEC2);
-        SetShaderValue(GameResources.Shaders["outline"], uThreshold, &threshold, SHADER_UNIFORM_FLOAT);
-        SetShaderValue(GameResources.Shaders["outline"], uOutlineSize, &outlineSize, SHADER_UNIFORM_FLOAT);
-        SetShaderValue(GameResources.Shaders["outline"], uOutlineColor, &outlineColorRGB, SHADER_UNIFORM_VEC4);
+        BeginShaderMode(GameResources.Shaders["weps_outline"]);
+        SetShaderValue(GameResources.Shaders["weps_outline"], uTextureSize, &texSize, SHADER_UNIFORM_VEC2);
+        SetShaderValue(GameResources.Shaders["weps_outline"], uThreshold, &threshold, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(GameResources.Shaders["weps_outline"], uOutlineSize, &outlineSize, SHADER_UNIFORM_FLOAT);
+        SetShaderValue(GameResources.Shaders["weps_outline"], uOutlineColor, &outlineColorRGB, SHADER_UNIFORM_VEC4);
         DrawTexturePro(WeaponPickupTex.texture, {0,0,(float)WeaponPickupTex.texture.width,
             (float)-WeaponPickupTex.texture.height
         }, {pickup.Position.x,

@@ -41,10 +41,6 @@ class CameraManager {
     public:
         int IntendedScreenWidth;
         int IntendedScreenHeight;
-
-        int uWidth2;
-        int uHeight2;
-
         RenderTexture CameraRenderTexture;
         Game* game;
         Vector2 CameraPosition;
