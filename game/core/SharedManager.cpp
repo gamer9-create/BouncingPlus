@@ -23,7 +23,6 @@ bool IsCursorOnScreenCrossPlatform()
     return IsCursorOnScreen();
 #endif
 }
-}
 
 void SharedManager::DisplaySettings(Vector2 Position, float Offset1, float Offset2)
 {

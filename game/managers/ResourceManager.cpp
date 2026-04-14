@@ -14,16 +14,6 @@
 #include "nlohmann/json.hpp"
 namespace fs = std::filesystem;
 
-#include "rlgl.h"
-
-void CheckShaderLink(Shader shader, const std::string& name) {
-    if (shader.id == rlGetShaderIdDefault()) {
-        std::cout << "[SHADER FAILED] " << name << " - fell back to default shader (compile or link error)" << std::endl;
-    } else {
-        std::cout << "[SHADER OK] " << name << " id=" << shader.id << std::endl;
-    }
-}
-
 ResourceManager::ResourceManager()
 {
 }
@@ -44,9 +34,6 @@ ResourceManager::ResourceManager(Game& game)
 
 void ResourceManager::Load()
 {
-    std::cout << "Current working dir entries in assets/:" << std::endl;
-    for (const auto& e : fs::directory_iterator("assets"))
-        std::cout << "  " << e.path() << std::endl;
     std::string path = "assets/img";
     for (const auto & entry : fs::directory_iterator(path)) {
         std::string p = entry.path().filename().string();
@@ -62,7 +49,6 @@ void ResourceManager::Load()
         if (p != "vertex")
         {
             Shader shader = LoadShader((path+"/vertex.glsl").c_str(),entry.path().string().c_str());
-            CheckShaderLink(shader,p);
             Shaders.insert({p, shader});
         }
     }
