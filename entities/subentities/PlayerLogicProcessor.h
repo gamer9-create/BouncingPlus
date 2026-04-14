@@ -15,6 +15,10 @@ class PlayerLogicProcessor
 {
 public:
 
+    int uTime = -1;
+    int uWidth = -1;
+    int uHeight = -1;
+
     double LayerSwitchCooldown = 0;
     float FightMusicLayerGoal = 0;
     float FightMusicLayer = 0;

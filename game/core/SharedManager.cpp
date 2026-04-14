@@ -6,6 +6,25 @@
 
 #include <iostream>
 
+bool IsWindowFullscreenCrossPlatform()
+{
+#ifdef PLATFORM_WEB
+    return false;
+#else
+    return IsWindowFullscreen();
+#endif
+}
+
+bool IsCursorOnScreenCrossPlatform()
+{
+#ifdef PLATFORM_WEB
+    return true;
+#else
+    return IsCursorOnScreen();
+#endif
+}
+}
+
 void SharedManager::DisplaySettings(Vector2 Position, float Offset1, float Offset2)
 {
     if (!ControlBindingsMenu)
@@ -88,34 +107,39 @@ void SharedManager::Update()
     if (Controls.IsControlPressed("fullscreen"))
         Fullscreen = !Fullscreen;
 
-    if (Fullscreen && !IsWindowFullscreen())
+    if (Fullscreen && !IsWindowFullscreenCrossPlatform())
     {
+#ifdef PLATFORM_WEB
+#else
         SetWindowSize(GetMonitorWidth(GetCurrentMonitor()), GetMonitorHeight(GetCurrentMonitor()));
+#endif
     }
 
-    if (!Fullscreen && IsWindowFullscreen())
+    if (!Fullscreen && IsWindowFullscreenCrossPlatform())
     {
+#ifdef PLATFORM_WEB
+#else
         SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetRenderWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetRenderHeight()/2);
         SetWindowSize(GetMonitorWidth(GetCurrentMonitor()) / 1.2f, GetMonitorHeight(GetCurrentMonitor()) / 1.2f);
+#endif
     }
 
     if (IsWindowFullscreen() != Fullscreen)
     {
         #ifdef PLATFORM_WEB
-        EM_ASM(
-        if (!document.fullscreenElement) {
-            document.getElementById('canvas').requestFullscreen();
-        } else {
-            document.exitFullscreen();
-        });
-        SetWindowSize(GetScreenWidth(), GetScreenHeight());
         #else
         ToggleFullscreen();
         #endif
     }
 
-    if (CursorWindowLock && !IsCursorOnScreen())
+    if (CursorWindowLock && !IsCursorOnScreenCrossPlatform())
+    {
+
+#ifdef PLATFORM_WEB
+#else
         SetMousePosition(min(max(GetMouseX(), 25), GetRenderWidth() - 25), min(max(GetMouseY(), 25), GetRenderHeight() - 25));
+#endif
+    }
 
     SetMasterVolume(Volume / 100.0f);
 

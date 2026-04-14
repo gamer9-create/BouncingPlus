@@ -14,6 +14,16 @@
 #include "nlohmann/json.hpp"
 namespace fs = std::filesystem;
 
+#include "rlgl.h"
+
+void CheckShaderLink(Shader shader, const std::string& name) {
+    if (shader.id == rlGetShaderIdDefault()) {
+        std::cout << "[SHADER FAILED] " << name << " - fell back to default shader (compile or link error)" << std::endl;
+    } else {
+        std::cout << "[SHADER OK] " << name << " id=" << shader.id << std::endl;
+    }
+}
+
 ResourceManager::ResourceManager()
 {
 }
@@ -48,8 +58,13 @@ void ResourceManager::Load()
     for (const auto & entry : fs::directory_iterator(path)) {
         std::string p = entry.path().filename().string();
         p.erase(p.end() - 5, p.end());
-        Shader shader = LoadShader("",entry.path().string().c_str());
-        Shaders.insert({p, shader});
+
+        if (p != "vertex")
+        {
+            Shader shader = LoadShader((path+"/vertex.glsl").c_str(),entry.path().string().c_str());
+            CheckShaderLink(shader,p);
+            Shaders.insert({p, shader});
+        }
     }
     path = "assets/weapondata";
     for (const auto & entry : fs::directory_iterator(path)) {

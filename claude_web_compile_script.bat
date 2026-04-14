@@ -47,10 +47,12 @@ em++ ^
     -L C:\Emscripten\raylib\src ^
     -lraylib ^
     -sUSE_GLFW=3 ^
+	-sUSE_WEBGL2=1 ^
+	-sMIN_WEBGL_VERSION=2 ^
 	-sEXCEPTION_CATCHING_ALLOWED=["__cxa_throw"] ^
     -sWASM=1 ^
     -sASYNCIFY ^
-	-sSTACK_SIZE=5242880 ^
+	-sSTACK_SIZE=7242880 ^
 	-sEXPORTED_RUNTIME_METHODS=HEAPF32 ^
 	-std=c++20 ^
     -sALLOW_MEMORY_GROWTH=1 ^

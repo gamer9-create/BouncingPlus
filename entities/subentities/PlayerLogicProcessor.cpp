@@ -276,10 +276,32 @@ void PlayerLogicProcessor::DashLogic()
             float height = anim_tex.height;
             BeginShaderMode(MyPlayer->game->GameResources.Shaders["dash_arrow"]);
             float t = static_cast<float>(MyPlayer->game->GetGameTime() - DashTimeStart);
+
+            if (uTime == -1)
+            {
+                uTime = GetShaderLocation(MyPlayer->game->GameResources.Shaders["dash_arrow"], "time");
+                uWidth = GetShaderLocation(MyPlayer->game->GameResources.Shaders["dash_arrow"], "renderWidth");
+                uHeight = GetShaderLocation(MyPlayer->game->GameResources.Shaders["dash_arrow"], "renderHeight");
+            }
+
+            int w = GetRenderWidth();
+            int h = GetRenderHeight();
+
             SetShaderValue(MyPlayer->game->GameResources.Shaders["dash_arrow"],
-                MyPlayer->ShaderUniformLoc,
+                uTime,
                 &t,
                 SHADER_UNIFORM_FLOAT);
+
+            SetShaderValue(MyPlayer->game->GameResources.Shaders["dash_arrow"],
+                uWidth,
+                &w,
+                SHADER_UNIFORM_INT);
+
+            SetShaderValue(MyPlayer->game->GameResources.Shaders["dash_arrow"],
+                uHeight,
+                &h,
+                SHADER_UNIFORM_INT);
+
             float size = 0.375f;
             DrawTexturePro(anim_tex, Rectangle{0, 0, width, height *6},
                            Rectangle{MyPlayer->BoundingBox.x + MyPlayer->BoundingBox.width/2 - cosf((FinalAngle) * DEG2RAD)*10,

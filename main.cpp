@@ -34,7 +34,11 @@ void loop(void* arg)
             MainMenu.Reset();
             MainGame.ShouldReturn = false;
             MainGame.Clear();
+
+#ifdef PLATFORM_WEB
+#else
             ShowCursor();
+#endif
         } else
             MainGame.Update();
         // i am scared!!! i scare you!!!
@@ -42,7 +46,10 @@ void loop(void* arg)
         MainMenu.Update();
         std::string map = MainMenu.LeaveMenu();
         if (!map.empty()) {
+#ifdef PLATFORM_WEB
+#else
             HideCursor();
+#endif
             InGame = true;
             MainGame.ShouldReturn = false;
             MainGame.Reload(map);

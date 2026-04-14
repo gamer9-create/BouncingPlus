@@ -194,8 +194,6 @@ void Menu::Update() {
         PlayMusicStream(Shared->UIAssets.MainMenuMusic);
     UpdateMusicStream(Shared->UIAssets.MainMenuMusic);
 
-    if (IsCursorHidden())
-        ShowCursor();
 
     MenuMusicLevel = Lerp(MenuMusicLevel, MusicLevel, 8.5f * GetFrameTime());
 

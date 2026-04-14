@@ -32,7 +32,6 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->StressLevel = 0;
     this->FrameStressLevel = 0;
     this->EnemiesDetected = 0;
-    this->ShaderUniformLoc = GetShaderLocation(game.GameResources.Shaders["dash_arrow"], "time");
 }
 
 Player::Player() {

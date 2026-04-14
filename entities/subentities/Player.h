@@ -36,7 +36,7 @@ class Player : public Entity {
 
         bool isInvincible;
         float ExtraSpeed;
-        int ShaderUniformLoc;
+
         float SpeedBuff;
         bool WarningSign;
         bool HealthConcern;

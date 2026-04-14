@@ -3,45 +3,35 @@
 //
 
 #include "Game.h"
-
 #include <iostream>
 #include <raymath.h>
-
 #include "raylib.h"
 #include "../entities/Weapons.h"
-#include "../entities/Powerups.h"
 #include "ui/UIManager.h"
-
 #include <filesystem>
-#include <fstream>
-#include <iso646.h>
-
 #include "../level/LevelLoader.h"
+
 namespace fs = std::filesystem;
 
 using namespace std;
 
-inline void HideCursorCrossPlatform() {
+void HideCursorCrossPlatform() {
 #ifdef PLATFORM_WEB
-    _webCursorHidden = true;
-    EM_ASM(document.getElementById('canvas').style.cursor = 'none';);
 #else
     HideCursor();
 #endif
 }
 
-inline void ShowCursorCrossPlatform() {
+void ShowCursorCrossPlatform() {
 #ifdef PLATFORM_WEB
-    _webCursorHidden = false;
-    EM_ASM(document.getElementById('canvas').style.cursor = 'default';);
 #else
     ShowCursor();
 #endif
 }
 
-inline bool IsCursorHiddenCrossPlatform() {
+bool IsCursorHiddenCrossPlatform() {
 #ifdef PLATFORM_WEB
-    return _webCursorHidden;
+    return false;
 #else
     return IsCursorHidden();
 #endif
