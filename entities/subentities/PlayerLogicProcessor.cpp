@@ -81,7 +81,7 @@ void PlayerLogicProcessor::HandleFightMusic()
         return;
     if (MyPlayer->game->CurrentLevelName.empty())
         return;
-    if (!MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName].contains("music"))
+    if (!MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName].count("music"))
         return;
     if (MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["music"].empty())
         return;
@@ -108,7 +108,7 @@ void PlayerLogicProcessor::HandleFightMusic()
         LayerSwitchCooldown -= MyPlayer->game->GetGameDeltaTime();
     }
 
-    FightMusicLayer = lerp(FightMusicLayer, FightMusicLayerGoal, 2.5f * MyPlayer->game->GetGameDeltaTime());
+    FightMusicLayer = Lerp(FightMusicLayer, FightMusicLayerGoal, 2.5f * MyPlayer->game->GetGameDeltaTime());
 
     std::string FightTrack = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["music"].get<std::string>()+"_layer"+to_string((int)round(FightMusicLayer));
 
@@ -281,10 +281,11 @@ void PlayerLogicProcessor::DashLogic()
                 &t,
                 SHADER_UNIFORM_FLOAT);
             float size = 0.375f;
-            DrawTexturePro(anim_tex, Rectangle(0, 0, width, height *6),
-                           Rectangle(MyPlayer->BoundingBox.x + MyPlayer->BoundingBox.width/2 - cosf((FinalAngle) * DEG2RAD)*10,
+            DrawTexturePro(anim_tex, Rectangle{0, 0, width, height *6},
+                           Rectangle{MyPlayer->BoundingBox.x + MyPlayer->BoundingBox.width/2 - cosf((FinalAngle) * DEG2RAD)*10,
                                MyPlayer->BoundingBox.y +MyPlayer->BoundingBox.height/2 - sinf((FinalAngle) * DEG2RAD)*10, width*size,
-                                     height * 6 * size), Vector2(width * size * 0.5, height*6*size), FinalAngle-90, ColorAlpha(WHITE, alpha));
+                                     height * 6 * size
+        }, Vector2{width * size * 0.5f, height*6*size}, FinalAngle-90, ColorAlpha(WHITE, alpha));
             EndShaderMode();
         }
     }

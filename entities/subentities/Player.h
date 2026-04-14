@@ -17,7 +17,7 @@ class Player : public Entity {
 
     float Alpha = 1;
     float OrigSpeed;
-    Vector2 LastPos = Vector2(0, 0);
+    Vector2 LastPos = Vector2{0, 0};
 
     double LastMovedTime;
     int LastKills;

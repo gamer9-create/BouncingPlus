@@ -14,7 +14,7 @@ FaceBoss::FaceBoss() {
 
 FaceBoss::FaceBoss(Game &game, float bbox_x, float bbox_y) :Entity(game.GameResources.Textures["boss1_img"], {bbox_x, bbox_y, 112*4, 71*4}, 0, game) {
     // Exact starting position of the boss
-    StartPos = Vector2(bbox_x+BoundingBox.width/2, bbox_y+BoundingBox.height/2);
+    StartPos = Vector2{bbox_x+BoundingBox.width/2, bbox_y+BoundingBox.height/2};
 
     // Tracking the bossfight progress
     BossFightStarted = false;

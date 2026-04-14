@@ -108,27 +108,27 @@ void TileManager::DrawWallTile(int curr_tile_x, int curr_tile_y, Texture* tile_t
 
     if (left)
     {
-        DrawTexturePro(*tile_tex, {10, 0, 1, 36}, Rectangle(bbox_x,
-                                                            bbox_y, 8, 72), {0, 0}, 0, WHITE);
+        DrawTexturePro(*tile_tex, {10, 0, 1, 36}, Rectangle{bbox_x,
+                                                            bbox_y, 8, 72}, {0, 0}, 0, WHITE);
     }
     if (right)
     {
-        DrawTexturePro(*tile_tex, {10, 0, 1, 36}, Rectangle(bbox_x + TileSize - 8,
-                                                            bbox_y, 8, 72), {0, 0}, 0, WHITE);
+        DrawTexturePro(*tile_tex, {10, 0, 1, 36}, Rectangle{bbox_x + TileSize - 8,
+                                                            bbox_y, 8, 72}, {0, 0}, 0, WHITE);
     }
     if (up)
     {
-        DrawTexturePro(*tile_tex, {0, 10, 36, 1}, Rectangle(bbox_x,
-                                                            bbox_y, 72, 8), {0, 0}, 0, WHITE);
+        DrawTexturePro(*tile_tex, {0, 10, 36, 1}, Rectangle{bbox_x,
+                                                            bbox_y, 72, 8}, {0, 0}, 0, WHITE);
     }
     if (down)
     {
-        DrawTexturePro(*tile_tex, {0, 10, 36, 1}, Rectangle(bbox_x,
-                                                            bbox_y + TileSize - 8, 72, 8), {0, 0}, 0, WHITE);
+        DrawTexturePro(*tile_tex, {0, 10, 36, 1}, Rectangle{bbox_x,
+                                                            bbox_y + TileSize - 8, 72, 8}, {0, 0}, 0, WHITE);
     }
 
-    DrawTexturePro(*tile_tex, rec, Rectangle(bbox_x + (rec.x * 2),
-                                             bbox_y + (rec.y * 2), rec.width * 2, rec.height * 2), {0, 0}, 0, WHITE);
+    DrawTexturePro(*tile_tex, rec, Rectangle{bbox_x + (rec.x * 2),
+                                             bbox_y + (rec.y * 2), rec.width * 2, rec.height * 2}, {0, 0}, 0, WHITE);
 
     if (left && up && diagonal_lu)
         DrawTexturePro(*tile_tex, {10, 10, 1, 1},
@@ -167,7 +167,7 @@ void TileManager::DrawTileMap()
             if (tile_id == 2)
                 tile_tex = &game->GameResources.Textures["delete_wall"];
             if (tile_id == 12)
-                ForceFieldPos.push_back(Vector2(curr_tile_x, curr_tile_y));
+                ForceFieldPos.push_back(Vector2{(float)curr_tile_x, (float)curr_tile_y});
 
             if (tile_tex == nullptr)
                 continue;
@@ -282,7 +282,7 @@ void TileManager::Update() {
         TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());
     }
 
-    UpdateDistance = Vector2((int) (GetRenderWidth() / game->GameCamera.RaylibCamera.zoom / TileSize) + 3, (int)(GetRenderHeight() / game->GameCamera.RaylibCamera.zoom / TileSize) + 3);
+    UpdateDistance = Vector2{round(GetRenderWidth() / game->GameCamera.RaylibCamera.zoom / TileSize) + 3, round(GetRenderHeight() / game->GameCamera.RaylibCamera.zoom / TileSize) + 3};
 
     ProcessUniformLocations();
     ProcessDistortions();
@@ -406,7 +406,7 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
         break;
     case PlayerSpawnTileType:
         *PlayerSpawnFound = true;
-        PlayerSpawnPosition = Vector2(bbox_x, bbox_y);
+        PlayerSpawnPosition = Vector2{bbox_x, bbox_y};
         break;
     case SpawnerTileType: {
             std::shared_ptr<Spawner> spawner = std::make_shared<Spawner>(*game, bbox_x, bbox_y);
@@ -414,7 +414,7 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
             break;
     }
     case BossTileType: {
-            BossSpawnPosition = Vector2(bbox_x, bbox_y);
+            BossSpawnPosition = Vector2{bbox_x, bbox_y};
             break;
     };
     case UpgradeStationTileType: {
@@ -486,7 +486,7 @@ void TileManager::Clear()
     EnemySpawnLocations = std::vector<Vector2>();
     FXLifetime = 0.75f;
     TileSize = 72;
-    UpdateDistance = Vector2((int) (game->GameCamera.IntendedScreenWidth / TileSize) + 1, (int)(game->GameCamera.IntendedScreenHeight / TileSize) + 1);
+    UpdateDistance = Vector2{round(game->GameCamera.IntendedScreenWidth / TileSize) + 1, round(game->GameCamera.IntendedScreenHeight / TileSize) + 1};
     if (IsRenderTextureValid(TileMapTex))
         UnloadRenderTexture(TileMapTex);
     TileMapTex = LoadRenderTexture(GetRenderWidth(), GetRenderHeight());

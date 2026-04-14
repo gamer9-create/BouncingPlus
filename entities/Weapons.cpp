@@ -69,9 +69,9 @@ void WeaponsSystem::DisplayGunTexture() { // HATSUNE MIKU!!!!
     float cx = Owner->BoundingBox.x + Owner->BoundingBox.width / 2;
     float cy = Owner->BoundingBox.y + Owner->BoundingBox.height / 2;
     float FinalAngle = (atan2(cy - Target.y, cx - Target.x) * RAD2DEG);
-    DrawTexturePro(*MeleeAnimTexture, Rectangle(0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)),
-                   Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - (cosf((FinalAngle) * DEG2RAD)*Range), Owner->BoundingBox.y + Owner->BoundingBox.height/2 - (sinf((FinalAngle) * DEG2RAD)*Range), width,
-                             height), Vector2(0, height / 2), FinalAngle, WHITE);
+    DrawTexturePro(*MeleeAnimTexture, Rectangle{0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)},
+                   Rectangle{Owner->BoundingBox.x + Owner->BoundingBox.width/2 - (cosf((FinalAngle) * DEG2RAD)*Range), Owner->BoundingBox.y + Owner->BoundingBox.height/2 - (sinf((FinalAngle) * DEG2RAD)*Range), width,
+                             height}, Vector2{0, height / 2}, FinalAngle, WHITE);
 } // LOVELY CAVITY!!!
 
 bool WeaponsSystem::GiveWeapon(std::string WeaponName, int Ammo)
@@ -314,9 +314,9 @@ void WeaponsSystem::DisplayMeleeAnim()
         }
 
         // render sword
-        DrawTexturePro(*MeleeAnimTexture, Rectangle(0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)),
-                   Rectangle(Owner->BoundingBox.x + Owner->BoundingBox.width/2 - cosf((FinalAngle+90) * DEG2RAD)*150, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - sinf((FinalAngle+90) * DEG2RAD)*150, width,
-                             height), Vector2(width / 2, height / 2), FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
+        DrawTexturePro(*MeleeAnimTexture, Rectangle{0, 0, static_cast<float> (MeleeAnimTexture->width), static_cast<float> (MeleeAnimTexture->height)},
+                   Rectangle{Owner->BoundingBox.x + Owner->BoundingBox.width/2 - cosf((FinalAngle+90) * DEG2RAD)*150, Owner->BoundingBox.y + Owner->BoundingBox.height/2 - sinf((FinalAngle+90) * DEG2RAD)*150, width,
+                             height}, Vector2{width / 2, height / 2}, FinalAngle, ColorAlpha(WHITE, MeleeAnimAlpha));
 
     }
 }
@@ -341,7 +341,7 @@ void WeaponsSystem::MeleeAttack(std::shared_ptr<Entity> entity, float Angle) {
 void WeaponsSystem::GunAttack(float TargetAngle, float cX, float cY)
 {
     auto Owner = OwnerPtr.lock();
-    std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->GameResources.Textures.contains(CurrentWeapon->BulletTexture))
+    std::string BulletTexture = (!CurrentWeapon->BulletTexture.empty() && game->GameResources.Textures.count(CurrentWeapon->BulletTexture))
             ? CurrentWeapon->BulletTexture : "bullet";
 
     float BulletLifetime = 8.5f;
@@ -423,7 +423,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
         std::string s = CurrentWeapon->sound[GetRandomValue(0, CurrentWeapon->sound.size()-1)];
 
         // Play weapon sound
-        if (game->GameSounds.Sounds.contains(s) && (CurrentWeapon->isMelee || Valid)) {
+        if (game->GameSounds.Sounds.count(s) && (CurrentWeapon->isMelee || Valid)) {
             float Distance = Vector2Distance(Owner->GetCenter(), Vector2Add(game->GameCamera.CameraPosition, {GetRenderWidth() / 2.0f, GetRenderHeight() / 2.0f}));
 
             float DistanceMultiplier = (1000.0f - Distance) / 1000.0f;

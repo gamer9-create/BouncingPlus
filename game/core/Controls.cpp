@@ -38,7 +38,7 @@ Controls::~Controls()
 
 bool Controls::ControlsPrecheck(std::string ControlName)
 {
-    if (!Bindings.contains(ControlName))
+    if (!Bindings.count(ControlName))
         return true;
     return false;
 }

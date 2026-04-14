@@ -74,7 +74,7 @@ void WeaponBehavior::MoveForCover()
 void WeaponBehavior::Update()
 {
 
-    Owner->Movement = Vector2(0,0);
+    Owner->Movement = Vector2{0,0};
 
     // programming is so fun and awesome!!!!!!!!
 
@@ -108,7 +108,7 @@ void WeaponBehavior::Update()
             Owner->Movement=Vector2Lerp(othermov, Owner->Movement,0.5f);
         }
 
-        Target = Vector2(plr_center_x, plr_center_y);
+        Target = Vector2{plr_center_x, plr_center_y};
         if (game->MainPlayer->Speed >= 200 && (Owner->weaponsSystem.CurrentWeapon != nullptr ? !Owner->weaponsSystem.CurrentWeapon->isMelee : true))
         {
             Target = Vector2Add(Target, Vector2Multiply(Vector2Normalize(game->MainPlayer->Movement), {game->MainPlayer->Speed * 0.2f,game->MainPlayer->Speed * 0.2f}));

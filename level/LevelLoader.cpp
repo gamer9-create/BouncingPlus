@@ -23,26 +23,24 @@ std::map<std::string,json> LevelLoader::GetLevelsData()
 
     try
     {
-        FilePathList list = LoadDirectoryFiles("assets\\maps");
-        for (int i = 0; i < list.count; i++)
-        {
-            std::string c = string(list.paths[i]) + "\\metadata.json";
 
-            if (!c.ends_with("LevelOrder.txt\\metadata.json"))
-            {
-                std::ifstream g(c);
-                std::string e = string(list.paths[i]).substr(12, c.size()-14);
-                json h = json::parse(g);
-                level_data[e] = h;
-            } else
-            {
-                std::ifstream g(string(list.paths[i]));
-                std::string line;
-                while(std::getline(g,line))
-                {
-                    level_order.push_back(line);
-                }
-            }
+        std::ifstream g("assets/maps/LevelOrder.txt");
+        std::string line;
+        while(std::getline(g,line))
+        {
+            if (!line.empty() && line.back() == '\r')
+                line.pop_back();
+            if (!line.empty())
+                level_order.push_back(line);
+        }
+
+        for (int i = 0; i < level_order.size(); i++)
+        {
+            std::string c = "assets/maps/" + level_order[i] + "/metadata.json";
+
+            std::ifstream g(c);
+            json h = json::parse(g);
+            level_data[level_order[i]] = h;
         }
     } catch (std::exception &e)
     {
@@ -52,14 +50,14 @@ std::map<std::string,json> LevelLoader::GetLevelsData()
     for (int i = 0; i < level_order.size(); i++)
     {
         std::string s = level_order[i];
-        if (level_data.contains(s))
+        if (level_data.count(s))
             level_data[s]["order"] = i;
     }
 
     int i = level_order.size();
     for (auto &[name, val] : level_data)
     {
-        if (!val.contains("order"))
+        if (!val.count("order"))
         {
             val["order"] = i;
             i++;

@@ -33,7 +33,9 @@ for p in f:
         lf = count_lines(p)
         lines += lf
         files.append([p, lf])
-    g += (str(p).replace("\\","/")+ " ")[2:]
+    if not p.endswith(".h"):
+        g += (str(p).replace("\\","/")+ " ")[2:]
+        g += "^\n"
 print(g)
 
 print(str(lines) + " lines of code")

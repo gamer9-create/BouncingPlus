@@ -12,8 +12,8 @@
 void CameraManager::Clear() {
     if (CamTextureInitialized)
         UnloadRenderTexture(CameraRenderTexture);
-    CameraPosition = Vector2(0.0f, 0.0f);
-    CameraTarget = Vector2(0.0f, 0.0f);
+    CameraPosition = Vector2{0.0f, 0.0f};
+    CameraTarget = Vector2{0.0f, 0.0f};
     CameraPositionUnaffected = {0, 0};
     CameraSpeed = 20.0f;
     CameraZoom = 1.0f;
@@ -199,7 +199,7 @@ void CameraManager::UpdateCamera()
         CameraPosition = Vector2Add(CameraPosition, Vector2{(5.0f + min(game->MainPlayer->Kills, 7)) * (float)sin(game->GetGameTime()), (5.0f + min(game->MainPlayer->Kills, 7)) * (float)cos(game->GetGameTime())});
     }
 
-    RaylibCamera.zoom = lerp(RaylibCamera.zoom, CameraZoom * GetNaturalZoom(), 4.0f * game->GetGameDeltaTime() * GetNaturalZoom());
+    RaylibCamera.zoom = Lerp(RaylibCamera.zoom, CameraZoom * GetNaturalZoom(), 4.0f * game->GetGameDeltaTime() * GetNaturalZoom());
     RaylibCamera.target = CameraPosition;//Vector2Add({((float)GetRenderWidth()/2.0f), ((float)GetRenderHeight()/2.0f)},CameraPosition);
     RaylibCamera.offset = {((float)GetRenderWidth()/2.0f) * (1-RaylibCamera.zoom), ((float)GetRenderHeight()/2.0f) * (1-RaylibCamera.zoom)};
 }

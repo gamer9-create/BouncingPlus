@@ -1,4 +1,6 @@
-#version 330
+#version 130
+
+precision mediump float;
 
 struct Distortion {
     vec2 position;
@@ -6,13 +8,11 @@ struct Distortion {
     float radius;
 };
 
-in vec2 fragTexCoord;
-in vec4 fragColor;
+varying vec2 fragTexCoord;
+varying vec4 fragColor;
 
 uniform sampler2D texture0;
 uniform vec4 colDiffuse;
-
-out vec4 finalColor;
 
 uniform Distortion distortions[100];
 uniform int distortionCount;
@@ -34,5 +34,5 @@ void main()
         }
     }
 
-    finalColor = texture(texture0, vec2((pixelUVPos / screenSize).x, 1 - (pixelUVPos / screenSize).y));
+    gl_FragColor = texture2D(texture0, vec2((pixelUVPos / screenSize).x, 1 - (pixelUVPos / screenSize).y));
 }

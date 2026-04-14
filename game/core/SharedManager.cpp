@@ -77,7 +77,12 @@ void SharedManager::Update()
     }
 
     if (FrameRate != LastFrameRate)
-        SetTargetFPS((int)FrameRate);
+    {
+        #ifdef PLATFORM_WEB
+        #else
+            SetTargetFPS((int)FrameRate);
+        #endif
+    }
     LastFrameRate = FrameRate;
 
     if (Controls.IsControlPressed("fullscreen"))
@@ -95,7 +100,19 @@ void SharedManager::Update()
     }
 
     if (IsWindowFullscreen() != Fullscreen)
+    {
+        #ifdef PLATFORM_WEB
+        EM_ASM(
+        if (!document.fullscreenElement) {
+            document.getElementById('canvas').requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        });
+        SetWindowSize(GetScreenWidth(), GetScreenHeight());
+        #else
         ToggleFullscreen();
+        #endif
+    }
 
     if (CursorWindowLock && !IsCursorOnScreen())
         SetMousePosition(min(max(GetMouseX(), 25), GetRenderWidth() - 25), min(max(GetMouseY(), 25), GetRenderHeight() - 25));

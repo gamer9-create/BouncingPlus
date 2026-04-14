@@ -1,4 +1,6 @@
-#version 330
+#version 130
+
+precision mediump float;
 
 //	<https://www.shadertoy.com/view/4dS3Wd>
 //	By Morgan McGuire @morgan3d, http://graphicscodex.com
@@ -23,7 +25,7 @@ float noise(vec2 x) {
     float c = hash(i + vec2(0.0, 1.0));
     float d = hash(i + vec2(1.0, 1.0));
 
-    // Simple 2D lerp using smoothstep envelope between the values.
+    // Simple 2D Lerp using smoothstep envelope between the values.
     // return vec3(mix(mix(a, b, smoothstep(0.0, 1.0, f.x)),
     //			mix(c, d, smoothstep(0.0, 1.0, f.x)),
     //			smoothstep(0.0, 1.0, f.y)));
@@ -35,15 +37,12 @@ float noise(vec2 x) {
 }
 
 // Input vertex attributes (from vertex shader)
-in vec2 fragTexCoord;
-in vec4 fragColor;
+varying vec2 fragTexCoord;
+varying vec4 fragColor;
 
 // Input uniform values
 uniform sampler2D texture0;
 uniform vec4 colDiffuse;
-
-// Output fragment color
-out vec4 finalColor;
 
 uniform int renderWidth = 800;
 uniform int renderHeight = 450;
@@ -57,21 +56,21 @@ void main()
 
     coord += vec2(sin(time) * (num / renderWidth) / 2.5, cos(time) * (num / renderHeight) / 2.5);
 
-    bool edge = (texture(texture0, coord - vec2(num / renderWidth, 0)).a == 0 || texture(texture0, coord + vec2(num / renderWidth, 0)).a == 0 ||
-    texture(texture0, coord - vec2(0, num / renderHeight)).a == 0 || texture(texture0, coord + vec2(0, num / renderHeight)).a == 0
-    || texture(texture0, coord + vec2(num / renderWidth, num / renderHeight)).a == 0
-    || texture(texture0, coord + vec2(num / renderWidth, -num / renderHeight)).a == 0
-    || texture(texture0, coord + vec2(-num / renderWidth, num / renderHeight)).a == 0
-    || texture(texture0, coord + vec2(-num / renderWidth, -num / renderHeight)).a == 0);
+    bool edge = (texture2D(texture0, coord - vec2(num / renderWidth, 0)).a == 0 || texture2D(texture0, coord + vec2(num / renderWidth, 0)).a == 0 ||
+    texture2D(texture0, coord - vec2(0, num / renderHeight)).a == 0 || texture2D(texture0, coord + vec2(0, num / renderHeight)).a == 0
+    || texture2D(texture0, coord + vec2(num / renderWidth, num / renderHeight)).a == 0
+    || texture2D(texture0, coord + vec2(num / renderWidth, -num / renderHeight)).a == 0
+    || texture2D(texture0, coord + vec2(-num / renderWidth, num / renderHeight)).a == 0
+    || texture2D(texture0, coord + vec2(-num / renderWidth, -num / renderHeight)).a == 0);
 
-    edge = edge && texture(texture0,coord).a != 0;
+    edge = edge && texture2D(texture0,coord).a != 0;
 
     if (!edge) {
         if ((int(coord.x * renderWidth) & 1) == 0 && (int(coord.y * renderHeight) & 1) == 0) {
-            finalColor = texture(texture0,coord)*vec4(0.1, 1, 0.1, min(max(noise((coord * 50) + vec2(time / 100, time / 100))*1.5, 0.1), 1.0));
+            gl_FragColor = texture2D(texture0,coord)*vec4(0.1, 1, 0.1, min(max(noise((coord * 50) + vec2(time / 100, time / 100))*1.5, 0.1), 1.0));
         }
     } else {
-        finalColor = vec4(0.1,1,0.1,1);
+        gl_FragColor = vec4(0.1,1,0.1,1);
     }
 
 }

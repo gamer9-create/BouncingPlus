@@ -57,8 +57,8 @@ void UIManager::Clear()
     this->LastChangedStressShakePos = 0;
 }
 
-void UIManager::GameUI() {
-
+void UIManager::GameUI()
+{
     if (game->CurrentLevelName == "Tutorial")
         this->Tutorial.ActivateTutorial(this);
 
@@ -142,9 +142,9 @@ void UIManager::GameUI() {
     if (game->GameMode.WonLevel)
         GameWin();
     else
-        DrawTextureRec(DeathScreen.texture, Rectangle(0, 0, DeathScreen.texture.width, -DeathScreen.texture.height), Vector2(0, GetRenderHeight() - DeathScreen.texture.height), ColorAlpha(WHITE, 1.0f - UITransparency));
+        DrawTextureRec(DeathScreen.texture, Rectangle{0, 0, (float)DeathScreen.texture.width, -(float)DeathScreen.texture.height}, Vector2{0, (float)GetRenderHeight() - DeathScreen.texture.height}, ColorAlpha(WHITE, 1.0f - UITransparency));
 
-    DrawTextureRec(WeaponUITexture.texture, Rectangle(0, 0, WeaponUITexture.texture.width, -WeaponUITexture.texture.height), Vector2(0, GetRenderHeight() - WeaponUITexture.texture.height), ColorAlpha(WHITE, UITransparency));
+    DrawTextureRec(WeaponUITexture.texture, Rectangle{0, 0, (float)WeaponUITexture.texture.width, -(float)WeaponUITexture.texture.height}, Vector2{0.0f, (float)GetRenderHeight() - WeaponUITexture.texture.height}, ColorAlpha(WHITE, UITransparency));
 
     if (game->MainPlayer->Health > 0 && !game->GameMode.WonLevel && UITransparency < 1.0f) {
         UITransparency += 1.9f * GetFrameTime();
@@ -245,7 +245,8 @@ void UIManager::DisplayPowerupMeter()
 
 void UIManager::DisplayInventory(bool Found, float Prev, float HighestWidth, float* HighestHeight)
 {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++)
+    {
         std::string name = game->MainPlayer->MainWeaponsSystem.Weapons[i];
         if (name.empty())
             name = "Empty";
@@ -273,8 +274,8 @@ void UIManager::DisplayInventory(bool Found, float Prev, float HighestWidth, flo
         }
         if (i == 2)
             *HighestHeight = Prev + 20 + size;
-        DrawLineEx(Vector2(50, Prev+2.0f),
-                Vector2((50 + MeasureText(name.c_str(), 20+size)+offset), Prev+2.0f), 4,
+        DrawLineEx(Vector2{50, Prev+2.0f},
+                Vector2{(50 + MeasureText(name.c_str(), 20+size)+offset), Prev+2.0f}, 4,
                        MainColor);
         DrawText(name.c_str(), 50, Prev+4.0f, 20+size, MainColor);
         Prev += 20 + size + 15;
@@ -357,19 +358,19 @@ void UIManager::DisplayCursor()
             if (game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex != -1)
             {
                 if (game->MainPlayer->MainWeaponsSystem.AttackCooldowns[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex] >= game->MainPlayer->MainWeaponsSystem.CurrentWeapon->Cooldown)
-                    CursorMiddleTrans = lerp(CursorMiddleTrans, 1.0f, 10.5f * GetFrameTime());
+                    CursorMiddleTrans = Lerp(CursorMiddleTrans, 1.0f, 10.5f * GetFrameTime());
                 else
-                    CursorMiddleTrans = lerp(CursorMiddleTrans, 0.0f, 21.5f * GetFrameTime());
+                    CursorMiddleTrans = Lerp(CursorMiddleTrans, 0.0f, 21.5f * GetFrameTime());
                 if (game->MainPlayer->MainWeaponsSystem.CurrentWeapon->Ammo > 0)
                 {
                     float goal = 360.0f * ((float)game->MainPlayer->MainWeaponsSystem.WeaponAmmo[game->MainPlayer->MainWeaponsSystem.CurrentWeaponIndex] / (float)game->MainPlayer->MainWeaponsSystem.CurrentWeapon->Ammo);
-                    CursorRotation = lerp(CursorRotation, goal, 2.5f * GetFrameTime());
+                    CursorRotation = Lerp(CursorRotation, goal, 2.5f * GetFrameTime());
                 } else
-                    CursorRotation = lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
+                    CursorRotation = Lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
             } else
             {
-                CursorMiddleTrans = lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
-                CursorRotation = lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
+                CursorMiddleTrans = Lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
+                CursorRotation = Lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
             }
             DrawTexturePro(game->GameResources.Textures["enemy"], {0, 0, 36, 36}, {(float)GetMouseX(), (float)GetMouseY(), 7.5f, 7.5f},
                     {3.75f, 3.75f}, CursorRotation, ColorAlpha(YELLOW, CursorMiddleTrans));
@@ -379,8 +380,8 @@ void UIManager::DisplayCursor()
             float cy = game->MainPlayer->BoundingBox.y + game->MainPlayer->BoundingBox.height / 2;
             float FinalAngle = atan2(cy - Target.y, cx - Target.x) * RAD2DEG - 90;
             DrawTexturePro(game->GameResources.Textures["arrow"], {0, 0, 80, 80}, {(float)GetMouseX(), (float)GetMouseY(), 27, 27}, {13.5f, 13.5f}, FinalAngle, ORANGE);
-            CursorMiddleTrans = lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
-            CursorRotation = lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
+            CursorMiddleTrans = Lerp(CursorMiddleTrans, 0.0f, 10.5f * GetFrameTime());
+            CursorRotation = Lerp(CursorRotation, 0.0f, 2.5f * GetFrameTime());
         }
 }
 
@@ -494,7 +495,7 @@ void UIManager::PauseMenu() {
     BeginTextureMode(PauseScreen);
     ClearBackground(game->GameControls->IsControlDown("debug2") ? BLANK : ColorAlpha(BLACK, 0.35f));
     EndTextureMode();
-    DrawTextureRec(PauseScreen.texture, Rectangle(0, 0, PauseScreen.texture.width, -PauseScreen.texture.height), Vector2(0, GetRenderHeight() - PauseScreen.texture.height), WHITE);
+    DrawTextureRec(PauseScreen.texture, Rectangle{0, 0, (float)PauseScreen.texture.width, -(float)PauseScreen.texture.height}, Vector2{0, (float)GetRenderHeight() - PauseScreen.texture.height}, WHITE);
     DrawRectangle(PauseScreen.texture.width/2 - 225, PauseScreen.texture.height/2-175,450, 350,ColorAlpha(BLACK,0.5f));
     game->Paused = !Button({(float)PauseScreen.texture.width/2 - (float)game->GameShared->UIAssets.ButtonImg.width/2,
         (float)PauseScreen.texture.height/2-100 - (float)game->GameShared->UIAssets.ButtonImg.height/2,
@@ -536,7 +537,7 @@ void UIManager::GameWin()
     DrawText(txt_3.c_str(), GetRenderWidth()/2 - size2/2, ey+es-DeathTextAnimRot, es, ColorBrightness(WHITE, -0.1f));
 
     EndTextureMode();
-    DrawTextureRec(GameWinScreen.texture, Rectangle(0, 0, GameWinScreen.texture.width, -GameWinScreen.texture.height), Vector2(0, GetRenderHeight() - GameWinScreen.texture.height), ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
+    DrawTextureRec(GameWinScreen.texture, Rectangle{0, 0, (float)GameWinScreen.texture.width, -(float)GameWinScreen.texture.height}, Vector2{0, (float)GetRenderHeight() - GameWinScreen.texture.height}, ColorAlpha(WHITE, ((1-UITransparency)-0.5f)/0.5f));
 }
 
 void UIManager::Quit() {

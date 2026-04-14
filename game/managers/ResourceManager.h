@@ -5,7 +5,8 @@
 #ifndef BOUNCINGPLUS_RESOURCEMANAGER_H
 #define BOUNCINGPLUS_RESOURCEMANAGER_H
 #include <unordered_map>
-#include "string"
+#include <string>
+#include <vector>
 #include "raylib.h"
 using namespace std;
 

@@ -266,14 +266,14 @@ void Menu::Update() {
 
     DrawTexture(Shared->UIAssets.MikuImg, -75, GetRenderHeight() - 20 + MikuOffset, WHITE);
     if (GetMouseX() < 250 && GetMouseY() > GetRenderHeight() - 70) {
-        MikuOffset = lerp(MikuOffset, -500, 10*GetFrameTime());
+        MikuOffset = Lerp(MikuOffset, -500, 10*GetFrameTime());
         if (!IsSoundPlaying(Shared->UIAssets.MikuMusic)) {
             SetSoundVolume(Shared->UIAssets.MikuMusic, 0.2f);
             ResumeSound(Shared->UIAssets.MikuMusic);
             SetMusicVolume(Shared->UIAssets.MainMenuMusic, 0);
         }
     } else {
-        MikuOffset = lerp(MikuOffset, 0, 10*GetFrameTime());
+        MikuOffset = Lerp(MikuOffset, 0, 10*GetFrameTime());
         PauseSound(Shared->UIAssets.MikuMusic);
 
         SetMusicVolume(Shared->UIAssets.MainMenuMusic, 1.0f - BlackTransparency);

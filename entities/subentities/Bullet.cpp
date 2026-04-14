@@ -17,7 +17,7 @@ Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float D
     this->Speed = Speed;
     this->Type = BulletType;
     this->ExistenceTimer = 0;
-    this->BoundingBox=Rectangle(X - (15 * Size.x / 2.0f), Y - (7.5f * Size.y / 2.0f), 15 * Size.x, 7.5f * Size.y);
+    this->BoundingBox = Rectangle{X - (15 * Size.x / 2.0f), Y - (7.5f * Size.y / 2.0f), 15 * Size.x, 7.5f * Size.y};
     this->Texture=&BulletTexture;
     this->ShouldDelete = false;
     this->SlowdownOverTime = false;
@@ -62,7 +62,7 @@ std::pair<bool,vector<Vector2>> Bullet::BulletCollision()
             if (game->GameTiles.TileTypes[tile_id] == WallTileType) {
                 float bbox_x = curr_tile_x * game->GameTiles.TileSize;
                 float bbox_y = curr_tile_y * game->GameTiles.TileSize;
-                Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
+                Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize};
                 if (CheckCollisionCircleRec(GetCenter(), BoundingBox.height, bbox)) {
                     can_move = false;
                     if (tile_id == 2)
@@ -109,10 +109,10 @@ void Bullet::PhysicsUpdate(float dt, double time) {
         {
             Vector2 Normal = {0, 0};
 
-            float LowestX = FLT_MAX;
-            float LowestY = FLT_MAX;
-            float HigherX = -FLT_MAX;
-            float HigherY = -FLT_MAX;
+            float LowestX = 99999;
+            float LowestY = 99999;
+            float HigherX = -99999;
+            float HigherY = -99999;
             
             for (Vector2 TilePos : BouncedTiles)
             {
@@ -201,7 +201,7 @@ void Bullet::Attack(shared_ptr<Entity> entity) {
 
 void Bullet::Update() {
     ExistenceTimer += game->GetGameDeltaTime();
-    Rotation = lerp(Rotation, RotGoal, 25.0f * (Speed / 400.0f) * game->GetGameDeltaTime());
+    Rotation = Lerp(Rotation, RotGoal, 25.0f * (Speed / 400.0f) * game->GetGameDeltaTime());
     if (!SlowdownOverTime) {
 
         if (ExistenceTimer >= Lifetime) {

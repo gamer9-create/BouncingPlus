@@ -54,7 +54,7 @@ void ShieldPowerup::Complete(std::shared_ptr<Player> Owner)
 {
     Powerup::Complete(Owner);
 
-    TransBuff = lerp(TransBuff, 0.0f, Owner->game->GetGameDeltaTime() * LerpSpeed);
+    TransBuff = Lerp(TransBuff, 0.0f, Owner->game->GetGameDeltaTime() * LerpSpeed);
     float circle_transparency = min(Length - Owner->MainPowerupSystem.CurrentLength, DefaultTrans);
     if (Owner->MainPowerupSystem.CurrentLength <= DefaultTrans)
         circle_transparency = Owner->MainPowerupSystem.CurrentLength;
@@ -75,14 +75,14 @@ void ShieldPowerup::Complete(std::shared_ptr<Player> Owner)
                 float X = cos(entity->RotGoal * (2 * PI / 360))*100;
                 float Y = sin(entity->RotGoal * (2 * PI / 360))*100;
 
-                entity->Movement = Vector2(X, Y);
+                entity->Movement = Vector2{X, Y};
 
                 TransBuff = 1.0f - DefaultTrans;
             }
         }
     }
 
-    displayFieldSize = lerp(displayFieldSize,FieldSize,Owner->game->GetGameDeltaTime() * LerpSpeed);
+    displayFieldSize = Lerp(displayFieldSize,FieldSize,Owner->game->GetGameDeltaTime() * LerpSpeed);
     for (int i = 0; i < ShieldThickness; i++)
     {
         DrawCircleLines(round(Owner->BoundingBox.x + Owner->BoundingBox.width / 2), round(Owner->BoundingBox.y + Owner->BoundingBox.height / 2), displayFieldSize/2 - i, ColorAlpha(YELLOW, circle_transparency));

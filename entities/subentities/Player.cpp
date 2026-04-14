@@ -13,7 +13,7 @@ using namespace std;
 // the player's name is Jones
 // little bouncing ballz boy!
 Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game) : Entity(PlayerTexture,
-                                                                   Rectangle(X - 18, Y - 18, 36, 36), Speed, game) {
+                                                                   Rectangle{X - 18, Y - 18, 36, 36}, Speed, game) {
     this->Type = PlayerType;
     this->Kills = 0;
     this->isInvincible = false;
@@ -27,7 +27,7 @@ Player::Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &ga
     this->WarningSign = false;
     this->SpeedBuff = 0;
     this->LastTanked = 0;
-    this->LastPos = Vector2(0, 0);
+    this->LastPos = Vector2{0, 0};
     this->InvincibilityResetTimer = 0;
     this->StressLevel = 0;
     this->FrameStressLevel = 0;
@@ -72,7 +72,7 @@ void Player::PhysicsUpdate(float DeltaTime, double Time) {
     {
         VelocityPower = 0;
     }
-    Movement = Vector2(MovementX, MovementY);
+    Movement = Vector2{MovementX, MovementY};
     if (Vector2Distance(LastPos, {BoundingBox.x,BoundingBox.y}) > 0 && Vector2Distance({0,0}, Movement) > 0) {
         LastMovedTime = Time;
         ExtraSpeed += 10 * DeltaTime;
@@ -128,8 +128,8 @@ void Player::OnWallVelocityBump(float Power)
 }
 
 
-void Player::Update() {
-
+void Player::Update()
+{
     // is the weapon system not initialized?? init it now!!!
     if (!this->SystemsInitialized) {
         this->LogicProcessor = PlayerLogicProcessor(dynamic_pointer_cast<Player>(shared_from_this()));
@@ -140,7 +140,7 @@ void Player::Update() {
             this->MainWeaponsSystem.Weapons[i] = f[i];
             this->MainWeaponsSystem.WeaponAmmo[i] = game->GameResources.Weapons[f[i]].Ammo;
         }
-        if (game->GameResources.Powerups.contains(game->LevelData[game->CurrentLevelName]["player"]["powerup"]))
+        if (game->GameResources.Powerups.count(game->LevelData[game->CurrentLevelName]["player"]["powerup"]))
         {
             MainPowerupSystem.SetPowerup(game->GameResources.Powerups[game->LevelData[game->CurrentLevelName]["player"]["powerup"]]);
         }
@@ -238,7 +238,7 @@ void Player::Update() {
     }
 
     Vector2 c = GetCenter();
-    DrawCircleGradient(c.x,c.y, BoundingBox.width / 1.25f, ColorAlpha(PURPLE, 0.5), BLANK);
+    DrawCircleGradient(c.x, c.y, BoundingBox.width / 1.25f, ColorAlpha(PURPLE, 0.5), BLANK);
 
     // update entity
     Entity::Update();

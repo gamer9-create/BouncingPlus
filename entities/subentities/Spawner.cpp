@@ -16,7 +16,7 @@ Spawner::Spawner() {
 }
 
 Spawner::Spawner(Game &game, float MyX, float MyY) :Entity(game.GameResources.Textures["spawner"], {MyX, MyY, 36, 36}, 0, game) {
-    StartPos = Vector2(MyX, MyY);
+    StartPos = Vector2{MyX, MyY};
     RandPoint = {0, 0};
     DistF =0;
     this->Type = SpawnerType;

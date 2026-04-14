@@ -14,11 +14,11 @@
 #include "../../game/ui/UIManager.h"
 #include "../../game/Game.h"
 
-Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,Rectangle(X - 18, Y - 18, 36, 36), Speed, game) {
+Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game) : Entity(EnemyTexture,Rectangle{X - 18, Y - 18, 36, 36}, Speed, game) {
     Init(X,Y,Health,Speed,Armor,Weapon,make_unique<WeaponBehavior>(*this, game),EnemyTexture,game);
 }
 
-Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game& game) : Entity(EnemyTexture,Rectangle(X - 18, Y - 18, 36, 36), Speed, game)
+Enemy::Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game& game) : Entity(EnemyTexture,Rectangle{X - 18, Y - 18, 36, 36}, Speed, game)
 {
     Init(X,Y,Health,Speed,Armor,Weapon,std::move(EnemyBehavior),EnemyTexture,game);
 }
@@ -226,7 +226,7 @@ void Enemy::Update() {
     weaponsSystem.Update();
     Entity::Update();
     if (IsVisible() && Armor > 0)
-        DrawTexturePro(game->GameResources.Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width, BoundingBox.height}, Vector2(BoundingBox.width/2,BoundingBox.height/2), Rotation, EntityColor);
+        DrawTexturePro(game->GameResources.Textures["armor_overlay"], {0, 0, BoundingBox.width, BoundingBox.height}, {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width, BoundingBox.height}, Vector2{BoundingBox.width/2,BoundingBox.height/2}, Rotation, EntityColor);
 }
 
 void Enemy::MoveAwayFromWalls()

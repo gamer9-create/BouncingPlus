@@ -17,7 +17,7 @@
 void Entity::Initialize(Texture2D &Texture, Rectangle BoundingBox, float Speed) {
     this->Texture = &Texture;
     this->BoundingBox = BoundingBox;
-    this->Movement = Vector2(0, 0);
+    this->Movement = Vector2{0, 0};
     this->Speed = Speed;
     this->Rotation = 0;
     this->ShouldDelete = false;
@@ -108,7 +108,7 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
     }
     Vector2 mov = Vector2Normalize(Movement);
     Vector2 vel = Vector2Normalize(VelocityMovement);
-    Vector2 FinalMovement = Vector2((mov.x * GetSpeed()) + (vel.x * VelocityPower), (mov.y * GetSpeed()) + (vel.y * VelocityPower));
+    Vector2 FinalMovement = Vector2{(mov.x * GetSpeed()) + (vel.x * VelocityPower), (mov.y * GetSpeed()) + (vel.y * VelocityPower)};
     if (Vector2Distance({0,0}, vel) != 0 && CollisionsEnabled) {
         BoundingBox.x += FinalMovement.x * DeltaTime;
         BoundingBox.y += FinalMovement.y * DeltaTime;
@@ -125,7 +125,7 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
                 int tile_id = game->GameTiles.GetTileAt(coord);
                 float bbox_x = curr_tile_x * game->GameTiles.TileSize;
                 float bbox_y = curr_tile_y * game->GameTiles.TileSize;
-                Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
+                Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize};
                 if (
                     (game->GameTiles.TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles.TileTypes[tile_id] == EnemyWallTileType : false))
                     && CheckCollisionRecs(BoundingBox, bbox) && coord != LastVelBounceCoord) {
@@ -186,9 +186,9 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
                     float Y = -sin(eRotation * (2 * PI / 360));
 
                     if (negate) {
-                        VelocityMovement = Vector2(-X, -Y);
+                        VelocityMovement = Vector2{-X, -Y};
                     } else {
-                        VelocityMovement = Vector2(X, Y);
+                        VelocityMovement = Vector2{X, Y};
                     }
 
                     OnWallVelocityBump(VelocityPower);
@@ -201,7 +201,7 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
         }
         BoundingBox.x -= FinalMovement.x * DeltaTime;
         BoundingBox.y -= FinalMovement.y * DeltaTime;
-        FinalMovement = Vector2((mov.x * GetSpeed()) + (vel.x * VelocityPower), (mov.y * GetSpeed()) + (vel.y * VelocityPower));
+        FinalMovement = Vector2{(mov.x * GetSpeed()) + (vel.x * VelocityPower), (mov.y * GetSpeed()) + (vel.y * VelocityPower)};
     }
     if (Vector2Distance({0,0}, FinalMovement) > 0) {
         if (CollisionsEnabled) {
@@ -228,7 +228,7 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
                             }, ColorAlpha(GREEN, 0.15f));
                     }
                     if ((game->GameTiles.TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles.TileTypes[tile_id] == EnemyWallTileType : false))) {
-                        Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
+                        Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize};
                         if (CheckCollisionRecs(BoundingBox, bbox)) {
                             //float e_cx = BoundingBox.x + (BoundingBox.width / 2.0f);
                             //float t_cx = bbox_x + (game->MainTileManager.TileSize / 2.0f);
@@ -260,7 +260,7 @@ void Entity::PhysicsUpdate(float DeltaTime, double time) {
                     if ((game->GameTiles.TileTypes[tile_id] == WallTileType || (Type == EnemyType ? game->GameTiles.TileTypes[tile_id] == EnemyWallTileType : false))) {
                         float bbox_x = curr_tile_x * game->GameTiles.TileSize;
                         float bbox_y = curr_tile_y * game->GameTiles.TileSize;
-                        Rectangle bbox = Rectangle(bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize);
+                        Rectangle bbox = Rectangle{bbox_x, bbox_y, game->GameTiles.TileSize, game->GameTiles.TileSize};
                         if (CheckCollisionRecs(BoundingBox, bbox)) {
                             //float e_cy = BoundingBox.y + (BoundingBox.height / 2.0f);
                             //float t_cy = bbox_y + (game->MainTileManager.TileSize / 2.0f);
@@ -308,9 +308,9 @@ void Entity::Update() {
     bool is_visible = IsVisible();
     if (is_visible && Texture != nullptr)
     {
-        DrawTexturePro(*Texture, Rectangle(0, 0, static_cast<float> (Texture->width), static_cast<float> (Texture->height)),
-                       Rectangle(BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width,
-                                 BoundingBox.height), Vector2(BoundingBox.width/2,BoundingBox.height/2), Rotation, EntityColor);
+        DrawTexturePro(*Texture, Rectangle{0, 0, static_cast<float> (Texture->width), static_cast<float> (Texture->height)},
+                       Rectangle{BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2, BoundingBox.width,
+                                 BoundingBox.height}, Vector2{BoundingBox.width/2,BoundingBox.height/2}, Rotation, EntityColor);
     }
     if (game->DebugDraw && is_visible)
         DrawRectangleRec({

@@ -11,7 +11,7 @@
 #include "../../game/Game.h"
 
 Turret::Turret(Game& game, std::string Weapon, float X, float Y) : Entity(game.GameResources.Textures["turret"],
-                                                      Rectangle(X - 24, Y - 24, 48, 48), 0, game)
+                                                      Rectangle{X - 24, Y - 24, 48, 48}, 0, game)
 {
     this->Weapon = Weapon;
     this->Type = TurretType;

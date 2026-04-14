@@ -1,9 +1,57 @@
 #include "raylib.h"
-#include <iostream>
 #include "game/Game.h"
 #include "game/ui/Menu.h"
 #include "game/core/SharedManager.h"
 #include "level/LevelLoader.h"
+
+#ifdef PLATFORM_WEB
+#include <emscripten/emscripten.h>
+#endif
+
+struct Data
+{
+    SharedManager& SharedManager;
+    Game& MainGame;
+    Menu& MainMenu;
+    bool& InGame;
+};
+
+void loop(void* arg)
+{
+    Data* d = (Data*)arg;
+    SharedManager& SharedManager=d->SharedManager;
+    Game& MainGame=d->MainGame;
+    Menu& MainMenu=d->MainMenu;
+    bool& InGame=d->InGame;
+    BeginDrawing();
+
+    SharedManager.Update();
+
+    ClearBackground(BLANK);
+    if (InGame) {
+        if (MainGame.ShouldReturn) {
+            InGame = false;
+            MainMenu.Reset();
+            MainGame.ShouldReturn = false;
+            MainGame.Clear();
+            ShowCursor();
+        } else
+            MainGame.Update();
+        // i am scared!!! i scare you!!!
+    } else {
+        MainMenu.Update();
+        std::string map = MainMenu.LeaveMenu();
+        if (!map.empty()) {
+            HideCursor();
+            InGame = true;
+            MainGame.ShouldReturn = false;
+            MainGame.Reload(map);
+        }
+    }
+    DrawFPS(0,0);
+
+    EndDrawing();
+}
 
 int main(int argc, char *argv[]) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT);
@@ -20,7 +68,6 @@ int main(int argc, char *argv[]) {
 
     SharedManager SharedManager{};
     SharedManager.LevelData = level_data;
-    SharedManager.FrameRate = max(min(GetMonitorRefreshRate(GetCurrentMonitor()) + 60,240),0);
     SharedManager.UIAssets = UIAssets();
     SharedManager.UIAssets.Load();
     SharedManager.Controls.SetDefaultBindings();
@@ -30,43 +77,29 @@ int main(int argc, char *argv[]) {
 
     bool InGame = false;
 
-    SetWindowMinSize(1000, 800);
-    SetWindowSize(GetMonitorWidth(GetCurrentMonitor()) / 1.2f, GetMonitorHeight(GetCurrentMonitor()) / 1.2f);
-    SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetRenderWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetRenderHeight()/2);
+    #ifdef PLATFORM_WEB
+    #else
+        SetWindowMinSize(1000, 800);
+        SetWindowSize(GetMonitorWidth(GetCurrentMonitor()) / 1.2f, GetMonitorHeight(GetCurrentMonitor()) / 1.2f);
+        SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - GetRenderWidth()/2, GetMonitorHeight(GetCurrentMonitor())/2 - GetRenderHeight()/2);
+        SharedManager.FrameRate = max(min(GetMonitorRefreshRate(GetCurrentMonitor()) + 60,240),0);
+    #endif
+
     SetExitKey(KEY_NULL);
 
     // tip of advice: dont look into any other code file that isnt a manager... youre gonna find some... uhhh... extremely readable code!
 
-    while (!WindowShouldClose()) {
-        BeginDrawing();
+    Data d = {
+        SharedManager,MainGame,MainMenu,InGame
+    };
 
-        SharedManager.Update();
+    #ifdef PLATFORM_WEB
+        emscripten_set_main_loop_arg(loop, &d, 0, 1);
+    #else
+        while (!WindowShouldClose())
+            loop(&d);
+    #endif
 
-        ClearBackground(BLANK);
-        if (InGame) {
-            if (MainGame.ShouldReturn) {
-                InGame = false;
-                MainMenu.Reset();
-                MainGame.ShouldReturn = false;
-                MainGame.Clear();
-                ShowCursor();
-            } else
-                MainGame.Update();
-            // i am scared!!! i scare you!!!
-        } else {
-            MainMenu.Update();
-            std::string map = MainMenu.LeaveMenu();
-            if (!map.empty()) {
-                HideCursor();
-                InGame = true;
-                MainGame.ShouldReturn = false;
-                MainGame.Reload(map);
-            }
-        }
-        DrawFPS(0,0);
-
-        EndDrawing();
-    }
 
     MainMenu.Quit();
     MainGame.Quit();

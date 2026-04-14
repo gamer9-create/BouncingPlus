@@ -30,7 +30,7 @@ void Profiler::StopLog()
 {
     if (!LastReason.empty())
     {
-        if (!AvgTimes.contains(LastReason))
+        if (!AvgTimes.count(LastReason))
             AvgTimes[LastReason] = std::vector<double>();
         AvgTimes[LastReason].push_back(GetTime() - LastTime);
         LastReason = "";

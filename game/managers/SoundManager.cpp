@@ -6,10 +6,11 @@
 #include "../Game.h"
 #include <filesystem>
 #include <iostream>
+#include <raymath.h>
 
 SoundManager::SoundManager(Game &game) {
     this->game = &game;
-    std::string path = "assets\\sounds";
+    std::string path = "assets/sounds";
     for (const auto & entry : std::filesystem::directory_iterator(path)) {
         std::string p = entry.path().filename().string();
         p.erase(p.end() - 4, p.end());
@@ -25,7 +26,7 @@ SoundManager::SoundManager(Game &game) {
             Musics.insert({p, m});
         }
     }
-    path = "assets\\chasethemes";
+    path = "assets/chasethemes";
     for (const auto & entry : std::filesystem::directory_iterator(path))
     {
         for (const auto & chase_theme_layer : std::filesystem::directory_iterator(entry))
@@ -66,7 +67,7 @@ void SoundManager::Update() {
         std::string& s = std::get<0>(value);
         float& f1 = std::get<1>(value);
         float& f2 = std::get<2>(value);
-        if (!Musics.contains(s))
+        if (!Musics.count(s))
             return true;
         if (abs(f1 - f2) <= 0.05f)
         {
@@ -84,7 +85,7 @@ void SoundManager::Update() {
         float& f1 = std::get<1>(value);
         float& f2 = std::get<2>(value);
 
-        f2 = lerp(f2, f1, 6.5f * game->GetGameDeltaTime());
+        f2 = Lerp(f2, f1, 6.5f * game->GetGameDeltaTime());
         SetMusicVolume(Musics[s],f2);
     }
 
@@ -109,14 +110,14 @@ void SoundManager::Update() {
 
 bool SoundManager::IsGameMusicPlaying(std::string MusicName)
 {
-    if (!Musics.contains(MusicName))
+    if (!Musics.count(MusicName))
         return false;
     return IsMusicStreamPlaying(Musics[MusicName]);
 }
 
 void SoundManager::PlayGameMusic(std::string MusicName, bool Transition)
 {
-    if (!Musics.contains(MusicName))
+    if (!Musics.count(MusicName))
         return;
     PlayMusicStream(Musics[MusicName]);
     if (!Transition)
@@ -130,7 +131,7 @@ void SoundManager::PlayGameMusic(std::string MusicName, bool Transition)
 
 void SoundManager::StopGameMusic(std::string MusicName, bool Transition)
 {
-    if (!Musics.contains(MusicName))
+    if (!Musics.count(MusicName))
         return;
     if (!Transition)
         StopMusicStream(Musics[MusicName]);
@@ -142,7 +143,7 @@ void SoundManager::StopGameMusic(std::string MusicName, bool Transition)
 }
 
 void SoundManager::PlayGameSound(std::string SoundName, float SoundVolume, float SoundPitch) {
-    if (Sounds.contains(SoundName) && IsSoundValid(Sounds[SoundName])) {
+    if (Sounds.count(SoundName) && IsSoundValid(Sounds[SoundName])) {
         for (Sound& CachedSound : CachedAliases[SoundName]) {
             if (IsSoundValid(CachedSound) && !IsSoundPlaying(CachedSound)) {
                 SetSoundVolume(CachedSound, SoundVolume);

@@ -21,6 +21,32 @@ namespace fs = std::filesystem;
 
 using namespace std;
 
+inline void HideCursorCrossPlatform() {
+#ifdef PLATFORM_WEB
+    _webCursorHidden = true;
+    EM_ASM(document.getElementById('canvas').style.cursor = 'none';);
+#else
+    HideCursor();
+#endif
+}
+
+inline void ShowCursorCrossPlatform() {
+#ifdef PLATFORM_WEB
+    _webCursorHidden = false;
+    EM_ASM(document.getElementById('canvas').style.cursor = 'default';);
+#else
+    ShowCursor();
+#endif
+}
+
+inline bool IsCursorHiddenCrossPlatform() {
+#ifdef PLATFORM_WEB
+    return _webCursorHidden;
+#else
+    return IsCursorHidden();
+#endif
+}
+
 Game::Game(SharedManager& Shared)
 {
     this->GameShared = &Shared;
@@ -137,7 +163,7 @@ void Game::PlaceWeaponPickup(WeaponPickup Pickup) {
 void Game::DisplayPickups()
 {
     std::erase_if(WeaponPickups, [&](WeaponPickup& pickup) {
-            return pickup.PickedUp || GetGameTime() - pickup.CreationTime >= 45 || !GameResources.Weapons.contains(pickup.Weapon);
+            return pickup.PickedUp || GetGameTime() - pickup.CreationTime >= 45 || !GameResources.Weapons.count(pickup.Weapon);
     });
     for (WeaponPickup& pickup : WeaponPickups)
     {
@@ -147,7 +173,7 @@ void Game::DisplayPickups()
         float AnimationOffset = sin((GetGameTime() - pickup.CreationTime) * pickup.AnimationSpeed) * pickup.AnimationPower;
         Weapon& PickupWeapon = GameResources.Weapons.at(pickup.Weapon);
         std::string TexString = "placeholder";
-        if (GameResources.Textures.contains(PickupWeapon.texture))
+        if (GameResources.Textures.count(PickupWeapon.texture))
             TexString=PickupWeapon.texture;
 
         Vector2 siz = {(float)GameResources.Textures[TexString].width, (float)GameResources.Textures[TexString].height};
@@ -249,8 +275,8 @@ void Game::Update() {
         Paused=true;
 
     if (!Paused) {
-        if (!IsCursorHidden())
-            HideCursor();
+        if (!IsCursorHiddenCrossPlatform())
+            HideCursorCrossPlatform();
 
         if (this->GameControls->IsControlPressed("debug") && GameShared->DevMode)
             DebugDraw = !DebugDraw;
@@ -325,10 +351,9 @@ void Game::Update() {
 
         GameCamera.End();
 
-    } else if (IsCursorHidden())
-    {
-        ShowCursor();
-    }
+    } else if (IsCursorHiddenCrossPlatform())
+        ShowCursorCrossPlatform();
+
 
     GameCamera.Display();
     GameUI.GameUI();
@@ -472,7 +497,7 @@ void Game::Reload(std::string MapName) {
         BannedWeaponDrops.emplace_back(s);
     EnemyRoleWeapons= LevelData[MapName]["enemy_weapons"].get<unordered_map<std::string, std::string>>();
 
-    GameTiles.ReadMapDataFile("assets\\maps\\" + CurrentLevelName + "\\map_data.csv");
+    GameTiles.ReadMapDataFile("assets/maps/" + CurrentLevelName + "/map_data.csv");
     GameMode.PrepareGameMode(LevelData[MapName]);
 
     MainPlayer = make_shared<Player>(GameTiles.PlayerSpawnPosition.x,
