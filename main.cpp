@@ -8,6 +8,9 @@
 #include <emscripten/emscripten.h>
 #endif
 
+#define WINDOW_WIDTH 1480.0f
+#define WINDOW_HEIGHT 920.0f
+
 struct Data
 {
     SharedManager& SharedManager;
@@ -18,16 +21,23 @@ struct Data
 
 void loop(void* arg)
 {
+
     Data* d = (Data*)arg;
     SharedManager& SharedManager=d->SharedManager;
     Game& MainGame=d->MainGame;
     Menu& MainMenu=d->MainMenu;
     bool& InGame=d->InGame;
+
+    #ifdef PLATFORM_WEB
+        SetMouseScale((float)GetRenderWidth() / WINDOW_WIDTH, (float)GetRenderHeight() / WINDOW_HEIGHT);
+    #endif
+
     BeginDrawing();
 
     SharedManager.Update();
 
     ClearBackground(BLANK);
+
     if (InGame) {
         if (MainGame.ShouldReturn) {
             InGame = false;
@@ -57,13 +67,22 @@ void loop(void* arg)
     }
     DrawFPS(0,0);
 
+#ifdef PLATFORM_WEB
+
+    // This returns the current size of the WASM heap in bytes
+    uint32_t heapSize = EM_ASM_INT({
+        return HEAP8.length;
+    });
+    DrawText(TextFormat("WASM Heap: %u MB", heapSize / (1024 * 1024)), 0, 20, 20, GREEN);
+#endif
+
     EndDrawing();
 }
 
 int main(int argc, char *argv[]) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT);
 
-    InitWindow(1480, 920, "BouncingPlus");
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "BouncingPlus");
     InitAudioDevice();
 
     Image t =LoadImage("assets/img/player.png");
@@ -85,6 +104,7 @@ int main(int argc, char *argv[]) {
     bool InGame = false;
 
     #ifdef PLATFORM_WEB
+        SharedManager.FrameRate = 60;
     #else
         SetWindowMinSize(1000, 800);
         SetWindowSize(GetMonitorWidth(GetCurrentMonitor()) / 1.2f, GetMonitorHeight(GetCurrentMonitor()) / 1.2f);

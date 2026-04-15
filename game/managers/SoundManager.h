@@ -18,6 +18,7 @@ class SoundManager {
     std::unordered_map<std::string, Music> Musics;
     std::unordered_map<std::string, std::vector<Sound>> CachedAliases;
     std::vector<std::tuple<std::string,float,float>> MusicTransitions;
+    int MaxSoundPoolSize;
     SoundManager(Game &game);
     SoundManager();
     ~SoundManager();

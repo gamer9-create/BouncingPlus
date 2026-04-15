@@ -10,6 +10,12 @@
 
 SoundManager::SoundManager(Game &game) {
     this->game = &game;
+
+    MaxSoundPoolSize = 10;
+    #ifndef PLATFORM_WEB
+        MaxSoundPoolSize = 1;
+    #endif
+
     std::string path = "assets/sounds";
     for (const auto & entry : std::filesystem::directory_iterator(path)) {
         std::string p = entry.path().filename().string();
@@ -97,7 +103,7 @@ void SoundManager::Update() {
 
     for (auto& [name,value] : CachedAliases) {
         std::erase_if(value, [&](Sound& sound) {
-            if (value.size() > 10 && ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound))) {
+            if (value.size() > MaxSoundPoolSize && ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound))) {
                 if (IsSoundValid(sound))
                     UnloadSoundAlias(sound);
                 return true;
