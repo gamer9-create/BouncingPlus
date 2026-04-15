@@ -390,7 +390,17 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
 
 void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnFound)
 {
-    int tile_id = std::stoi(cell) + 1;
+    int tile_id = 0;
+    if (std::isdigit(cell[0]))
+    {
+        try
+        {
+            tile_id = std::stoi(cell) + 1;
+        } catch (std::invalid_argument e)
+        {
+            cout << e.what() << endl;
+        }
+    }
 
     Map.push_back(tile_id < 3 || tile_id == 12 ? tile_id : -1);
 
