@@ -13,7 +13,7 @@ SoundManager::SoundManager(Game &game) {
 
     MaxSoundPoolSize = 10;
     #ifndef PLATFORM_WEB
-        MaxSoundPoolSize = 1;
+        MaxSoundPoolSize = 3;
     #endif
 
     std::string path = "assets/sounds";

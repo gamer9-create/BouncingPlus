@@ -473,7 +473,7 @@ void WeaponsSystem::Attack(Vector2 Target) {
 
 void WeaponsSystem::Equip(int Index) {
     // if weapon exists and we have space, equip it
-    if (CurrentWeaponIndex != Index && !Weapons[Index].empty()) {
+    if (Index < 3 && CurrentWeaponIndex != Index && !Weapons[Index].empty()) {
         ResetMeleeAnim();
         CurrentWeaponIndex = Index;
         ChargingProgress = 0.0f;

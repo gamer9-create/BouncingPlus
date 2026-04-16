@@ -6,16 +6,16 @@
 #define ENTITYTYPE_H
 
 enum EntityType {
-    DefaultType,
-    EnemyType,
-    PlayerType,
-    SpawnerType,
-    UpgradeStationType,
-    BulletType,
-    BossType,
-    TurretType,
-    ThrowableType,
-    End
+    DefaultType = 0,
+    EnemyType = 1,
+    PlayerType = 2,
+    SpawnerType = 3,
+    UpgradeStationType = 4,
+    BulletType = 5,
+    BossType = 6,
+    TurretType = 7,
+    ThrowableType = 8,
+    End = 9
 };
 
 #endif //ENTITYTYPE_H

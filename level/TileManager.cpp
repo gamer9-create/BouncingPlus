@@ -49,9 +49,12 @@ TileManager::TileManager(Game &game) {
 
 int TileManager::GetTileAt(int x, int y)
 {
+    int idx = y * MapWidth + x;
     if (x < 0 || y < 0 || x >= MapWidth || y >= MapHeight)
         return -1;
-    return Map[y * MapWidth + x];
+    if (Map.size() <= idx)
+        return -1;
+    return Map[idx];
 }
 
 int TileManager::GetTileAt(Vector2 coord)
@@ -61,9 +64,12 @@ int TileManager::GetTileAt(Vector2 coord)
 
 void TileManager::SetTileAt(int x, int y, int id)
 {
+    int idx = y * MapWidth + x;
     if (x < 0 || y < 0 || x >= MapWidth || y >= MapHeight)
         return;
-    Map[y * MapWidth + x] = id;
+    if (Map.size() <= idx)
+        return;
+    Map[idx] = id;
 }
 
 void TileManager::SetTileAt(Vector2 coord, int id)
