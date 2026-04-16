@@ -50,16 +50,16 @@ void Player::PhysicsUpdate(float DeltaTime, double Time) {
     float MovementY = 0;
     if (PlayerFrozenTimer <= 0) {
         if (game->GameControls->IsControlDown("up")) {
-            MovementY -= Speed;
+            MovementY -= 1;
         }
         if (game->GameControls->IsControlDown("down")) {
-            MovementY += Speed;
+            MovementY += 1;
         }
         if (game->GameControls->IsControlDown("left")) {
-            MovementX -= Speed;
+            MovementX -= 1;
         }
         if (game->GameControls->IsControlDown("right")) {
-            MovementX += Speed;
+            MovementX += 1;
         }
     }
     if (Health >= 200 && Time - LastTanked >= 2)
@@ -71,7 +71,7 @@ void Player::PhysicsUpdate(float DeltaTime, double Time) {
     {
         VelocityPower = 0;
     }
-    Movement = Vector2{MovementX, MovementY};
+    Movement = Vector2Normalize(Vector2{MovementX, MovementY});
     if (Vector2Distance(LastPos, {BoundingBox.x,BoundingBox.y}) > 0 && Vector2Distance({0,0}, Movement) > 0) {
         LastMovedTime = Time;
         ExtraSpeed += 10 * DeltaTime;

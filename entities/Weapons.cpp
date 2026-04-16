@@ -236,9 +236,9 @@ void WeaponsSystem::DisplayWeaponReflectance()
     Vector2 Origin = Owner->GetCenter();
     Vector2 Direction = Vector2Normalize(Vector2Subtract(Target,Origin));
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 6; i++)
     {
-        auto RayCastData = game->RayCastPoint(Origin, Origin + (Direction * 740.0f));
+        auto RayCastData = game->RayCastPoint(Origin, Origin + (Direction * (float)game->GameCamera.IntendedScreenWidth));
 
         Vector2 Hit = RayCastData.HitPosition;
 

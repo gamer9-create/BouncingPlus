@@ -107,7 +107,7 @@ void Enemy::OnDeath()
     game->GameParticles.ParticleEffect({
                 {BoundingBox.x + BoundingBox.width/2, BoundingBox.y + BoundingBox.height/2},
                 300,
-                WHITE,
+                ColorLerp(WHITE, RED, 0.3f),
                 700,
                 6,
                 1.75f,

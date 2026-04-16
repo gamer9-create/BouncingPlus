@@ -110,7 +110,13 @@ void PlayerLogicProcessor::HandleFightMusic()
 
     FightMusicLayer = Lerp(FightMusicLayer, FightMusicLayerGoal, 2.5f * MyPlayer->game->GetGameDeltaTime());
 
-    std::string FightTrack = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["music"].get<std::string>()+"_layer"+to_string((int)round(FightMusicLayer));
+    int ChosenLayer = (int)round(FightMusicLayer);
+    std::string FightTrack = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["music"].get<std::string>()+"_layer"+to_string(ChosenLayer);
+    if (ChosenLayer == 4 && MyPlayer->StressLevel >= 0.4f)
+    {
+        LayerSwitchCooldown += 3.0f;
+        LayerSwitchCooldown = min((float)LayerSwitchCooldown, 10.0f);
+    }
 
     if (PreviousFightTrack != FightTrack)
     {
@@ -327,7 +333,7 @@ void PlayerLogicProcessor::DashLogic()
             MyPlayer->InvincibilityResetTimer = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dash_iframe_time"].get<float>();
         }
         if (IsMouseButtonDown(1)) {
-
+            MyPlayer->VelocityPower *= 1.25f;
             MyPlayer->Dodging = true;
             MyPlayer->InvincibilityResetTimer = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dodge_iframe_time"].get<float>();
             DashCooldown = MyPlayer->game->LevelData[MyPlayer->game->CurrentLevelName]["player"]["dodge_cooldown"].get<float>();

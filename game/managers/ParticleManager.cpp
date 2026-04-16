@@ -29,7 +29,7 @@ void ParticleManager::ParticleEffect(ParticleData Data, float Angle, int AngleRa
             Data.StartColor
         };
         newParticle.Position += {(float) GetRandomValue(-15, 15), (float) GetRandomValue(-15, 15)};
-        newParticle.Data.TargetColor = ColorBrightness(Data.TargetColor, GetRandomValue(-30, 30) / 100.0f);
+        newParticle.Data.TargetColor = ColorBrightness(Data.TargetColor, GetRandomValue(-30, 15) / 100.0f);
         newParticle.Data.Lifetime += GetRandomValue(-3.5f, 3.5f) / 10.0f;
         newParticle.Data.Size -= (float) GetRandomValue(-2, 2);
         float RandomAngle = Angle - (AngleRange / 2) + GetRandomValue(0, AngleRange);
@@ -75,7 +75,7 @@ void ParticleManager::Update() {
         if (game->GameTiles.TileTypes[game->GameTiles.GetTileAt(tile_x, tile_y)] != WallTileType)
             p.Position += p.Target * p.Velocity * game->GetGameDeltaTime();
 
-        p.ParticleColor = ColorLerp(p.ParticleColor, p.Data.TargetColor, Percent);
+        p.ParticleColor = ColorLerp(p.ParticleColor, p.Data.TargetColor, min((float)Percent / 0.2f, 1.0f));
 
         DrawRectanglePro({p.Position.x - game->GameCamera.RaylibCamera.target.x,
             p.Position.y - game->GameCamera.RaylibCamera.target.y,
