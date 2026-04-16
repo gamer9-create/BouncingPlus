@@ -1,7 +1,7 @@
 import shutil,os
 
 for i in os.listdir(os.getcwd()):
-    if ".zip" in i:
+    if "EXE Dev Build" in i:
         os.remove(i)
 
 def clear(path):
@@ -38,7 +38,7 @@ for file in os.listdir("../cmake-build-release"):
         shutil.copy("../cmake-build-release/"+file, dst)
 shutil.copytree("../assets", dst+"/assets")
 
-epik_file_name = "Bouncing Plus - Version "+str(version)+" (Development Build)"
+epik_file_name = "Bouncing Plus - Version "+str(version)+" (EXE Dev Build)"
 
 shutil.make_archive(epik_file_name, 'zip', dst)
 
