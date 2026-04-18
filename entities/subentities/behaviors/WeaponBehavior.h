@@ -20,6 +20,7 @@ class WeaponBehavior : public EnemyBehavior
     WeaponBehavior();
     WeaponBehavior(Enemy& Owner, Game& game);
     ~WeaponBehavior();
+    bool FindPlayer();
     void MoveForCover();
     void Update() override;
 };

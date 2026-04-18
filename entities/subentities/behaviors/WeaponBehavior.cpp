@@ -71,6 +71,88 @@ void WeaponBehavior::MoveForCover()
     Owner->Health += Owner->HealthRegenRate * game->GetGameDeltaTime();
 }
 
+bool WeaponBehavior::FindPlayer()
+{
+    if (game->RayCast(Owner->GetCenter(), game->MainPlayer->GetCenter()))
+    {
+        Target = game->MainPlayer->GetCenter();
+        return true;
+    }
+    int casts = 15;
+    float StartPlayerAngle = 180.0f - Vector2LineAngle(Owner->GetCenter(), game->MainPlayer->GetCenter()) * RAD2DEG;
+    for (int i = 0; i < casts; i++)
+    {
+        float Angle = (360.0f / casts) * i;
+        Angle -= 180;
+        Angle += StartPlayerAngle;
+
+        float cX = cos(Angle * (2 * PI / 360)) * 100;
+        float cY = sin(Angle * (2 * PI / 360)) * 100;
+        Vector2 Direction =Vector2Normalize({cX,cY});
+        Vector2 Origin = Owner->GetCenter();
+
+        bool HitSet = false;
+        Vector2 HitSetP = game->MainPlayer->GetCenter();
+
+        int tries = 0;
+        while (tries < 3)
+        {
+            RayCastData d = game->RayCastPoint(Origin, Origin + (Vector2Normalize(Direction) * 800.0f));
+
+            if (!HitSet)
+            {
+                HitSetP = d.HitPosition;
+                HitSet = true;
+            }
+
+            float RayAngle = 180.0f - Vector2LineAngle(Origin, d.HitPosition) * RAD2DEG;
+            float PlayerAngle = 180.0f - Vector2LineAngle(Origin, game->MainPlayer->GetCenter()) * RAD2DEG;
+            if (abs(RayAngle - PlayerAngle) <= 5 && game->RayCast(Origin,game->MainPlayer->GetCenter()))
+            {
+                Target = HitSetP;
+                return true;
+            }
+
+            int tile_x = (int) (d.HitPosition.x / game->GameTiles.TileSize);
+            int tile_y = (int) (d.HitPosition.y / game->GameTiles.TileSize);
+
+            if (!d.HitAir && d.HitTile == 1)
+            {
+                Vector2 Normal = {0, 0};
+
+                Rectangle bbox = {tile_x * game->GameTiles.TileSize,tile_y * game->GameTiles.TileSize, game->GameTiles.TileSize, game->GameTiles.TileSize};
+
+                float DeltaX = d.HitPosition.x - (bbox.x + bbox.width / 2);
+                float DeltaY = d.HitPosition.y - (bbox.y + bbox.width / 2);
+
+                float OverlapX = (bbox.width / 2) - abs(DeltaX);
+                float OverlapY = (bbox.height / 2) - abs(DeltaY);
+
+                if (OverlapX < OverlapY)
+                    Normal += {DeltaX > 0.0f ? 1.0f : -1.0f, 0};
+                else if (OverlapY < OverlapX)
+                    Normal += {0, DeltaY > 0.0f ? 1.0f : -1.0f};
+                else if (OverlapY == OverlapX)
+                    Normal = Vector2Negate(Vector2Normalize(Direction));
+
+                Normal = Vector2Normalize(Normal);
+
+                Direction = Vector2Normalize(Direction);
+                float Dot = Vector2DotProduct(Direction, Normal);
+                Direction -= Vector2Multiply(Normal, {2 * Dot, 2 * Dot});
+                Direction = Vector2Normalize(Direction);
+                Origin = d.HitPosition;
+            } else
+            {
+                break;
+            }
+
+            tries++;
+        }
+    }
+    return false;
+}
+
 void WeaponBehavior::Update()
 {
 
@@ -99,16 +181,15 @@ void WeaponBehavior::Update()
     bool Attacking = false;
 
     CoverSearching = Owner->RemainingHealthOfOriginalHealth <= 0.6f;
-    if ((distance <= 800 && (distance <= 36 || game->RayCast({center_x, center_y}, {plr_center_x, plr_center_y}))) || Owner->AngeredRangeBypassTimer > 0.0f) {
+    if ((distance <= 800 && (distance <= 36 || FindPlayer())) || Owner->AngeredRangeBypassTimer > 0.0f) {
         if (distance >= 100 && !CoverSearching) {
             Vector2 othermov = {0,0};
-            othermov.x += -(plr_center_x - center_x) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon != nullptr ? (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1.0f : 1.0f) : 1.0f);
-            othermov.y += -(plr_center_y - center_y) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon != nullptr ? (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1.0f : 1.0f) : 1.0f);
+            othermov.x += -(Target.x - center_x) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon != nullptr ? (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1.0f : 1.0f) : 1.0f);
+            othermov.y += -(Target.y - center_y) / distance * Owner->Speed * (Owner->weaponsSystem.CurrentWeapon != nullptr ? (Owner->weaponsSystem.CurrentWeapon->isMelee ? -1.0f : 1.0f) : 1.0f);
             Owner->MoveAwayFromWalls();
             Owner->Movement=Vector2Lerp(othermov, Owner->Movement,0.5f);
         }
 
-        Target = Vector2{plr_center_x, plr_center_y};
         if (game->MainPlayer->Speed >= 200 && (Owner->weaponsSystem.CurrentWeapon != nullptr ? !Owner->weaponsSystem.CurrentWeapon->isMelee : true))
         {
             Target = Vector2Add(Target, Vector2Multiply(Vector2Normalize(game->MainPlayer->Movement), {game->MainPlayer->Speed * 0.2f,game->MainPlayer->Speed * 0.2f}));

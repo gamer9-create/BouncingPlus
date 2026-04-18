@@ -48,12 +48,22 @@ class Game {
     void SetGameData();
     void ProcessSlowdownAnimation();
     void DisplayPickups();
+    void DisplayProfilerInfo();
 
     RenderTexture2D WeaponPickupTex;
     int uTextureSize;
     int uOutlineSize;
     int uOutlineColor;
     int uThreshold;
+
+    std::vector<float> RecordedDeltaTimes;
+    float AverageDeltaTime;
+    float LastAverageDeltaTime;
+    double LastStartedRecordingDelta;
+    float LastDeltaTime;
+
+    double StutterCooldown;
+    int Stutters;
 
     public:
         SharedManager* GameShared;
@@ -66,6 +76,7 @@ class Game {
         bool isReturning;
         bool ShouldReturn;
         bool DebugDraw;
+        bool DisplayProfiler;
         float GameScore;
 
         // Level Information
@@ -90,8 +101,6 @@ class Game {
         std::vector<std::string> BannedWeaponDrops;
 
         Game(SharedManager& Shared);
-        RayCastData RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug = false);
-        bool RayCast(Vector2 Origin, Vector2 Target, bool Debug = false);
         void PlaceWeaponPickup(WeaponPickup Pickup);
         void ProcessFreezeZones();
         void Slowdown(float Time);
@@ -103,6 +112,10 @@ class Game {
         void UnloadAssets();
         float GetGameDeltaTime();
         double GetGameTime();
+
+        RayCastData RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug = false);
+        bool RayCast(Vector2 Origin, Vector2 Target, bool Debug = false);
+
 };
 
 

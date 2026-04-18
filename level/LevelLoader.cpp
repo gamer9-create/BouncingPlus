@@ -38,10 +38,13 @@ std::map<std::string,json> LevelLoader::GetLevelsData()
         {
             std::string c = "assets/maps/" + level_order[i] + "/metadata.json";
 
-            std::ifstream g(c);
-            json h = json::parse(g);
+            std::ifstream f(c);
+            json h = json::parse(f);
             level_data[level_order[i]] = h;
+            f.close();
         }
+
+        g.close();
     } catch (std::exception &e)
     {
         std::cout << e.what() << std::endl;

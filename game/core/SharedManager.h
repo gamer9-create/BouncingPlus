@@ -27,7 +27,7 @@ struct SharedManager
     bool Fullscreen = false;
     bool CursorWindowLock = false;
     bool ShakeCamera = true;
-    bool DevMode = false;
+    bool DevMode = true;
 
     // UI Variables
     bool ControlBindingsMenu = false;

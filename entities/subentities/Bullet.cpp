@@ -188,7 +188,7 @@ void Bullet::Bounce(Vector2 Normal)
     float Dot = Vector2DotProduct(Movement, Normal);
     Movement -= Vector2Multiply(Normal, {2 * Dot, 2 * Dot});
     Movement = Vector2Normalize(Movement);
-    RotGoal = std::atan2(Movement.y, Movement.x) * (180.0f / PI);
+    RotGoal = 180.0f - Vector2LineAngle({0,0},Movement) * RAD2DEG;
 }
 
 void Bullet::Attack(shared_ptr<Entity> entity) {
@@ -201,7 +201,7 @@ void Bullet::Attack(shared_ptr<Entity> entity) {
 
 void Bullet::Update() {
     ExistenceTimer += game->GetGameDeltaTime();
-    Rotation = Lerp(Rotation, RotGoal, 25.0f * (Speed / 400.0f) * game->GetGameDeltaTime());
+    Rotation = Lerp(Rotation, RotGoal, min(25.0f * (Speed / 400.0f) * game->GetGameDeltaTime(), 1.0f));
     if (!SlowdownOverTime) {
 
         if (ExistenceTimer >= Lifetime) {

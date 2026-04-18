@@ -60,7 +60,13 @@ Game::Game(SharedManager& Shared)
     GameSpeed = 1.0f;
     SlowdownTime = 0;
     GameTime = 0.0f;
+    AverageDeltaTime = 0.0f;
+    LastAverageDeltaTime = 0.0f;
+    LastDeltaTime = 0.0f;
+    StutterCooldown = 0.0f;
+    Stutters= 0;
     MaxSlowdownTime = 0;
+    LastStartedRecordingDelta = GetTime();
     GameScore = 0;
 
     Paused = false;
@@ -76,6 +82,7 @@ Game::Game(SharedManager& Shared)
     DebugDraw = false;
     ShouldReturn = false;
     isReturning = false;
+    DisplayProfiler = false;
 
     SetGameData();
 }
@@ -141,11 +148,6 @@ void Game::ProcessSlowdownAnimation() {
 }
 
 void Game::PlaceWeaponPickup(WeaponPickup Pickup) {
-    for (std::string s : BannedWeaponDrops)
-    {
-        if (s == Pickup.Weapon)
-            return;
-    }
     Pickup.CreationTime = GetGameTime();
     WeaponPickups.push_back(Pickup);
 }
@@ -308,6 +310,8 @@ void Game::Update() {
         }
 
         GameCamera.Begin();
+
+        GameProfiler.ProfilerLog("misc");
         ProcessSlowdownAnimation();
         ProcessFreezeZones();
         DisplayPickups();
@@ -324,20 +328,10 @@ void Game::Update() {
         GameProfiler.ProfilerLog("sound");
         GameSounds.Update();
 
-        GameProfiler.ProfilerLog("gameplay");
+        GameProfiler.ProfilerLog("gamemode");
         GameMode.Update();
 
-        std::map<std::string, double> times = GameProfiler.Finish();
-
-        if (this->GameControls->IsControlDown("debug2"))
-        {
-            int i = 0;
-            for (auto [name,val] : times)
-            {
-                DrawText((name + ", " + to_string(val * 1000.0f) + "ms").c_str(), 250 + GameCamera.RaylibCamera.target.x, 150 + (i * 25)+ GameCamera.RaylibCamera.target.y, 25, RED);
-                i++;
-            }
-        }
+        GameProfiler.StopLog();
 
         GameCamera.End();
 
@@ -347,6 +341,8 @@ void Game::Update() {
 
     GameCamera.Display();
     GameUI.GameUI();
+
+    DisplayProfilerInfo();
 
     if (isReturning)
     {
@@ -361,6 +357,66 @@ void Game::Update() {
         GameUI.StartingBlackScreenTrans = 1.0f;
         GameUI.EndBlackScreenTrans = 0.0f;
     }
+}
+
+void Game::DisplayProfilerInfo()
+{
+    if (this->GameControls->IsControlDown("powerup"))
+        WaitTime(1.0f / 60.0f);
+    if (this->GameControls->IsControlPressed("debug2"))
+        DisplayProfiler = !DisplayProfiler;
+
+    std::map<std::string, double> times = GameProfiler.Finish();
+
+    if (DisplayProfiler)
+    {
+        int i = 0;
+        for (auto [name,val] : times)
+        {
+            DrawText((name + ", " + to_string(val * 1000.0f) + "ms").c_str(), 250, 150 + i * 50, 50, RED);
+            i++;
+        }
+        if (AverageDeltaTime > LastAverageDeltaTime && AverageDeltaTime >= LastAverageDeltaTime * 1.25f)
+            DrawText("lag detected", 600, 600, 50, RED);
+
+    }
+
+    if (GetTime() - LastStartedRecordingDelta < 1.0f)
+    {
+        RecordedDeltaTimes.push_back(GetFrameTime());
+    } else
+    {
+        LastAverageDeltaTime = AverageDeltaTime;
+
+        if (RecordedDeltaTimes.size() > 0)
+        {
+            AverageDeltaTime = 0.0f;
+            for (float d : RecordedDeltaTimes)
+                AverageDeltaTime += d;
+            AverageDeltaTime /= (float) RecordedDeltaTimes.size();
+        }
+
+        RecordedDeltaTimes.clear();
+        LastStartedRecordingDelta = GetTime();
+    }
+
+    if (abs(GetFrameTime() - LastDeltaTime) >= AverageDeltaTime / 2.0f && DisplayProfiler)
+    {
+        Stutters++;
+        StutterCooldown = 2.0f;
+    }
+
+    if (StutterCooldown > 0.0f)
+    {
+        if (DisplayProfiler)
+            DrawText(("stutter detected " + to_string(Stutters)).c_str(), 700, 700, 50, RED);
+        StutterCooldown -= GetFrameTime();
+    } else
+    {
+        Stutters = 0;
+    }
+
+    LastDeltaTime = GetFrameTime();
 }
 
 RayCastData Game::RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug)
@@ -441,13 +497,8 @@ RayCastData Game::RayCastPoint(Vector2 Origin, Vector2 Target, bool Debug)
     // Calculate intersection location
     Vector2 vIntersection = Origin - Vector2Normalize(Origin - Target) * fDistance * GameTiles.TileSize;
 
-    if (Debug)
-        cout << fDistance << " " << fMaxDistance << " " << vIntersection.x << " " << vIntersection.y << endl;
-
     if (DebugDraw)
-    {
         DrawLine(vIntersection.x, vIntersection.y,vRayStart.x*GameTiles.TileSize,vRayStart.y*GameTiles.TileSize,RED);
-    }
 
     return RayCastData{!bTileFound, vIntersection, id};
 }
@@ -460,6 +511,8 @@ void Game::Clear() {
     Paused = false;
     ShouldReturn = false;
     isReturning = false;
+    DisplayProfiler = false;
+    GameProfiler.Finish();
     GameTime = 0;
     GameScore = 0;
     GameEntities.Clear();
