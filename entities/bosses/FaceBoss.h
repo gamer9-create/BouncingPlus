@@ -13,10 +13,10 @@ public:
     Vector2 StartPos; // boss starting position
     FaceBoss(Game &game, float bbox_x, float bbox_y);
     FaceBoss();
-    virtual ~FaceBoss();
-    void Update();
+    ~FaceBoss()override;
+    void Update()override;
     void Render();
 };
 
 
-#endif //BOUNCINGPLUS_FACEBOSS_H
+#endif

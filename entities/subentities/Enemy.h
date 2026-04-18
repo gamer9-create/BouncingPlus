@@ -35,13 +35,13 @@ public:
     Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, Texture2D& EnemyTexture, Game &game);
     Enemy(float X, float Y, float Health, float Speed, float Armor, std::string Weapon, std::unique_ptr<EnemyBehavior> EnemyBehavior, Texture2D& EnemyTexture, Game &game);
     Enemy();
-    virtual ~Enemy();
-    void Update();
+    ~Enemy()override;
+    void Update() override;
     void MoveAwayFromWalls();
     void Wander();
-    void OnDelete();
-    void OnDeath();
+    void OnDelete() override;
+    void OnDeath()override;
 };
 
 
-#endif //BOUNCINGPLUS_ENEMY_H
+#endif

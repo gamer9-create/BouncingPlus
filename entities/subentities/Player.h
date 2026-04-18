@@ -52,12 +52,12 @@ class Player : public Entity {
 
         Player(float X, float Y, float Speed, Texture2D &PlayerTexture, Game &game);
         Player();
-        virtual ~Player();
-        void PhysicsUpdate(float DeltaTime, double Time);
-        void Update();
+    ~Player()override;
+        void PhysicsUpdate(float DeltaTime, double Time)override;
+        void Update()override;
         void OnDeath() override;
         void OnDelete() override;
-        void OnWallVelocityBump(float Power);
+        void OnWallVelocityBump(float Power)override;
         void ToggleInvincibility();
 
 };

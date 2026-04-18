@@ -45,8 +45,8 @@ class Turret : public Entity
     std::string Weapon;
     Turret(Game &game, std::string Weapon, float X, float Y);
     Turret();
-    virtual ~Turret();
-    void Update();
+    ~Turret()override;
+    void Update()override;
 
 };
 

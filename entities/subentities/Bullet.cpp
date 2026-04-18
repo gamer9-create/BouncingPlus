@@ -13,7 +13,7 @@
 #include "math.h"
 #include "../../game/Game.h"
 
-Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float Damage, float Lifetime, Texture2D &BulletTexture, shared_ptr<Entity> Owner, Game &game) : Entity(BulletTexture, BoundingBox, Speed, game) {
+Bullet::Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float Damage, float Lifetime, Texture2D &BulletTexture, shared_ptr<Entity> Owner, Game &game) : Entity(BulletTexture, {0, 0, 1, 1}, Speed, game) {
     this->Speed = Speed;
     this->Type = BulletType;
     this->ExistenceTimer = 0;

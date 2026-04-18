@@ -36,9 +36,9 @@ void EntityManager::AddEntity(EntityType Type, std::shared_ptr<Entity> EntityToA
 void EntityManager::EntityUpdate()
 {
     for (int e = 0; e < End; ++e) {
-        std::vector<shared_ptr<Entity>> array = Entities[(EntityType)e];
-        for (int i = 0; i < array.size(); i++) {
-            if (shared_ptr<Entity> entity = array.at(i); entity != nullptr and !entity->ShouldDelete) {
+        std::vector<shared_ptr<Entity>> *array = &Entities[(EntityType)e];
+        for (int i = 0; i < array->size(); i++) {
+            if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
                 entity->Update();
             }
         }
@@ -53,9 +53,9 @@ void EntityManager::EntityPhysicsUpdate()
     while (PhysicsAccumulator >= 1.0f/(PhysicsFPS*game->GameSpeed)) {
         double start = GetTime();
         for (int e = 0; e < End; ++e) {
-            std::vector<shared_ptr<Entity>> array = Entities[(EntityType)e];
-            for (int i = 0; i < array.size(); i++) {
-                if (shared_ptr<Entity> entity = array.at(i); entity != nullptr and !entity->ShouldDelete) {
+            std::vector<shared_ptr<Entity>> *array = &Entities[(EntityType)e];
+            for (int i = 0; i < array->size(); i++) {
+                if (shared_ptr<Entity> entity = array->at(i); entity != nullptr and !entity->ShouldDelete) {
                     entity->PhysicsUpdate(1.0f/PhysicsFPS, g + (GetTime() - start));
                 }
             }
@@ -69,7 +69,7 @@ void EntityManager::EntityClear()
     for (int e = 0; e < End; e++) {
         std::vector<shared_ptr<Entity>> *array = &Entities[(EntityType) e];
         int old_size = array->size();
-        std::erase_if(*array, [this](shared_ptr<Entity> e) {
+        std::erase_if(*array, [this](shared_ptr<Entity>& e) {
             if (e && e->ShouldDelete) {
                 e->OnDeath();
                 e->OnDelete();
@@ -110,4 +110,5 @@ void EntityManager::Clear()
 
 void EntityManager::Quit()
 {
+    Clear();
 }

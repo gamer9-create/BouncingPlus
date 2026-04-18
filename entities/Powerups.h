@@ -50,7 +50,7 @@ struct ShieldPowerup : Powerup
 class PowerupSystem
 {
     public:
-    std::shared_ptr<Player> Owner;
+    std::weak_ptr<Player> Owner;
     Game* game;
     float CurrentCooldown = 0;
     float CurrentLength = 0;

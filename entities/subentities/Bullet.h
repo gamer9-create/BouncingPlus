@@ -29,11 +29,11 @@ public:
     Bullet(float X, float Y, float Angle, Vector2 Size, float Speed, float Damage, float Lifetime, Texture2D& BulletTexture, std::shared_ptr<Entity> Owner, Game &game);
     Bullet();
     void Attack(std::shared_ptr<Entity> entity);
-    void PhysicsUpdate(float dt, double time);
+    void PhysicsUpdate(float dt, double time)override;
     void Bounce(Vector2 Normal);
-    virtual ~Bullet();
-    void Update();
+    ~Bullet()override;
+    void Update()override;
 };
 
 
-#endif //BOUNCINGPLUS_BULLET_H
+#endif

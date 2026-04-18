@@ -25,8 +25,8 @@ public:
     float RandomNumbers[8];
     Spawner(Game &game, float MyX, float MyY);
     Spawner();
-    virtual ~Spawner();
-    void Update();
+    ~Spawner()override;
+    void Update()override;
     void Render();
 };
 

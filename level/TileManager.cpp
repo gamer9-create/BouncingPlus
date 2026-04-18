@@ -394,7 +394,7 @@ void TileManager::AddEnemy(float bbox_x, float bbox_y, int tile_id) {
     game->GameEntities.AddEntity(EnemyType, make_shared<Enemy>(bbox_x, bbox_y, Health, Speed, Armor, Weapon, game->GameResources.Textures["enemy"], *game));
 }
 
-void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnFound)
+void TileManager::ProcessTile(const std::string& cell, const int x, const int y, bool* PlayerSpawnFound)
 {
     int tile_id = 0;
     if (std::isdigit(cell[0]))
@@ -402,7 +402,7 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
         try
         {
             tile_id = std::stoi(cell) + 1;
-        } catch (std::invalid_argument e)
+        } catch (std::invalid_argument& e)
         {
             cout << e.what() << endl;
         }
@@ -444,10 +444,24 @@ void TileManager::ProcessTile(std::string cell, int x, int y, bool* PlayerSpawnF
             game->GameEntities.AddEntity(TurretType, t);
             break;
     }
+    case NothingTileType:
+        {
+            break;
+        }
+    case WallTileType:
+        {
+            break;
+        }
+    case EnemyWallTileType:
+        {
+            break;
+        }
+    case TileTypeEnd:
+        break;
     }
 }
 
-void TileManager::ReadMapDataFile(std::string FileName) {
+void TileManager::ReadMapDataFile(const std::string& FileName) {
     int y = 0;
     int x = 0;
 
@@ -467,7 +481,7 @@ void TileManager::ReadMapDataFile(std::string FileName) {
         data.close();
     }
 
-    for (std::string line : Lines)
+    for (const std::string& line : Lines)
     {
         std::stringstream  lineStream(line);
         std::string        cell;

@@ -121,9 +121,12 @@ void FreezePowerup::Undo(std::shared_ptr<Player> Owner)
 
 void PowerupSystem::Activate()
 {
+    auto Player = Owner.lock();
+    if (Player == nullptr)
+        return;
     if (CurrentPowerup != nullptr && CurrentCooldown <= 0 && CurrentLength <= 0)
     {
-        if (Owner->Type == PlayerType)
+        if (Player->Type == PlayerType)
             game->GameScore += 5;
         CurrentCooldown = CurrentPowerup->Cooldown;
         CurrentLength = CurrentPowerup->Length;
@@ -133,8 +136,11 @@ void PowerupSystem::Activate()
 
 void PowerupSystem::SetPowerup(Powerup* Powerup)
 {
+    auto Player = Owner.lock();
+    if (Player == nullptr)
+        return;
     if (this->CurrentPowerup != nullptr)
-        this->CurrentPowerup->Undo(Owner);
+        this->CurrentPowerup->Undo(Player);
     this->CurrentPowerup = Powerup;
     PowerupIsActive = false;
     CurrentCooldown = 0;
@@ -143,15 +149,18 @@ void PowerupSystem::SetPowerup(Powerup* Powerup)
 
 void PowerupSystem::Update()
 {
+    auto Player = Owner.lock();
+    if (Player == nullptr)
+        return;
     if (CurrentPowerup != nullptr)
     {
         if (PowerupIsActive)
         {
-            CurrentPowerup->Complete(Owner);
+            CurrentPowerup->Complete(Player);
             CurrentLength -= game->GetGameDeltaTime();
             if (CurrentLength <= 0)
             {
-                CurrentPowerup->Undo(Owner);
+                CurrentPowerup->Undo(Player);
                 PowerupIsActive = false;
                 CurrentCooldown = CurrentPowerup->Cooldown;
             }

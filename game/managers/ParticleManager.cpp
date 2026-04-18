@@ -30,7 +30,7 @@ void ParticleManager::ParticleEffect(ParticleData Data, float Angle, int AngleRa
         };
         newParticle.Position += {(float) GetRandomValue(-15, 15), (float) GetRandomValue(-15, 15)};
         newParticle.Data.TargetColor = ColorBrightness(Data.TargetColor, GetRandomValue(-30, 15) / 100.0f);
-        newParticle.Data.Lifetime += GetRandomValue(-3.5f, 3.5f) / 10.0f;
+        newParticle.Data.Lifetime += GetRandomValue(-35, 35) / 100.0f;
         newParticle.Data.Size -= (float) GetRandomValue(-2, 2);
         float RandomAngle = Angle - (AngleRange / 2) + GetRandomValue(0, AngleRange);
         float X = cos(RandomAngle * (2 * PI / 360))*100;

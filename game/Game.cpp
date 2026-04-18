@@ -535,7 +535,7 @@ void Game::Clear() {
 }
 
 void Game::Reload(std::string MapName) {
-
+    cout << End << endl;
     Clear();
 
     CurrentLevelName = MapName;

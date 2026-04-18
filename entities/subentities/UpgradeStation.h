@@ -14,8 +14,8 @@ public:
     UpgradeStation(Game &game, float bbox_x, float bbox_y);
     UpgradeStation();
     virtual ~UpgradeStation();
-    void Update();
-    void PhysicsUpdate(float dt, double time);
+    void Update()override;
+    void PhysicsUpdate(float dt, double time)override;
     void Render();
 };
 

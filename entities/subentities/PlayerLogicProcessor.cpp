@@ -57,7 +57,7 @@ void PlayerLogicProcessor::ProcessStress()
     std::vector<shared_ptr<Entity>> turretArray = MyPlayer->game->GameEntities.Entities[TurretType];
     for (int i = 0; i < turretArray.size(); i++)
         if (shared_ptr<Turret> entity = dynamic_pointer_cast<Turret>(turretArray.at(i)); entity != nullptr and !entity->ShouldDelete)
-            if (!entity->CurrentState == LOOKING)
+            if (entity->CurrentState != LOOKING)
                 MyPlayer->FrameStressLevel += 0.1f;
 
     MyPlayer->FrameStressLevel += MyPlayer->EnemiesDetected * 0.05f;
