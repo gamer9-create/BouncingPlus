@@ -493,6 +493,9 @@ void TileManager::ReadMapDataFile(std::string FileName) {
 
 void TileManager::Clear()
 {
+    #ifndef PLATFORM_WEB
+        Lines.clear();
+    #endif
     Map.clear();
     Distortions.clear();
     MapWidth = 0;

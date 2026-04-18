@@ -13,7 +13,7 @@ SoundManager::SoundManager(Game &game) {
 
     MaxSoundPoolSize = 10;
     #ifndef PLATFORM_WEB
-        MaxSoundPoolSize = 3;
+        MaxSoundPoolSize = 1;
     #endif
 
     std::string path = "assets/sounds";
@@ -103,15 +103,34 @@ void SoundManager::Update() {
 
     for (auto& [name,value] : CachedAliases) {
         std::erase_if(value, [&](Sound& sound) {
-            if (value.size() > MaxSoundPoolSize && ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound))) {
+            bool SoundCondition = false;
+            #ifndef PLATFORM_WEB
+                SoundCondition = ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound));
+            #else
+                SoundCondition = (value.size() > MaxSoundPoolSize && ((IsSoundValid(sound) && !IsSoundPlaying(sound)) || !IsSoundValid(sound)));
+            #endif
+
+            if (SoundCondition) {
                 if (IsSoundValid(sound))
                     UnloadSoundAlias(sound);
-                return true;
             }
-            return false;
+            return SoundCondition;
         });
     }
 
+}
+
+void SoundManager::ClearCache()
+{
+    for (auto& [name,value] : CachedAliases)
+    {
+        for (Sound& sound : value)
+        {
+            if (IsSoundValid(sound))
+                UnloadSoundAlias(sound);
+        }
+        value.clear();
+    }
 }
 
 bool SoundManager::IsGameMusicPlaying(std::string MusicName)

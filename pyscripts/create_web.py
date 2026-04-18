@@ -15,9 +15,8 @@ def clear(path):
     os.rmdir(path)
 
 print("Waiting on compiler...")
-result = subprocess.run(["web_compile.bat"], capture_output=True, text=True)
+result = subprocess.run(["web_compile.bat"])
 print("Compiler Done!")
-print(result.stdout)
 
 dst = "build-web"
 

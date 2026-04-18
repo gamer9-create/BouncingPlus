@@ -26,6 +26,7 @@ class SoundManager {
     void PlayGameMusic(std::string MusicName, bool Transition = false);
     void StopGameMusic(std::string MusicName, bool Transition = false);
     bool IsGameMusicPlaying(std::string MusicName);
+    void ClearCache();
     void Clear();
     void Update();
     void Quit();

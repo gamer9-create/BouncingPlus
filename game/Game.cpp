@@ -400,7 +400,7 @@ void Game::DisplayProfilerInfo()
         LastStartedRecordingDelta = GetTime();
     }
 
-    if (abs(GetFrameTime() - LastDeltaTime) >= AverageDeltaTime / 2.0f && DisplayProfiler)
+    if (abs(GetFrameTime() - LastDeltaTime) >= AverageDeltaTime * 2.15f && DisplayProfiler)
     {
         Stutters++;
         StutterCooldown = 2.0f;
@@ -528,6 +528,10 @@ void Game::Clear() {
     GameMode.Clear();
     GameUI.Clear();
     MainPlayer.reset();
+
+    #ifndef PLATFORM_WEB
+    GameSounds.ClearCache();
+    #endif
 }
 
 void Game::Reload(std::string MapName) {
